@@ -1,0 +1,10 @@
+Host *
+    ServerAliveInterval 10
+    ServerAliveCountMax 3
+    VisualHostKey yes
+
+Host 172.24.0.*
+    User vagrant
+    IdentityFile ./id_ed25519
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
