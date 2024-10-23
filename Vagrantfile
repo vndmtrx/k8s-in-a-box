@@ -5,21 +5,17 @@
 # - sudo usermod -a -G libvirt $(whoami)
 # - sudo usermod -a -G kvm $(whoami)
 
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+
 Vagrant.configure("2") do |config|
   # Imagem a ser utilizada
   config.vm.box = "debian/bookworm64"
-
+  config.ssh.insert_key = false
   config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__exclude: [".git/", ".vagrant/"]
-
-  # Configuração comum para todas as VMs (VirtualBox)
-  config.vm.provider "virtualbox" do |v|
-    v.memory = 2048
-    v.cpus = 2
-    v.default_nic_type = "virtio"
-  end
 
   # Configuração comum para todas as VMs (LibVirt)
   config.vm.provider :libvirt do |libvirt|
+    libvirt.driver = "kvm"
     libvirt.memory = 2048
     libvirt.cpus = 2
   end
