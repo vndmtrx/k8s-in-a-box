@@ -1,0 +1,32 @@
+---
+- name: Configura o TZ para o Brasil
+  community.general.timezone:
+    name: America/Sao_Paulo
+
+- name: Configurar locale padrão
+  ansible.builtin.locale_gen:
+    name: pt_BR.UTF-8
+    state: present
+
+- name: Habilitar repositório backports
+  ansible.builtin.apt_repository:
+    repo: deb http://deb.debian.org/debian bookworm-backports main contrib non-free non-free-firmware
+    filename: backports
+    state: present
+    update_cache: yes
+
+- name: Atualiza os pacotes da distribuição
+  ansible.builtin.apt:
+    update_cache: yes
+    upgrade: 'dist'
+    #default_release: "bookworm-backports"
+    cache_valid_time: 3600
+  when: atualiza_sistema == "all"
+
+- name: Aplica somente atualizações de segurança
+  ansible.builtin.apt:
+    update_cache: yes
+    upgrade: 'safe'
+    #default_release: "bookworm-backports"
+    cache_valid_time: 3600
+  when: atualiza_sistema == "patch"
