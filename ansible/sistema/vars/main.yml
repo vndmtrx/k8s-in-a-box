@@ -1,3 +1,3 @@
 ---
 # Variável para controlar a atualização dos pacotes do sistema instalado (all, patch, none)
-atualiza_sistema: "all"
+atualiza_sistema: "none"
