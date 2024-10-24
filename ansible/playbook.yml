@@ -1,35 +1,32 @@
 ---
-- name: Configuração base para todas as máquinas
+- name: Configurações base para todas as máquinas
   hosts: todos
   become: true
+  gather_facts: true
   roles:
     - role: sistema
-      tags: ['base']
 
-# - name: Configurar Load Balancer
+# - name: Configurar o Load Balancer
 #   hosts: k8s_lb
 #   become: true
+#   gather_facts: true
 #   roles:
-#     - role: loadbalancer
-#       tags: ['lb']
+#     - sistema
 
-# - name: Configurar nodes Kubernetes (comum para workers e managers)
-#   hosts: k8s_nodes
-#   become: true
-#   roles:
-#     - role: kubernetes_base
-#       tags: ['k8s']
+- name: Configurar nodes Kubernetes (comum para workers e managers)
+  hosts: k8s_nodes
+  become: true
+  roles:
+    - role: pre-requisitos
 
 # - name: Configurar Kubernetes Manager
 #   hosts: k8s_managers
 #   become: true
 #   roles:
-#     - role: kubernetes_manager
-#       tags: ['manager']
+#     - sistema
 
 # - name: Configurar Kubernetes Workers
 #   hosts: k8s_workers
 #   become: true
 #   roles:
-#     - role: kubernetes_worker
-#       tags: ['worker']
+#     - sistema
