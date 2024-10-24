@@ -1,16 +1,26 @@
 ---
-- name: Gera um arquivo temporário para o CSR
+- name: Verifica se os arquivos já existem
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: cluster_file_stats
+  loop:
+    - /vagrant/arquivos/cluster-ca.key
+    - /vagrant/arquivos/cluster-ca.crt
+
+- name: Gera um arquivo temporário para o CSR do Cluster CA
   ansible.builtin.tempfile:
     state: file
     prefix: k8s_ca
     suffix: csr
   register: temp_file
+  when: not cluster_file_stats.results[0].stat.exists or not cluster_file_stats.results[1].stat.exists
 
-- name: Gera a chave privada do CA
+- name: Gera a chave privada do Cluster CA
   community.crypto.openssl_privatekey:
     path: /vagrant/arquivos/cluster-ca.key
     type: "{{ tipo_chave_privada_k8s }}"
     state: present
+  when: not cluster_file_stats.results[0].stat.exists
 
 - name: Gera um CSR para o Cluster CA com as infos necessárias
   community.crypto.openssl_csr:
@@ -31,10 +41,11 @@
       - clientAuth
     extended_key_usage_critical: true
     subject:
-      description: "Cluster CA para Projeto Kubernetes in a Jar - Apenas para Fins Educacionais"
+      description: "CA para uso do cluster Kubernetes em geral - Apenas para Fins Educacionais"
     path: "{{ temp_file.path }}"
     privatekey_path: /vagrant/arquivos/cluster-ca.key
     state: present
+  when: not cluster_file_stats.results[0].stat.exists or not cluster_file_stats.results[1].stat.exists
 
 - name: Gera o certificado do Cluster CA
   community.crypto.x509_certificate:
@@ -43,5 +54,6 @@
     csr_path: "{{ temp_file.path }}"
     provider: selfsigned
     state: present
-    selfsigned_not_before: "-1h"  
+    selfsigned_not_before: "-1h"
     selfsigned_not_after: "+365d"
+  when: not cluster_file_stats.results[1].stat.exists
