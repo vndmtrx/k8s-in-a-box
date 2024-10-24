@@ -3,5 +3,9 @@
   ansible.builtin.import_tasks: '1-base.yml'
   tags: sistema_base
 
+- name: Pré-requisitos necessários em todas as máquinas do projeto
+  ansible.builtin.import_tasks: '2-pre-requisitos-geral.yml'
+  tags: sistema_base
+
 - name: Flush handlers
   meta: flush_handlers

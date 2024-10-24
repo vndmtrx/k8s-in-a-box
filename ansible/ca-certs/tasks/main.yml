@@ -1,0 +1,15 @@
+---
+- name: Instalação dos pré-requisitos para o CA
+  ansible.builtin.import_tasks: '1-prereqs.yml'
+  tags: ca-cert-prereqs
+
+- name: "Criar CA principal do cluster - usado para comunicações seguras entre componentes do Kubernetes"
+  ansible.builtin.import_tasks: '2-cluster-ca.yml'
+  tags: cluster-ca
+
+- name: "Criar CA específico do etcd - usado exclusivamente para comunicações do banco de dados etcd"
+  ansible.builtin.import_tasks: '3-etcd-ca.yml'
+  tags: etcd-ca
+
+- name: Flush handlers
+  meta: flush_handlers

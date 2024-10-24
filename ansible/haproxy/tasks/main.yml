@@ -1,0 +1,5 @@
+---
+- name: Instalação do haproxy
+  ansible.builtin.apt:
+    name: haproxy
+    state: present

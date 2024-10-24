@@ -8,13 +8,7 @@
 
 - name: Garante que o python3-pip está instalado
   ansible.builtin.apt:
-    name: python3-pip
+    name: "{{ item }}"
     state: present
-
-- name: Garante a existência da pasta do CA
-  ansible.builtin.file:
-    path: /etc/kubernetes/pki
-    state: directory
-    owner: root
-    group: root
-    mode: "0700"
+  with_items:
+    - python3-pip

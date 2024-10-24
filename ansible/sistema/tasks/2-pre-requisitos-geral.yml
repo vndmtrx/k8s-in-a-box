@@ -1,0 +1,8 @@
+---
+- name: Garante a existência da pasta do CA em todas as máquinas
+  ansible.builtin.file:
+    path: /etc/kubernetes/pki
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"

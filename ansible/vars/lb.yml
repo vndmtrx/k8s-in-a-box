@@ -1,0 +1,3 @@
+---
+ip_load_balancer: 172.24.0.11
+porta_load_balancer: 6443

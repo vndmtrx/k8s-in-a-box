@@ -20,7 +20,6 @@
     update_cache: yes
     upgrade: 'dist'
     #default_release: "bookworm-backports"
-    cache_valid_time: 3600
   when: atualiza_sistema == "all"
 
 - name: Aplica somente atualizações de segurança
@@ -28,7 +27,6 @@
     update_cache: yes
     upgrade: 'safe'
     #default_release: "bookworm-backports"
-    cache_valid_time: 3600
   when: atualiza_sistema == "patch"
 
 - name: Cria registros DNS entre as máquinas do cluster
