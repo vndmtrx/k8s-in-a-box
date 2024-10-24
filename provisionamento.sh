@@ -8,4 +8,5 @@
 
 ANSIBLE_CONFIG="./ansible/.ansible.cfg"
 
+chmod 0600 id_ed25519
 ANSIBLE_CONFIG="$ANSIBLE_CONFIG" ansible-playbook "./ansible/playbook.yml"
