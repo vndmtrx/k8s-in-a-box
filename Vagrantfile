@@ -11,13 +11,15 @@ Vagrant.configure("2") do |config|
   # Imagem a ser utilizada
   config.vm.box = "debian/bookworm64"
   config.ssh.insert_key = false
-  config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__exclude: [".git/", ".vagrant/"]
+  #config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__exclude: [".git/", ".vagrant/"]
+  config.vm.synced_folder "./", "/vagrant", type: "virtiofs"
 
   # Configuração comum para todas as VMs (LibVirt)
   config.vm.provider :libvirt do |libvirt|
     libvirt.driver = "kvm"
     libvirt.memory = 2048
     libvirt.cpus = 2
+    libvirt.memorybacking :access, :mode => "shared"
   end
 
   nodes = {
