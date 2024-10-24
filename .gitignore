@@ -1,2 +1,6 @@
 # Vagrant
 .vagrant/
+
+# Arquivos do projeto
+arquivos/*
+!arquivos/.gitkeep
