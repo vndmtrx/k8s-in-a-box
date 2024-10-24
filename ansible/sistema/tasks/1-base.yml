@@ -30,3 +30,10 @@
     #default_release: "bookworm-backports"
     cache_valid_time: 3600
   when: atualiza_sistema == "patch"
+
+- name: Cria registros DNS entre as máquinas do cluster
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    line: "{{ hostvars[item]['ansible_host'] }} {{ item }}"
+    state: present
+  with_items: "{{ groups['todos'] }}"

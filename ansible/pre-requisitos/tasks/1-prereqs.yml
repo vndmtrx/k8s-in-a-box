@@ -1,0 +1,20 @@
+---
+- name: Habilita o IP Forwarding permamentemente
+  ansible.builtin.copy:
+    content: net.ipv4.ip_forward = 1
+    dest: /etc/sysctl.d/20-ipforward.conf
+    mode: "0644"
+  notify: Reload sysctl
+
+- name: Garante que o python3-pip está instalado
+  ansible.builtin.apt:
+    name: python3-pip
+    state: present
+
+- name: Garante a existência da pasta do CA
+  ansible.builtin.file:
+    path: /etc/kubernetes/pki
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"

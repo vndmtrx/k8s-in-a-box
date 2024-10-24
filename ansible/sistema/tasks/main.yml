@@ -3,13 +3,5 @@
   ansible.builtin.import_tasks: '1-base.yml'
   tags: sistema_base
 
-- name: Detalhes do sistema
-  ansible.builtin.debug:
-    msg:
-    - "Distro: {{ ansible_distribution }}"
-    - "Codinome: {{ ansible_distribution_release }}"
-    - "Versão: {{ ansible_distribution_version }}"
-    - "IP: {{ ansible_default_ipv4.address }}"
-
 - name: Flush handlers
   meta: flush_handlers
