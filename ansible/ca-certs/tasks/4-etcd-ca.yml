@@ -1,4 +1,4 @@
-# ansible/ca-certs/tasks/3-etcd-ca.yml
+# ansible/ca-certs/tasks/4-etcd-ca.yml
 ---
 - name: Verifica se os arquivos do Etcd CA já existem
   ansible.builtin.stat:
@@ -11,7 +11,7 @@
 - name: Gera um arquivo temporário para o CSR do Etcd CA
   ansible.builtin.tempfile:
     state: file
-    prefix: etcd_ca
+    prefix: k8s_etcd
     suffix: csr
   register: temp_file
   when: not etcd_file_stats.results[0].stat.exists or not etcd_file_stats.results[1].stat.exists
