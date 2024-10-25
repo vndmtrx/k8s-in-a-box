@@ -1,0 +1,46 @@
+# ansible/ca-certs/tasks/3-kubernetes-admin.yml
+---
+- name: Verifica se os arquivos já existem
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: kubernetes_admin_stats
+  loop:
+    - /vagrant/arquivos/kubernetes-admin.key
+    - /vagrant/arquivos/kubernetes-admin.crt
+
+- name: Gera um arquivo temporário para o CSR do Kubernetes Admin
+  ansible.builtin.tempfile:
+    state: file
+    prefix: k8s_cluster_admin
+    suffix: csr
+  register: temp_file
+  when: not kubernetes_admin_stats.results[0].stat.exists or not kubernetes_admin_stats.results[1].stat.exists
+
+- name: Gera a chave privada do Cluster Admin
+  community.crypto.openssl_privatekey:
+    path: /vagrant/arquivos/kubernetes-admin.key
+    type: "{{ tipo_chave_privada_k8s }}"
+    state: present
+  when: not kubernetes_admin_stats.results[0].stat.exists
+
+- name: Gera um CSR para o Cluster Admin com as infos necessárias
+  community.crypto.openssl_csr:
+    common_name: 'admin'
+    subject:
+      O: 'system:masters'
+      OU: 'Kubernetes in a Jar'
+    path: "{{ temp_file.path }}"
+    privatekey_path: /vagrant/arquivos/kubernetes-admin.key
+    state: present
+  when: not kubernetes_admin_stats.results[0].stat.exists or not kubernetes_admin_stats.results[1].stat.exists
+
+- name: Cria certificado TLS do Cluster Admin usando o Cluster CA 
+  community.crypto.x509_certificate:
+    path: /vagrant/arquivos/kubernetes-admin.crt
+    csr_path: "{{ temp_file.path }}"
+    privatekey_path: /vagrant/arquivos/kubernetes-admin.key
+    ownca_path: /vagrant/arquivos/kubernetes-ca.crt
+    ownca_privatekey_path: /vagrant/arquivos/kubernetes-ca.key
+    provider: ownca
+    ownca_not_after: +180d
+  when: not kubernetes_admin_stats.results[0].stat.exists or not kubernetes_admin_stats.results[1].stat.exists
