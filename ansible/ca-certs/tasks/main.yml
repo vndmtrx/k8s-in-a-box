@@ -5,9 +5,13 @@
   tags: ca-cert-prereqs
 
 - name: "Criar CA principal do cluster - usado para comunicações seguras entre componentes do Kubernetes"
-  ansible.builtin.import_tasks: '2-cluster-ca.yml'
-  tags: cluster-ca
+  ansible.builtin.import_tasks: '2-kubernetes-ca.yml'
+  tags: kubernetes-ca
+
+- name: "Criar Certificado Admin para uso com o Cluster"
+  ansible.builtin.import_tasks: '3-kubernetes-admin.yml'
+  tags: kubernetes-admin
 
 - name: "Criar CA específico do etcd - usado exclusivamente para comunicações do banco de dados etcd"
-  ansible.builtin.import_tasks: '3-etcd-ca.yml'
+  ansible.builtin.import_tasks: '4-etcd-ca.yml'
   tags: etcd-ca
