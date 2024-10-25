@@ -1,3 +1,4 @@
+# ansible/k8s-base/tasks/1-prereqs.yml
 ---
 - name: Habilita o IP Forwarding permamentemente
   ansible.builtin.copy:

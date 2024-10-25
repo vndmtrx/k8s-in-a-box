@@ -1,3 +1,4 @@
+# ansible/k8s-base/tasks/main.yml
 ---
 - name: Instalação dos pré-requisitos para o K8s
   ansible.builtin.import_tasks: '1-prereqs.yml'

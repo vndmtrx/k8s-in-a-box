@@ -1,3 +1,4 @@
+# ansible/sistema/tasks/2-pre-requisitos-geral.yml
 ---
 - name: Garante a existência da pasta do CA em todas as máquinas
   ansible.builtin.file:

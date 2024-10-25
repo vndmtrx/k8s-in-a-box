@@ -1,3 +1,4 @@
+# ansible/sistema/tasks/main.yml
 ---
 - name: Instalação do Sistema Base
   ansible.builtin.import_tasks: '1-base.yml'

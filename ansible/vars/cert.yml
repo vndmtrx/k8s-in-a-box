@@ -1,2 +1,3 @@
+# ansible/vars/cert.yml
 ---
 tipo_chave_privada_k8s: Ed25519
