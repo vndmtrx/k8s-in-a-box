@@ -2,6 +2,3 @@
 - name: Instalação dos pré-requisitos para o K8s
   ansible.builtin.import_tasks: '1-prereqs.yml'
   tags: prereqs
-
-- name: Flush handlers
-  meta: flush_handlers

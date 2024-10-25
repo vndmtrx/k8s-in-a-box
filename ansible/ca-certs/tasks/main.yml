@@ -10,6 +10,3 @@
 - name: "Criar CA específico do etcd - usado exclusivamente para comunicações do banco de dados etcd"
   ansible.builtin.import_tasks: '3-etcd-ca.yml'
   tags: etcd-ca
-
-- name: Flush handlers
-  meta: flush_handlers
