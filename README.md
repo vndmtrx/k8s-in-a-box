@@ -19,7 +19,7 @@ O cluster é composto por:
 - Ansible 2.9+
 - Debian Bookworm 64-bit (base para as VMs)
 - 8GB RAM disponível (2GB por VM)
-- 8 vCPUs disponíveis (2 vCPUs por VM)
+- 8 vCPUs disponíveis (1 vCPUs por VM)
 
 ## Início Rápido
 
