@@ -15,3 +15,7 @@
 - name: "Criar CA específico do etcd - usado exclusivamente para comunicações do banco de dados etcd"
   ansible.builtin.import_tasks: '4-etcd-ca.yml'
   tags: etcd-ca
+
+- name: "Criar Certificado Admin para uso do Etcd"
+  ansible.builtin.import_tasks: '5-etcd-admin.yml'
+  tags: etcd-admin
