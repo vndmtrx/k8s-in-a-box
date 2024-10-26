@@ -7,3 +7,31 @@
     owner: root
     group: root
     mode: "0700"
+
+- name: Instala o UFW
+  apt:
+    name: ufw
+    state: present
+
+- name: Configura as políticas padrão do UFW
+  ufw:
+    direction: "{{ item.direction }}"
+    policy: "{{ item.policy }}"
+  loop:
+    - { direction: incoming, policy: deny }
+    - { direction: outgoing, policy: allow }
+
+- name: Libera o SSH (porta 22) em todas as interfaces
+  ufw:
+    rule: allow
+    port: '22'
+    proto: tcp
+
+- name: Libera todo tráfego da rede 172.24.0.0/24
+  ufw:
+    rule: allow
+    src: 172.24.0.0/24
+
+- name: Ativa o UFW
+  ufw:
+    state: enabled
