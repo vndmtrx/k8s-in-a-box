@@ -19,7 +19,7 @@
 - name: Gera a chave privada do Etcd CA
   community.crypto.openssl_privatekey:
     path: /vagrant/arquivos/etcd-ca.key
-    type: "{{ tipo_chave_privada_k8s }}"
+    type: "{{ tipo_chave_privada_etcd }}"
     state: present
   when: not etcd_file_stats.results[0].stat.exists
 
