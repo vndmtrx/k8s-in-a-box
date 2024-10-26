@@ -8,38 +8,48 @@
     - /vagrant/arquivos/etcd-admin.key
     - /vagrant/arquivos/etcd-admin.crt
 
-- name: Gera um arquivo temporário para o CSR do Etcd Admin
-  ansible.builtin.tempfile:
-    state: file
-    prefix: k8s_etcd_admin
-    suffix: csr
-  register: temp_file
-  when: not etcd_admin_stats.results[0].stat.exists or not etcd_admin_stats.results[1].stat.exists
+- block:
+  - name: Gera um arquivo temporário para o CSR do Etcd Admin
+    ansible.builtin.tempfile:
+      state: file
+      prefix: k8s_etcd_admin
+      suffix: csr
+    register: temp_file
+    when: not etcd_admin_stats.results[0].stat.exists or not etcd_admin_stats.results[1].stat.exists
 
-- name: Gera a chave privada do Etcd Admin
-  community.crypto.openssl_privatekey:
-    path: /vagrant/arquivos/etcd-admin.key
-    type: "{{ tipo_chave_privada_etcd }}"
-    state: present
-  when: not etcd_admin_stats.results[0].stat.exists
+  - name: Gera a chave privada do Etcd Admin
+    community.crypto.openssl_privatekey:
+      path: /vagrant/arquivos/etcd-admin.key
+      type: "{{ tipo_chave_privada_etcd }}"
+      state: present
+    when: not etcd_admin_stats.results[0].stat.exists
 
-- name: Gera um CSR para o Etcd Admin com as infos necessárias
-  community.crypto.openssl_csr:
-    common_name: 'etcd-admin'
-    extended_key_usage:
-      - clientAuth
-    path: "{{ temp_file.path }}"
-    privatekey_path: /vagrant/arquivos/etcd-admin.key
-    state: present
-  when: not etcd_admin_stats.results[0].stat.exists or not etcd_admin_stats.results[1].stat.exists
+  - name: Gera um CSR para o Etcd Admin com as infos necessárias
+    community.crypto.openssl_csr:
+      common_name: 'etcd-admin'
+      extended_key_usage:
+        - clientAuth
+      path: "{{ temp_file.path }}"
+      privatekey_path: /vagrant/arquivos/etcd-admin.key
+      state: present
+    when: not etcd_admin_stats.results[0].stat.exists or not etcd_admin_stats.results[1].stat.exists
 
-- name: Cria certificado TLS do Etcd Admin usando o Etcd CA
-  community.crypto.x509_certificate:
-    path: /vagrant/arquivos/etcd-admin.crt
-    csr_path: "{{ temp_file.path }}"
-    privatekey_path: /vagrant/arquivos/etcd-admin.key
-    ownca_path: /vagrant/arquivos/etcd-ca.crt
-    ownca_privatekey_path: /vagrant/arquivos/etcd-ca.key
-    provider: ownca
-    ownca_not_after: +180d
-  when: not etcd_admin_stats.results[0].stat.exists or not etcd_admin_stats.results[1].stat.exists
+  - name: Cria certificado TLS do Etcd Admin usando o Etcd CA
+    community.crypto.x509_certificate:
+      path: /vagrant/arquivos/etcd-admin.crt
+      csr_path: "{{ temp_file.path }}"
+      privatekey_path: /vagrant/arquivos/etcd-admin.key
+      ownca_path: /vagrant/arquivos/etcd-ca.crt
+      ownca_privatekey_path: /vagrant/arquivos/etcd-ca.key
+      provider: ownca
+      ownca_not_after: +180d
+    when: not etcd_admin_stats.results[0].stat.exists or not etcd_admin_stats.results[1].stat.exists
+
+  always:
+    - name: Cleanup do arquivo temporário
+      ansible.builtin.file:
+        path: "{{ temp_file.path }}"
+        state: absent
+      when: 
+        - temp_file is defined
+        - temp_file.path is defined

@@ -8,43 +8,53 @@
     - /vagrant/arquivos/etcd-ca.key
     - /vagrant/arquivos/etcd-ca.crt
 
-- name: Gera um arquivo temporário para o CSR do Etcd CA
-  ansible.builtin.tempfile:
-    state: file
-    prefix: k8s_etcd
-    suffix: csr
-  register: temp_file
-  when: not etcd_file_stats.results[0].stat.exists or not etcd_file_stats.results[1].stat.exists
+- block:
+  - name: Gera um arquivo temporário para o CSR do Etcd CA
+    ansible.builtin.tempfile:
+      state: file
+      prefix: k8s_etcd
+      suffix: csr
+    register: temp_file
+    when: not etcd_file_stats.results[0].stat.exists or not etcd_file_stats.results[1].stat.exists
 
-- name: Gera a chave privada do Etcd CA
-  community.crypto.openssl_privatekey:
-    path: /vagrant/arquivos/etcd-ca.key
-    type: "{{ tipo_chave_privada_etcd }}"
-    state: present
-  when: not etcd_file_stats.results[0].stat.exists
+  - name: Gera a chave privada do Etcd CA
+    community.crypto.openssl_privatekey:
+      path: /vagrant/arquivos/etcd-ca.key
+      type: "{{ tipo_chave_privada_etcd }}"
+      state: present
+    when: not etcd_file_stats.results[0].stat.exists
 
-- name: Gera um CSR para o Etcd CA com as infos necessárias
-  community.crypto.openssl_csr:
-    basicConstraints_critical: true
-    basic_constraints:
-      - CA:TRUE
-    keyUsage_critical: true
-    key_usage:
-      - keyCertSign
-      - cRLSign
-    common_name: etcd-ca
-    path: "{{ temp_file.path }}"
-    privatekey_path: /vagrant/arquivos/etcd-ca.key
-    state: present
-  when: not etcd_file_stats.results[0].stat.exists or not etcd_file_stats.results[1].stat.exists
+  - name: Gera um CSR para o Etcd CA com as infos necessárias
+    community.crypto.openssl_csr:
+      basicConstraints_critical: true
+      basic_constraints:
+        - CA:TRUE
+      keyUsage_critical: true
+      key_usage:
+        - keyCertSign
+        - cRLSign
+      common_name: etcd-ca
+      path: "{{ temp_file.path }}"
+      privatekey_path: /vagrant/arquivos/etcd-ca.key
+      state: present
+    when: not etcd_file_stats.results[0].stat.exists or not etcd_file_stats.results[1].stat.exists
 
-- name: Gera o certificado do Etcd CA
-  community.crypto.x509_certificate:
-    path: /vagrant/arquivos/etcd-ca.crt
-    privatekey_path: /vagrant/arquivos/etcd-ca.key
-    csr_path: "{{ temp_file.path }}"
-    provider: selfsigned
-    state: present
-    selfsigned_not_before: "-1h"
-    selfsigned_not_after: "+365d"
-  when: not etcd_file_stats.results[1].stat.exists
+  - name: Gera o certificado do Etcd CA
+    community.crypto.x509_certificate:
+      path: /vagrant/arquivos/etcd-ca.crt
+      privatekey_path: /vagrant/arquivos/etcd-ca.key
+      csr_path: "{{ temp_file.path }}"
+      provider: selfsigned
+      state: present
+      selfsigned_not_before: "-1h"
+      selfsigned_not_after: "+365d"
+    when: not etcd_file_stats.results[1].stat.exists
+
+  always:
+    - name: Cleanup do arquivo temporário
+      ansible.builtin.file:
+        path: "{{ temp_file.path }}"
+        state: absent
+      when:
+        - temp_file is defined
+        - temp_file.path is defined
