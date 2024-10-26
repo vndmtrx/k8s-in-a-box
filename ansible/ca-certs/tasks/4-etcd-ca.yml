@@ -28,21 +28,11 @@
     basicConstraints_critical: true
     basic_constraints:
       - CA:TRUE
-    common_name: etcd-ca.k8s-in-a-jar
-    organization_name: Kubernetes in a Jar
-    organizational_unit_name: Etcd CA
+    keyUsage_critical: true
     key_usage:
       - keyCertSign
       - cRLSign
-    keyUsage_critical: true
-    subject_alt_name:
-      - DNS:etcd.k8s.local
-    extended_key_usage:
-      - serverAuth
-      - clientAuth
-    extended_key_usage_critical: true
-    subject:
-      description: "CA específico para Comunicação segura do Etcd - Apenas para Fins Educacionais"
+    common_name: etcd-ca
     path: "{{ temp_file.path }}"
     privatekey_path: /vagrant/arquivos/etcd-ca.key
     state: present
