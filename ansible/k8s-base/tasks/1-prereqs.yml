@@ -1,12 +1,5 @@
 # ansible/k8s-base/tasks/1-prereqs.yml
 ---
-- name: Garante que o python3-pip está instalado
-  ansible.builtin.apt:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - python3-pip
-
 - name: Desabilitar swap
   ansible.builtin.command:
     cmd: swapoff -a

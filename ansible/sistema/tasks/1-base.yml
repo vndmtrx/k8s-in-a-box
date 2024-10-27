@@ -36,3 +36,11 @@
     line: "{{ hostvars[item]['ansible_host'] }} {{ item }}"
     state: present
   with_items: "{{ groups['todos'] }}"
+
+- name: Instala pacotes base para o Playbook
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python3-pip
+    - gpg
