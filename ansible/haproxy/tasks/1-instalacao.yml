@@ -1,0 +1,24 @@
+# ansible/haproxy/tasks/1-instalacao.yml
+---
+- name: Adiciona chave GPG do HAProxy
+  ansible.builtin.apt_key:
+    url: https://haproxy.debian.net/bernat.debian.org.gpg
+    keyring: /usr/share/keyrings/haproxy.debian.net.gpg
+    state: present
+
+- name: Adiciona repositório HAProxy
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/haproxy.debian.net.gpg] http://haproxy.debian.net bookworm-backports-{{ versao_haproxy }} main"
+    filename: haproxy
+    state: present
+
+- name: Instala HAProxy na versão especificada
+  ansible.builtin.apt:
+    name: "haproxy={{ versao_haproxy }}.*"
+    state: present
+
+- name: Garante que o serviço HAProxy está iniciado e habilitado
+  ansible.builtin.service:
+    name: haproxy
+    state: started
+    enabled: true
