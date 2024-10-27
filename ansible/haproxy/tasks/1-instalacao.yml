@@ -16,9 +16,3 @@
   ansible.builtin.apt:
     name: "haproxy={{ versao_haproxy }}.*"
     state: present
-
-- name: Garante que o serviço HAProxy está iniciado e habilitado
-  ansible.builtin.service:
-    name: haproxy
-    state: started
-    enabled: true

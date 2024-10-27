@@ -1,0 +1,5 @@
+# ansible/vars/k8s.yml
+---
+host_ip: "{{ ansible_facts.all_ipv4_addresses | select('match', '^172.24.0') | first }}"
+apiserver_ips: "{{ groups['managers'] | map('extract', hostvars, ['ansible_host']) | list }}"
+apiserver_porta: 6443

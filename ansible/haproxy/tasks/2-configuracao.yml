@@ -20,3 +20,18 @@
   ansible.builtin.command: update-ca-certificates
   register: ca_update
   changed_when: ca_update.stdout is search('Adding')
+
+- name: Copia arquivo de configuração do HAProxy
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: haproxy
+    group: haproxy
+    mode: "0644"
+  notify: Reload haproxy
+
+- name: Garante que o serviço HAProxy está iniciado e habilitado
+  ansible.builtin.service:
+    name: haproxy
+    state: started
+    enabled: true
