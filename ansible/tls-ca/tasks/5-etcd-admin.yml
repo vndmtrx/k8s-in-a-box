@@ -1,4 +1,4 @@
-# ansible/ca-certs/tasks/5-etcd-admin.yml
+# ansible/tls-ca/tasks/5-etcd-admin.yml
 ---
 - name: Verifica se os arquivos já existem
   ansible.builtin.stat:

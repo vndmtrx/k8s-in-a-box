@@ -28,7 +28,7 @@
     - vars/cert.yml
   roles:
     - haproxy
-    - ca-certs
+    - tls-ca
 
 # - name: Configurar Kubernetes Workers
 #   hosts: k8s_workers

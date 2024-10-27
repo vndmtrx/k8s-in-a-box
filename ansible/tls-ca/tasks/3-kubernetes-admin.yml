@@ -1,4 +1,4 @@
-# ansible/ca-certs/tasks/3-kubernetes-admin.yml
+# ansible/tls-ca/tasks/3-kubernetes-admin.yml
 ---
 - name: Verifica se os arquivos já existem
   ansible.builtin.stat:

@@ -1,8 +1,8 @@
-# ansible/ca-certs/tasks/main.yml
+# ansible/tls-ca/tasks/main.yml
 ---
 - name: Instalação dos pré-requisitos para o CA
   ansible.builtin.import_tasks: '1-prereqs.yml'
-  tags: ca-cert-prereqs
+  tags: tls-ca-prereqs
 
 - name: "Criar CA principal do cluster - usado para comunicações seguras entre componentes do Kubernetes"
   ansible.builtin.import_tasks: '2-kubernetes-ca.yml'
