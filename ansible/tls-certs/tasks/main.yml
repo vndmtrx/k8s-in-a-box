@@ -1,0 +1,5 @@
+# ansible/tls-certs/tasks/main.yml
+---
+- name: Gera certificado do Control Plane
+  ansible.builtin.import_tasks:
+    file: '1-apiserver.yml'
