@@ -8,12 +8,13 @@
     - role: sistema
 
 - name: Configurações do Load Balancer e geração das chaves dos CAs
-  hosts: k8s_lb
+  hosts: loadbalancers
   become: true
   gather_facts: true
   vars_files:
     - vars/lb.yml
     - vars/cert.yml
+    - vars/k8s.yml
   roles:
     - tls-ca
     - haproxy
@@ -25,13 +26,13 @@
     - role: k8s-base
 
 # - name: Configurar Kubernetes Manager
-#   hosts: k8s_managers
+#   hosts: managers
 #   become: true
 #   roles:
 #     - sistema
 
 # - name: Configurar Kubernetes Workers
-#   hosts: k8s_workers
+#   hosts: workers
 #   become: true
 #   roles:
 #     - sistema
