@@ -1,6 +1,6 @@
 # ansible/tls-ca/tasks/5-etcd-admin.yml
 ---
-- name: Verifica se os arquivos já existem
+- name: Verifica se os arquivos do Etcd Admin já existem
   ansible.builtin.stat:
     path: "{{ item }}"
   register: etcd_admin_stats

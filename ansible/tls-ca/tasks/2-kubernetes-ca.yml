@@ -1,6 +1,6 @@
 # ansible/tls-ca/tasks/2-kubernetes-ca.yml
 ---
-- name: Verifica se os arquivos já existem
+- name: Verifica se os arquivos do Cluster CA já existem
   ansible.builtin.stat:
     path: "{{ item }}"
   register: cluster_stats
