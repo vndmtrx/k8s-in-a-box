@@ -1,0 +1,22 @@
+# ansible/haproxy/tasks/2-configuracao.yml
+---
+- name: Copia o certificado do CA para a pasta de certificados da máquina do HAProxy
+  ansible.builtin.copy:
+    src: /vagrant/arquivos/kubernetes-ca.crt
+    dest: /etc/ssl/certs/k8s-in-a-jar.crt
+    mode: "0444"
+    owner: root
+    group: root
+    remote_src: true
+
+- name: Cria link simbólico para o certificado
+  ansible.builtin.file:
+    src: /etc/ssl/certs/k8s-in-a-jar.crt
+    dest: /usr/local/share/ca-certificates/k8s-in-a-jar.crt
+    state: link
+    force: true
+
+- name: Atualiza certificados do sistema
+  ansible.builtin.command: update-ca-certificates
+  register: ca_update
+  changed_when: ca_update.stdout is search('Adding')
