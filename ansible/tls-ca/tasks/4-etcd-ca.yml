@@ -5,10 +5,16 @@
     path: "{{ item }}"
   register: etcd_file_stats
   loop:
-    - /vagrant/arquivos/etcd-ca.key
-    - /vagrant/arquivos/etcd-ca.crt
+    - /vagrant/arquivos/etcd/etcd-ca.key
+    - /vagrant/arquivos/etcd/etcd-ca.crt
 
 - block:
+  - name: Garantir que o diretório existe
+    ansible.builtin.file:
+      path: /vagrant/arquivos/etcd/
+      state: directory
+      mode: '0755'
+
   - name: Gera um arquivo temporário para o CSR do Etcd CA
     ansible.builtin.tempfile:
       state: file
@@ -19,7 +25,7 @@
 
   - name: Gera a chave privada do Etcd CA
     community.crypto.openssl_privatekey:
-      path: /vagrant/arquivos/etcd-ca.key
+      path: /vagrant/arquivos/etcd/etcd-ca.key
       type: "{{ tipo_chave_privada_etcd }}"
       state: present
     when: not etcd_file_stats.results[0].stat.exists
@@ -35,19 +41,19 @@
         - cRLSign
       common_name: etcd-ca
       path: "{{ temp_file.path }}"
-      privatekey_path: /vagrant/arquivos/etcd-ca.key
+      privatekey_path: /vagrant/arquivos/etcd/etcd-ca.key
       state: present
     when: not etcd_file_stats.results[0].stat.exists or not etcd_file_stats.results[1].stat.exists
 
   - name: Gera o certificado do Etcd CA
     community.crypto.x509_certificate:
-      path: /vagrant/arquivos/etcd-ca.crt
-      privatekey_path: /vagrant/arquivos/etcd-ca.key
+      path: /vagrant/arquivos/etcd/etcd-ca.crt
+      privatekey_path: /vagrant/arquivos/etcd/etcd-ca.key
       csr_path: "{{ temp_file.path }}"
       provider: selfsigned
       state: present
       selfsigned_not_before: "-1h"
-      selfsigned_not_after: "+365d"
+      selfsigned_not_after: "+3650d"
     when: not etcd_file_stats.results[1].stat.exists
 
   always:

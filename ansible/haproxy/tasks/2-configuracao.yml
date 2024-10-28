@@ -2,7 +2,7 @@
 ---
 - name: Copia o certificado do CA para a pasta de certificados da máquina do HAProxy
   ansible.builtin.copy:
-    src: /vagrant/arquivos/kubernetes-ca.crt
+    src: /vagrant/arquivos/k8s/kubernetes-ca.crt
     dest: /etc/ssl/certs/k8s-in-a-jar.crt
     mode: "0444"
     owner: root

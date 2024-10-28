@@ -5,10 +5,16 @@
     path: "{{ item }}"
   register: cluster_stats
   loop:
-    - /vagrant/arquivos/kubernetes-ca.key
-    - /vagrant/arquivos/kubernetes-ca.crt
+    - /vagrant/arquivos/k8s/kubernetes-ca.key
+    - /vagrant/arquivos/k8s/kubernetes-ca.crt
 
 - block:
+  - name: Garantir que o diretório existe
+    ansible.builtin.file:
+      path: /vagrant/arquivos/k8s/
+      state: directory
+      mode: '0755'
+
   - name: Gera um arquivo temporário para o CSR do Cluster CA
     ansible.builtin.tempfile:
       state: file
@@ -19,7 +25,7 @@
 
   - name: Gera a chave privada do Cluster CA
     community.crypto.openssl_privatekey:
-      path: /vagrant/arquivos/kubernetes-ca.key
+      path: /vagrant/arquivos/k8s/kubernetes-ca.key
       type: "{{ tipo_chave_privada_k8s }}"
       state: present
     when: not cluster_stats.results[0].stat.exists
@@ -35,19 +41,19 @@
         - cRLSign
       common_name: kubernetes-ca
       path: "{{ temp_file.path }}"
-      privatekey_path: /vagrant/arquivos/kubernetes-ca.key
+      privatekey_path: /vagrant/arquivos/k8s/kubernetes-ca.key
       state: present
     when: not cluster_stats.results[0].stat.exists or not cluster_stats.results[1].stat.exists
 
   - name: Gera o certificado do Cluster CA
     community.crypto.x509_certificate:
-      path: /vagrant/arquivos/kubernetes-ca.crt
-      privatekey_path: /vagrant/arquivos/kubernetes-ca.key
+      path: /vagrant/arquivos/k8s/kubernetes-ca.crt
+      privatekey_path: /vagrant/arquivos/k8s/kubernetes-ca.key
       csr_path: "{{ temp_file.path }}"
       provider: selfsigned
       state: present
       selfsigned_not_before: "-1h"
-      selfsigned_not_after: "+365d"
+      selfsigned_not_after: "+3650d"
     when: not cluster_stats.results[1].stat.exists
 
   always:

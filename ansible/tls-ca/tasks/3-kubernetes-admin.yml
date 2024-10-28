@@ -5,10 +5,16 @@
     path: "{{ item }}"
   register: kubernetes_admin_stats
   loop:
-    - /vagrant/arquivos/kubernetes-admin.key
-    - /vagrant/arquivos/kubernetes-admin.crt
+    - /vagrant/arquivos/k8s/kubernetes-admin.key
+    - /vagrant/arquivos/k8s/kubernetes-admin.crt
 
 - block:
+  - name: Garantir que o diretório existe
+    ansible.builtin.file:
+      path: /vagrant/arquivos/k8s/
+      state: directory
+      mode: '0755'
+
   - name: Gera um arquivo temporário para o CSR do Kubernetes Admin
     ansible.builtin.tempfile:
       state: file
@@ -19,7 +25,7 @@
 
   - name: Gera a chave privada do Cluster Admin
     community.crypto.openssl_privatekey:
-      path: /vagrant/arquivos/kubernetes-admin.key
+      path: /vagrant/arquivos/k8s/kubernetes-admin.key
       type: "{{ tipo_chave_privada_k8s }}"
       state: present
     when: not kubernetes_admin_stats.results[0].stat.exists
@@ -31,19 +37,19 @@
         O: 'system:masters'
         OU: 'Kubernetes in a Jar'
       path: "{{ temp_file.path }}"
-      privatekey_path: /vagrant/arquivos/kubernetes-admin.key
+      privatekey_path: /vagrant/arquivos/k8s/kubernetes-admin.key
       state: present
     when: not kubernetes_admin_stats.results[0].stat.exists or not kubernetes_admin_stats.results[1].stat.exists
 
   - name: Cria certificado TLS do Cluster Admin usando o Cluster CA 
     community.crypto.x509_certificate:
-      path: /vagrant/arquivos/kubernetes-admin.crt
+      path: /vagrant/arquivos/k8s/kubernetes-admin.crt
       csr_path: "{{ temp_file.path }}"
-      privatekey_path: /vagrant/arquivos/kubernetes-admin.key
-      ownca_path: /vagrant/arquivos/kubernetes-ca.crt
-      ownca_privatekey_path: /vagrant/arquivos/kubernetes-ca.key
+      privatekey_path: /vagrant/arquivos/k8s/kubernetes-admin.key
+      ownca_path: /vagrant/arquivos/k8s/kubernetes-ca.crt
+      ownca_privatekey_path: /vagrant/arquivos/k8s/kubernetes-ca.key
       provider: ownca
-      ownca_not_after: +180d
+      ownca_not_after: +365d
     when: not kubernetes_admin_stats.results[0].stat.exists or not kubernetes_admin_stats.results[1].stat.exists
 
   always:

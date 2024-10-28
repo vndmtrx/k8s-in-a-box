@@ -5,10 +5,16 @@
     path: "{{ item }}"
   register: etcd_admin_stats
   loop:
-    - /vagrant/arquivos/etcd-admin.key
-    - /vagrant/arquivos/etcd-admin.crt
+    - /vagrant/arquivos/etcd/etcd-admin.key
+    - /vagrant/arquivos/etcd/etcd-admin.crt
 
 - block:
+  - name: Garantir que o diretório existe
+    ansible.builtin.file:
+      path: /vagrant/arquivos/etcd/
+      state: directory
+      mode: '0755'
+
   - name: Gera um arquivo temporário para o CSR do Etcd Admin
     ansible.builtin.tempfile:
       state: file
@@ -19,7 +25,7 @@
 
   - name: Gera a chave privada do Etcd Admin
     community.crypto.openssl_privatekey:
-      path: /vagrant/arquivos/etcd-admin.key
+      path: /vagrant/arquivos/etcd/etcd-admin.key
       type: "{{ tipo_chave_privada_etcd }}"
       state: present
     when: not etcd_admin_stats.results[0].stat.exists
@@ -30,19 +36,19 @@
       extended_key_usage:
         - clientAuth
       path: "{{ temp_file.path }}"
-      privatekey_path: /vagrant/arquivos/etcd-admin.key
+      privatekey_path: /vagrant/arquivos/etcd/etcd-admin.key
       state: present
     when: not etcd_admin_stats.results[0].stat.exists or not etcd_admin_stats.results[1].stat.exists
 
   - name: Cria certificado TLS do Etcd Admin usando o Etcd CA
     community.crypto.x509_certificate:
-      path: /vagrant/arquivos/etcd-admin.crt
+      path: /vagrant/arquivos/etcd/etcd-admin.crt
       csr_path: "{{ temp_file.path }}"
-      privatekey_path: /vagrant/arquivos/etcd-admin.key
-      ownca_path: /vagrant/arquivos/etcd-ca.crt
-      ownca_privatekey_path: /vagrant/arquivos/etcd-ca.key
+      privatekey_path: /vagrant/arquivos/etcd/etcd-admin.key
+      ownca_path: /vagrant/arquivos/etcd/etcd-ca.crt
+      ownca_privatekey_path: /vagrant/arquivos/etcd/etcd-ca.key
       provider: ownca
-      ownca_not_after: +180d
+      ownca_not_after: +365d
     when: not etcd_admin_stats.results[0].stat.exists or not etcd_admin_stats.results[1].stat.exists
 
   always:
@@ -50,6 +56,6 @@
       ansible.builtin.file:
         path: "{{ temp_file.path }}"
         state: absent
-      when: 
+      when:
         - temp_file is defined
         - temp_file.path is defined
