@@ -17,6 +17,7 @@
     - vars/k8s.yml
   roles:
     - tls-ca
+    - tls-certs
     - haproxy
 
 - name: Configurar nodes Kubernetes (comum para workers e managers)

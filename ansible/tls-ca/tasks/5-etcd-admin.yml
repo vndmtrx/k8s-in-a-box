@@ -9,12 +9,6 @@
     - /vagrant/arquivos/etcd/etcd-admin.crt
 
 - block:
-  - name: Garantir que o diretório existe
-    ansible.builtin.file:
-      path: /vagrant/arquivos/etcd/
-      state: directory
-      mode: '0755'
-
   - name: Gera um arquivo temporário para o CSR do Etcd Admin
     ansible.builtin.tempfile:
       state: file

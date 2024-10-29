@@ -1,2 +1,68 @@
 # ansible/tls-certs/tasks/1-apiserver.yml
 ---
+- name: Verifica se o certificado para a ApiServer já existe
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: apiserver_stats
+  loop:
+    - /vagrant/arquivos/k8s/apiserver.key
+    - /vagrant/arquivos/k8s/apiserver.crt
+
+- block:
+  - name: Gera um arquivo temporário para o CSR da ApiServer
+    ansible.builtin.tempfile:
+      state: file
+      prefix: k8s_apiserver
+      suffix: csr
+    register: temp_file
+    when: not apiserver_stats.results[0].stat.exists or not apiserver_stats.results[1].stat.exists
+
+  - name: Gera a chave privada da ApiServer
+    community.crypto.openssl_privatekey:
+      path: /vagrant/arquivos/k8s/apiserver.key
+      type: "{{ tipo_chave_privada_k8s }}"
+      state: present
+    when: not apiserver_stats.results[0].stat.exists
+
+  - name: Gera um CSR para a ApiServer com as infos necessárias
+    community.crypto.openssl_csr:
+      common_name: 'kube-apiserver'
+      basicConstraints_critical: true
+      basic_constraints:
+        - CA:FALSE
+      extKeyUsage_critical: false
+      extended_key_usage:
+        - clientAuth
+        - serverAuth
+      keyUsage_critical: true
+      keyUsage:
+        - keyEncipherment
+        - dataEncipherment
+      subject:
+        O: 'system:kubernetes'
+        OU: 'Kubernetes in a Jar'
+      subject_alt_name: "{{ lookup('template', 'api-server-alt.j2') | from_yaml }}"
+      path: "{{ temp_file.path }}"
+      privatekey_path: /vagrant/arquivos/k8s/apiserver.key
+      state: present
+    when: not apiserver_stats.results[0].stat.exists or not apiserver_stats.results[1].stat.exists
+
+  - name: Cria certificado TLS da ApiServer usando o Cluster CA
+    community.crypto.x509_certificate:
+      path: /vagrant/arquivos/k8s/apiserver.crt
+      csr_path: "{{ temp_file.path }}"
+      privatekey_path: /vagrant/arquivos/k8s/apiserver.key
+      ownca_path: /vagrant/arquivos/k8s/kubernetes-ca.crt
+      ownca_privatekey_path: /vagrant/arquivos/k8s/kubernetes-ca.key
+      provider: ownca
+      ownca_not_after: +365d
+    when: not apiserver_stats.results[0].stat.exists or not apiserver_stats.results[1].stat.exists
+
+  always:
+    - name: Cleanup do arquivo temporário
+      ansible.builtin.file:
+        path: "{{ temp_file.path }}"
+        state: absent
+      when:
+        - temp_file is defined
+        - temp_file.path is defined

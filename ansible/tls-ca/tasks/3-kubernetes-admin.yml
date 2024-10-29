@@ -9,12 +9,6 @@
     - /vagrant/arquivos/k8s/kubernetes-admin.crt
 
 - block:
-  - name: Garantir que o diretório existe
-    ansible.builtin.file:
-      path: /vagrant/arquivos/k8s/
-      state: directory
-      mode: '0755'
-
   - name: Gera um arquivo temporário para o CSR do Kubernetes Admin
     ansible.builtin.tempfile:
       state: file
@@ -41,7 +35,7 @@
       state: present
     when: not kubernetes_admin_stats.results[0].stat.exists or not kubernetes_admin_stats.results[1].stat.exists
 
-  - name: Cria certificado TLS do Cluster Admin usando o Cluster CA 
+  - name: Cria certificado TLS do Cluster Admin usando o Cluster CA
     community.crypto.x509_certificate:
       path: /vagrant/arquivos/k8s/kubernetes-admin.crt
       csr_path: "{{ temp_file.path }}"
