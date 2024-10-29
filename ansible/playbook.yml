@@ -23,8 +23,12 @@
   hosts: k8s_nodes
   become: true
   gather_facts: true
+  vars_files:
+    - vars/cert.yml
   roles:
     - role: k8s-base
+    - role: tls-certs
+      tags: ['certs-kubelet']
 
 - name: Configurar Kubernetes Control Planes
   hosts: managers
