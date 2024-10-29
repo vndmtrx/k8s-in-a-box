@@ -4,3 +4,6 @@
   ansible.builtin.import_tasks: '1-apiserver.yml'
   tags: certs-apiserver
 
+- name: Gera certificado para os Kubelets
+  ansible.builtin.import_tasks: '2-kubelet.yml'
+  tags: certs-kubelet
