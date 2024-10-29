@@ -2,3 +2,5 @@
 ---
 tipo_chave_privada_k8s: Ed25519
 tipo_chave_privada_etcd: Ed25519
+
+nova_geracao: true
