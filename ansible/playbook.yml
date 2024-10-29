@@ -16,21 +16,26 @@
     - vars/cert.yml
     - vars/k8s.yml
   roles:
-    - tls-ca
-    - tls-certs
-    - haproxy
+    - role: tls-ca
+    - role: haproxy
 
 - name: Configurar nodes Kubernetes (comum para workers e managers)
   hosts: k8s_nodes
   become: true
+  gather_facts: true
   roles:
     - role: k8s-base
 
-# - name: Configurar Kubernetes Manager
-#   hosts: managers
-#   become: true
-#   roles:
-#     - sistema
+- name: Configurar Kubernetes Control Planes
+  hosts: managers
+  become: true
+  gather_facts: true
+  vars_files:
+    - vars/cert.yml
+  roles:
+    - role: tls-certs
+      run_once: true
+      tags: ['certs-apiserver']
 
 # - name: Configurar Kubernetes Workers
 #   hosts: workers

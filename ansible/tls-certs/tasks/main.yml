@@ -1,5 +1,6 @@
 # ansible/tls-certs/tasks/main.yml
 ---
-- name: Gera certificado do Control Plane
-  ansible.builtin.import_tasks:
-    file: '1-apiserver.yml'
+- name: Gera certificado da ApiServer
+  ansible.builtin.import_tasks: '1-apiserver.yml'
+  tags: certs-apiserver
+
