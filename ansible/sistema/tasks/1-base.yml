@@ -44,6 +44,7 @@
     name:
       - gpg
       - ufw
+      - python3-cryptography
     state: present
 
 - name: Garante a existência da pasta do CA em todas as máquinas

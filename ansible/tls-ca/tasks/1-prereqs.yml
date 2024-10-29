@@ -1,12 +1,5 @@
 # ansible/tls-ca/tasks/1-prereqs.yml
 ---
-- name: Garante que o cripto está instalado
-  ansible.builtin.apt:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - python3-cryptography
-
 - name: Remover pastas específicas antes da geração dos certificados
   ansible.builtin.file:
     path: "{{ item }}"
