@@ -1,0 +1,68 @@
+# ansible/tls-certs/tasks/1-apiserver.yml
+---
+- name: Remover pastas específicas antes da geração dos certificados
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/kubernetes/pki/kubelet.key
+    - /etc/kubernetes/pki/kubelet.crt
+  when: nova_geracao | bool
+
+- name: Verifica se o certificado para o Kubelet já existe ({{ inventory_hostname }})
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: kubelet_stats
+  loop:
+    - /etc/kubernetes/pki/kubelet.key
+    - /etc/kubernetes/pki/kubelet.crt
+
+- block:
+  - name: Gera um arquivo temporário para o CSR do Kubelet ({{ inventory_hostname }})
+    ansible.builtin.tempfile:
+      state: file
+      prefix: k8s_kubelet
+      suffix: csr
+    register: temp_file
+    when: not kubelet_stats.results[0].stat.exists or not kubelet_stats.results[1].stat.exists
+
+  - name: Gera a chave privada do Kubelet ({{ inventory_hostname }})
+    community.crypto.openssl_privatekey:
+      path: /etc/kubernetes/pki/kubelet.key
+      type: "{{ tipo_chave_privada_k8s }}"
+      state: present
+    when: not kubelet_stats.results[0].stat.exists
+
+  - name: Gera um CSR para o Kubelet com as infos necessárias ({{ inventory_hostname }})
+    community.crypto.openssl_csr:
+      common_name: 'system:node:{{ inventory_hostname }}'
+      subject:
+        O: 'system:nodes'
+        OU: 'Kubernetes in a Jar'
+      subject_alt_name:
+        - IP:{{ ansible_host }}
+        - DNS:{{ inventory_hostname }}
+      path: "{{ temp_file.path }}"
+      privatekey_path: /etc/kubernetes/pki/kubelet.key
+      state: present
+    when: not kubelet_stats.results[0].stat.exists or not kubelet_stats.results[1].stat.exists
+
+  - name: Cria certificado TLS do Kubelet usando o Cluster CA ({{ inventory_hostname }})
+    community.crypto.x509_certificate:
+      path: /etc/kubernetes/pki/kubelet.crt
+      csr_path: "{{ temp_file.path }}"
+      privatekey_path: /etc/kubernetes/pki/kubelet.key
+      ownca_path: /vagrant/arquivos/k8s/kubernetes-ca.crt
+      ownca_privatekey_path: /vagrant/arquivos/k8s/kubernetes-ca.key
+      provider: ownca
+      ownca_not_after: +365d
+    when: not kubelet_stats.results[0].stat.exists or not kubelet_stats.results[1].stat.exists
+
+  always:
+    - name: Cleanup do arquivo temporário ({{ inventory_hostname }})
+      ansible.builtin.file:
+        path: "{{ temp_file.path }}"
+        state: absent
+      when:
+        - temp_file is defined
+        - temp_file.path is defined
