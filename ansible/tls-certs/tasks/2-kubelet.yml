@@ -1,6 +1,6 @@
 # ansible/tls-certs/tasks/1-apiserver.yml
 ---
-- name: Remover pastas específicas antes da geração dos certificados
+- name: Remover o certificado e a chave gerados anteriormente antes da geração dos novos certificados
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
@@ -9,7 +9,7 @@
     - /etc/kubernetes/pki/kubelet.crt
   when: nova_geracao | bool
 
-- name: Verifica se o certificado para o Kubelet já existe ({{ inventory_hostname }})
+- name: Verifica se o certificado para o Kubelet já existe
   ansible.builtin.stat:
     path: "{{ item }}"
   register: kubelet_stats
@@ -18,7 +18,7 @@
     - /etc/kubernetes/pki/kubelet.crt
 
 - block:
-  - name: Gera um arquivo temporário para o CSR do Kubelet ({{ inventory_hostname }})
+  - name: Gera um arquivo temporário para o CSR do Kubelet
     ansible.builtin.tempfile:
       state: file
       prefix: k8s_kubelet
@@ -26,14 +26,14 @@
     register: temp_file
     when: not kubelet_stats.results[0].stat.exists or not kubelet_stats.results[1].stat.exists
 
-  - name: Gera a chave privada do Kubelet ({{ inventory_hostname }})
+  - name: Gera a chave privada do Kubelet
     community.crypto.openssl_privatekey:
       path: /etc/kubernetes/pki/kubelet.key
       type: "{{ tipo_chave_privada_k8s }}"
       state: present
     when: not kubelet_stats.results[0].stat.exists
 
-  - name: Gera um CSR para o Kubelet com as infos necessárias ({{ inventory_hostname }})
+  - name: Gera um CSR para o Kubelet com as infos necessárias
     community.crypto.openssl_csr:
       common_name: 'system:node:{{ inventory_hostname }}'
       subject:
@@ -47,7 +47,7 @@
       state: present
     when: not kubelet_stats.results[0].stat.exists or not kubelet_stats.results[1].stat.exists
 
-  - name: Cria certificado TLS do Kubelet usando o Cluster CA ({{ inventory_hostname }})
+  - name: Cria certificado TLS do Kubelet usando o Cluster CA
     community.crypto.x509_certificate:
       path: /etc/kubernetes/pki/kubelet.crt
       csr_path: "{{ temp_file.path }}"
@@ -59,7 +59,7 @@
     when: not kubelet_stats.results[0].stat.exists or not kubelet_stats.results[1].stat.exists
 
   always:
-    - name: Cleanup do arquivo temporário ({{ inventory_hostname }})
+    - name: Cleanup do arquivo temporário
       ansible.builtin.file:
         path: "{{ temp_file.path }}"
         state: absent
