@@ -42,6 +42,16 @@
     - pki:etcd
     - pki:etcd:server
 
+- name: Criar certificados dos peers Etcd
+  ansible.builtin.include_tasks: 06-cert_etcd_peer.yml
+  loop: "{{ groups['managers'] }}"
+  loop_control:
+    loop_var: manager_host
+  tags:
+    - pki
+    - pki:etcd
+    - pki:etcd:peer
+
 # - name: Criar certificados dos servidores etcd
 #   ansible.builtin.import_tasks: 02-cert_etcd_servers.yml
 #   tags:
