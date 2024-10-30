@@ -69,10 +69,10 @@
     port: '22'
     proto: tcp
 
-- name: Libera todo tráfego da rede 172.24.0.0/24
+- name: Libera todo tráfego da rede 172.24.0.0/16
   ansible.builtin.ufw:
     rule: allow
-    src: 172.24.0.0/24
+    src: 172.24.0.0/16
 
 - name: Ativa o UFW
   ansible.builtin.ufw:
