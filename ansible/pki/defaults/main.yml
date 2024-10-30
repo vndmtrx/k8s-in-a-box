@@ -8,4 +8,4 @@ pki_algoritmo_hash: "sha512"
 pki_validade_ca: 3650
 pki_validade_cert: 365
 
-pki_organizacao: "K8s in a Jar"
+pki_organizacao: "Kubernetes in a Jar"
