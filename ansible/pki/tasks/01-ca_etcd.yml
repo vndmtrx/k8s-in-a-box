@@ -37,6 +37,7 @@
   community.crypto.openssl_csr:
     path: "/vagrant/arquivos/pki/etcd/ca-etcd.csr"
     privatekey_path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
+    digest: "{{ pki_algoritmo_hash }}"
     mode: "0600"
     owner: "root"
     group: "root"
@@ -67,6 +68,7 @@
     csr_path: "/vagrant/arquivos/pki/etcd/ca-etcd.csr"
     privatekey_path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
     provider: selfsigned
+    selfsigned_digest: "{{ pki_algoritmo_hash }}"
     selfsigned_not_after: "+{{ pki_validade_ca }}d"
     mode: "0644"
     owner: "root"

@@ -25,6 +25,7 @@
   community.crypto.openssl_csr:
     path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente.csr"
     privatekey_path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente-chave.pem"
+    digest: "{{ pki_algoritmo_hash }}"
     mode: "0600"
     owner: "root"
     group: "root"
@@ -54,6 +55,7 @@
     path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente-cert.pem"
     csr_path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente.csr"
     provider: ownca
+    ownca_digest: "{{ pki_algoritmo_hash }}"
     ownca_path: "/vagrant/arquivos/pki/etcd/ca-etcd-cert.pem"
     ownca_privatekey_path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
     ownca_not_after: "+{{ pki_validade_cert }}d"
