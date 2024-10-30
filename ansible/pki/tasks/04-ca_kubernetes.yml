@@ -1,0 +1,76 @@
+# ansible/pki/tasks/04-ca_kubernetes.yml
+---
+- name: Criar estrutura de diretórios para certificados
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: "root"
+    group: "root"
+  loop:
+    - "/vagrant/arquivos/pki"
+    - "/vagrant/arquivos/pki/kubernetes"
+  tags: ["ca_kubernetes", "diretorios"]
+
+- name: Verificar se a CA do kubernetes já existe
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
+  register: ca_kubernetes_chave
+  tags: ["ca_kubernetes", "verificacao_chave"]
+
+- name: Gerar chave Ed25519 para CA do kubernetes
+  community.crypto.openssl_privatekey:
+    path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
+    type: "{{ pki_tipo_curva }}"
+    state: "present"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not ca_kubernetes_chave.stat.exists or pki_regerar_certs | bool
+  tags: ["ca_kubernetes", "gerar_chave"]
+
+- name: Verificar se o CSR do CA do kubernetes já existe
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes.csr"
+  register: ca_kubernetes_csr
+  tags: ["ca_kubernetes", "verificacao_csr"]
+
+- name: Gerar CSR para CA do kubernetes
+  community.crypto.openssl_csr:
+    path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes.csr"
+    privatekey_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
+    mode: "0600"
+    owner: "root"
+    group: "root"
+    CN: "kubernetes-ca"
+    O: "{{ pki_organizacao }}"
+    OU: "CA"
+    basic_constraints:
+      - "CA:TRUE"
+    basic_constraints_critical: true
+    key_usage:
+      - digitalSignature
+      - keyCertSign
+      - cRLSign
+    key_usage_critical: true
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not ca_kubernetes_csr.stat.exists or pki_regerar_certs | bool
+  tags: ["ca_kubernetes", "gerar_csr"]
+
+- name: Verificar se o certificado do CA do kubernetes já existe
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-cert.pem"
+  register: ca_kubernetes_cert
+  tags: ["ca_kubernetes", "verificacao_cert"]
+
+- name: Gerar certificado autoassinado do CA do kubernetes
+  community.crypto.x509_certificate:
+    path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-cert.pem"
+    csr_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes.csr"
+    privatekey_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
+    provider: selfsigned
+    selfsigned_not_after: "+{{ pki_validade_ca }}d"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not ca_kubernetes_cert.stat.exists or pki_regerar_certs | bool
+  tags: ["ca_kubernetes", "gerar_certificado"]

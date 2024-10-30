@@ -1,0 +1,38 @@
+# ansible/pki/tasks/main.yml
+---
+- name: Criar CA do etcd
+  ansible.builtin.import_tasks: 01-ca_etcd.yml
+  tags:
+    - pki
+    - pki:ca
+    - pki:etcd
+    - pki:etcd:ca
+
+# - name: Criar certificados dos servidores etcd
+#   ansible.builtin.import_tasks: 02-cert_etcd_servers.yml
+#   tags:
+#     - pki
+#     - pki:etcd
+#     - pki:etcd:server
+
+# - name: Criar certificado cliente etcd
+#   ansible.builtin.import_tasks: 03-cert_etcd_client.yml
+#   tags:
+#     - pki
+#     - pki:etcd
+#     - pki:etcd:client
+
+- name: Criar CA do Kubernetes
+  ansible.builtin.import_tasks: 04-ca_kubernetes.yml
+  tags:
+    - pki
+    - pki:ca
+    - pki:k8s
+    - pki:k8s:ca
+
+# - name: Criar certificado do API Server
+#   ansible.builtin.import_tasks: 05-cert_apiserver.yml
+#   tags:
+#     - pki
+#     - pki:k8s
+#     - pki:k8s:apiserver
