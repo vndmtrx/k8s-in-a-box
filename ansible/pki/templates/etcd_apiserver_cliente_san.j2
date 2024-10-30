@@ -1,0 +1,7 @@
+- IP:127.0.0.1
+- DNS:localhost
+
+{% for host in groups['managers'] %}
+- IP:{{ hostvars[host]['ansible_host'] }}
+- DNS:{{ host }}
+{% endfor %}
