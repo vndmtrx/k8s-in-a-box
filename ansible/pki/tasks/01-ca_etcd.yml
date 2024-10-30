@@ -42,7 +42,7 @@
     group: "root"
     CN: "etcd-ca"
     O: "{{ pki_organizacao }}"
-    OU: "CA"
+    OU: "Autoridade Certificadora para o Etcd"
     basic_constraints:
       - "CA:TRUE"
     basic_constraints_critical: true

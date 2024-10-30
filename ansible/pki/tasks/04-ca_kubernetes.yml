@@ -42,7 +42,7 @@
     group: "root"
     CN: "kubernetes-ca"
     O: "{{ pki_organizacao }}"
-    OU: "CA"
+    OU: "Autoridade Certificadora para o Kubernetes"
     basic_constraints:
       - "CA:TRUE"
     basic_constraints_critical: true
