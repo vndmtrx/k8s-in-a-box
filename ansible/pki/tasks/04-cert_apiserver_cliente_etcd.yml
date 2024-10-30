@@ -1,0 +1,65 @@
+# ansible/pki/tasks/04-cert_apiserver_cliente_etcd.yml
+---
+- name: Verificar se a chave do cliente API Server para Etcd já existe
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-chave.pem"
+  register: etcd_apiserver_cliente_chave
+  tags: ["etcd_apiserver_cliente", "verificacao_chave"]
+
+- name: Gerar chave Ed25519 para cliente API Server do Etcd
+  community.crypto.openssl_privatekey:
+    path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-chave.pem"
+    type: "{{ pki_tipo_curva }}"
+    state: "present"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not etcd_apiserver_cliente_chave.stat.exists or pki_regerar_certs | bool
+  tags: ["etcd_apiserver_cliente", "gerar_chave"]
+
+- name: Verificar se o CSR do cliente API Server para Etcd já existe
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente.csr"
+  register: etcd_apiserver_cliente_csr
+  tags: ["etcd_apiserver_cliente", "verificacao_csr"]
+
+- name: Gerar CSR para cliente API Server do Etcd
+  community.crypto.openssl_csr:
+    path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente.csr"
+    privatekey_path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-chave.pem"
+    mode: "0600"
+    owner: "root"
+    group: "root"
+    CN: "etcd-apiserver-cliente"
+    O: "{{ pki_organizacao }}"
+    OU: "Cliente Etcd para API Server"
+    key_usage:
+      - digitalSignature
+      - keyAgreement
+    key_usage_critical: true
+    extended_key_usage:
+      - clientAuth
+    extended_key_usage_critical: true
+    subject_alt_name: "{{ lookup('template', 'etcd_apiserver_cliente_san.j2') | from_yaml }}"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not etcd_apiserver_cliente_csr.stat.exists or pki_regerar_certs | bool
+  tags: ["etcd_apiserver_cliente", "gerar_csr"]
+
+- name: Verificar se o certificado do cliente API Server para Etcd já existe
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-cert.pem"
+  register: etcd_apiserver_cliente_cert
+  tags: ["etcd_apiserver_cliente", "verificacao_cert"]
+
+- name: Gerar certificado do cliente API Server para Etcd
+  community.crypto.x509_certificate:
+    path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-cert.pem"
+    csr_path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente.csr"
+    provider: ownca
+    ownca_path: "/vagrant/arquivos/pki/etcd/ca-etcd-cert.pem"
+    ownca_privatekey_path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
+    ownca_not_after: "+{{ pki_validade_cert }}d"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not etcd_apiserver_cliente_cert.stat.exists or pki_regerar_certs | bool
+  tags: ["etcd_apiserver_cliente", "gerar_certificado"]
