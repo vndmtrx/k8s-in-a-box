@@ -10,7 +10,7 @@ A abordagem manual de instalação deste projeto permite explorar a arquitetura 
 
 O cluster é composto por:
 - 1 Load Balancer
-- 1 Manager (Control Plane)
+- 3 Managers (Control Plane)
 - 2 Workers
 
 ## Pré-requisitos
@@ -18,8 +18,8 @@ O cluster é composto por:
 - Vagrant com provider LibVirt
 - Ansible 2.9+
 - Debian Bookworm 64-bit (base para as VMs)
-- 8GB RAM disponível (2GB por VM)
-- 8 vCPUs disponíveis (1 vCPUs por VM)
+- 9.5 GB RAM disponível
+- 9 vCPUs disponíveis
 
 ## Início Rápido
 
@@ -44,7 +44,9 @@ vagrant up
 Use o comando SSH com o arquivo de configuração fornecido neste repositório:
 ```bash
 ssh -F ssh_config 172.24.0.11  # Load Balancer
-ssh -F ssh_config 172.24.0.21  # Manager
+ssh -F ssh_config 172.24.0.21  # Manager 1
+ssh -F ssh_config 172.24.0.22  # Manager 2
+ssh -F ssh_config 172.24.0.23  # Manager 3
 ssh -F ssh_config 172.24.0.31  # Worker 1
 ssh -F ssh_config 172.24.0.32  # Worker 2
 ```
@@ -53,7 +55,9 @@ ssh -F ssh_config 172.24.0.32  # Worker 2
 
 Todas as máquinas estão em uma rede privada:
 - Load Balancer: 172.24.0.11
-- Manager: 172.24.0.21
+- Manager 1: 172.24.0.21
+- Manager 2: 172.24.0.22
+- Manager 3: 172.24.0.23
 - Worker 1: 172.24.0.31
 - Worker 2: 172.24.0.32
 
