@@ -1,12 +1,12 @@
 # ansible/pki/tasks/05-cert_etcd_server.yml
 ---
-- name: Verificar se a chave do servidor Etcd já existe
+- name: Verificar se a chave do servidor Etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/{{ manager_host }}-etcd-server-chave.pem"
   register: etcd_server_chave
   tags: ["etcd_server", "verificacao_chave"]
 
-- name: Gerar chave Ed25519 para servidor Etcd
+- name: Gerar chave Ed25519 para servidor Etcd ({{ manager_host }})
   community.crypto.openssl_privatekey:
     path: "/vagrant/arquivos/pki/etcd/{{ manager_host }}-etcd-server-chave.pem"
     type: "{{ pki_tipo_curva }}"
@@ -15,13 +15,13 @@
   when: not etcd_server_chave.stat.exists or pki_regerar_certs | bool
   tags: ["etcd_server", "gerar_chave"]
 
-- name: Verificar se o CSR do servidor Etcd já existe
+- name: Verificar se o CSR do servidor Etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/{{ manager_host }}-etcd-server.csr"
   register: etcd_server_csr
   tags: ["etcd_server", "verificacao_csr"]
 
-- name: Gerar CSR para servidor Etcd
+- name: Gerar CSR para servidor Etcd ({{ manager_host }})
   community.crypto.openssl_csr:
     path: "/vagrant/arquivos/pki/etcd/{{ manager_host }}-etcd-server.csr"
     privatekey_path: "/vagrant/arquivos/pki/etcd/{{ manager_host }}-etcd-server-chave.pem"
@@ -44,13 +44,13 @@
   when: not etcd_server_csr.stat.exists or pki_regerar_certs | bool
   tags: ["etcd_server", "gerar_csr"]
 
-- name: Verificar se o certificado do servidor Etcd já existe
+- name: Verificar se o certificado do servidor Etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/{{ manager_host }}-etcd-server-cert.pem"
   register: etcd_server_cert
   tags: ["etcd_server", "verificacao_cert"]
 
-- name: Gerar certificado do servidor Etcd
+- name: Gerar certificado do servidor Etcd ({{ manager_host }})
   community.crypto.x509_certificate:
     path: "/vagrant/arquivos/pki/etcd/{{ manager_host }}-etcd-server-cert.pem"
     csr_path: "/vagrant/arquivos/pki/etcd/{{ manager_host }}-etcd-server.csr"
