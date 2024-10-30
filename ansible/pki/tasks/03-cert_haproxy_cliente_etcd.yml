@@ -1,4 +1,4 @@
-# ansible/pki/tasks/03-cert_haproxy_client_etcd.yml
+# ansible/pki/tasks/03-cert_haproxy_cliente_etcd.yml
 ---
 - name: Verificar se a chave do cliente HAProxy para Etcd já existe
   ansible.builtin.stat:
