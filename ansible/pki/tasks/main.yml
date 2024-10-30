@@ -1,7 +1,7 @@
 # ansible/pki/tasks/main.yml
 ---
 - name: Criar CA do etcd
-  ansible.builtin.import_tasks: 01-ca_etcd.yml
+  ansible.builtin.include_tasks: 01-ca_etcd.yml
   tags:
     - pki
     - pki:ca
@@ -9,7 +9,7 @@
     - pki:etcd:ca
 
 - name: Criar CA do Kubernetes
-  ansible.builtin.import_tasks: 02-ca_kubernetes.yml
+  ansible.builtin.include_tasks: 02-ca_kubernetes.yml
   tags:
     - pki
     - pki:ca
@@ -17,7 +17,7 @@
     - pki:k8s:ca
 
 - name: Criar certificado cliente HAProxy para Etcd
-  ansible.builtin.import_tasks: 03-cert_haproxy_cliente_etcd.yml
+  ansible.builtin.include_tasks: 03-cert_haproxy_cliente_etcd.yml
   tags:
     - pki
     - pki:etcd
@@ -25,7 +25,7 @@
     - pki:etcd:haproxy
 
 - name: Criar certificado cliente API Server para Etcd
-  ansible.builtin.import_tasks: 04-cert_apiserver_cliente_etcd.yml
+  ansible.builtin.include_tasks: 04-cert_apiserver_cliente_etcd.yml
   tags:
     - pki
     - pki:etcd
