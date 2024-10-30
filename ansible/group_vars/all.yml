@@ -1,0 +1,5 @@
+# ansible/group_vars/all.yml
+---
+rede_cidr_hosts: "172.24.0.0/24"
+rede_cidr_pods: "172.24.4.0/22"
+rede_cidr_services: "172.24.8.0/22"
