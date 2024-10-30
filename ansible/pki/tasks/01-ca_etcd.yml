@@ -1,6 +1,6 @@
 # ansible/pki/tasks/01-ca_etcd.yml
 ---
-- name: Criar estrutura de diretórios para certificados
+- name: Criar estrutura de diretórios para certificados do Etcd
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
