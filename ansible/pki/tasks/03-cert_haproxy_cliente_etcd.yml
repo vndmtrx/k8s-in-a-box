@@ -2,13 +2,13 @@
 ---
 - name: Verificar se a chave do cliente HAProxy para Etcd já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/etcd/haproxy-client-etcd-chave.pem"
+    path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente-chave.pem"
   register: haproxy_client_etcd_chave
   tags: ["haproxy_client_etcd", "verificacao_chave"]
 
 - name: Gerar chave Ed25519 para cliente HAProxy do Etcd
   community.crypto.openssl_privatekey:
-    path: "/vagrant/arquivos/pki/etcd/haproxy-client-etcd-chave.pem"
+    path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente-chave.pem"
     type: "{{ pki_tipo_curva }}"
     state: "present"
     force: "{{ pki_regerar_certs | bool }}"
@@ -17,18 +17,18 @@
 
 - name: Verificar se o CSR do cliente HAProxy para Etcd já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/etcd/haproxy-client-etcd.csr"
+    path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente.csr"
   register: haproxy_client_etcd_csr
   tags: ["haproxy_client_etcd", "verificacao_csr"]
 
 - name: Gerar CSR para cliente HAProxy do Etcd
   community.crypto.openssl_csr:
-    path: "/vagrant/arquivos/pki/etcd/haproxy-client-etcd.csr"
-    privatekey_path: "/vagrant/arquivos/pki/etcd/haproxy-client-etcd-chave.pem"
+    path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente.csr"
+    privatekey_path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente-chave.pem"
     mode: "0600"
     owner: "root"
     group: "root"
-    CN: "haproxy-client"
+    CN: "haproxy-cliente"
     O: "{{ pki_organizacao }}"
     OU: "Cliente Etcd para HAProxy LoadBalancer"
     key_usage:
@@ -45,14 +45,14 @@
 
 - name: Verificar se o certificado do cliente HAProxy para Etcd já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/etcd/haproxy-client-etcd-cert.pem"
+    path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente-cert.pem"
   register: haproxy_client_etcd_cert
   tags: ["haproxy_client_etcd", "verificacao_cert"]
 
 - name: Gerar certificado do cliente HAProxy para Etcd
   community.crypto.x509_certificate:
-    path: "/vagrant/arquivos/pki/etcd/haproxy-client-etcd-cert.pem"
-    csr_path: "/vagrant/arquivos/pki/etcd/haproxy-client-etcd.csr"
+    path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente-cert.pem"
+    csr_path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente.csr"
     provider: ownca
     ownca_path: "/vagrant/arquivos/pki/etcd/ca-etcd-cert.pem"
     ownca_privatekey_path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
