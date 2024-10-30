@@ -3,8 +3,8 @@
 - name: Verificar se a chave do cliente HAProxy para Etcd já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente-chave.pem"
-  register: haproxy_client_etcd_chave
-  tags: ["haproxy_client_etcd", "verificacao_chave"]
+  register: etcd_haproxy_cliente_chave
+  tags: ["etcd_haproxy_cliente", "verificacao_chave"]
 
 - name: Gerar chave Ed25519 para cliente HAProxy do Etcd
   community.crypto.openssl_privatekey:
@@ -12,14 +12,14 @@
     type: "{{ pki_tipo_curva }}"
     state: "present"
     force: "{{ pki_regerar_certs | bool }}"
-  when: not haproxy_client_etcd_chave.stat.exists or pki_regerar_certs | bool
-  tags: ["haproxy_client_etcd", "gerar_chave"]
+  when: not etcd_haproxy_cliente_chave.stat.exists or pki_regerar_certs | bool
+  tags: ["etcd_haproxy_cliente", "gerar_chave"]
 
 - name: Verificar se o CSR do cliente HAProxy para Etcd já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente.csr"
-  register: haproxy_client_etcd_csr
-  tags: ["haproxy_client_etcd", "verificacao_csr"]
+  register: etcd_haproxy_cliente_csr
+  tags: ["etcd_haproxy_cliente", "verificacao_csr"]
 
 - name: Gerar CSR para cliente HAProxy do Etcd
   community.crypto.openssl_csr:
@@ -28,7 +28,7 @@
     mode: "0600"
     owner: "root"
     group: "root"
-    CN: "haproxy-cliente"
+    CN: "etcd-haproxy-cliente"
     O: "{{ pki_organizacao }}"
     OU: "Cliente Etcd para HAProxy LoadBalancer"
     key_usage:
@@ -38,16 +38,16 @@
     extended_key_usage:
       - clientAuth
     extended_key_usage_critical: true
-    subject_alt_name: "{{ groups['loadbalancers'] | map('extract', hostvars, ['ansible_host']) | map('regex_replace', '^', 'IP:') | list }}"
+    subject_alt_name: "{{ lookup('template', 'etcd_haproxy_cliente_san.j2') | from_yaml }}"
     force: "{{ pki_regerar_certs | bool }}"
-  when: not haproxy_client_etcd_csr.stat.exists or pki_regerar_certs | bool
-  tags: ["haproxy_client_etcd", "gerar_csr"]
+  when: not etcd_haproxy_cliente_csr.stat.exists or pki_regerar_certs | bool
+  tags: ["etcd_haproxy_cliente", "gerar_csr"]
 
 - name: Verificar se o certificado do cliente HAProxy para Etcd já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente-cert.pem"
-  register: haproxy_client_etcd_cert
-  tags: ["haproxy_client_etcd", "verificacao_cert"]
+  register: etcd_haproxy_cliente_cert
+  tags: ["etcd_haproxy_cliente", "verificacao_cert"]
 
 - name: Gerar certificado do cliente HAProxy para Etcd
   community.crypto.x509_certificate:
@@ -61,5 +61,5 @@
     owner: "root"
     group: "root"
     force: "{{ pki_regerar_certs | bool }}"
-  when: not haproxy_client_etcd_cert.stat.exists or pki_regerar_certs | bool
-  tags: ["haproxy_client_etcd", "gerar_certificado"]
+  when: not etcd_haproxy_cliente_cert.stat.exists or pki_regerar_certs | bool
+  tags: ["etcd_haproxy_cliente", "gerar_certificado"]
