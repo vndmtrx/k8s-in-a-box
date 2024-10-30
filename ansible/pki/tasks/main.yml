@@ -16,6 +16,14 @@
     - pki:k8s
     - pki:k8s:ca
 
+- name: Criar certificado cliente HAProxy para Etcd
+  ansible.builtin.import_tasks: 03-cert_haproxy_client_etcd.yml
+  tags:
+    - pki
+    - pki:etcd
+    - pki:etcd:client
+    - pki:etcd:haproxy
+
 # - name: Criar certificados dos servidores etcd
 #   ansible.builtin.import_tasks: 02-cert_etcd_servers.yml
 #   tags:
