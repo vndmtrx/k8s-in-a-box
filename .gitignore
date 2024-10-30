@@ -4,3 +4,7 @@
 # Arquivos do projeto
 arquivos/*
 !arquivos/.gitkeep
+
+# Chaves SSH
+id_ed25519
+id_ed25519.pub

@@ -18,6 +18,23 @@ nodes = {
 }
 
 Vagrant.configure("2") do |config|
+  # Gera a chave SSH se não existir
+  unless File.exist?('id_ed25519') && File.exist?('id_ed25519.pub')
+    system('ssh-keygen -t ed25519 -f id_ed25519 -N "" >/dev/null 2>&1')
+    puts "Nova chave SSH gerada."
+  end
+
+  # Remove as chaves após destruir todas as VMs
+  config.trigger.after :destroy do |trigger|
+    trigger.ruby do |env, machine|
+      if File.exist?('id_ed25519')
+        File.delete('id_ed25519')
+        File.delete('id_ed25519.pub')
+        puts "Chave SSH removida."
+      end
+    end
+  end
+
   # Imagem a ser utilizada
   config.vm.box = "debian/bookworm64"
   config.ssh.insert_key = false
@@ -46,10 +63,10 @@ Vagrant.configure("2") do |config|
 
       # Adiciona a chave pública se ela não existir
       node.vm.provision "shell" do |s|
-        ssh_pub_key = File.readlines("./id_ed25519.pub").first.strip
         s.inline = <<-SHELL
-          if ! grep -q "#{ssh_pub_key}" /home/vagrant/.ssh/authorized_keys; then
-            echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
+          PUBKEY=$(cat /vagrant/id_ed25519.pub)
+          if ! grep -q "$PUBKEY" /home/vagrant/.ssh/authorized_keys; then
+            echo "$PUBKEY" >> /home/vagrant/.ssh/authorized_keys
             echo "Chave SSH adicionada."
           else
             echo "A chave SSH já existe no arquivo authorized_keys."
