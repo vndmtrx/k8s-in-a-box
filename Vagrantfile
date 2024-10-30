@@ -24,6 +24,8 @@ Vagrant.configure("2") do |config|
   nodes = {
     "k8s-lb" => "172.24.0.11",
     "k8s-manager1" => "172.24.0.21",
+    "k8s-manager2" => "172.24.0.22",
+    "k8s-manager3" => "172.24.0.23",
     "k8s-worker1" => "172.24.0.31",
     "k8s-worker2" => "172.24.0.32"
   }
