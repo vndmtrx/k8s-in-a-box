@@ -1,4 +1,4 @@
-# ansible/pki/tasks/04-ca_kubernetes.yml
+# ansible/pki/tasks/02-ca_kubernetes.yml
 ---
 - name: Criar estrutura de diretórios para certificados
   ansible.builtin.file:
