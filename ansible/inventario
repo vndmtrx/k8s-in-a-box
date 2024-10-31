@@ -1,14 +1,14 @@
 [loadbalancers]
-k8s-lb ansible_host=172.24.0.11 ansible_user=vagrant
+loadbalancer ansible_host=172.24.0.11 ansible_user=vagrant
 
 [managers]
-k8s-manager1 ansible_host=172.24.0.21 ansible_user=vagrant
-k8s-manager2 ansible_host=172.24.0.22 ansible_user=vagrant
-k8s-manager3 ansible_host=172.24.0.23 ansible_user=vagrant
+manager1 ansible_host=172.24.0.21 ansible_user=vagrant
+manager2 ansible_host=172.24.0.22 ansible_user=vagrant
+manager3 ansible_host=172.24.0.23 ansible_user=vagrant
 
 [workers]
-k8s-worker1 ansible_host=172.24.0.31 ansible_user=vagrant
-k8s-worker2 ansible_host=172.24.0.32 ansible_user=vagrant
+worker1 ansible_host=172.24.0.31 ansible_user=vagrant
+worker2 ansible_host=172.24.0.32 ansible_user=vagrant
 
 [k8s_nodes:children]
 managers

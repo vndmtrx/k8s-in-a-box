@@ -9,12 +9,12 @@ ENV["VAGRANT_DEFAULT_PROVIDER"] = "libvirt"
 
 # Definição dos nodes com seus IPs e recursos
 nodes = {
-  "k8s-lb" => { "ip" => "172.24.0.11", "memory" => 512, "cpus" => 1 },
-  "k8s-manager1" => { "ip" => "172.24.0.21", "memory" => 2048, "cpus" => 2 },
-  "k8s-manager2" => { "ip" => "172.24.0.22", "memory" => 2048, "cpus" => 2 },
-  "k8s-manager3" => { "ip" => "172.24.0.23", "memory" => 2048, "cpus" => 2 },
-  "k8s-worker1" => { "ip" => "172.24.0.31", "memory" => 1536, "cpus" => 1 },
-  "k8s-worker2" => { "ip" => "172.24.0.32", "memory" => 1536, "cpus" => 1 }
+  "loadbalancer" => { "ip" => "172.24.0.11", "memory" => 512, "cpus" => 1 },
+  "manager1" => { "ip" => "172.24.0.21", "memory" => 2048, "cpus" => 2 },
+  "manager2" => { "ip" => "172.24.0.22", "memory" => 2048, "cpus" => 2 },
+  "manager3" => { "ip" => "172.24.0.23", "memory" => 2048, "cpus" => 2 },
+  "worker1" => { "ip" => "172.24.0.31", "memory" => 1536, "cpus" => 1 },
+  "worker2" => { "ip" => "172.24.0.32", "memory" => 1536, "cpus" => 1 }
 }
 
 Vagrant.configure("2") do |config|
