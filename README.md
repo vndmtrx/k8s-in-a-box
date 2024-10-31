@@ -63,7 +63,7 @@ Todas as máquinas estão em uma rede privada:
 
 ## Notas Importantes
 
-- A chave SSH incluída neste repositório (`id_ed25519.pub`) é apenas para exemplo/desenvolvimento
+- A chave SSH gerada por esse Vagrant (`id_ed25519.pub`) é apenas para exemplo/desenvolvimento
 - **NÃO USE** esta chave em ambiente de produção
 - Para produção, sempre gere e use suas próprias chaves SSH
 - O script `provisionamento.sh` utiliza uma configuração específica do Ansible localizada em `./ansible/.ansible.cfg`
