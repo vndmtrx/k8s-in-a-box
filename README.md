@@ -41,7 +41,7 @@ Este projeto está em desenvolvimento ativo, seguindo uma abordagem progressiva 
 - Componentes Adicionais
 - Exemplos e demonstrações de uso do cluster
 
-> 📖 Para um acompanhamento detalhado do desenvolvimento, incluindo todos os componentes e suas dependências, consulte o [Mapa de Progresso](docs/PROGRESS.md).
+> 📖 Para um acompanhamento detalhado do desenvolvimento, incluindo todos os componentes e suas dependências, consulte o [Mapa de Progresso](docs/PROGRESSO.md).
 
 📑 [Ver progresso detalhado](docs/PROGRESSO.md)
 
