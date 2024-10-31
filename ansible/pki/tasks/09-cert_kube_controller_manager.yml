@@ -1,0 +1,66 @@
+# ansible/pki/tasks/09-cert_kube_controller_manager.yml
+---
+- name: Verificar se a chave do kube-controller-manager já existe ({{ manager_host }})
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/kube-controller-manager-{{ manager_host }}-chave.pem"
+  register: controller_manager_chave
+  tags: ["controller_manager", "verificacao_chave"]
+
+- name: Gerar chave Ed25519 para kube-controller-manager ({{ manager_host }})
+  community.crypto.openssl_privatekey:
+    path: "/vagrant/arquivos/pki/kubernetes/kube-controller-manager-{{ manager_host }}-chave.pem"
+    type: "{{ pki_tipo_curva }}"
+    state: "present"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not controller_manager_chave.stat.exists or pki_regerar_certs | bool
+  tags: ["controller_manager", "gerar_chave"]
+
+- name: Verificar se o CSR do kube-controller-manager já existe ({{ manager_host }})
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/kube-controller-manager-{{ manager_host }}.csr"
+  register: controller_manager_csr
+  tags: ["controller_manager", "verificacao_csr"]
+
+- name: Gerar CSR para kube-controller-manager ({{ manager_host }})
+  community.crypto.openssl_csr:
+    path: "/vagrant/arquivos/pki/kubernetes/kube-controller-manager-{{ manager_host }}.csr"
+    privatekey_path: "/vagrant/arquivos/pki/kubernetes/kube-controller-manager-{{ manager_host }}-chave.pem"
+    digest: "{{ pki_algoritmo_hash }}"
+    mode: "0600"
+    owner: "root"
+    group: "root"
+    CN: "system:kube-controller-manager"
+    O: "system:kube-controller-manager"
+    OU: "Kubernetes in a Jar"
+    key_usage:
+      - digitalSignature
+    key_usage_critical: true
+    extended_key_usage:
+      - clientAuth
+    extended_key_usage_critical: true
+    subject_alt_name: "{{ lookup('template', 'kube_controller_manager_san.j2') | from_yaml }}"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not controller_manager_csr.stat.exists or pki_regerar_certs | bool
+  tags: ["controller_manager", "gerar_csr"]
+
+- name: Verificar se o certificado do kube-controller-manager já existe ({{ manager_host }})
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/kube-controller-manager-{{ manager_host }}-cert.pem"
+  register: controller_manager_cert
+  tags: ["controller_manager", "verificacao_cert"]
+
+- name: Gerar certificado do kube-controller-manager ({{ manager_host }})
+  community.crypto.x509_certificate:
+    path: "/vagrant/arquivos/pki/kubernetes/kube-controller-manager-{{ manager_host }}-cert.pem"
+    csr_path: "/vagrant/arquivos/pki/kubernetes/kube-controller-manager-{{ manager_host }}.csr"
+    provider: ownca
+    ownca_digest: "{{ pki_algoritmo_hash }}"
+    ownca_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-cert.pem"
+    ownca_privatekey_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
+    ownca_not_after: "+{{ pki_validade_cert }}d"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not controller_manager_cert.stat.exists or pki_regerar_certs | bool
+  tags: ["controller_manager", "gerar_certificado"]
