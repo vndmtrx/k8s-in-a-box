@@ -5,7 +5,10 @@ pki_regerar_certs: true
 pki_tipo_curva: "Ed25519"
 pki_algoritmo_hash: "sha512"
 
-pki_validade_ca: 3650
-pki_validade_cert: 365
+pki_validade_ca: 365
+pki_validade_cert: 30
+pki_validade_alerta: 7
+
+pki_pasta_base: "/vagrant/arquivos/pki"
 
 pki_organizacao: "Kubernetes in a Jar"

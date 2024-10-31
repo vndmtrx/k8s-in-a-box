@@ -10,3 +10,7 @@ ANSIBLE_CONFIG="./ansible/.ansible.cfg"
 
 chmod 0600 id_ed25519
 ANSIBLE_CONFIG="$ANSIBLE_CONFIG" ansible-playbook -v "./ansible/playbook.yml"
+
+#ANSIBLE_CONFIG="$ANSIBLE_CONFIG" ansible-playbook "./ansible/playbook.yml" --tags "pki:monitor"
+
+#cat arquivos/pki/status-certificados.txt
