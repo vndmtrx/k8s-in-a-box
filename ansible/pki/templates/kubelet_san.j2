@@ -1,0 +1,5 @@
+- IP:127.0.0.1
+- DNS:localhost
+
+- DNS:{{ node_host }}
+- IP:{{ hostvars[node_host]['ansible_host'] }}

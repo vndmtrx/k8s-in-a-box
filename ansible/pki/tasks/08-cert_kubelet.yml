@@ -1,0 +1,66 @@
+# ansible/pki/tasks/08-cert_kubelet.yml
+---
+- name: Verificar se a chave do Kubelet já existe ({{ node_host }})
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/kubelet-node-{{ node_host }}-chave.pem"
+  register: kubelet_chave
+  tags: ["kubelet", "verificacao_chave"]
+
+- name: Gerar chave Ed25519 para Kubelet ({{ node_host }})
+  community.crypto.openssl_privatekey:
+    path: "/vagrant/arquivos/pki/kubernetes/kubelet-node-{{ node_host }}-chave.pem"
+    type: "{{ pki_tipo_curva }}"
+    state: "present"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not kubelet_chave.stat.exists or pki_regerar_certs | bool
+  tags: ["kubelet", "gerar_chave"]
+
+- name: Verificar se o CSR do Kubelet já existe ({{ node_host }})
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/kubelet-{{ node_host }}.csr"
+  register: kubelet_csr
+  tags: ["kubelet", "verificacao_csr"]
+
+- name: Gerar CSR para Kubelet ({{ node_host }})
+  community.crypto.openssl_csr:
+    path: "/vagrant/arquivos/pki/kubernetes/kubelet-{{ node_host }}.csr"
+    privatekey_path: "/vagrant/arquivos/pki/kubernetes/kubelet-node-{{ node_host }}-chave.pem"
+    digest: "{{ pki_algoritmo_hash }}"
+    mode: "0600"
+    owner: "root"
+    group: "root"
+    CN: "system:node:{{ node_host }}"
+    O: "system:nodes"
+    OU: "Kubernetes in a Jar"
+    key_usage:
+      - digitalSignature
+    key_usage_critical: true
+    extended_key_usage:
+      - clientAuth
+    extended_key_usage_critical: true
+    subject_alt_name: "{{ lookup('template', 'kubelet_san.j2') | from_yaml }}"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not kubelet_csr.stat.exists or pki_regerar_certs | bool
+  tags: ["kubelet", "gerar_csr"]
+
+- name: Verificar se o certificado do Kubelet já existe ({{ node_host }})
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/kubelet-node-{{ node_host }}-cert.pem"
+  register: kubelet_cert
+  tags: ["kubelet", "verificacao_cert"]
+
+- name: Gerar certificado do Kubelet ({{ node_host }})
+  community.crypto.x509_certificate:
+    path: "/vagrant/arquivos/pki/kubernetes/kubelet-node-{{ node_host }}-cert.pem"
+    csr_path: "/vagrant/arquivos/pki/kubernetes/kubelet-{{ node_host }}.csr"
+    provider: ownca
+    ownca_digest: "{{ pki_algoritmo_hash }}"
+    ownca_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-cert.pem"
+    ownca_privatekey_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
+    ownca_not_after: "+{{ pki_validade_cert }}d"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not kubelet_cert.stat.exists or pki_regerar_certs | bool
+  tags: ["kubelet", "gerar_certificado"]

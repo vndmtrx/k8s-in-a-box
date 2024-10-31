@@ -52,6 +52,16 @@
     - pki:etcd
     - pki:etcd:peer
 
+- name: Criar certificados dos Kubelets
+  ansible.builtin.include_tasks: 08-cert_kubelet.yml
+  loop: "{{ groups['k8s_nodes'] }}"
+  loop_control:
+    loop_var: node_host
+  tags:
+    - pki
+    - pki:k8s
+    - pki:k8s:kubelet
+
 # - name: Criar certificados dos servidores etcd
 #   ansible.builtin.import_tasks: 02-cert_etcd_servers.yml
 #   tags:
