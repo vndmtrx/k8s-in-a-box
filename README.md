@@ -6,6 +6,45 @@ Uma implementação inspirada no conceito "Kubernetes The Hard Way", utilizando 
 
 A abordagem manual de instalação deste projeto permite explorar a arquitetura e os fundamentos do Kubernetes, sendo particularmente relevante para profissionais interessados em entender os mecanismos internos de um cluster Kubernetes.
 
+## 🚀 Estado Atual do Projeto
+
+Este projeto está em desenvolvimento ativo, seguindo uma abordagem progressiva de construção do cluster Kubernetes. A implementação segue uma sequência lógica que respeita as dependências entre os componentes.
+
+### 🟢 Componentes Concluídos
+- Infraestrutura com Vagrant/LibVirt
+- Framework de Automação Ansible
+- Sistema Base das VMs (Debian Bookworm)
+- PKI (Certificados para todos componentes)
+
+### 🟡 Em Desenvolvimento
+1. **Load Balancer (HAProxy)**
+   - Balanceamento do API Server
+   - Balanceamento do etcd
+   - Configuração de Health Checks
+
+2. **Cluster etcd**
+   - Implementação do cluster distribuído
+   - Configuração de alta disponibilidade
+   - Integração com HAProxy
+
+3. **Kubernetes API Server**
+   - Integração com etcd
+   - Configuração de alta disponibilidade
+   - Balanceamento via HAProxy
+
+### ⚪ Etapas Futuras
+- Demais Componentes do Control Plane
+- Workers, Kubelet e Container Runtime
+- Rede do Cluster
+- MetalLB
+- Sistema de Monitoramento
+- Componentes Adicionais
+- Exemplos e demonstrações de uso do cluster
+
+> 📖 Para um acompanhamento detalhado do desenvolvimento, incluindo todos os componentes e suas dependências, consulte nossa [Mapa de Progresso](docs/PROGRESS.md).
+
+📑 [Ver progresso detalhado](docs/PROGRESSO.md)
+
 ## Arquitetura
 
 O cluster é composto por:
