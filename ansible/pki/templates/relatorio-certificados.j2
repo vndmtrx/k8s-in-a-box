@@ -15,18 +15,16 @@ Status: {% if cert.dias_restantes <= pki_validade_alerta %}CRÍTICO - RENOVAR!
        {% elif cert.dias_restantes <= (pki_validade_alerta * 2) %}ATENÇÃO - Renovação próxima
        {% else %}OK - {{ cert.dias_restantes }} dias restantes{% endif %}
 
-Detalhes:
-{{ cert.detalhes }}
 {% if cert.dias_restantes <= pki_validade_alerta %}
 AÇÃO NECESSÁRIA:
 - Planejar renovação deste certificado
 - Verificar dependências
 - Preparar janela de manutenção
-{% endif -%}
+{% endif %}
 ===============================================================================
 {% endfor %}
 Resumo:
-- Total de certificados: {{ relatorio_certificados | length }}
+- Total de certificados do Kubernetes: {{ relatorio_certificados | length }}
 - Críticos (< {{ pki_validade_alerta }} dias): {{ relatorio_certificados | selectattr('dias_restantes', '<=', pki_validade_alerta) | list | length }}
 - Atenção (< {{ pki_validade_alerta * 2 }} dias): {{ relatorio_certificados | selectattr('dias_restantes', '<=', pki_validade_alerta * 2) | selectattr('dias_restantes', '>', pki_validade_alerta) | list | length }}
 - OK (> {{ pki_validade_alerta * 2 }} dias): {{ relatorio_certificados | selectattr('dias_restantes', '>', pki_validade_alerta * 2) | list | length }}
