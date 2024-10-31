@@ -1,0 +1,65 @@
+# ansible/pki/tasks/13-cert_admin.yml
+---
+- name: Verificar se a chave do admin já existe
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/admin-chave.pem"
+  register: admin_chave
+  tags: ["admin", "verificacao_chave"]
+
+- name: Gerar chave Ed25519 para admin
+  community.crypto.openssl_privatekey:
+    path: "/vagrant/arquivos/pki/kubernetes/admin-chave.pem"
+    type: "{{ pki_tipo_curva }}"
+    state: "present"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not admin_chave.stat.exists or pki_regerar_certs | bool
+  tags: ["admin", "gerar_chave"]
+
+- name: Verificar se o CSR do admin já existe
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/admin.csr"
+  register: admin_csr
+  tags: ["admin", "verificacao_csr"]
+
+- name: Gerar CSR para admin
+  community.crypto.openssl_csr:
+    path: "/vagrant/arquivos/pki/kubernetes/admin.csr"
+    privatekey_path: "/vagrant/arquivos/pki/kubernetes/admin-chave.pem"
+    digest: "{{ pki_algoritmo_hash }}"
+    mode: "0600"
+    owner: "root"
+    group: "root"
+    CN: "kubernetes-admin"
+    O: "system:masters"
+    OU: "{{ pki_organizacao }}"
+    key_usage:
+      - digitalSignature
+    key_usage_critical: true
+    extended_key_usage:
+      - clientAuth
+    extended_key_usage_critical: true
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not admin_csr.stat.exists or pki_regerar_certs | bool
+  tags: ["admin", "gerar_csr"]
+
+- name: Verificar se o certificado do admin já existe
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/admin-cert.pem"
+  register: admin_cert
+  tags: ["admin", "verificacao_cert"]
+
+- name: Gerar certificado do admin
+  community.crypto.x509_certificate:
+    path: "/vagrant/arquivos/pki/kubernetes/admin-cert.pem"
+    csr_path: "/vagrant/arquivos/pki/kubernetes/admin.csr"
+    provider: ownca
+    ownca_digest: "{{ pki_algoritmo_hash }}"
+    ownca_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-cert.pem"
+    ownca_privatekey_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
+    ownca_not_after: "+{{ pki_validade_cert }}d"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not admin_cert.stat.exists or pki_regerar_certs | bool
+  tags: ["admin", "gerar_certificado"]
