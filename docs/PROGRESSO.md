@@ -107,11 +107,6 @@
 
 ---
 
-🔔 **Próximos Passos:**
-1. Implementar HAProxy para balanceamento
-2. Configurar cluster etcd
-3. Iniciar instalação do control plane
-
 📝 **Notas:**
 - Cada etapa inclui testes e validação
 - A documentação é atualizada a cada etapa
