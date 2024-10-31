@@ -72,3 +72,10 @@
 #     - pki
 #     - pki:k8s
 #     - pki:k8s:apiserver
+
+# Monitoramento de certificados (não roda por padrão)
+- name: Monitorar certificados
+  ansible.builtin.import_tasks: relatorio-certs.yml
+  tags: 
+    - never
+    - pki:monitor
