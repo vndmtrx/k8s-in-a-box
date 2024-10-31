@@ -1,0 +1,66 @@
+# ansible/pki/tasks/11-cert_kube_proxy.yml
+---
+- name: Verificar se a chave do kube-proxy já existe ({{ node_host }})
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/kube-proxy-{{ node_host }}-chave.pem"
+  register: kube_proxy_chave
+  tags: ["kube_proxy", "verificacao_chave"]
+
+- name: Gerar chave Ed25519 para kube-proxy ({{ node_host }})
+  community.crypto.openssl_privatekey:
+    path: "/vagrant/arquivos/pki/kubernetes/kube-proxy-{{ node_host }}-chave.pem"
+    type: "{{ pki_tipo_curva }}"
+    state: "present"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not kube_proxy_chave.stat.exists or pki_regerar_certs | bool
+  tags: ["kube_proxy", "gerar_chave"]
+
+- name: Verificar se o CSR do kube-proxy já existe ({{ node_host }})
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/kube-proxy-{{ node_host }}.csr"
+  register: kube_proxy_csr
+  tags: ["kube_proxy", "verificacao_csr"]
+
+- name: Gerar CSR para kube-proxy ({{ node_host }})
+  community.crypto.openssl_csr:
+    path: "/vagrant/arquivos/pki/kubernetes/kube-proxy-{{ node_host }}.csr"
+    privatekey_path: "/vagrant/arquivos/pki/kubernetes/kube-proxy-{{ node_host }}-chave.pem"
+    digest: "{{ pki_algoritmo_hash }}"
+    mode: "0600"
+    owner: "root"
+    group: "root"
+    CN: "system:kube-proxy"
+    O: "system:node-proxier"
+    OU: "Kubernetes in a Jar"
+    key_usage:
+      - digitalSignature
+    key_usage_critical: true
+    extended_key_usage:
+      - clientAuth
+    extended_key_usage_critical: true
+    subject_alt_name: "{{ lookup('template', 'kube_proxy_san.j2') | from_yaml }}"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not kube_proxy_csr.stat.exists or pki_regerar_certs | bool
+  tags: ["kube_proxy", "gerar_csr"]
+
+- name: Verificar se o certificado do kube-proxy já existe ({{ node_host }})
+  ansible.builtin.stat:
+    path: "/vagrant/arquivos/pki/kubernetes/kube-proxy-{{ node_host }}-cert.pem"
+  register: kube_proxy_cert
+  tags: ["kube_proxy", "verificacao_cert"]
+
+- name: Gerar certificado do kube-proxy ({{ node_host }})
+  community.crypto.x509_certificate:
+    path: "/vagrant/arquivos/pki/kubernetes/kube-proxy-{{ node_host }}-cert.pem"
+    csr_path: "/vagrant/arquivos/pki/kubernetes/kube-proxy-{{ node_host }}.csr"
+    provider: ownca
+    ownca_digest: "{{ pki_algoritmo_hash }}"
+    ownca_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-cert.pem"
+    ownca_privatekey_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
+    ownca_not_after: "+{{ pki_validade_cert }}d"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+    force: "{{ pki_regerar_certs | bool }}"
+  when: not kube_proxy_cert.stat.exists or pki_regerar_certs | bool
+  tags: ["kube_proxy", "gerar_certificado"]
