@@ -1,6 +1,6 @@
 # 🧩 k8s-in-a-jar
 
-Kubernetes in a Jar - Mais uma instalação de Kubernetes, focada em instalação sem helpers e usando Ansible como provisionador.
+Kubernetes in a Jar - Uma instalação de Kubernetes focada em instalação sem helpers e usando Ansible como provisionador.
 
 Uma implementação inspirada no conceito "Kubernetes The Hard Way", utilizando Ansible como ferramenta de automação. Este projeto visa proporcionar uma compreensão maior do funcionamento interno do Kubernetes através da instalação e configuração manual de cada componente, sem depender de ferramentas de conveniência como `kubeadm` ou `k3s`.
 
