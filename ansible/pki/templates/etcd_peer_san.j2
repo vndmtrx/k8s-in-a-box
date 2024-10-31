@@ -1,10 +1,13 @@
+# IPs e nomes locais
 - IP:127.0.0.1
 - DNS:localhost
 
-- DNS:{{ manager_host }}
+# Nó atual
 - IP:{{ hostvars[manager_host]['ansible_host'] }}
+- DNS:{{ manager_host }}
 
+# Todos os managers
 {% for host in groups['managers'] %}
-- DNS:{{ host }}
 - IP:{{ hostvars[host]['ansible_host'] }}
+- DNS:{{ host }}
 {% endfor %}

@@ -1,6 +1,8 @@
+# IPs e nomes locais
 - IP:127.0.0.1
 - DNS:localhost
 
+# Todos os load balancers
 {% for host in groups['loadbalancers'] %}
 - IP:{{ hostvars[host]['ansible_host'] }}
 - DNS:{{ host }}
