@@ -1,4 +1,4 @@
-# ansible/pki/tasks/11-cert_kube_proxy.yml
+# ansible/pki/tasks/12-cert_kube_proxy.yml
 ---
 - name: Verificar se a chave do kube-proxy já existe ({{ node_host }})
   ansible.builtin.stat:
