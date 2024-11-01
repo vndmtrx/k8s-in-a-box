@@ -12,10 +12,15 @@ global
     ssl-default-bind-options {{ ssl_options }}
     tune.ssl.default-dh-param {{ ssl_dh_param }}
 
+    # Aumenta limite de conexões
+    maxconn 50000
+
 defaults
     log     global
     mode    tcp
     option  dontlognull
+    option  tcp-smart-accept
+    option  tcp-smart-connect
     timeout connect {{ timeout_connect }}
     timeout client  {{ timeout_client }}
     timeout server  {{ timeout_server }}
@@ -38,9 +43,14 @@ frontend etcd
 backend k8s_api_backend
     mode tcp
     balance roundrobin
+    retries 3
+    option redispatch
     option tcp-check
     option httpchk GET /healthz
     http-check expect status 200
+    # Timeout específico para API server
+    timeout server 30s
+    timeout connect 5s
 {% for host in groups['managers'] %}
     server {{ host }} {{ hostvars[host]['ansible_host'] }}:6443 check ssl verify required ca-file /etc/haproxy/certs/k8s-ca.pem
 {% endfor %}
@@ -49,7 +59,12 @@ backend k8s_api_backend
 backend etcd_backend
     mode tcp
     balance roundrobin
+    retries 3
+    option redispatch
     option tcp-check
+    # Timeout específico para etcd
+    timeout server 10s
+    timeout connect 5s
 {% for host in groups['managers'] %}
     server {{ host }} {{ hostvars[host]['ansible_host'] }}:2379 check ssl verify required ca-file /etc/haproxy/certs/etcd-ca.pem
 {% endfor %}
@@ -60,5 +75,8 @@ frontend stats
     mode http
     stats enable
     stats uri /stats
-    stats refresh 5s
+    stats show-node
+    stats show-legends
+    stats show-desc K8s e etcd
+    stats refresh 10s
     stats auth {{ haproxy_stats_user }}:{{ haproxy_stats_password }}
