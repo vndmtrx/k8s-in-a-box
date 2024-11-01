@@ -1,7 +1,0 @@
-# ansible/haproxy/handlers/main.yml
----
-- name: Reload haproxy
-  ansible.builtin.systemd:
-    name: haproxy
-    state: reloaded
-    daemon_reload: true
