@@ -17,8 +17,8 @@
     - vars/k8s.yml
   roles:
     - role: pki
-#     - role: tls-ca
-#     - role: haproxy
+      run_once: true
+    - role: haproxy
 
 # - name: Configurar nodes Kubernetes (comum para workers e managers)
 #   hosts: k8s_nodes
