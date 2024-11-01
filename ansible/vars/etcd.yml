@@ -1,3 +1,0 @@
-# ansible/vars/cert.yml
----
-etcd_versao: v3.5.16

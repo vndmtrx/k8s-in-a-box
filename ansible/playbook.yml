@@ -6,19 +6,25 @@
   gather_facts: true
   roles:
     - role: sistema
+      tags:
+        - sistema
+        - never
 
 - name: Configurações do Load Balancer e geração das chaves dos CAs
   hosts: loadbalancers
   become: true
   gather_facts: true
-  vars_files:
-    - vars/lb.yml
-    - vars/cert.yml
-    - vars/k8s.yml
   roles:
     - role: pki
       run_once: true
+      tags:
+        - pki
+        - never
+
     - role: haproxy
+      tags:
+        - haproxy
+        - never
 
 # - name: Configurar nodes Kubernetes (comum para workers e managers)
 #   hosts: k8s_nodes
