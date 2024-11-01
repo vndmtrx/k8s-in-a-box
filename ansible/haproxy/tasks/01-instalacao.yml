@@ -6,7 +6,6 @@
     state: present
   check_mode: yes
   register: haproxy_check
-  tags: ["haproxy", "pacotes", "verificacao"]
 
 - name: Adiciona chave GPG do HAProxy
   ansible.builtin.apt_key:
@@ -27,7 +26,6 @@
       - openssl
       - socat
     state: present
-  tags: ["haproxy", "pacotes", "instalacao"]
 
 - name: Garantir que o diretório de certificados do HAProxy exista
   ansible.builtin.file:
@@ -36,11 +34,9 @@
     mode: '0750'
     owner: haproxy
     group: haproxy
-  tags: ["haproxy", "diretorios"]
 
 - name: Garantir serviço ativo
   ansible.builtin.systemd:
     name: haproxy
     enabled: yes
     state: started
-  tags: ["haproxy", "servico"]

@@ -7,7 +7,6 @@
     mode: '0644'
     validate: 'haproxy -c -f %s'
   check_mode: true
-  tags: ["haproxy", "config", "validacao"]
 
 - name: Criar configuração do HAProxy
   ansible.builtin.template:
@@ -17,11 +16,9 @@
     owner: root
     group: root
     validate: 'haproxy -c -f %s'
-  tags: ["haproxy", "config"]
 
 - name: Reiniciar HAProxy
   ansible.builtin.systemd:
     name: haproxy
     state: reloaded
     daemon_reload: true
-  tags: ["haproxy", "reload"]

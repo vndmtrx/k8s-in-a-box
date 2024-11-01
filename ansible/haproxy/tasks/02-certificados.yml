@@ -9,7 +9,6 @@
     - "/vagrant/arquivos/pki/kubernetes/kube-apiserver-haproxy-cert.pem"
     - "/vagrant/arquivos/pki/kubernetes/kube-apiserver-haproxy-chave.pem"
     - "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-cert.pem"
-  tags: ["haproxy", "certificados", "verificacao"]
 
 - name: Verificar existência dos certificados do Etcd
   ansible.builtin.stat:
@@ -19,7 +18,6 @@
     - "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente-cert.pem"
     - "/vagrant/arquivos/pki/etcd/etcd-haproxy-cliente-chave.pem"
     - "/vagrant/arquivos/pki/etcd/ca-etcd-cert.pem"
-  tags: ["haproxy", "certificados", "verificacao"]
 
 - name: Validar existência de todos os certificados do Kubernetes
   ansible.builtin.assert:
@@ -27,7 +25,6 @@
     fail_msg: "Certificado não encontrado: {{ item.item }}"
     success_msg: "Certificado encontrado: {{ item.item }}"
   loop: "{{ k8s_cert_files.results }}"
-  tags: ["haproxy", "certificados", "verificacao"]
 
 - name: Validar existência de todos os certificados do Etcd 
   ansible.builtin.assert:
@@ -35,7 +32,6 @@
     fail_msg: "Certificado não encontrado: {{ item.item }}"
     success_msg: "Certificado encontrado: {{ item.item }}"
   loop: "{{ etcd_cert_files.results }}"
-  tags: ["haproxy", "certificados", "verificacao"]
 
 # Criar diretório de certificados
 - name: Garantir que o diretório de certificados do HAProxy exista
@@ -45,7 +41,6 @@
     mode: '0750'
     owner: haproxy
     group: haproxy
-  tags: ["haproxy", "certificados", "diretorios"]
 
 # Criar bundles
 - name: Criar bundle para Kubernetes API Server
@@ -57,7 +52,6 @@
     owner: "haproxy"
     group: "haproxy"
     remote_src: true
-  tags: ["haproxy", "certificados", "bundle_k8s"]
 
 - name: Criar bundle para cliente Etcd
   ansible.builtin.assemble:
@@ -68,7 +62,6 @@
     owner: "haproxy"
     group: "haproxy"
     remote_src: true
-  tags: ["haproxy", "certificados", "bundle_etcd"]
 
 # Copiar CAs
 - name: Copiar CA do Kubernetes
@@ -79,7 +72,6 @@
     owner: "haproxy"
     group: "haproxy"
     remote_src: true
-  tags: ["haproxy", "certificados", "ca_k8s"]
 
 - name: Copiar CA do Etcd
   ansible.builtin.copy:
@@ -89,7 +81,6 @@
     owner: "haproxy"
     group: "haproxy"
     remote_src: true
-  tags: ["haproxy", "certificados", "ca_etcd"]
 
 # Verificações finais
 - name: Verificar bundle do Kubernetes
@@ -98,7 +89,6 @@
   register: k8s_verify
   changed_when: false
   failed_when: k8s_verify.rc != 0
-  tags: ["haproxy", "certificados", "verificacao"]
 
 - name: Verificar bundle do Etcd
   ansible.builtin.command:
@@ -106,4 +96,3 @@
   register: etcd_verify
   changed_when: false
   failed_when: etcd_verify.rc != 0
-  tags: ["haproxy", "certificados", "verificacao"]

@@ -4,7 +4,6 @@
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/kube-apiserver-haproxy-chave.pem"
   register: kube_apiserver_haproxy_chave
-  tags: ["pki", "k8s", "haproxy", "verificacao_chave"]
 
 - name: Gerar chave Ed25519 para kube-apiserver do HAProxy
   community.crypto.openssl_privatekey:
@@ -13,13 +12,11 @@
     state: "present"
     force: "{{ pki_regerar_certs | bool }}"
   when: not kube_apiserver_haproxy_chave.stat.exists or pki_regerar_certs | bool
-  tags: ["pki", "k8s", "haproxy", "gerar_chave"]
 
 - name: Verificar se o CSR do kube-apiserver para HAProxy já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/kube-apiserver-haproxy.csr"
   register: kube_apiserver_haproxy_csr
-  tags: ["pki", "k8s", "haproxy", "verificacao_csr"]
 
 - name: Gerar CSR para kube-apiserver do HAProxy
   community.crypto.openssl_csr:
@@ -41,13 +38,11 @@
     subject_alt_name: "{{ lookup('template', 'kube_apiserver_haproxy_san.j2') | from_yaml }}"
     force: "{{ pki_regerar_certs | bool }}"
   when: not kube_apiserver_haproxy_csr.stat.exists or pki_regerar_certs | bool
-  tags: ["pki", "k8s", "haproxy", "gerar_csr"]
 
 - name: Verificar se o certificado do kube-apiserver para HAProxy já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/kube-apiserver-haproxy-cert.pem"
   register: kube_apiserver_haproxy_cert
-  tags: ["pki", "k8s", "haproxy", "verificacao_cert"]
 
 - name: Gerar certificado do kube-apiserver para HAProxy
   community.crypto.x509_certificate:
@@ -63,4 +58,3 @@
     group: "root"
     force: "{{ pki_regerar_certs | bool }}"
   when: not kube_apiserver_haproxy_cert.stat.exists or pki_regerar_certs | bool
-  tags: ["pki", "k8s", "haproxy", "gerar_certificado"]

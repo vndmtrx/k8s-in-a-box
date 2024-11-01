@@ -4,7 +4,6 @@
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/kube-apiserver-{{ manager_host }}-chave.pem"
   register: kube_apiserver_chave
-  tags: ["kube_apiserver", "verificacao_chave"]
 
 - name: Gerar chave Ed25519 para kube-apiserver ({{ manager_host }})
   community.crypto.openssl_privatekey:
@@ -13,13 +12,11 @@
     state: "present"
     force: "{{ pki_regerar_certs | bool }}"
   when: not kube_apiserver_chave.stat.exists or pki_regerar_certs | bool
-  tags: ["kube_apiserver", "gerar_chave"]
 
 - name: Verificar se o CSR do kube-apiserver já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/kube-apiserver-{{ manager_host }}.csr"
   register: kube_apiserver_csr
-  tags: ["kube_apiserver", "verificacao_csr"]
 
 - name: Gerar CSR para kube-apiserver ({{ manager_host }})
   community.crypto.openssl_csr:
@@ -41,13 +38,11 @@
     subject_alt_name: "{{ lookup('template', 'kube_apiserver_san.j2') | from_yaml }}"
     force: "{{ pki_regerar_certs | bool }}"
   when: not kube_apiserver_csr.stat.exists or pki_regerar_certs | bool
-  tags: ["kube_apiserver", "gerar_csr"]
 
 - name: Verificar se o certificado do kube-apiserver já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/kube-apiserver-{{ manager_host }}-cert.pem"
   register: kube_apiserver_cert
-  tags: ["kube_apiserver", "verificacao_cert"]
 
 - name: Gerar certificado do kube-apiserver ({{ manager_host }})
   community.crypto.x509_certificate:
@@ -63,4 +58,3 @@
     group: "root"
     force: "{{ pki_regerar_certs | bool }}"
   when: not kube_apiserver_cert.stat.exists or pki_regerar_certs | bool
-  tags: ["kube_apiserver", "gerar_certificado"]

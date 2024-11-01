@@ -4,7 +4,6 @@
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-peer-chave.pem"
   register: etcd_peer_chave
-  tags: ["etcd_peer", "verificacao_chave"]
 
 - name: Gerar chave Ed25519 para peer Etcd ({{ manager_host }})
   community.crypto.openssl_privatekey:
@@ -13,13 +12,11 @@
     state: "present"
     force: "{{ pki_regerar_certs | bool }}"
   when: not etcd_peer_chave.stat.exists or pki_regerar_certs | bool
-  tags: ["etcd_peer", "gerar_chave"]
 
 - name: Verificar se o CSR do peer Etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-peer.csr"
   register: etcd_peer_csr
-  tags: ["etcd_peer", "verificacao_csr"]
 
 - name: Gerar CSR para peer Etcd ({{ manager_host }})
   community.crypto.openssl_csr:
@@ -43,13 +40,11 @@
     subject_alt_name: "{{ lookup('template', 'etcd_peer_san.j2') | from_yaml }}"
     force: "{{ pki_regerar_certs | bool }}"
   when: not etcd_peer_csr.stat.exists or pki_regerar_certs | bool
-  tags: ["etcd_peer", "gerar_csr"]
 
 - name: Verificar se o certificado do peer Etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-peer-cert.pem"
   register: etcd_peer_cert
-  tags: ["etcd_peer", "verificacao_cert"]
 
 - name: Gerar certificado do peer Etcd ({{ manager_host }})
   community.crypto.x509_certificate:
@@ -65,4 +60,3 @@
     group: "root"
     force: "{{ pki_regerar_certs | bool }}"
   when: not etcd_peer_cert.stat.exists or pki_regerar_certs | bool
-  tags: ["etcd_peer", "gerar_certificado"]

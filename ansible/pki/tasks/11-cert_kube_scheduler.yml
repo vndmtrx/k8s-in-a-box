@@ -4,7 +4,6 @@
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/kube-scheduler-{{ manager_host }}-chave.pem"
   register: kube_scheduler_chave
-  tags: ["kube_scheduler", "verificacao_chave"]
 
 - name: Gerar chave Ed25519 para kube-scheduler ({{ manager_host }})
   community.crypto.openssl_privatekey:
@@ -13,13 +12,11 @@
     state: "present"
     force: "{{ pki_regerar_certs | bool }}"
   when: not kube_scheduler_chave.stat.exists or pki_regerar_certs | bool
-  tags: ["kube_scheduler", "gerar_chave"]
 
 - name: Verificar se o CSR do kube-scheduler já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/kube-scheduler-{{ manager_host }}.csr"
   register: kube_scheduler_csr
-  tags: ["kube_scheduler", "verificacao_csr"]
 
 - name: Gerar CSR para kube-scheduler ({{ manager_host }})
   community.crypto.openssl_csr:
@@ -41,13 +38,11 @@
     subject_alt_name: "{{ lookup('template', 'kube_scheduler_san.j2') | from_yaml }}"
     force: "{{ pki_regerar_certs | bool }}"
   when: not kube_scheduler_csr.stat.exists or pki_regerar_certs | bool
-  tags: ["kube_scheduler", "gerar_csr"]
 
 - name: Verificar se o certificado do kube-scheduler já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/kube-scheduler-{{ manager_host }}-cert.pem"
   register: kube_scheduler_cert
-  tags: ["kube_scheduler", "verificacao_cert"]
 
 - name: Gerar certificado do kube-scheduler ({{ manager_host }})
   community.crypto.x509_certificate:
@@ -63,4 +58,3 @@
     group: "root"
     force: "{{ pki_regerar_certs | bool }}"
   when: not kube_scheduler_cert.stat.exists or pki_regerar_certs | bool
-  tags: ["kube_scheduler", "gerar_certificado"]

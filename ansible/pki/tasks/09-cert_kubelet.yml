@@ -4,7 +4,6 @@
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/kubelet-node-{{ node_host }}-chave.pem"
   register: kubelet_chave
-  tags: ["kubelet", "verificacao_chave"]
 
 - name: Gerar chave Ed25519 para Kubelet ({{ node_host }})
   community.crypto.openssl_privatekey:
@@ -13,13 +12,11 @@
     state: "present"
     force: "{{ pki_regerar_certs | bool }}"
   when: not kubelet_chave.stat.exists or pki_regerar_certs | bool
-  tags: ["kubelet", "gerar_chave"]
 
 - name: Verificar se o CSR do Kubelet já existe ({{ node_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/kubelet-{{ node_host }}.csr"
   register: kubelet_csr
-  tags: ["kubelet", "verificacao_csr"]
 
 - name: Gerar CSR para Kubelet ({{ node_host }})
   community.crypto.openssl_csr:
@@ -41,13 +38,11 @@
     subject_alt_name: "{{ lookup('template', 'kubelet_san.j2') | from_yaml }}"
     force: "{{ pki_regerar_certs | bool }}"
   when: not kubelet_csr.stat.exists or pki_regerar_certs | bool
-  tags: ["kubelet", "gerar_csr"]
 
 - name: Verificar se o certificado do Kubelet já existe ({{ node_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/kubelet-node-{{ node_host }}-cert.pem"
   register: kubelet_cert
-  tags: ["kubelet", "verificacao_cert"]
 
 - name: Gerar certificado do Kubelet ({{ node_host }})
   community.crypto.x509_certificate:
@@ -63,4 +58,3 @@
     group: "root"
     force: "{{ pki_regerar_certs | bool }}"
   when: not kubelet_cert.stat.exists or pki_regerar_certs | bool
-  tags: ["kubelet", "gerar_certificado"]

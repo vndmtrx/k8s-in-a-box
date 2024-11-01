@@ -10,13 +10,11 @@
   loop:
     - "/vagrant/arquivos/pki"
     - "/vagrant/arquivos/pki/etcd"
-  tags: ["ca_etcd", "diretorios"]
 
 - name: Verificar se a CA do etcd já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
   register: ca_etcd_chave
-  tags: ["ca_etcd", "verificacao_chave"]
 
 - name: Gerar chave Ed25519 para CA do etcd
   community.crypto.openssl_privatekey:
@@ -25,13 +23,11 @@
     state: "present"
     force: "{{ pki_regerar_certs | bool }}"
   when: not ca_etcd_chave.stat.exists or pki_regerar_certs | bool
-  tags: ["ca_etcd", "gerar_chave"]
 
 - name: Verificar se o CSR do CA do etcd já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/ca-etcd.csr"
   register: ca_etcd_csr
-  tags: ["ca_etcd", "verificacao_csr"]
 
 - name: Gerar CSR para CA do etcd
   community.crypto.openssl_csr:
@@ -54,13 +50,11 @@
     key_usage_critical: true
     force: "{{ pki_regerar_certs | bool }}"
   when: not ca_etcd_csr.stat.exists or pki_regerar_certs | bool
-  tags: ["ca_etcd", "gerar_csr"]
 
 - name: Verificar se o certificado do CA do etcd já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/ca-etcd-cert.pem"
   register: ca_etcd_cert
-  tags: ["ca_etcd", "verificacao_cert"]
 
 - name: Gerar certificado autoassinado do CA do etcd
   community.crypto.x509_certificate:
@@ -75,4 +69,3 @@
     group: "root"
     force: "{{ pki_regerar_certs | bool }}"
   when: not ca_etcd_cert.stat.exists or pki_regerar_certs | bool
-  tags: ["ca_etcd", "gerar_certificado"]
