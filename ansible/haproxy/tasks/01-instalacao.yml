@@ -1,0 +1,46 @@
+# ansible/haproxy/tasks/01-pacotes.yml
+---
+- name: Verificar se HAProxy já está instalado
+  ansible.builtin.apt:
+    name: haproxy
+    state: present
+  check_mode: yes
+  register: haproxy_check
+  tags: ["haproxy", "pacotes", "verificacao"]
+
+- name: Adiciona chave GPG do HAProxy
+  ansible.builtin.apt_key:
+    url: https://haproxy.debian.net/bernat.debian.org.gpg
+    keyring: /usr/share/keyrings/haproxy.debian.net.gpg
+    state: present
+
+- name: Adiciona repositório HAProxy
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/haproxy.debian.net.gpg] http://haproxy.debian.net bookworm-backports-{{ versao_haproxy }} main"
+    filename: haproxy
+    state: present
+
+- name: Instalar pacotes necessários
+  ansible.builtin.apt:
+    name:
+      - "haproxy={{ versao_haproxy }}.*"
+      - openssl
+      - socat
+    state: present
+  tags: ["haproxy", "pacotes", "instalacao"]
+
+- name: Garantir que o diretório de certificados do HAProxy exista
+  ansible.builtin.file:
+    path: /etc/haproxy/certs
+    state: directory
+    mode: '0750'
+    owner: haproxy
+    group: haproxy
+  tags: ["haproxy", "diretorios"]
+
+- name: Garantir serviço ativo
+  ansible.builtin.systemd:
+    name: haproxy
+    enabled: yes
+    state: started
+  tags: ["haproxy", "servico"]
