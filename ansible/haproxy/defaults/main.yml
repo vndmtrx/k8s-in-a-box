@@ -1,3 +1,23 @@
 # ansible/haproxy/defaults/main.yml
 ---
+# Versão
+versao_haproxy: 3.0
+
+# Portas
 porta_haproxy: "{{ porta_load_balancer | default(8443) }}"
+porta_etcd: 2379
+porta_stats: 9000
+
+# SSL
+ssl_ciphers: "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256"
+ssl_options: "no-sslv3 no-tlsv10 no-tlsv11 no-tlsv12"
+ssl_dh_param: 2048
+
+# Timeouts
+timeout_connect: 5s
+timeout_client: 10s
+timeout_server: 10s
+
+# Credenciais
+haproxy_stats_user: "admin"
+haproxy_stats_password: "senha_muito_segura!"

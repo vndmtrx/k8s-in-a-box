@@ -1,9 +1,19 @@
 # ansible/haproxy/tasks/main.yml
 ---
-- name: Instalação do HAProxy
-  ansible.builtin.import_tasks: '1-instalacao.yml'
-  tags: instalacao-haproxy
+- name: Configurar pacotes
+  ansible.builtin.import_tasks: 01-instalacao.yml
+  tags:
+    - haproxy
+    - haproxy:pacotes
 
-- name: Configuração do HAProxy
-  ansible.builtin.import_tasks: '2-configuracao.yml'
-  tags: instalacao-haproxy
+- name: Configurar certificados
+  ansible.builtin.import_tasks: 02-certificados.yml
+  tags:
+    - haproxy
+    - haproxy:certificados
+
+- name: Aplicar configuração
+  ansible.builtin.import_tasks: 03-configuracao.yml
+  tags:
+    - haproxy
+    - haproxy:configuracao
