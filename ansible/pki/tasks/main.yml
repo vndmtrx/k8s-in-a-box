@@ -24,14 +24,6 @@
     - pki:k8s
     - pki:k8s:ca
 
-# - name: Criar certificado cliente HAProxy para etcd
-#   ansible.builtin.include_tasks: 03-cert_haproxy_cliente_etcd.yml
-#   tags:
-#     - pki
-#     - pki:etcd
-#     - pki:etcd:cliente
-#     - pki:etcd:haproxy
-
 - name: Criar certificado cliente mTLS do kube-apiserver para etcd
   ansible.builtin.include_tasks: 03-cert_mtls_etcd_apiserver_client.yml
   tags:
@@ -60,16 +52,8 @@
     - pki:etcd
     - pki:etcd:peer
 
-# - name: Criar certificado do kube-apiserver para HAProxy
-#   ansible.builtin.include_tasks: 07-cert_haproxy_apiserver.yml
-#   tags:
-#     - pki
-#     - pki:k8s
-#     - pki:k8s:apiserver
-#     - pki:k8s:haproxy
-
 - name: Criar certificados dos kube-apiservers
-  ansible.builtin.include_tasks: 08-cert_kube_apiserver.yml
+  ansible.builtin.include_tasks: 06-cert_kube_apiserver.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
@@ -79,7 +63,7 @@
     - pki:k8s:apiserver
 
 - name: Criar certificados dos Kubelets
-  ansible.builtin.include_tasks: 09-cert_kubelet.yml
+  ansible.builtin.include_tasks: 07-cert_kubelet.yml
   loop: "{{ groups['k8s_nodes'] }}"
   loop_control:
     loop_var: node_host
@@ -89,7 +73,7 @@
     - pki:k8s:kubelet
 
 - name: Criar certificados dos controller-managers
-  ansible.builtin.include_tasks: 10-cert_kube_controller_manager.yml
+  ansible.builtin.include_tasks: 08-cert_kube_controller_manager.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
@@ -99,7 +83,7 @@
     - pki:k8s:controller-manager
 
 - name: Criar certificados dos kube-schedulers
-  ansible.builtin.include_tasks: 11-cert_kube_scheduler.yml
+  ansible.builtin.include_tasks: 09-cert_kube_scheduler.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
@@ -109,7 +93,7 @@
     - pki:k8s:scheduler
 
 - name: Criar certificados dos kube-proxies
-  ansible.builtin.include_tasks: 12-cert_kube_proxy.yml
+  ansible.builtin.include_tasks: 10-cert_kube_proxy.yml
   loop: "{{ groups['k8s_nodes'] }}"
   loop_control:
     loop_var: node_host
@@ -119,14 +103,14 @@
     - pki:k8s:proxy
 
 - name: Criar certificado do service account
-  ansible.builtin.include_tasks: 13-cert_service_account.yml
+  ansible.builtin.include_tasks: 11-cert_service_account.yml
   tags:
     - pki
     - pki:k8s
     - pki:k8s:service-account
 
 - name: Criar certificado do admin
-  ansible.builtin.include_tasks: 14-cert_admin.yml
+  ansible.builtin.include_tasks: 12-cert_admin.yml
   tags:
     - pki
     - pki:k8s

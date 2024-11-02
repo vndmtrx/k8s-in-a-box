@@ -1,4 +1,4 @@
-# ansible/pki/tasks/09-cert_kubelet.yml
+# ansible/pki/tasks/07-cert_kubelet.yml
 ---
 - name: Verificar se a chave do Kubelet já existe ({{ node_host }})
   ansible.builtin.stat:

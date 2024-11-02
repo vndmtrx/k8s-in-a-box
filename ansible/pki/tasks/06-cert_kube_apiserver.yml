@@ -1,4 +1,4 @@
-# ansible/pki/tasks/08-cert_kube_apiserver.yml
+# ansible/pki/tasks/06-cert_kube_apiserver.yml
 ---
 - name: Verificar se a chave do kube-apiserver já existe ({{ manager_host }})
   ansible.builtin.stat:

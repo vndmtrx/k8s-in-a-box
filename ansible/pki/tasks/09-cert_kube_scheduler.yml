@@ -1,4 +1,4 @@
-# ansible/pki/tasks/11-cert_kube_scheduler.yml
+# ansible/pki/tasks/09-cert_kube_scheduler.yml
 ---
 - name: Verificar se a chave do kube-scheduler já existe ({{ manager_host }})
   ansible.builtin.stat:
