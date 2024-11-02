@@ -2,26 +2,26 @@
 ---
 - name: Verificar se a chave mTLS do servidor etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server-chave.pem"
+    path: "{{ certs.etcd_server.chave | format(manager_host) }}"
   register: etcd_server_chave
 
 - name: Gerar chave Ed25519 para mTLS do servidor etcd ({{ manager_host }})
   community.crypto.openssl_privatekey:
-    path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server-chave.pem"
+    path: "{{ certs.etcd_server.chave | format(manager_host) }}"
     type: "{{ pki_tipo_curva }}"
     state: "present"
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not etcd_server_chave.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not etcd_server_chave.stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Verificar se o CSR para mTLS do servidor etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server.csr"
+    path: "{{ certs.etcd_server.csr | format(manager_host) }}"
   register: etcd_server_csr
 
 - name: Gerar CSR para mTLS do servidor etcd ({{ manager_host }})
   community.crypto.openssl_csr:
-    path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server.csr"
-    privatekey_path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server-chave.pem"
+    path: "{{ certs.etcd_server.csr | format(manager_host) }}"
+    privatekey_path: "{{ certs.etcd_server.chave | format(manager_host) }}"
     digest: "{{ pki_algoritmo_hash }}"
     mode: "0600"
     owner: "root"
@@ -37,25 +37,25 @@
       - serverAuth
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', 'etcd_server_san.j2') | from_yaml }}"
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not etcd_server_csr.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not etcd_server_csr.stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Verificar se o certificado para mTLS do servidor etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server-cert.pem"
+    path: "{{ certs.etcd_server.cert | format(manager_host) }}"
   register: etcd_server_cert
 
 - name: Gerar certificado para mTLS do servidor etcd ({{ manager_host }})
   community.crypto.x509_certificate:
-    path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server-cert.pem"
-    csr_path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server.csr"
+    path: "{{ certs.etcd_server.cert | format(manager_host) }}"
+    csr_path: "{{ certs.etcd_server.csr | format(manager_host) }}"
     provider: ownca
     ownca_digest: "{{ pki_algoritmo_hash }}"
-    ownca_path: "/vagrant/arquivos/pki/etcd/ca-etcd-cert.pem"
-    ownca_privatekey_path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
+    ownca_path: "{{ certs.ca_etcd.cert }}"
+    ownca_privatekey_path: "{{ certs.ca_etcd.chave }}"
     ownca_not_after: "+{{ pki_validade_cert }}d"
     mode: "0644"
     owner: "root"
     group: "root"
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not etcd_server_cert.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not etcd_server_cert.stat.exists or (pki_regerar_certs | default(false) | bool)

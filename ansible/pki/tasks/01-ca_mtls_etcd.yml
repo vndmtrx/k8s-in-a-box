@@ -2,26 +2,26 @@
 ---
 - name: Verificar se a CA para mTLS do etcd já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
+    path: "{{ certs.ca_etcd.chave }}"
   register: ca_etcd_chave
 
 - name: Gerar chave Ed25519 da CA para mTLS do etcd
   community.crypto.openssl_privatekey:
-    path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
+    path: "{{ certs.ca_etcd.chave }}"
     type: "{{ pki_tipo_curva }}"
     state: "present"
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not ca_etcd_chave.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not ca_etcd_chave.stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Verificar se o CSR da CA para mTLS do etcd já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/etcd/ca-etcd.csr"
+    path: "{{ certs.ca_etcd.csr }}"
   register: ca_etcd_csr
 
 - name: Gerar CSR da CA para mTLS do etcd
   community.crypto.openssl_csr:
-    path: "/vagrant/arquivos/pki/etcd/ca-etcd.csr"
-    privatekey_path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
+    path: "{{ certs.ca_etcd.csr }}"
+    privatekey_path: "{{ certs.ca_etcd.chave }}"
     digest: "{{ pki_algoritmo_hash }}"
     mode: "0600"
     owner: "root"
@@ -37,24 +37,24 @@
       - keyCertSign
       - cRLSign
     key_usage_critical: true
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not ca_etcd_csr.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not ca_etcd_csr.stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Verificar se o certificado da CA para mTLS do etcd já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/etcd/ca-etcd-cert.pem"
+    path: "{{ certs.ca_etcd.cert }}"
   register: ca_etcd_cert
 
 - name: Gerar certificado autoassinado da CA para mTLS do etcd
   community.crypto.x509_certificate:
-    path: "/vagrant/arquivos/pki/etcd/ca-etcd-cert.pem"
-    csr_path: "/vagrant/arquivos/pki/etcd/ca-etcd.csr"
-    privatekey_path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
+    path: "{{ certs.ca_etcd.cert }}"
+    csr_path: "{{ certs.ca_etcd.csr }}"
+    privatekey_path: "{{ certs.ca_etcd.chave }}"
     provider: selfsigned
     selfsigned_digest: "{{ pki_algoritmo_hash }}"
     selfsigned_not_after: "+{{ pki_validade_ca }}d"
     mode: "0644"
     owner: "root"
     group: "root"
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not ca_etcd_cert.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not ca_etcd_cert.stat.exists or (pki_regerar_certs | default(false) | bool)

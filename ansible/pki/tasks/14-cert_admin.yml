@@ -2,26 +2,26 @@
 ---
 - name: Verificar se a chave do admin já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/kubernetes/admin-chave.pem"
+    path: "{{ certs.k8s_admin.chave }}"
   register: admin_chave
 
 - name: Gerar chave Ed25519 para admin
   community.crypto.openssl_privatekey:
-    path: "/vagrant/arquivos/pki/kubernetes/admin-chave.pem"
+    path: "{{ certs.k8s_admin.chave }}"
     type: "{{ pki_tipo_curva }}"
     state: "present"
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not admin_chave.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not admin_chave.stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Verificar se o CSR do admin já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/kubernetes/admin.csr"
+    path: "{{ certs.k8s_admin.csr }}"
   register: admin_csr
 
 - name: Gerar CSR para admin
   community.crypto.openssl_csr:
-    path: "/vagrant/arquivos/pki/kubernetes/admin.csr"
-    privatekey_path: "/vagrant/arquivos/pki/kubernetes/admin-chave.pem"
+    path: "{{ certs.k8s_admin.csr }}"
+    privatekey_path: "{{ certs.k8s_admin.chave }}"
     digest: "{{ pki_algoritmo_hash }}"
     mode: "0600"
     owner: "root"
@@ -35,25 +35,25 @@
     extended_key_usage:
       - clientAuth
     extended_key_usage_critical: true
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not admin_csr.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not admin_csr.stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Verificar se o certificado do admin já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/kubernetes/admin-cert.pem"
+    path: "{{ certs.k8s_admin.cert }}"
   register: admin_cert
 
 - name: Gerar certificado do admin
   community.crypto.x509_certificate:
-    path: "/vagrant/arquivos/pki/kubernetes/admin-cert.pem"
-    csr_path: "/vagrant/arquivos/pki/kubernetes/admin.csr"
+    path: "{{ certs.k8s_admin.cert }}"
+    csr_path: "{{ certs.k8s_admin.csr }}"
     provider: ownca
     ownca_digest: "{{ pki_algoritmo_hash }}"
-    ownca_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-cert.pem"
-    ownca_privatekey_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
+    ownca_path: "{{ certs.ca_k8s.cert }}"
+    ownca_privatekey_path: "{{ certs.ca_k8s.chave }}"
     ownca_not_after: "+{{ pki_validade_cert }}d"
     mode: "0644"
     owner: "root"
     group: "root"
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not admin_cert.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not admin_cert.stat.exists or (pki_regerar_certs | default(false) | bool)

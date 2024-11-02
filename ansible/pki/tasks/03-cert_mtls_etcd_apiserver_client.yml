@@ -2,26 +2,26 @@
 ---
 - name: Verificar se a chave para cliente mTLS do apiserver para etcd já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-chave.pem"
+    path: "{{ certs.etcd_apiserver_cliente.chave }}"
   register: etcd_apiserver_cliente_chave
 
 - name: Gerar chave Ed25519 para cliente mTLS do apiserver para etcd
   community.crypto.openssl_privatekey:
-    path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-chave.pem"
+    path: "{{ certs.etcd_apiserver_cliente.chave }}"
     type: "{{ pki_tipo_curva }}"
     state: "present"
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not etcd_apiserver_cliente_chave.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not etcd_apiserver_cliente_chave.stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Verificar se o CSR para cliente mTLS do apiserver para etcd já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente.csr"
+    path: "{{ certs.etcd_apiserver_cliente.csr }}"
   register: etcd_apiserver_cliente_csr
 
 - name: Gerar CSR para cliente mTLS do apiserver para etcd
   community.crypto.openssl_csr:
-    path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente.csr"
-    privatekey_path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-chave.pem"
+    path: "{{ certs.etcd_apiserver_cliente.csr }}"
+    privatekey_path: "{{ certs.etcd_apiserver_cliente.chave }}"
     digest: "{{ pki_algoritmo_hash }}"
     mode: "0600"
     owner: "root"
@@ -37,25 +37,25 @@
       - clientAuth
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', 'etcd_apiserver_cliente_san.j2') | from_yaml }}"
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not etcd_apiserver_cliente_csr.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not etcd_apiserver_cliente_csr.stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Verificar se o certificado para cliente mTLS do apiserver para etcd já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-cert.pem"
+    path: "{{ certs.etcd_apiserver_cliente.cert }}"
   register: etcd_apiserver_cliente_cert
 
 - name: Gerar certificado para cliente mTLS do apiserver para etcd
   community.crypto.x509_certificate:
-    path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-cert.pem"
-    csr_path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente.csr"
+    path: "{{ certs.etcd_apiserver_cliente.cert }}"
+    csr_path: "{{ certs.etcd_apiserver_cliente.csr }}"
     provider: ownca
     ownca_digest: "{{ pki_algoritmo_hash }}"
-    ownca_path: "/vagrant/arquivos/pki/etcd/ca-etcd-cert.pem"
-    ownca_privatekey_path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
+    ownca_path: "{{ certs.ca_etcd.cert }}"
+    ownca_privatekey_path: "{{ certs.ca_etcd.chave }}"
     ownca_not_after: "+{{ pki_validade_cert }}d"
     mode: "0644"
     owner: "root"
     group: "root"
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not etcd_apiserver_cliente_cert.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not etcd_apiserver_cliente_cert.stat.exists or (pki_regerar_certs | default(false) | bool)

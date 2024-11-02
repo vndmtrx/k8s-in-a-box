@@ -2,26 +2,26 @@
 ---
 - name: Verificar se a CA do kubernetes já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
+    path: "{{ certs.ca_k8s.chave }}"
   register: ca_kubernetes_chave
 
 - name: Gerar chave Ed25519 para CA do kubernetes
   community.crypto.openssl_privatekey:
-    path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
+    path: "{{ certs.ca_k8s.chave }}"
     type: "{{ pki_tipo_curva }}"
     state: "present"
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not ca_kubernetes_chave.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not ca_kubernetes_chave.stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Verificar se o CSR da CA do kubernetes já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes.csr"
+    path: "{{ certs.ca_k8s.csr }}"
   register: ca_kubernetes_csr
 
 - name: Gerar CSR para CA do kubernetes
   community.crypto.openssl_csr:
-    path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes.csr"
-    privatekey_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
+    path: "{{ certs.ca_k8s.csr }}"
+    privatekey_path: "{{ certs.ca_k8s.chave }}"
     digest: "{{ pki_algoritmo_hash }}"
     mode: "0600"
     owner: "root"
@@ -37,24 +37,24 @@
       - keyCertSign
       - cRLSign
     key_usage_critical: true
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not ca_kubernetes_csr.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not ca_kubernetes_csr.stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Verificar se o certificado da CA do kubernetes já existe
   ansible.builtin.stat:
-    path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-cert.pem"
+    path: "{{ certs.ca_k8s.cert }}"
   register: ca_kubernetes_cert
 
 - name: Gerar certificado autoassinado da CA do kubernetes
   community.crypto.x509_certificate:
-    path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-cert.pem"
-    csr_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes.csr"
-    privatekey_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
+    path: "{{ certs.ca_k8s.cert }}"
+    csr_path: "{{ certs.ca_k8s.csr }}"
+    privatekey_path: "{{ certs.ca_k8s.chave }}"
     provider: selfsigned
     selfsigned_digest: "{{ pki_algoritmo_hash }}"
     selfsigned_not_after: "+{{ pki_validade_ca }}d"
     mode: "0644"
     owner: "root"
     group: "root"
-    force: "{{ pki_regerar_certs | bool }}"
-  when: not ca_kubernetes_cert.stat.exists or pki_regerar_certs | bool
+    force: "{{ pki_regerar_certs | default(false) | bool }}"
+  when: not ca_kubernetes_cert.stat.exists or (pki_regerar_certs | default(false) | bool)
