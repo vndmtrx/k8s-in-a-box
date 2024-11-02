@@ -1,12 +1,5 @@
 # ansible/haproxy/tasks/01-pacotes.yml
 ---
-- name: Verificar se HAProxy já está instalado
-  ansible.builtin.apt:
-    name: haproxy
-    state: present
-  check_mode: yes
-  register: haproxy_check
-
 - name: Adiciona chave GPG do HAProxy
   ansible.builtin.apt_key:
     url: https://haproxy.debian.net/bernat.debian.org.gpg
