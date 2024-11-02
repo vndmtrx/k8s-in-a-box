@@ -2,4 +2,5 @@
 ---
 - name: Instalação do Sistema Base
   ansible.builtin.import_tasks: '1-base.yml'
-  tags: sistema_base
+  tags:
+    - sistema
