@@ -1,4 +1,4 @@
-# ansible/haproxy/tasks/03-configuracao.yml
+# ansible/haproxy/tasks/02-configuracao.yml
 ---
 - name: Verificar sintaxe do template HAProxy
   ansible.builtin.template:

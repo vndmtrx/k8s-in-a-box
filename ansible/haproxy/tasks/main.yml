@@ -6,14 +6,8 @@
     - haproxy
     - haproxy:pacotes
 
-- name: Configurar certificados
-  ansible.builtin.import_tasks: 02-certificados.yml
-  tags:
-    - haproxy
-    - haproxy:certificados
-
 - name: Aplicar configuração
-  ansible.builtin.import_tasks: 03-configuracao.yml
+  ansible.builtin.import_tasks: 02-configuracao.yml
   tags:
     - haproxy
     - haproxy:configuracao

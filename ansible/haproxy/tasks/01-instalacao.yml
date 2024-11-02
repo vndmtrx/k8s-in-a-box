@@ -19,7 +19,7 @@
     filename: haproxy
     state: present
 
-- name: Instalar pacotes necessários
+- name: Instalar pacotes necessários para o Haproxy
   ansible.builtin.apt:
     name:
       - "haproxy={{ versao_haproxy }}.*"
