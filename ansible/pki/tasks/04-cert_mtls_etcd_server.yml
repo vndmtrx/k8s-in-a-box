@@ -1,11 +1,11 @@
-# ansible/pki/tasks/05-cert_etcd_server.yml
+# ansible/pki/tasks/04-cert_mtls_etcd_server.yml
 ---
-- name: Verificar se a chave do servidor Etcd já existe ({{ manager_host }})
+- name: Verificar se a chave mTLS do servidor etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server-chave.pem"
   register: etcd_server_chave
 
-- name: Gerar chave Ed25519 para servidor Etcd ({{ manager_host }})
+- name: Gerar chave Ed25519 para mTLS do servidor etcd ({{ manager_host }})
   community.crypto.openssl_privatekey:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server-chave.pem"
     type: "{{ pki_tipo_curva }}"
@@ -13,12 +13,12 @@
     force: "{{ pki_regerar_certs | bool }}"
   when: not etcd_server_chave.stat.exists or pki_regerar_certs | bool
 
-- name: Verificar se o CSR do servidor Etcd já existe ({{ manager_host }})
+- name: Verificar se o CSR para mTLS do servidor etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server.csr"
   register: etcd_server_csr
 
-- name: Gerar CSR para servidor Etcd ({{ manager_host }})
+- name: Gerar CSR para mTLS do servidor etcd ({{ manager_host }})
   community.crypto.openssl_csr:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server.csr"
     privatekey_path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server-chave.pem"
@@ -40,12 +40,12 @@
     force: "{{ pki_regerar_certs | bool }}"
   when: not etcd_server_csr.stat.exists or pki_regerar_certs | bool
 
-- name: Verificar se o certificado do servidor Etcd já existe ({{ manager_host }})
+- name: Verificar se o certificado para mTLS do servidor etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server-cert.pem"
   register: etcd_server_cert
 
-- name: Gerar certificado do servidor Etcd ({{ manager_host }})
+- name: Gerar certificado para mTLS do servidor etcd ({{ manager_host }})
   community.crypto.x509_certificate:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server-cert.pem"
     csr_path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-server.csr"

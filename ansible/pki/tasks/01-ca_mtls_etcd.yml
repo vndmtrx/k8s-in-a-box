@@ -1,22 +1,11 @@
-# ansible/pki/tasks/01-ca_etcd.yml
+# ansible/pki/tasks/01-ca_mtls_etcd.yml
 ---
-- name: Criar estrutura de diretórios para certificados do Etcd
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    mode: "0755"
-    owner: "root"
-    group: "root"
-  loop:
-    - "/vagrant/arquivos/pki"
-    - "/vagrant/arquivos/pki/etcd"
-
-- name: Verificar se a CA do etcd já existe
+- name: Verificar se a CA para mTLS do etcd já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
   register: ca_etcd_chave
 
-- name: Gerar chave Ed25519 para CA do etcd
+- name: Gerar chave Ed25519 da CA para mTLS do etcd
   community.crypto.openssl_privatekey:
     path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
     type: "{{ pki_tipo_curva }}"
@@ -24,12 +13,12 @@
     force: "{{ pki_regerar_certs | bool }}"
   when: not ca_etcd_chave.stat.exists or pki_regerar_certs | bool
 
-- name: Verificar se o CSR do CA do etcd já existe
+- name: Verificar se o CSR da CA para mTLS do etcd já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/ca-etcd.csr"
   register: ca_etcd_csr
 
-- name: Gerar CSR para CA do etcd
+- name: Gerar CSR da CA para mTLS do etcd
   community.crypto.openssl_csr:
     path: "/vagrant/arquivos/pki/etcd/ca-etcd.csr"
     privatekey_path: "/vagrant/arquivos/pki/etcd/ca-etcd-chave.pem"
@@ -51,12 +40,12 @@
     force: "{{ pki_regerar_certs | bool }}"
   when: not ca_etcd_csr.stat.exists or pki_regerar_certs | bool
 
-- name: Verificar se o certificado do CA do etcd já existe
+- name: Verificar se o certificado da CA para mTLS do etcd já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/ca-etcd-cert.pem"
   register: ca_etcd_cert
 
-- name: Gerar certificado autoassinado do CA do etcd
+- name: Gerar certificado autoassinado da CA para mTLS do etcd
   community.crypto.x509_certificate:
     path: "/vagrant/arquivos/pki/etcd/ca-etcd-cert.pem"
     csr_path: "/vagrant/arquivos/pki/etcd/ca-etcd.csr"

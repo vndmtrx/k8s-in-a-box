@@ -1,11 +1,11 @@
-# ansible/pki/tasks/04-cert_apiserver_cliente_etcd.yml
+# ansible/pki/tasks/03-cert_mtls_etcd_apiserver_client.yml
 ---
-- name: Verificar se a chave do cliente API Server para Etcd já existe
+- name: Verificar se a chave para cliente mTLS do apiserver para etcd já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-chave.pem"
   register: etcd_apiserver_cliente_chave
 
-- name: Gerar chave Ed25519 para cliente API Server do Etcd
+- name: Gerar chave Ed25519 para cliente mTLS do apiserver para etcd
   community.crypto.openssl_privatekey:
     path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-chave.pem"
     type: "{{ pki_tipo_curva }}"
@@ -13,12 +13,12 @@
     force: "{{ pki_regerar_certs | bool }}"
   when: not etcd_apiserver_cliente_chave.stat.exists or pki_regerar_certs | bool
 
-- name: Verificar se o CSR do cliente API Server para Etcd já existe
+- name: Verificar se o CSR para cliente mTLS do apiserver para etcd já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente.csr"
   register: etcd_apiserver_cliente_csr
 
-- name: Gerar CSR para cliente API Server do Etcd
+- name: Gerar CSR para cliente mTLS do apiserver para etcd
   community.crypto.openssl_csr:
     path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente.csr"
     privatekey_path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-chave.pem"
@@ -40,12 +40,12 @@
     force: "{{ pki_regerar_certs | bool }}"
   when: not etcd_apiserver_cliente_csr.stat.exists or pki_regerar_certs | bool
 
-- name: Verificar se o certificado do cliente API Server para Etcd já existe
+- name: Verificar se o certificado para cliente mTLS do apiserver para etcd já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-cert.pem"
   register: etcd_apiserver_cliente_cert
 
-- name: Gerar certificado do cliente API Server para Etcd
+- name: Gerar certificado para cliente mTLS do apiserver para etcd
   community.crypto.x509_certificate:
     path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente-cert.pem"
     csr_path: "/vagrant/arquivos/pki/etcd/etcd-apiserver-cliente.csr"

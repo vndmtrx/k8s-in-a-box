@@ -1,11 +1,11 @@
-# ansible/pki/tasks/06-cert_etcd_peer.yml
+# ansible/pki/tasks/05-cert_mtls_etcd_peer.yml
 ---
-- name: Verificar se a chave do peer Etcd já existe ({{ manager_host }})
+- name: Verificar se a chave mTLS do peer etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-peer-chave.pem"
   register: etcd_peer_chave
 
-- name: Gerar chave Ed25519 para peer Etcd ({{ manager_host }})
+- name: Gerar chave Ed25519 para mTLS do peer etcd ({{ manager_host }})
   community.crypto.openssl_privatekey:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-peer-chave.pem"
     type: "{{ pki_tipo_curva }}"
@@ -13,12 +13,12 @@
     force: "{{ pki_regerar_certs | bool }}"
   when: not etcd_peer_chave.stat.exists or pki_regerar_certs | bool
 
-- name: Verificar se o CSR do peer Etcd já existe ({{ manager_host }})
+- name: Verificar se o CSR para mTLS do peer etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-peer.csr"
   register: etcd_peer_csr
 
-- name: Gerar CSR para peer Etcd ({{ manager_host }})
+- name: Gerar CSR para mTLS do peer etcd ({{ manager_host }})
   community.crypto.openssl_csr:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-peer.csr"
     privatekey_path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-peer-chave.pem"
@@ -41,12 +41,12 @@
     force: "{{ pki_regerar_certs | bool }}"
   when: not etcd_peer_csr.stat.exists or pki_regerar_certs | bool
 
-- name: Verificar se o certificado do peer Etcd já existe ({{ manager_host }})
+- name: Verificar se o certificado para mTLS do peer etcd já existe ({{ manager_host }})
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-peer-cert.pem"
   register: etcd_peer_cert
 
-- name: Gerar certificado do peer Etcd ({{ manager_host }})
+- name: Gerar certificado para mTLS do peer etcd ({{ manager_host }})
   community.crypto.x509_certificate:
     path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-peer-cert.pem"
     csr_path: "/vagrant/arquivos/pki/etcd/etcd-node-{{ manager_host }}-peer.csr"

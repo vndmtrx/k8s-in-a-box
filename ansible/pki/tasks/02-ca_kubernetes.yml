@@ -1,16 +1,5 @@
 # ansible/pki/tasks/02-ca_kubernetes.yml
 ---
-- name: Criar estrutura de diretórios para certificados do Kubernetes
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    mode: "0755"
-    owner: "root"
-    group: "root"
-  loop:
-    - "/vagrant/arquivos/pki"
-    - "/vagrant/arquivos/pki/kubernetes"
-
 - name: Verificar se a CA do kubernetes já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-chave.pem"
@@ -24,7 +13,7 @@
     force: "{{ pki_regerar_certs | bool }}"
   when: not ca_kubernetes_chave.stat.exists or pki_regerar_certs | bool
 
-- name: Verificar se o CSR do CA do kubernetes já existe
+- name: Verificar se o CSR da CA do kubernetes já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes.csr"
   register: ca_kubernetes_csr
@@ -51,12 +40,12 @@
     force: "{{ pki_regerar_certs | bool }}"
   when: not ca_kubernetes_csr.stat.exists or pki_regerar_certs | bool
 
-- name: Verificar se o certificado do CA do kubernetes já existe
+- name: Verificar se o certificado da CA do kubernetes já existe
   ansible.builtin.stat:
     path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-cert.pem"
   register: ca_kubernetes_cert
 
-- name: Gerar certificado autoassinado do CA do kubernetes
+- name: Gerar certificado autoassinado da CA do kubernetes
   community.crypto.x509_certificate:
     path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes-cert.pem"
     csr_path: "/vagrant/arquivos/pki/kubernetes/ca-kubernetes.csr"
