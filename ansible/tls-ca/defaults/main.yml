@@ -1,3 +1,0 @@
-# ansible/tls-ca/defaults/main.yml
----
-nova_geracao: true
