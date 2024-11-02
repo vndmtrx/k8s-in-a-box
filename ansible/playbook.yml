@@ -8,7 +8,6 @@
     - role: sistema
       tags:
         - sistema
-        - never
 
 - name: Configurações do Load Balancer e geração das chaves dos CAs
   hosts: loadbalancers
@@ -19,11 +18,15 @@
       run_once: true
       tags:
         - pki
-        - never
 
     - role: haproxy
       tags:
         - haproxy
+
+    - role: pki_monitor
+      run_once: true
+      tags:
+        - pki:monitor
         - never
 
 # - name: Configurar nodes Kubernetes (comum para workers e managers)
