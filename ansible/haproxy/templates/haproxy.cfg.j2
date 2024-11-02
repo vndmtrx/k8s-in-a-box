@@ -1,3 +1,5 @@
+# Template de configuração do HAProxy
+# Configuração global e padrões
 global
     log /dev/log local0
     chroot /var/lib/haproxy
@@ -6,11 +8,6 @@ global
     user haproxy
     group haproxy
     daemon
-
-    # Configurações SSL
-    ssl-default-bind-ciphers {{ ssl_ciphers }}
-    ssl-default-bind-options {{ ssl_options }}
-    tune.ssl.default-dh-param {{ ssl_dh_param }}
 
     # Aumenta limite de conexões
     maxconn 50000
@@ -27,14 +24,14 @@ defaults
 
 # Frontend para o Kubernetes API Server
 frontend k8s_api
-    bind *:{{ porta_haproxy }} ssl crt /etc/haproxy/certs/k8s-server-bundle.pem ca-file /etc/haproxy/certs/k8s-ca.pem verify required
+    bind *:{{ porta_kubeapiserver }}
     mode tcp
     option tcplog
     default_backend k8s_api_backend
 
 # Frontend para o etcd
 frontend etcd
-    bind *:{{ porta_etcd }} ssl crt /etc/haproxy/certs/etcd-client-bundle.pem ca-file /etc/haproxy/certs/etcd-ca.pem verify required
+    bind *:{{ porta_etcd }}
     mode tcp
     option tcplog
     default_backend etcd_backend
@@ -43,35 +40,28 @@ frontend etcd
 backend k8s_api_backend
     mode tcp
     balance roundrobin
-    retries 3
-    option redispatch
     option tcp-check
-    option httpchk GET /healthz
-    http-check expect status 200
-    # Timeout específico para API server
-    timeout server 30s
-    timeout connect 5s
+    # Health check para o apiserver (SSL/TLS)
+    option ssl-hello-chk
 {% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host]['ansible_host'] }}:6443 check ssl verify required ca-file /etc/haproxy/certs/k8s-ca.pem
+    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_kubeapiserver }} check
 {% endfor %}
 
 # Backend para o etcd
 backend etcd_backend
     mode tcp
     balance roundrobin
-    retries 3
-    option redispatch
     option tcp-check
-    # Timeout específico para etcd
-    timeout server 10s
-    timeout connect 5s
+    # Health check via porta de métricas
+    option httpchk GET /health
+    http-check expect status 200
 {% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host]['ansible_host'] }}:2379 check ssl verify required ca-file /etc/haproxy/certs/etcd-ca.pem
+    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_etcd }} check port {{ porta_etcd_metricas }}
 {% endfor %}
 
 # Frontend para estatísticas
 frontend stats
-    bind *:{{ porta_stats }}
+    bind *:{{ haproxy_porta_stats }}
     mode http
     stats enable
     stats uri /stats
