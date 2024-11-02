@@ -42,9 +42,7 @@
 - name: Instala pacotes base para o Playbook
   ansible.builtin.apt:
     name:
-      - gpg
       - ufw
-      - python3-cryptography
     state: present
 
 - name: Garante a existência da pasta do CA em todas as máquinas

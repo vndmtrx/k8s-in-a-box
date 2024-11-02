@@ -1,7 +1,15 @@
 # ansible/pki/tasks/main.yml
 ---
-- name: Criar CA do etcd
-  ansible.builtin.include_tasks: 01-ca_etcd.yml
+- name: Executar pre-tasks de estrutura de diretórios
+  ansible.builtin.include_tasks: pre-tasks.yml
+  tags:
+    - always
+    - pki
+    - pki:pre
+    - pki:dirs
+
+- name: Criar CA para mTLS do etcd
+  ansible.builtin.include_tasks: 01-ca_mtls_etcd.yml
   tags:
     - pki
     - pki:ca
@@ -16,24 +24,24 @@
     - pki:k8s
     - pki:k8s:ca
 
-- name: Criar certificado cliente HAProxy para Etcd
-  ansible.builtin.include_tasks: 03-cert_haproxy_cliente_etcd.yml
-  tags:
-    - pki
-    - pki:etcd
-    - pki:etcd:cliente
-    - pki:etcd:haproxy
+# - name: Criar certificado cliente HAProxy para etcd
+#   ansible.builtin.include_tasks: 03-cert_haproxy_cliente_etcd.yml
+#   tags:
+#     - pki
+#     - pki:etcd
+#     - pki:etcd:cliente
+#     - pki:etcd:haproxy
 
-- name: Criar certificado cliente API Server para Etcd
-  ansible.builtin.include_tasks: 04-cert_apiserver_cliente_etcd.yml
+- name: Criar certificado cliente mTLS do kube-apiserver para etcd
+  ansible.builtin.include_tasks: 03-cert_mtls_etcd_apiserver_client.yml
   tags:
     - pki
     - pki:etcd
     - pki:etcd:cliente
     - pki:etcd:apiserver
 
-- name: Criar certificados dos servidores Etcd
-  ansible.builtin.include_tasks: 05-cert_etcd_server.yml
+- name: Criar certificados para mTLS dos servidores etcd
+  ansible.builtin.include_tasks: 04-cert_mtls_etcd_server.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
@@ -42,8 +50,8 @@
     - pki:etcd
     - pki:etcd:server
 
-- name: Criar certificados dos peers Etcd
-  ansible.builtin.include_tasks: 06-cert_etcd_peer.yml
+- name: Criar certificados para mTLS dos peers etcd
+  ansible.builtin.include_tasks: 05-cert_mtls_etcd_peer.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
@@ -52,13 +60,13 @@
     - pki:etcd
     - pki:etcd:peer
 
-- name: Criar certificado do kube-apiserver para HAProxy
-  ansible.builtin.include_tasks: 07-cert_haproxy_apiserver.yml
-  tags:
-    - pki
-    - pki:k8s
-    - pki:k8s:apiserver
-    - pki:k8s:haproxy
+# - name: Criar certificado do kube-apiserver para HAProxy
+#   ansible.builtin.include_tasks: 07-cert_haproxy_apiserver.yml
+#   tags:
+#     - pki
+#     - pki:k8s
+#     - pki:k8s:apiserver
+#     - pki:k8s:haproxy
 
 - name: Criar certificados dos kube-apiservers
   ansible.builtin.include_tasks: 08-cert_kube_apiserver.yml
@@ -127,7 +135,7 @@
 
 # Monitoramento de certificados (não roda por padrão)
 - name: Monitorar certificados
-  ansible.builtin.import_tasks: relatorio-certs.yml
+  ansible.builtin.include_tasks: relatorio-certs.yml
   tags:
     - never
     - pki:monitor

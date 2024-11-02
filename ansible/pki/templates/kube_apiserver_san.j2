@@ -6,12 +6,6 @@
 - IP:{{ hostvars[manager_host]['ansible_host'] }}
 - DNS:{{ manager_host }}
 
-# IPs e nomes dos load balancers
-{% for host in groups['loadbalancers'] %}
-- IP:{{ hostvars[host]['ansible_host'] }}
-- DNS:{{ host }}
-{% endfor %}
-
 # Nome do serviço do Kubernetes
 - DNS:kubernetes
 - DNS:kubernetes.default

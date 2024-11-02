@@ -1,0 +1,29 @@
+# ansible/pki/tasks/pre-tasks.yml
+---
+- name: Instala pacotes base para a geração de certificados
+  ansible.builtin.apt:
+    name:
+      - gpg
+      - python3-cryptography
+    state: present
+
+- name: Remover estrutura anterior de outras gerações no caso de regerar os certificados
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  when: pki_regerar_certs | bool
+  loop:
+    - "/vagrant/arquivos/pki"
+
+- name: Criar estrutura de diretórios para certificados
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: "root"
+    group: "root"
+  loop:
+    - "/vagrant/arquivos/pki"
+    - "/vagrant/arquivos/pki/kubernetes"
+    - "/vagrant/arquivos/pki/etcd"
+
