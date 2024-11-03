@@ -45,6 +45,13 @@
       - ufw
     state: present
 
+- name: Instalar Tailspin para facilitar a leitura de logs
+  unarchive:
+    src: https://github.com/bensadeh/tailspin/releases/download/3.0.2/tailspin-x86_64-unknown-linux-musl.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0755'
+
 - name: Garante a existência da pasta do CA em todas as máquinas
   ansible.builtin.file:
     path: /etc/kubernetes/pki
