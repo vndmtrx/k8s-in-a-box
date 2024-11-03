@@ -1,9 +1,7 @@
 # ansible/etcd/tasks/pre-tasks.yml
 ---
-- name: Instala pacotes base para a geração do token jwt
+- name: Instala logrotate para rotacionar os logs do etcd
   ansible.builtin.apt:
     name:
-      - gpg
-      - python3-cryptography
       - logrotate
     state: present
