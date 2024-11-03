@@ -24,7 +24,6 @@ Este projeto está em desenvolvimento ativo, seguindo uma abordagem progressiva 
   - Instalação e Configuração
   - mTLS entre membros
   - Monitoramento de Saúde
-  - Backup Configurado
 
 ### 🟡 Em Desenvolvimento
 1. **Control Plane**
@@ -63,8 +62,6 @@ Este projeto está em desenvolvimento ativo, seguindo uma abordagem progressiva 
   - Exemplos de Uso
 
 > 📖 Para um acompanhamento detalhado do desenvolvimento, incluindo todos os componentes e suas dependências, consulte o [Mapa de Progresso](docs/PROGRESSO.md).
-
-📑 [Ver progresso detalhado](docs/PROGRESSO.md)
 
 ## Arquitetura
 
