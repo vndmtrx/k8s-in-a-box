@@ -31,7 +31,7 @@
     OU: "Peer Etcd"
     key_usage:
       - digitalSignature
-      - keyAgreement
+      - keyEncipherment
     key_usage_critical: true
     extended_key_usage:
       - serverAuth

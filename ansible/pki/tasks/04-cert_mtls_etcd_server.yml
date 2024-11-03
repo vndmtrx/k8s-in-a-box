@@ -31,10 +31,11 @@
     OU: "Servidor Etcd"
     key_usage:
       - digitalSignature
-      - keyAgreement
+      - keyEncipherment
     key_usage_critical: true
     extended_key_usage:
       - serverAuth
+      - clientAuth
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', 'etcd_server_san.j2') | from_yaml }}"
     force: "{{ pki_regerar_certs | default(false) | bool }}"

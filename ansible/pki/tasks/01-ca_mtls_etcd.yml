@@ -34,6 +34,7 @@
     basic_constraints_critical: true
     key_usage:
       - digitalSignature
+      - keyEncipherment
       - keyCertSign
       - cRLSign
     key_usage_critical: true
