@@ -9,12 +9,12 @@ timeout_client: 10s
 timeout_server: 10s
 
 # Credenciais
-haproxy_stats_user: "admin"
-haproxy_stats_password: "senha_muito_segura!"
+haproxy_stats_usr: "admin"
+haproxy_stats_senha: "senha_muito_segura!"
 
 # Portas
 porta_kubeapiserver: 6443
 porta_etcd_https: 2379
 porta_etcd_grpc: 2380
 porta_etcd_metricas: 2382
-haproxy_porta_stats: 9000
+porta_haproxy_stats: 9000

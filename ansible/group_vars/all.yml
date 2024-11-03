@@ -1,12 +1,21 @@
 # ansible/group_vars/all.yml
 ---
+# Redes do projeto
 rede_cidr_hosts: "172.24.0.0/24"
 rede_cidr_pods: "172.24.4.0/22"
 rede_cidr_services: "172.24.8.0/22"
 
+# Portas usadas no projeto
 porta_kubeapiserver: 6443
-porta_etcd: 2379
-porta_etcd_metricas: 2381
+porta_etcd_https: 2379
+porta_etcd_grpc: 2380
+porta_etcd_peers: 2381
+porta_etcd_metricas: 2382
+
+# Credenciais
+haproxy_stats_usr: "admin"
+haproxy_stats_senha: "senha-muito-segura!"
+etcd_jwt_token: "token-jwt-realmente-muito-longo-e-seguro!"
 
 # Diretório base dos certificados
 pki_dir: "/vagrant/arquivos/pki"

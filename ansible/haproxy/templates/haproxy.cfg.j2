@@ -70,7 +70,7 @@ backend etcd_grpc_backend
 
 # Frontend para estatísticas e administração
 frontend stats
-    bind *:{{ haproxy_porta_stats }}
+    bind *:{{ porta_haproxy_stats }}
     mode http
     stats enable
     stats uri /stats
@@ -79,4 +79,4 @@ frontend stats
     stats show-desc K8s e etcd
     stats refresh 10s
     stats admin if TRUE
-    stats auth {{ haproxy_stats_user }}:{{ haproxy_stats_password }}
+    stats auth {{ haproxy_stats_usr }}:{{ haproxy_stats_senha }}
