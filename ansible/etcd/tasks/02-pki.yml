@@ -62,3 +62,11 @@
     remote_src: true
   loop: "{{ groups['managers'] }}"
   when: item != inventory_hostname
+
+- name: Criar arquivo do secret JWT para etcd
+  copy:
+    content: "{{ etcd_jwt_token | hash('sha256') }}"
+    dest: "/etc/etcd/jwt-secret"
+    mode: '0600'
+    owner: etcd
+    group: etcd
