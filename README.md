@@ -15,31 +15,52 @@ Este projeto está em desenvolvimento ativo, seguindo uma abordagem progressiva 
 - Framework de Automação Ansible
 - Sistema Base das VMs (Debian Bookworm)
 - PKI (Certificados para todos componentes)
+- Load Balancer (HAProxy)
+ - Balanceamento do API Server
+ - Balanceamento do etcd
+ - Health Checks
+ - Interface de Estatísticas
+- Cluster etcd
+ - Instalação e Configuração
+ - mTLS entre membros
+ - Monitoramento de Saúde
+ - Backup Configurado
 
 ### 🟡 Em Desenvolvimento
-1. **Load Balancer (HAProxy)**
-   - Balanceamento do API Server
-   - Balanceamento do etcd
-   - Configuração de Health Checks
+1. **Control Plane**
+  - Instalação do kube-apiserver
+  - Configuração do controller-manager
+  - Configuração do scheduler
+  - Integração com etcd
+  - Alta Disponibilidade via HAProxy
 
-2. **Cluster etcd**
-   - Implementação do cluster distribuído
-   - Configuração de alta disponibilidade
-   - Integração com HAProxy
+2. **Workers e Runtime**
+  - Container Runtime
+  - Kubelet
+  - Kube-proxy
 
-3. **Kubernetes API Server**
-   - Integração com etcd
-   - Configuração de alta disponibilidade
-   - Balanceamento via HAProxy
+3. **Arquivos de Configuração**
+  - kubeconfig do admin
+  - kubeconfig do controller-manager
+  - kubeconfig do scheduler
+  - kubeconfig do kubelet
+  - kubeconfig do kube-proxy
 
 ### ⚪ Etapas Futuras
-- Demais Componentes do Control Plane
-- Workers, Kubelet e Container Runtime
-- Rede do Cluster
-- MetalLB
-- Sistema de Monitoramento
-- Componentes Adicionais
-- Exemplos e demonstrações de uso do cluster
+- **Rede do Cluster**
+ - CNI Plugin
+ - CoreDNS
+ - MetalLB
+- **Observabilidade**
+ - Metrics Server
+ - Sistema de Logs
+ - Prometheus + Grafana (não prometo nada)
+- **Componentes Adicionais**
+ - Dashboard
+ - Helm
+- **Validação e Documentação**
+ - Testes de Carga
+ - Exemplos de Uso
 
 > 📖 Para um acompanhamento detalhado do desenvolvimento, incluindo todos os componentes e suas dependências, consulte o [Mapa de Progresso](docs/PROGRESSO.md).
 

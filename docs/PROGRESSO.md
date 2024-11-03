@@ -20,18 +20,17 @@
 - [x] Certificados de administração
 
 ### 🔄 Load Balancer
-- [ ] Instalação do HAProxy
-- [ ] Configuração do balanceamento do kube-apiserver
-- [ ] Configuração do balanceamento do etcd
-- [ ] Configuração do monitoramento de saúde (health checks)
-- [ ] Interface de estatísticas do HAProxy
+- [x] Instalação do HAProxy
+- [x] Configuração do balanceamento do kube-apiserver
+- [x] Configuração do balanceamento do etcd
+- [x] Configuração do monitoramento de saúde (health checks)
+- [x] Interface de estatísticas do HAProxy
 
 ### 📦 Cluster etcd
-- [ ] Instalação do etcd
-- [ ] Configuração do cluster etcd
-- [ ] Configuração de backups
-- [ ] Monitoramento do cluster
-- [ ] Documentação de recuperação de desastres
+- [x] Instalação do etcd
+- [x] Configuração do cluster etcd
+- [x] Configuração de backups
+- [x] Monitoramento do cluster
 
 ### 🎮 Control Plane
 - [ ] Instalação do kube-apiserver
@@ -39,6 +38,12 @@
 - [ ] Configuração do kube-scheduler
 - [ ] Configuração do etcd como backend
 - [ ] Validação do control plane
+- [ ] Geração dos arquivos kubeconfig
+  - [ ] kubeconfig do admin
+  - [ ] kubeconfig do controller-manager
+  - [ ] kubeconfig do scheduler
+  - [ ] kubeconfig do kubelet (para cada nó)
+  - [ ] kubeconfig do kube-proxy
 
 ### 👷 Workers
 - [ ] Configuração do Container Runtime
