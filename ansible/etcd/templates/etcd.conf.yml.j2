@@ -1,0 +1,54 @@
+---
+# Configuração do nó {{ inventory_hostname }}
+name: {{ inventory_hostname }}
+data-dir: {{ dir_dados }}
+
+# URLs cliente (HTTPS)
+listen-client-urls: https://{{ ansible_host }}:{{ porta_cliente_https }},https://127.0.0.1:{{ porta_cliente_https }}
+advertise-client-urls: https://{{ ansible_host }}:{{ porta_cliente_https }}
+
+# URLs cliente (gRPC)
+listen-client-grpc-urls: https://{{ ansible_host }}:{{ porta_cliente_grpc }},https://127.0.0.1:{{ porta_cliente_grpc }}
+advertise-client-grpc-urls: https://{{ ansible_host }}:{{ porta_cliente_grpc }}
+
+# URLs peer
+listen-peer-urls: https://{{ ansible_host }}:{{ porta_peer }}
+initial-advertise-peer-urls: https://{{ ansible_host }}:{{ porta_peer }}
+
+# URL de métricas
+listen-metrics-urls: http://{{ ansible_host }}:{{ porta_metricas }}
+
+# Configuração do cluster
+initial-cluster: {% for host in groups['managers'] %}{{ host }}=https://{{ hostvars[host]['ansible_host'] }}:{{ porta_peer }}{% if not loop.last %},{% endif %}{% endfor %}
+
+initial-cluster-token: etcd-cluster-k8s
+initial-cluster-state: new
+
+# Segurança TLS
+client-transport-security:
+  cert-file: /etc/etcd/ssl/server/server-cert.pem
+  key-file: /etc/etcd/ssl/server/server-key.pem
+  trusted-ca-file: /etc/etcd/ssl/ca/ca.pem
+  client-cert-auth: true
+
+peer-transport-security:
+  cert-file: /etc/etcd/ssl/peer/{{ inventory_hostname }}-cert.pem
+  key-file: /etc/etcd/ssl/peer/{{ inventory_hostname }}-key.pem
+  trusted-ca-file: /etc/etcd/ssl/ca/ca.pem
+  client-cert-auth: true
+  auto-tls: false
+
+# Configurações de eleição e consenso
+election-timeout: 1000        # Tempo máximo para eleição de líder (ms)
+heartbeat-interval: 100      # Intervalo de heartbeat (ms)
+auto-compaction-retention: "1" # Compactação automática a cada 1 hora
+
+# Configurações de performance e limites
+quota-backend-bytes: 8589934592  # 8GB máximo de banco de dados
+max-request-bytes: 1572864       # 1.5MB máximo por requisição
+max-snapshots: 5                 # Número máximo de snapshots mantidos
+max-wals: 5                      # Número máximo de WAL files mantidos
+
+# Configurações de log
+log-level: info
+logger: zap                     # Logger mais performático

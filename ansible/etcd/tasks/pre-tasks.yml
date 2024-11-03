@@ -1,0 +1,9 @@
+# ansible/etcd/tasks/pre-tasks.yml
+---
+- name: Instala pacotes base para a geração do token jwt
+  ansible.builtin.apt:
+    name:
+      - gpg
+      - python3-cryptography
+      - logrotate
+    state: present

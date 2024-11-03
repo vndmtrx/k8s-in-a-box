@@ -1,0 +1,64 @@
+# ansible/etcd/tasks/02-pki.yml
+---
+- name: Criar estrutura de diretórios para SSL
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: etcd
+    group: etcd
+    mode: "0750"
+  loop:
+    - /etc/etcd/ssl/server
+    - /etc/etcd/ssl/peer
+    - /etc/etcd/ssl/ca
+
+# Certificados CA (comuns a todos)
+- name: Copiar certificado CA
+  ansible.builtin.copy:
+    src: "{{ certs.ca_etcd.cert }}"
+    dest: "/etc/etcd/ssl/ca/ca.pem"
+    owner: etcd
+    group: etcd
+    mode: "0644"
+    remote_src: true
+
+# Certificados do servidor (específico do nó)
+- name: Copiar certificados do servidor
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: etcd
+    group: etcd
+    mode: "0600"
+    remote_src: true
+  loop:
+    - src: "{{ certs.etcd_server.cert | format(inventory_hostname) }}"
+      dest: "/etc/etcd/ssl/server/server-cert.pem"
+    - src: "{{ certs.etcd_server.chave | format(inventory_hostname) }}"
+      dest: "/etc/etcd/ssl/server/server-key.pem"
+
+# Certificados peer (todos os certificados para comunicação mútua)
+- name: Copiar certificados peer do nó atual
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: etcd
+    group: etcd
+    mode: "0600"
+    remote_src: true
+  loop:
+    - src: "{{ certs.etcd_peer.cert | format(inventory_hostname) }}"
+      dest: "/etc/etcd/ssl/peer/{{ inventory_hostname }}-cert.pem"
+    - src: "{{ certs.etcd_peer.chave | format(inventory_hostname) }}"
+      dest: "/etc/etcd/ssl/peer/{{ inventory_hostname }}-key.pem"
+
+- name: Copiar certificados peer dos outros nós
+  ansible.builtin.copy:
+    src: "{{ certs.etcd_peer.cert | format(item) }}"
+    dest: "/etc/etcd/ssl/peer/{{ item }}-cert.pem"
+    owner: etcd
+    group: etcd
+    mode: "0644"
+    remote_src: true
+  loop: "{{ groups['managers'] }}"
+  when: item != inventory_hostname

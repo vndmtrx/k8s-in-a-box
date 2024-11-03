@@ -1,0 +1,12 @@
+# Versão compatível com Kubernetes 1.29
+versao_etcd: "3.5.14"
+
+# Diretórios
+dir_dados: /var/lib/etcd
+dir_logs: /var/log/etcd
+
+# Portas
+porta_cliente_https: 2379
+porta_cliente_grpc: 2380
+porta_peer: 2381
+porta_metricas: 2382
