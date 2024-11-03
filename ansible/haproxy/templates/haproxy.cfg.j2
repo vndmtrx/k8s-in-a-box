@@ -1,5 +1,3 @@
-# Template de configuração do HAProxy
-# Configuração global e padrões
 global
     log /dev/log local0
     chroot /var/lib/haproxy
@@ -29,34 +27,45 @@ frontend k8s_api
     option tcplog
     default_backend k8s_api_backend
 
-# Frontend para o etcd
-frontend etcd
-    bind *:{{ porta_etcd }}
+# Frontend para a porta HTTP do etcd
+frontend etcd_https
+    bind *:{{ porta_etcd_https }}
     mode tcp
     option tcplog
-    default_backend etcd_backend
+    default_backend etcd_https_backend
+
+# Frontend para a porta gRPC do etcd
+frontend etcd_grpc
+    bind *:{{ porta_etcd_grpc }}
+    mode tcp
+    option tcplog
+    default_backend etcd_grpc_backend
 
 # Backend para o Kubernetes API Server
 backend k8s_api_backend
     mode tcp
     balance roundrobin
-    option tcp-check
-    # Health check para o apiserver (SSL/TLS)
     option ssl-hello-chk
 {% for host in groups['managers'] %}
     server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_kubeapiserver }} check
 {% endfor %}
 
-# Backend para o etcd
-backend etcd_backend
+# Backend para a porta HTTPS do etcd
+backend etcd_https_backend
     mode tcp
     balance roundrobin
     option tcp-check
-    # Health check via porta de métricas
-    option httpchk GET /health
-    http-check expect status 200
 {% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_etcd }} check port {{ porta_etcd_metricas }}
+    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_etcd_https }} check port {{ porta_etcd_metricas }}
+{% endfor %}
+
+# Backend para a porta gRPC do etcd
+backend etcd_grpc_backend
+    mode tcp
+    balance roundrobin
+    option tcp-check
+{% for host in groups['managers'] %}
+    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_etcd_grpc }} check port {{ porta_etcd_metricas }}
 {% endfor %}
 
 # Frontend para estatísticas

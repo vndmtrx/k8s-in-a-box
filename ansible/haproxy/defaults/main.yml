@@ -12,5 +12,9 @@ timeout_server: 10s
 haproxy_stats_user: "admin"
 haproxy_stats_password: "senha_muito_segura!"
 
-# Stats
+# Portas
+porta_kubeapiserver: 6443
+porta_etcd_https: 2379
+porta_etcd_grpc: 2380
+porta_etcd_metricas: 2382
 haproxy_porta_stats: 9000
