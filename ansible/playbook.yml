@@ -29,6 +29,15 @@
         - pki:monitor
         - never
 
+- name: Configurações dos Managers (instalação do etcd, kube-apiserver, etc)
+  hosts: managers
+  become: true
+  gather_facts: true
+  roles:
+    - role: etcd
+      tags:
+        - etcd
+
 # - name: Configurar nodes Kubernetes (comum para workers e managers)
 #   hosts: k8s_nodes
 #   become: true
