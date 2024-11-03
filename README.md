@@ -27,23 +27,23 @@ Este projeto está em desenvolvimento ativo, seguindo uma abordagem progressiva 
 
 ### 🟡 Em Desenvolvimento
 1. **Control Plane**
-  - Instalação do kube-apiserver
-  - Configuração do controller-manager
-  - Configuração do scheduler
-  - Integração com etcd
-  - Alta Disponibilidade via HAProxy
+    - Instalação do kube-apiserver
+    - Configuração do controller-manager
+    - Configuração do scheduler
+    - Integração com etcd
+    - Alta Disponibilidade via HAProxy
 
 2. **Workers e Runtime**
-  - Container Runtime
-  - Kubelet
-  - Kube-proxy
+    - Container Runtime
+    - Kubelet
+    - Kube-proxy
 
 3. **Arquivos de Configuração**
-  - kubeconfig do admin
-  - kubeconfig do controller-manager
-  - kubeconfig do scheduler
-  - kubeconfig do kubelet
-  - kubeconfig do kube-proxy
+    - kubeconfig do admin
+    - kubeconfig do controller-manager
+    - kubeconfig do scheduler
+    - kubeconfig do kubelet
+    - kubeconfig do kube-proxy
 
 ### ⚪ Etapas Futuras
 - **Rede do Cluster**
