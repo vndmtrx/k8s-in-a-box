@@ -14,6 +14,7 @@ chmod 0600 id_ed25519
 ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags sistema
 ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags pki
 ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags haproxy
+ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags etcd
 
 #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags "pki:monitor"
 #cat arquivos/pki/status-certificados.txt
