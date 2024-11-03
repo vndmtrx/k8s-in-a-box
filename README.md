@@ -16,15 +16,15 @@ Este projeto está em desenvolvimento ativo, seguindo uma abordagem progressiva 
 - Sistema Base das VMs (Debian Bookworm)
 - PKI (Certificados para todos componentes)
 - Load Balancer (HAProxy)
- - Balanceamento do API Server
- - Balanceamento do etcd
- - Health Checks
- - Interface de Estatísticas
+  - Balanceamento do API Server
+  - Balanceamento do etcd
+  - Health Checks
+  - Interface de Estatísticas
 - Cluster etcd
- - Instalação e Configuração
- - mTLS entre membros
- - Monitoramento de Saúde
- - Backup Configurado
+  - Instalação e Configuração
+  - mTLS entre membros
+  - Monitoramento de Saúde
+  - Backup Configurado
 
 ### 🟡 Em Desenvolvimento
 1. **Control Plane**
@@ -48,19 +48,19 @@ Este projeto está em desenvolvimento ativo, seguindo uma abordagem progressiva 
 
 ### ⚪ Etapas Futuras
 - **Rede do Cluster**
- - CNI Plugin
- - CoreDNS
- - MetalLB
+  - CNI Plugin
+  - CoreDNS
+  - MetalLB
 - **Observabilidade**
- - Metrics Server
- - Sistema de Logs
- - Prometheus + Grafana (não prometo nada)
+  - Metrics Server
+  - Sistema de Logs
+  - Prometheus + Grafana (não prometo nada)
 - **Componentes Adicionais**
- - Dashboard
- - Helm
+  - Dashboard
+  - Helm
 - **Validação e Documentação**
- - Testes de Carga
- - Exemplos de Uso
+  - Testes de Carga
+  - Exemplos de Uso
 
 > 📖 Para um acompanhamento detalhado do desenvolvimento, incluindo todos os componentes e suas dependências, consulte o [Mapa de Progresso](docs/PROGRESSO.md).
 
