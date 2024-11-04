@@ -1,6 +1,6 @@
 # Guia de Contribuição
 
-Obrigado por seu interesse em contribuir com o projeto [K8s in a Jar](https://github.com/vndmtrx/k8s-in-a-jar)! Este é um projeto educacional que visa ensinar sobre Kubernetes através de uma instalação manual automatizada com Ansible, similar ao "Kubernetes The Hard Way", mas com um toque brasileiro.
+Obrigado por seu interesse em contribuir com o projeto [K8s in a Box](https://github.com/vndmtrx/k8s-in-a-box)! Este é um projeto educacional que visa ensinar sobre Kubernetes através de uma instalação manual automatizada com Ansible, similar ao "Kubernetes The Hard Way", mas com um toque brasileiro.
 
 ## Princípios do Projeto
 
@@ -21,8 +21,8 @@ Obrigado por seu interesse em contribuir com o projeto [K8s in a Jar](https://gi
 
 2. Clone o repositório:
    ```bash
-   git clone https://github.com/vndmtrx/k8s-in-a-jar.git
-   cd k8s-in-a-jar
+   git clone https://github.com/vndmtrx/k8s-in-a-box.git
+   cd k8s-in-a-box
    ```
 
 ### Tipos de Contribuição

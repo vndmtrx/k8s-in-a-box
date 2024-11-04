@@ -28,7 +28,7 @@
     group: "root"
     CN: "system:kube-scheduler"  # Nome específico requerido pelo RBAC do Kubernetes
     O: "system:kube-scheduler"   # Grupo específico requerido pelo RBAC do Kubernetes
-    OU: "Kubernetes in a Jar"
+    OU: "Kubernetes in a Box"
     key_usage:
       - digitalSignature  # Apenas para autenticação TLS
     key_usage_critical: true

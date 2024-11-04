@@ -12,4 +12,4 @@ pki_validade_alerta: 7
 
 pki_pasta_base: "/vagrant/arquivos/pki"
 
-pki_organizacao: "Kubernetes in a Jar"
+pki_organizacao: "Kubernetes in a Box"

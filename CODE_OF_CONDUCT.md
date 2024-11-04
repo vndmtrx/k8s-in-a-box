@@ -2,7 +2,7 @@
 
 ## Nossa Proposta
 
-O K8s in a Jar é um projeto educacional que visa criar um ambiente acolhedor para o aprendizado de Kubernetes. Queremos que todos os participantes tenham uma experiência respeitosa e livre de assédio.
+O K8s in a Box é um projeto educacional que visa criar um ambiente acolhedor para o aprendizado de Kubernetes. Queremos que todos os participantes tenham uma experiência respeitosa e livre de assédio.
 
 ## Nossas Diretrizes
 

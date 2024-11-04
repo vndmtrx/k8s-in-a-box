@@ -28,7 +28,7 @@
     group: "root"
     CN: "system:kube-controller-manager"
     O: "system:kube-controller-manager"
-    OU: "Kubernetes in a Jar"
+    OU: "Kubernetes in a Box"
     key_usage:
       - digitalSignature
     key_usage_critical: true
