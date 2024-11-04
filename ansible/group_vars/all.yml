@@ -1,5 +1,10 @@
 # ansible/group_vars/all.yml
 ---
+# Versões dos componentes
+versao_haproxy: "3.0"
+versao_etcd: "3.5.14"
+versao_kubernetes: "v1.31.2" # https://dl.k8s.io/release/stable.txt
+
 # Redes do projeto
 rede_cidr_hosts: "172.24.0.0/24"
 rede_cidr_pods: "172.24.4.0/22"

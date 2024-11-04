@@ -1,7 +1,7 @@
 # ansible/haproxy/defaults/main.yml
 ---
 # Versão
-versao_haproxy: 3.0
+versao_haproxy: "3.0"
 
 # Timeouts
 timeout_connect: 5s
