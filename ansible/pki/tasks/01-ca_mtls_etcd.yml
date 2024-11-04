@@ -27,7 +27,7 @@
     owner: "root"
     group: "root"
     CN: "etcd-ca"
-    O: "{{ pki_organizacao }}"
+    OU: "{{ pki_organizacao }}"
     OU: "Autoridade Certificadora para o Etcd"
     basic_constraints:
       - "CA:TRUE"

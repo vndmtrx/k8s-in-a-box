@@ -28,7 +28,8 @@
     group: "root"
     CN: "system:kube-controller-manager"
     O: "system:kube-controller-manager"
-    OU: "Kubernetes in a Box"
+    OU: "{{ pki_organizacao }}"
+    OU: "Kube Controller Manager"
     key_usage:
       - digitalSignature
     key_usage_critical: true

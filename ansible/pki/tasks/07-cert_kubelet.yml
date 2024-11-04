@@ -28,7 +28,8 @@
     group: "root"
     CN: "system:node:{{ node_host }}"
     O: "system:nodes"
-    OU: "Kubernetes in a Box"
+    OU: "{{ pki_organizacao }}"
+    OU: "Kubelet"
     key_usage:
       - digitalSignature
     key_usage_critical: true

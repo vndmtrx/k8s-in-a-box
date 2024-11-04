@@ -29,6 +29,7 @@
     CN: "kubernetes-admin"
     O: "system:masters"
     OU: "{{ pki_organizacao }}"
+    OU: "Administrador do Cluster Kubernetes"
     key_usage:
       - digitalSignature
     key_usage_critical: true

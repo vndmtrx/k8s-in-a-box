@@ -28,7 +28,8 @@
     group: "root"
     CN: "system:kube-proxy"
     O: "system:node-proxier"
-    OU: "Kubernetes in a Box"
+    OU: "{{ pki_organizacao }}"
+    OU: "Kube Proxy"
     key_usage:
       - digitalSignature
     key_usage_critical: true

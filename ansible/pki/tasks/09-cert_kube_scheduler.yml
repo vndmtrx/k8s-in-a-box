@@ -26,14 +26,15 @@
     mode: "0600"
     owner: "root"
     group: "root"
-    CN: "system:kube-scheduler"  # Nome específico requerido pelo RBAC do Kubernetes
-    O: "system:kube-scheduler"   # Grupo específico requerido pelo RBAC do Kubernetes
-    OU: "Kubernetes in a Box"
+    CN: "system:kube-scheduler"
+    O: "system:kube-scheduler"
+    OU: "{{ pki_organizacao }}"
+    OU: "Kube Scheduler"
     key_usage:
-      - digitalSignature  # Apenas para autenticação TLS
+      - digitalSignature
     key_usage_critical: true
     extended_key_usage:
-      - clientAuth  # Scheduler é um cliente do API server
+      - clientAuth
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', 'kube_scheduler_san.j2') | from_yaml }}"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
