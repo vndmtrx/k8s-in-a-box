@@ -4,9 +4,9 @@
 versao_haproxy: "3.0"
 
 # Timeouts
-timeout_connect: 5s
-timeout_client: 10s
-timeout_server: 10s
+timeout_connect: 30s
+timeout_client: 30s
+timeout_server: 30s
 
 # Credenciais
 haproxy_stats_usr: "admin"
