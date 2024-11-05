@@ -48,6 +48,8 @@ Vagrant.configure("2") do |config|
 
     libvirt.cpu_mode = "host-model"
     libvirt.nested = true
+
+    libvirt.nic_model_type = "virtio"
   end
 
   nodes.each do |node_name, specs|
