@@ -115,9 +115,3 @@
     - pki:k8s
     - pki:k8s:admin
     - pki:admin
-
-- name: Limpar arquivos CSR
-  ansible.builtin.import_tasks: limpeza.yml
-  tags:
-    - pki
-    - pki:limpeza
