@@ -3,7 +3,6 @@
 - name: Executar pre-tasks de estrutura de diretórios
   ansible.builtin.include_tasks: pre-tasks.yml
   tags:
-    - always
     - etcd
     - etcd:pre
 
