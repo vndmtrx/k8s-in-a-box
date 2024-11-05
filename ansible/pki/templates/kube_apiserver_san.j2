@@ -2,6 +2,10 @@
 - IP:127.0.0.1
 - DNS:localhost
 
+# Load Balancer
+- IP:{{ hostvars[groups['loadbalancers'][0]]['ansible_host'] }}
+- DNS:{{ groups['loadbalancers'][0] }}
+
 # Nome e IP do nó atual
 - IP:{{ hostvars[manager_host]['ansible_host'] }}
 - DNS:{{ manager_host }}
