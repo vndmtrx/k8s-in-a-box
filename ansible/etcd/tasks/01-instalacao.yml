@@ -14,25 +14,25 @@
 - name: Baixar arquivo SHA256SUMS
   ansible.builtin.get_url:
     url: "https://github.com/etcd-io/etcd/releases/download/v{{ versao_etcd }}/SHA256SUMS"
-    dest: "/tmp/etcd-SHA256SUMS"
+    dest: "/vagrant/arquivos/tmp/etcd-SHA256SUMS"
     mode: "0644"
 
 - name: Extrair checksum do arquivo SHA256SUMS
   ansible.builtin.shell: |
-    grep "etcd-v{{ versao_etcd }}-linux-amd64.tar.gz" /tmp/etcd-SHA256SUMS | cut -d' ' -f1
+    grep "etcd-v{{ versao_etcd }}-linux-amd64.tar.gz" /vagrant/arquivos/tmp/etcd-SHA256SUMS | cut -d' ' -f1
   register: etcd_checksum
   changed_when: false
 
 - name: Baixar etcd
   ansible.builtin.get_url:
     url: "https://github.com/etcd-io/etcd/releases/download/v{{ versao_etcd }}/etcd-v{{ versao_etcd }}-linux-amd64.tar.gz"
-    dest: "/tmp/etcd.tar.gz"
+    dest: "/vagrant/arquivos/tmp/etcd.tar.gz"
     mode: "0644"
     checksum: "sha256:{{ etcd_checksum.stdout }}"
 
 - name: Extrair binários do etcd
   ansible.builtin.unarchive:
-    src: "/tmp/etcd.tar.gz"
+    src: "/vagrant/arquivos/tmp/etcd.tar.gz"
     dest: "/tmp"
     remote_src: true
 

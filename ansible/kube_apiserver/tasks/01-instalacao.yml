@@ -14,12 +14,12 @@
 - name: Baixar arquivo de checksum
   ansible.builtin.get_url:
     url: "{{ checksum_url }}"
-    dest: "/tmp/kube-apiserver.sha256"
+    dest: "/vagrant/arquivos/tmp/kube-apiserver.sha256"
     mode: "0644"
 
 - name: Ler checksum do arquivo
   ansible.builtin.shell: |
-    cat /tmp/kube-apiserver.sha256 | tr -d '\n'
+    cat /vagrant/arquivos/tmp/kube-apiserver.sha256 | tr -d '\n'
   register: kube_apiserver_checksum
   changed_when: false
 

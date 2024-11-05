@@ -60,6 +60,12 @@
     group: root
     mode: "0700"
 
+- name: Garante a existência da pasta de temporários
+  ansible.builtin.file:
+    path: /vagrant/arquivos/tmp
+    state: directory
+    mode: '0755'
+
 - name: Configura as políticas padrão do UFW
   ansible.builtin.ufw:
     direction: "{{ item.direction }}"
