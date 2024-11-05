@@ -28,8 +28,9 @@
     group: "root"
     CN: "system:kube-controller-manager"
     O: "system:kube-controller-manager"
-    OU: "{{ pki_organizacao }}"
-    OU: "Kube Controller Manager"
+    OU:
+      - "{{ pki_organizacao }}"
+      - "Kube Controller Manager"
     key_usage:
       - digitalSignature
     key_usage_critical: true

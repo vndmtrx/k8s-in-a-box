@@ -28,8 +28,9 @@
     group: "root"
     CN: "system:kube-proxy"
     O: "system:node-proxier"
-    OU: "{{ pki_organizacao }}"
-    OU: "Kube Proxy"
+    OU:
+      - "{{ pki_organizacao }}"
+      - "Kube Proxy"
     key_usage:
       - digitalSignature
     key_usage_critical: true

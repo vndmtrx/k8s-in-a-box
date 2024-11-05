@@ -27,8 +27,9 @@
     owner: "root"
     group: "root"
     CN: "kube-apiserver"
-    OU: "{{ pki_organizacao }}"
-    OU: "API Server Kubernetes"
+    OU:
+      - "{{ pki_organizacao }}"
+      - "API Server Kubernetes"
     key_usage:
       - digitalSignature
     key_usage_critical: true

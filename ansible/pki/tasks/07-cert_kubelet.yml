@@ -28,8 +28,9 @@
     group: "root"
     CN: "system:node:{{ node_host }}"
     O: "system:nodes"
-    OU: "{{ pki_organizacao }}"
-    OU: "Kubelet"
+    OU:
+      - "{{ pki_organizacao }}"
+      - "Kubelet"
     key_usage:
       - digitalSignature
     key_usage_critical: true

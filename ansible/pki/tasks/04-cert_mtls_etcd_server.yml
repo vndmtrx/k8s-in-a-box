@@ -27,8 +27,9 @@
     owner: "root"
     group: "root"
     CN: "etcd-node-{{ manager_host }}-server"
-    OU: "{{ pki_organizacao }}"
-    OU: "Servidor Etcd"
+    OU:
+      - "{{ pki_organizacao }}"
+      - "Servidor Etcd"
     key_usage:
       - digitalSignature
       - keyEncipherment
