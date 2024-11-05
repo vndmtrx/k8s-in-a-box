@@ -1,0 +1,14 @@
+# ansible/kube_apiserver/tasks/03-configuracao.yml
+---
+- name: Configurar serviço do kube-apiserver
+  ansible.builtin.template:
+    src: kube-apiserver.service.j2
+    dest: /etc/systemd/system/kube-apiserver.service
+    mode: "0644"
+
+- name: Garantir serviço ativo
+  ansible.builtin.systemd:
+    name: kube-apiserver
+    enabled: yes
+    state: restarted
+    daemon_reload: true

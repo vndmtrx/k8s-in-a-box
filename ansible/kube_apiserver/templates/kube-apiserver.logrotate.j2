@@ -1,0 +1,13 @@
+/var/log/kubernetes/apiserver.log /var/log/kubernetes/apiserver.err /var/log/kubernetes/audit.log {
+    daily
+    size 50M
+    rotate 7
+    missingok
+    notifempty
+    compress
+    delaycompress
+    postrotate
+        systemctl restart kube-apiserver.service
+    endscript
+    create 0640 kubernetes kubernetes
+}

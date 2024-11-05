@@ -1,0 +1,74 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=kubernetes
+Group=kubernetes
+
+ExecStart=/usr/local/bin/kube-apiserver \
+  --advertise-address={{ hostvars[groups['loadbalancers'][0]]['ansible_host'] }} \
+  --allow-privileged=true \
+  --audit-log-maxage=30 \
+  --audit-log-maxbackup=3 \
+  --audit-log-maxsize=100 \
+  --audit-log-path=/var/log/kubernetes/audit.log \
+  --authorization-mode=Node,RBAC \
+  --bind-address=0.0.0.0 \
+  --client-ca-file=/etc/kubernetes/ssl/apiserver/ca.pem \
+  --enable-admission-plugins=NamespaceLifecycle,NodeRestriction,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota \
+  --etcd-cafile=/etc/kubernetes/ssl/etcd/ca.pem \
+  --etcd-certfile=/etc/kubernetes/ssl/etcd/apiserver-client.pem \
+  --etcd-keyfile=/etc/kubernetes/ssl/etcd/apiserver-client-key.pem \
+  --etcd-servers=https://{{ hostvars[groups['loadbalancers'][0]]['ansible_host'] }}:{{ porta_etcd_https }} \
+  --etcd-healthcheck-timeout=5s \
+  --etcd-compaction-interval=5m \
+  --etcd-count-metric-poll-period=1m \
+  --event-ttl=1h \
+  --kubelet-certificate-authority=/etc/kubernetes/ssl/apiserver/ca.pem \
+  --kubelet-client-certificate=/etc/kubernetes/ssl/apiserver/apiserver.pem \
+  --kubelet-client-key=/etc/kubernetes/ssl/apiserver/apiserver-key.pem \
+  --max-requests-inflight={{ max_requests | default(1500) }} \
+  --runtime-config=api/all=true \
+  --service-account-key-file=/etc/kubernetes/ssl/apiserver/sa.pem \
+  --service-account-signing-key-file=/etc/kubernetes/ssl/apiserver/sa-key.pem \
+  --service-account-issuer=https://kubernetes.default.svc.cluster.local \
+  --service-cluster-ip-range={{ rede_cidr_services }} \
+  --service-node-port-range=30000-32767 \
+  --tls-cert-file=/etc/kubernetes/ssl/apiserver/apiserver.pem \
+  --tls-private-key-file=/etc/kubernetes/ssl/apiserver/apiserver-key.pem \
+  --api-audiences=https://kubernetes.default.svc.cluster.local \
+  --enable-bootstrap-token-auth=true \
+  --anonymous-auth=false \
+  --secure-port={{ porta_kubeapiserver }} \
+  --v=2
+
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=0
+TimeoutStopSec={{ timeout_shutdown | default(70) }}
+
+# Limites de recursos
+LimitNOFILE=65536
+LimitNPROC=65536
+
+# Logs
+StandardOutput=append:/var/log/kubernetes/apiserver.log
+StandardError=append:/var/log/kubernetes/apiserver.err
+
+# Configurações de segurança
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ReadWritePaths=/var/lib/kubernetes /var/log/kubernetes
+
+[Install]
+WantedBy=multi-user.target
