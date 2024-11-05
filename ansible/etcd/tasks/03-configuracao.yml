@@ -18,11 +18,5 @@
   ansible.builtin.systemd:
     name: etcd
     enabled: yes
-    state: started
-    daemon_reload: true
-
-- name: Reiniciar etcd
-  ansible.builtin.systemd:
-    name: etcd
     state: restarted
     daemon_reload: true
