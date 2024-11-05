@@ -8,6 +8,7 @@
     - role: sistema
       tags:
         - sistema
+        - todas
 
 - name: Configurações do Load Balancer e geração das chaves dos CAs
   hosts: loadbalancers
@@ -18,10 +19,12 @@
       run_once: true
       tags:
         - pki
+        - todas
 
     - role: haproxy
       tags:
         - haproxy
+        - todas
 
     - role: pki_monitor
       run_once: true
@@ -29,7 +32,7 @@
         - pki:monitor
         - never
 
-- name: Configurações dos Managers (instalação do etcd, kube-apiserver, etc)
+- name: Configurações do cluster etcd
   hosts: managers
   become: true
   gather_facts: true
@@ -37,6 +40,18 @@
     - role: etcd
       tags:
         - etcd
+        - todas
+    
+- name: Configuração do kube-apiserver
+  hosts: managers
+  become: true
+  gather_facts: true
+  serial: 1
+  roles:
+    - role: kube_apiserver
+      tags:
+        - kube_apiserver
+        - todas
 
 # - name: Configurar nodes Kubernetes (comum para workers e managers)
 #   hosts: k8s_nodes
