@@ -33,7 +33,7 @@
 - [x] Monitoramento do cluster
 
 ### 🎮 Control Plane
-- [ ] Instalação do kube-apiserver
+- [x] Instalação do kube-apiserver
 - [ ] Configuração do kube-controller-manager
 - [ ] Configuração do kube-scheduler
 - [ ] Configuração do etcd como backend
