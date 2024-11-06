@@ -52,14 +52,6 @@
     remote_src: yes
     mode: '0755'
 
-- name: Garante a existência da pasta do CA em todas as máquinas
-  ansible.builtin.file:
-    path: /etc/kubernetes/pki
-    state: directory
-    owner: root
-    group: root
-    mode: "0700"
-
 - name: Garante a existência da pasta de temporários
   ansible.builtin.file:
     path: /vagrant/arquivos/tmp
