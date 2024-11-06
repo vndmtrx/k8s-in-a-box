@@ -4,6 +4,7 @@
 # Para executar no LibVirt sem precisar de senha de root:
 # - sudo usermod -a -G libvirt $(whoami)
 # - sudo usermod -a -G kvm $(whoami)
+# - sudo usermod -a -G libvirt-qemu $(whoami)
 
 ENV["VAGRANT_DEFAULT_PROVIDER"] = "libvirt"
 
