@@ -19,8 +19,8 @@ Este projeto serve como:
   - Função de hash SHA-512 para maior segurança
   - Autoridades Certificadoras (CAs) distintas para etcd e Kubernetes
 - Prazos de validade configuráveis via variáveis do Ansible:
-  - CAs: 10 anos (`pki_validade_ca: 3650`)
-  - Certificados: 1 ano (`pki_validade_cert: 365`)
+  - CAs: 1 ano (`pki_validade_ca: 365`)
+  - Certificados: 30 dias (`pki_validade_cert: 30`)
 
 ### Ambiente de Laboratório
 - Virtualização via Vagrant com LibVirt
