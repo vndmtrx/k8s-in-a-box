@@ -1,5 +1,13 @@
 # ansible/k8s_base/tasks/main.yml
 ---
 - name: Instalação dos pré-requisitos para o K8s
-  ansible.builtin.import_tasks: '1-prereqs.yml'
-  tags: prereqs
+  ansible.builtin.import_tasks: '01-prereqs.yml'
+  tags: 
+    - k8s-base
+    - k8s-base:prereqs
+
+- name: Cópia dos certificados dos CAs do etcd e do Kubernetes
+  ansible.builtin.import_tasks: '02-pki.yml'
+  tags:
+    - k8s-base
+    - k8s-base:pki

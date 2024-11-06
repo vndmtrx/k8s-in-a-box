@@ -8,19 +8,9 @@
     group: kubernetes
     mode: "0750"
   loop:
-    - /etc/kubernetes/ssl/apiserver
-    - /etc/kubernetes/ssl/etcd
+    - /etc/kubernetes/pki/apiserver
 
-- name: Copiar certificados CA do Kubernetes
-  ansible.builtin.copy:
-    src: "{{ certs.ca_k8s.cert }}"
-    dest: /etc/kubernetes/ssl/apiserver/ca.pem
-    owner: kubernetes
-    group: kubernetes
-    mode: "0644"
-    remote_src: true
-
-- name: Copiar certificados do apiserver
+- name: Copiar certificados de uso do kube-apiserver
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -29,44 +19,21 @@
     mode: "{{ item.mode }}"
     remote_src: true
   loop:
-    - src: "{{ certs.kube_apiserver.cert | format(inventory_hostname) }}"
-      dest: /etc/kubernetes/ssl/apiserver/apiserver.pem
-      mode: "0644"
-    - src: "{{ certs.kube_apiserver.chave | format(inventory_hostname) }}"
-      dest: /etc/kubernetes/ssl/apiserver/apiserver-key.pem
-      mode: "0600"
-
-- name: Copiar certificados de service account
-  ansible.builtin.copy:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: kubernetes
-    group: kubernetes
-    mode: "{{ item.mode }}"
-    remote_src: true
-  loop:
-    - src: "{{ certs.service_account.cert }}"
-      dest: /etc/kubernetes/ssl/apiserver/sa.pem
-      mode: "0644"
-    - src: "{{ certs.service_account.chave }}"
-      dest: /etc/kubernetes/ssl/apiserver/sa-key.pem
-      mode: "0600"
-
-- name: Copiar certificados de conexão com etcd
-  ansible.builtin.copy:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: kubernetes
-    group: kubernetes
-    mode: "{{ item.mode }}"
-    remote_src: true
-  loop:
-    - src: "{{ certs.ca_etcd.cert }}"
-      dest: /etc/kubernetes/ssl/etcd/ca.pem
-      mode: "0644"
     - src: "{{ certs.etcd_apiserver_cliente.cert }}"
-      dest: /etc/kubernetes/ssl/etcd/apiserver-client.pem
+      dest: /etc/kubernetes/pki/apiserver/apiserver-etcd-cliente-cert.pem
       mode: "0644"
     - src: "{{ certs.etcd_apiserver_cliente.chave }}"
-      dest: /etc/kubernetes/ssl/etcd/apiserver-client-key.pem
+      dest: /etc/kubernetes/pki/apiserver/apiserver-etcd-cliente-chave.pem
+      mode: "0600"
+    - src: "{{ certs.kube_apiserver.cert | format(inventory_hostname) }}"
+      dest: /etc/kubernetes/pki/apiserver/apiserver-cert.pem
+      mode: "0644"
+    - src: "{{ certs.kube_apiserver.chave | format(inventory_hostname) }}"
+      dest: /etc/kubernetes/pki/apiserver/apiserver-chave.pem
+      mode: "0600"
+    - src: "{{ certs.service_account.cert }}"
+      dest: /etc/kubernetes/pki/apiserver/service-account-cert.pem
+      mode: "0644"
+    - src: "{{ certs.service_account.chave }}"
+      dest: /etc/kubernetes/pki/apiserver/service-account-chave.pem
       mode: "0600"
