@@ -39,12 +39,6 @@
     state: present
   with_items: "{{ groups['todos'] }}"
 
-- name: Instala pacotes base para o Playbook
-  ansible.builtin.apt:
-    name:
-      - ufw
-    state: present
-
 - name: Instalar Tailspin para facilitar a leitura de logs
   unarchive:
     src: https://github.com/bensadeh/tailspin/releases/download/4.0.0/tailspin-x86_64-unknown-linux-musl.tar.gz
@@ -58,25 +52,32 @@
     state: directory
     mode: '0755'
 
-- name: Configura as políticas padrão do UFW
-  ansible.builtin.ufw:
-    direction: "{{ item.direction }}"
-    policy: "{{ item.policy }}"
-  loop:
-    - { direction: incoming, policy: deny }
-    - { direction: outgoing, policy: allow }
+- name: Instala pacotes base para o Playbook
+  ansible.builtin.apt:
+    name:
+      - firewalld
+    state: present
 
-- name: Libera o SSH (porta 22) em todas as interfaces
-  ansible.builtin.ufw:
-    rule: allow
-    port: '22'
-    proto: tcp
+- name: Configura o firewalld
+  block:
+    - name: Inicia e habilita o serviço firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: started
+        enabled: yes
 
-- name: Libera todo tráfego da rede 172.24.0.0/16
-  ansible.builtin.ufw:
-    rule: allow
-    src: 172.24.0.0/16
+    - name: Adiciona a rede interna à zona trusted
+      ansible.posix.firewalld:
+        source: 172.24.0.0/16
+        zone: trusted
+        state: enabled
+        permanent: yes
+        immediate: yes
 
-- name: Ativa o UFW
-  ansible.builtin.ufw:
-    state: enabled
+    - name: Libera SSH na zona public
+      ansible.posix.firewalld:
+        service: ssh
+        zone: public
+        state: enabled
+        permanent: yes
+        immediate: yes
