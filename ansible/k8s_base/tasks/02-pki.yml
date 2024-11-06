@@ -1,14 +1,5 @@
 # ansible/k8s_base/tasks/1-prereqs.yml
 ---
-- name: Copiar certificado do CA do Kubernetes
-  ansible.builtin.copy:
-    src: "{{ certs.ca_k8s.cert }}"
-    dest: /etc/kubernetes/pki/kubernetes-ca.pem
-    owner: kubernetes
-    group: kubernetes
-    mode: "0644"
-    remote_src: true
-
 - name: Copiar certificados dos CAs
   ansible.builtin.copy:
     src: "{{ item.src }}"
