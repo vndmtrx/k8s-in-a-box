@@ -6,7 +6,7 @@ dir_dados: /var/lib/etcd
 dir_logs: /var/log/etcd
 
 # Portas
+porta_etcd_grpc: 2378
 porta_etcd_https: 2379
-porta_etcd_grpc: 2380
-porta_etcd_peers: 2381
-porta_etcd_metricas: 2382
+porta_etcd_peers: 2380
+porta_etcd_metricas: 2381

@@ -11,11 +11,11 @@ rede_cidr_pods: "172.24.4.0/22"
 rede_cidr_services: "172.24.8.0/22"
 
 # Portas usadas no projeto
-porta_kubeapiserver: 6443
 porta_etcd_https: 2379
-porta_etcd_grpc: 2380
-porta_etcd_peers: 2381
-porta_etcd_metricas: 2382
+porta_etcd_peers: 2380
+porta_etcd_metricas: 2381
+
+porta_kubeapiserver: 6443
 
 # Credenciais
 haproxy_stats_usr: "admin"

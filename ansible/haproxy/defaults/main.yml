@@ -13,8 +13,8 @@ haproxy_stats_usr: "admin"
 haproxy_stats_senha: "senha_muito_segura!"
 
 # Portas
-porta_kubeapiserver: 6443
 porta_etcd_https: 2379
-porta_etcd_grpc: 2380
-porta_etcd_metricas: 2382
+porta_etcd_peers: 2380
+porta_etcd_metricas: 2381
+porta_kubeapiserver: 6443
 porta_haproxy_stats: 9000

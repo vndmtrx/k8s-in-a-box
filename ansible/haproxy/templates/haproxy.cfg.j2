@@ -37,13 +37,6 @@ frontend etcd_https
     option tcplog
     default_backend etcd_https_backend
 
-# Frontend para a porta gRPC do etcd
-frontend etcd_grpc
-    bind *:{{ porta_etcd_grpc }}
-    mode tcp
-    option tcplog
-    default_backend etcd_grpc_backend
-
 # Backend para o Kubernetes API Server
 backend k8s_api_backend
     mode tcp
@@ -61,16 +54,6 @@ backend etcd_https_backend
     timeout tunnel 1h
 {% for host in groups['managers'] %}
     server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_etcd_https }} check port {{ porta_etcd_metricas }} inter 3 rise 2 fall 3
-{% endfor %}
-
-# Backend para a porta gRPC do etcd
-backend etcd_grpc_backend
-    mode tcp
-    balance roundrobin
-    option tcp-check
-    timeout tunnel 1h
-{% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_etcd_grpc }} check port {{ porta_etcd_metricas }} inter 3 rise 2 fall 3
 {% endfor %}
 
 # Frontend para estatísticas e administração
