@@ -8,16 +8,79 @@
 
 set -euo pipefail
 
+function criar_snapshot() {
+    local base_dir=$(basename $(pwd))
+    local snapshot_name=$1
+    local vms=$(vagrant status | grep running | awk '{print $1}')
+    
+    vagrant halt
+    
+    for vm in $vms; do
+        echo "Criando snapshot para $vm..."
+        local vm_name="${base_dir}_${vm}"
+        
+        if virsh -c qemu:///system snapshot-list "$vm_name" | grep -q "$snapshot_name"; then
+            echo "Deletando snapshot existente '$snapshot_name' para $vm_name..."
+            virsh -c qemu:///system snapshot-delete "$vm_name" "$snapshot_name"
+        else
+            echo "Nenhum snapshot '$snapshot_name' encontrado para $vm_name. Continuando com a criação..."
+        fi
+        
+        virsh -c qemu:///system snapshot-create-as "$vm_name" "$snapshot_name"
+    done
+    
+    vagrant up 2>&1 | grep -E "Bringing|Error:"
+}
+
+function restaurar_snapshot() {
+    local base_dir=$(basename $(pwd))
+    local snapshot_name=$1
+    local vms=$(vagrant status | grep running | awk '{print $1}')
+    
+    vagrant halt
+    
+    for vm in $vms; do
+        echo "Restaurando snapshot para $vm..."
+        local vm_name="${base_dir}_${vm}"
+
+        if virsh -c qemu:///system snapshot-list "$vm_name" | grep -q "$snapshot_name"; then
+            virsh -c qemu:///system snapshot-revert "$vm_name" "$snapshot_name" >/dev/null
+        fi
+    done
+    
+    vagrant up 2>&1 | grep -E "Bringing|Error:"
+}
+
 CFG="./ansible/.ansible.cfg"
 
 chmod 0600 id_ed25519
 ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags todas
 
 #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags sistema
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags pki
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags haproxy
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags etcd
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags kube_apiserver
+#criar_snapshot sistema_pronto
 
+#restaurar_snapshot sistema_pronto
+#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags pki
+#criar_snapshot pki_pronto
+
+#restaurar_snapshot pki_pronto
+#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags k8s_base
+#criar_snapshot k8s_base_pronto
+
+#restaurar_snapshot k8s_base_pronto
+#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags haproxy
+#criar_snapshot haproxy_pronto
+
+#restaurar_snapshot haproxy_pronto
+#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags etcd
+#criar_snapshot etcd_pronto
+
+#restaurar_snapshot etcd_pronto
+#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags kube_apiserver
+#criar_snapshot kube_apiserver_pronto
+
+# Monitoramento
+
+#restaurar_snapshot pki_pronto
 #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags "pki:monitor"
 #cat arquivos/pki/status-certificados.txt
