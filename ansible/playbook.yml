@@ -41,7 +41,17 @@
       tags:
         - etcd
         - todas
-    
+
+- name: Configurações comuns a todos os nós
+  hosts: k8s_nodes
+  become: true
+  gather_facts: true
+  roles:
+    - role: k8s_base
+      tags:
+        - k8s_base
+        - todas
+
 - name: Configuração do kube-apiserver
   hosts: managers
   become: true
@@ -52,17 +62,6 @@
       tags:
         - kube_apiserver
         - todas
-
-# - name: Configurar nodes Kubernetes (comum para workers e managers)
-#   hosts: k8s_nodes
-#   become: true
-#   gather_facts: true
-#   vars_files:
-#     - vars/cert.yml
-#   roles:
-#     - role: k8s-base
-#     - role: tls-certs
-#       tags: ['certs-kubelet']
 
 # - name: Configurar Kubernetes Control Planes
 #   hosts: managers
