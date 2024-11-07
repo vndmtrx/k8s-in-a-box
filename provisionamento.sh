@@ -56,7 +56,7 @@ CFG="./ansible/.ansible.cfg"
 chmod 0600 id_ed25519
 ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags todas
 
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags sistema
+#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags sistema
 #criar_snapshot 01_sistema_pronto
 
 #restaurar_snapshot 01_sistema_pronto
@@ -64,19 +64,19 @@ ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags todas
 #criar_snapshot 02_pki_pronto
 
 #restaurar_snapshot 02_pki_pronto
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags k8s_base
-#criar_snapshot 03_k8s_base_pronto
+#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags haproxy
+#criar_snapshot 03_haproxy_pronto
 
-#restaurar_snapshot 03_k8s_base_pronto
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags haproxy
-#criar_snapshot 04_haproxy_pronto
+#restaurar_snapshot 03_haproxy_pronto
+#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags etcd
+#criar_snapshot 04_etcd_pronto
 
-#restaurar_snapshot 04_haproxy_pronto
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags etcd
-#criar_snapshot 05_etcd_pronto
+#restaurar_snapshot 04_etcd_pronto
+#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags k8s_base
+#criar_snapshot 05_k8s_base_pronto
 
-#restaurar_snapshot 05_etcd_pronto
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags kube_apiserver
+#restaurar_snapshot 05_k8s_base_pronto
+#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags kube_apiserver
 #criar_snapshot 06_kube_apiserver_pronto
 
 # Monitoramento
