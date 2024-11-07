@@ -26,15 +26,15 @@ initial-cluster-state: new
 
 # Segurança TLS
 client-transport-security:
-  cert-file: /etc/etcd/pki/server/server-cert.pem
-  key-file: /etc/etcd/pki/server/server-key.pem
-  trusted-ca-file: /etc/etcd/pki/ca/ca.pem
+  cert-file: /etc/etcd/pki/server/{{ certs.etcd_server.cert | format(inventory_hostname) | basename }}
+  key-file: /etc/etcd/pki/server/{{ certs.etcd_server.chave | format(inventory_hostname) | basename }}
+  trusted-ca-file: /etc/etcd/pki/ca/{{ certs.ca_etcd.cert | basename }}
   client-cert-auth: true
 
 peer-transport-security:
-  cert-file: /etc/etcd/pki/peer/{{ inventory_hostname }}-cert.pem
-  key-file: /etc/etcd/pki/peer/{{ inventory_hostname }}-key.pem
-  trusted-ca-file: /etc/etcd/pki/ca/ca.pem
+  cert-file: /etc/etcd/pki/peer/{{ certs.etcd_peer.cert | format(inventory_hostname) | basename }}
+  key-file: /etc/etcd/pki/peer/{{ certs.etcd_peer.chave | format(inventory_hostname) | basename }}
+  trusted-ca-file: /etc/etcd/pki/ca/{{ certs.ca_etcd.cert | basename }}
   client-cert-auth: true
   auto-tls: false
 

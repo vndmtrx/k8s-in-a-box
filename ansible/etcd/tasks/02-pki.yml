@@ -16,7 +16,7 @@
 - name: Copiar certificado CA
   ansible.builtin.copy:
     src: "{{ certs.ca_etcd.cert }}"
-    dest: "/etc/etcd/pki/ca/ca.pem"
+    dest: "/etc/etcd/pki/ca/{{ certs.ca_etcd.cert | basename }}"
     owner: etcd
     group: etcd
     mode: "0644"
@@ -33,9 +33,9 @@
     remote_src: true
   loop:
     - src: "{{ certs.etcd_server.cert | format(inventory_hostname) }}"
-      dest: "/etc/etcd/pki/server/server-cert.pem"
+      dest: "/etc/etcd/pki/server/{{ certs.etcd_server.cert | format(inventory_hostname) | basename }}"
     - src: "{{ certs.etcd_server.chave | format(inventory_hostname) }}"
-      dest: "/etc/etcd/pki/server/server-key.pem"
+      dest: "/etc/etcd/pki/server/{{ certs.etcd_server.chave | format(inventory_hostname) | basename }}"
 
 # Certificados peer (todos os certificados para comunicação mútua)
 - name: Copiar certificados peer do nó atual
@@ -48,20 +48,20 @@
     remote_src: true
   loop:
     - src: "{{ certs.etcd_peer.cert | format(inventory_hostname) }}"
-      dest: "/etc/etcd/pki/peer/{{ inventory_hostname }}-cert.pem"
+      dest: "/etc/etcd/pki/peer/{{ certs.etcd_peer.cert | format(inventory_hostname) | basename }}"
     - src: "{{ certs.etcd_peer.chave | format(inventory_hostname) }}"
-      dest: "/etc/etcd/pki/peer/{{ inventory_hostname }}-key.pem"
+      dest: "/etc/etcd/pki/peer/{{ certs.etcd_peer.chave | format(inventory_hostname) | basename }}"
 
-- name: Copiar certificados peer dos outros nós
-  ansible.builtin.copy:
-    src: "{{ certs.etcd_peer.cert | format(item) }}"
-    dest: "/etc/etcd/pki/peer/{{ item }}-cert.pem"
-    owner: etcd
-    group: etcd
-    mode: "0644"
-    remote_src: true
-  loop: "{{ groups['managers'] }}"
-  when: item != inventory_hostname
+# - name: Copiar certificados peer dos outros nós
+#   ansible.builtin.copy:
+#     src: "{{ certs.etcd_peer.cert | format(item) }}"
+#     dest: "/etc/etcd/pki/peer/{{ certs.etcd_peer.cert | format(item) | basename }}"
+#     owner: etcd
+#     group: etcd
+#     mode: "0644"
+#     remote_src: true
+#   loop: "{{ groups['managers'] }}"
+#   when: item != inventory_hostname
 
 - name: Criar arquivo do secret JWT para etcd
   copy:

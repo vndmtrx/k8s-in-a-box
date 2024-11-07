@@ -20,20 +20,20 @@
     remote_src: true
   loop:
     - src: "{{ certs.etcd_apiserver_cliente.cert }}"
-      dest: /etc/kubernetes/pki/apiserver/apiserver-etcd-cliente-cert.pem
+      dest: "/etc/kubernetes/pki/apiserver/{{ certs.etcd_apiserver_cliente.cert | basename }}"
       mode: "0644"
     - src: "{{ certs.etcd_apiserver_cliente.chave }}"
-      dest: /etc/kubernetes/pki/apiserver/apiserver-etcd-cliente-chave.pem
+      dest: "/etc/kubernetes/pki/apiserver/{{ certs.etcd_apiserver_cliente.chave | basename }}"
       mode: "0600"
     - src: "{{ certs.kube_apiserver.cert | format(inventory_hostname) }}"
-      dest: /etc/kubernetes/pki/apiserver/apiserver-cert.pem
+      dest: "/etc/kubernetes/pki/apiserver/{{ certs.kube_apiserver.cert | format(inventory_hostname) | basename }}"
       mode: "0644"
     - src: "{{ certs.kube_apiserver.chave | format(inventory_hostname) }}"
-      dest: /etc/kubernetes/pki/apiserver/apiserver-chave.pem
+      dest: "/etc/kubernetes/pki/apiserver/{{ certs.kube_apiserver.chave | format(inventory_hostname) | basename }}"
       mode: "0600"
     - src: "{{ certs.service_account.cert }}"
-      dest: /etc/kubernetes/pki/apiserver/service-account-cert.pem
+      dest: "/etc/kubernetes/pki/apiserver/{{ certs.service_account.cert | basename }}"
       mode: "0644"
     - src: "{{ certs.service_account.chave }}"
-      dest: /etc/kubernetes/pki/apiserver/service-account-chave.pem
+      dest: "/etc/kubernetes/pki/apiserver/{{ certs.service_account.chave | basename }}"
       mode: "0600"
