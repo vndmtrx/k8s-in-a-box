@@ -95,7 +95,7 @@ certs:
     # - "{{ certs.kubelet.cert | format(node_host) }}"
     chave: "{{ pki_dir }}/kubernetes/kubelet-node-%s-chave.pem"
     cert: "{{ pki_dir }}/kubernetes/kubelet-node-%s-cert.pem"
-    csr: "{{ pki_dir }}/kubernetes/kubelet-%s.csr"
+    csr: "{{ pki_dir }}/kubernetes/kubelet-node-%s.csr"
 
   # 10-cert_kube_controller_manager.yml
   kube_controller:
