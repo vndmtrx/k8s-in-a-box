@@ -52,32 +52,32 @@
     state: directory
     mode: '0755'
 
-- name: Instala pacotes base para o Playbook
-  ansible.builtin.apt:
-    name:
-      - firewalld
-    state: present
+# - name: Instala pacotes base para o Playbook
+#   ansible.builtin.apt:
+#     name:
+#       - firewalld
+#     state: present
 
-- name: Configura o firewalld
-  block:
-    - name: Inicia e habilita o serviço firewalld
-      ansible.builtin.service:
-        name: firewalld
-        state: started
-        enabled: yes
+# - name: Configura o firewalld
+#   block:
+#     - name: Inicia e habilita o serviço firewalld
+#       ansible.builtin.service:
+#         name: firewalld
+#         state: started
+#         enabled: yes
 
-    - name: Adiciona a rede interna à zona trusted
-      ansible.posix.firewalld:
-        source: 172.24.0.0/16
-        zone: trusted
-        state: enabled
-        permanent: yes
-        immediate: yes
+#     - name: Adiciona a rede interna à zona trusted
+#       ansible.posix.firewalld:
+#         source: 172.24.0.0/16
+#         zone: trusted
+#         state: enabled
+#         permanent: yes
+#         immediate: yes
 
-    - name: Libera SSH na zona public
-      ansible.posix.firewalld:
-        service: ssh
-        zone: public
-        state: enabled
-        permanent: yes
-        immediate: yes
+#     - name: Libera SSH na zona public
+#       ansible.posix.firewalld:
+#         service: ssh
+#         zone: public
+#         state: enabled
+#         permanent: yes
+#         immediate: yes
