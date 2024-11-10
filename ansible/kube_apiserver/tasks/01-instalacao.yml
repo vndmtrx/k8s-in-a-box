@@ -12,12 +12,19 @@
   register: kube_apiserver_checksum
   changed_when: false
 
-- name: Baixar binário do kube-apiserver
+- name: Baixar binário do kube-apiserver para pasta temporária
   ansible.builtin.get_url:
     url: "{{ download_url }}"
-    dest: "/usr/local/bin/kube-apiserver"
+    dest: "/vagrant/arquivos/tmp/kube-apiserver"
     mode: "0755"
     checksum: "sha256:{{ kube_apiserver_checksum.stdout }}"
+
+- name: Copiar kube-apiserver para pasta final
+  ansible.builtin.copy:
+    src: "/vagrant/arquivos/tmp/kube-apiserver"
+    dest: "/usr/local/bin/kube-apiserver"
+    mode: "0755"
+    remote_src: yes
 
 - name: Criar arquivos de log
   ansible.builtin.file:
