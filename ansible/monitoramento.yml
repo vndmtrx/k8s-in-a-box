@@ -8,8 +8,8 @@
     - role: sistema
     - role: monitoramento
 
-- name: Instalação dos agentes de monitoramento
-  hosts: monitorados
+- name: Instalação do agente node exporter para monitoramento
+  hosts: todos
   become: true
   gather_facts: true
   roles:
