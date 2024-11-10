@@ -15,6 +15,7 @@
     - /etc/prometheus/rules
     - /etc/prometheus/rules.d
     - /etc/prometheus/scrapes.d
+    - /etc/prometheus/targets
     - /var/lib/prometheus
     - /var/log/prometheus
 
@@ -77,8 +78,6 @@
   ansible.builtin.file:
     path: "/etc/prometheus/{{ item }}"
     state: directory
-    owner: prometheus
-    group: prometheus
     mode: "0755"
   loop:
     - consoles
@@ -126,6 +125,17 @@
   loop:
     - /var/log/prometheus/prometheus.log
     - /var/log/prometheus/prometheus.err
+
+- name: Configurar arquivos de service discovery do Prometheus
+  template:
+    src: "inventario_targets.yml.j2"
+    dest: "/etc/prometheus/targets/inventario_{{ item }}.yml"
+    mode: '0644'
+  loop: 
+    - loadbalancers
+    - monitoramento
+    - managers
+    - workers
 
 - name: Configurar arquivo principal do Prometheus
   ansible.builtin.template:
