@@ -1,9 +1,13 @@
 # ansible/pki/tasks/04-cert_mtls_etcd_server.yml
 ---
-- name: Verificar se a chave mTLS do servidor etcd já existe ({{ manager_host }})
+- name: Verificar arquivos existentes da chave mTLS do servidor etcd ({{ manager_host }})
   ansible.builtin.stat:
-    path: "{{ certs.etcd_server.chave | format(manager_host) }}"
-  register: etcd_server_chave
+    path: "{{ item }}"
+  loop:
+    - "{{ certs.etcd_server.chave | format(manager_host) }}"
+    - "{{ certs.etcd_server.csr | format(manager_host) }}"
+    - "{{ certs.etcd_server.cert | format(manager_host) }}"
+  register: etcd_server_arquivos
 
 - name: Gerar chave Ed25519 para mTLS do servidor etcd ({{ manager_host }})
   community.crypto.openssl_privatekey:
@@ -11,12 +15,7 @@
     type: "{{ pki_tipo_curva }}"
     state: "present"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not etcd_server_chave.stat.exists or (pki_regerar_certs | default(false) | bool)
-
-- name: Verificar se o CSR para mTLS do servidor etcd já existe ({{ manager_host }})
-  ansible.builtin.stat:
-    path: "{{ certs.etcd_server.csr | format(manager_host) }}"
-  register: etcd_server_csr
+  when: not etcd_server_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Gerar CSR para mTLS do servidor etcd ({{ manager_host }})
   community.crypto.openssl_csr:
@@ -40,12 +39,7 @@
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', 'etcd_server_san.j2') | from_yaml }}"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not etcd_server_csr.stat.exists or (pki_regerar_certs | default(false) | bool)
-
-- name: Verificar se o certificado para mTLS do servidor etcd já existe ({{ manager_host }})
-  ansible.builtin.stat:
-    path: "{{ certs.etcd_server.cert | format(manager_host) }}"
-  register: etcd_server_cert
+  when: not etcd_server_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Gerar certificado para mTLS do servidor etcd ({{ manager_host }})
   community.crypto.x509_certificate:
@@ -60,4 +54,4 @@
     owner: "root"
     group: "root"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not etcd_server_cert.stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: not etcd_server_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)

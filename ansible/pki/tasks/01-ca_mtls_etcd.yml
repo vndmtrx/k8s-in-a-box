@@ -1,9 +1,13 @@
 # ansible/pki/tasks/01-ca_mtls_etcd.yml
 ---
-- name: Verificar se a CA para mTLS do etcd já existe
+- name: Verificar arquivos existentes da CA para mTLS do etcd
   ansible.builtin.stat:
-    path: "{{ certs.ca_etcd.chave }}"
-  register: ca_etcd_chave
+    path: "{{ item }}"
+  loop:
+    - "{{ certs.ca_etcd.chave }}"
+    - "{{ certs.ca_etcd.csr }}"
+    - "{{ certs.ca_etcd.cert }}"
+  register: ca_etcd_arquivos
 
 - name: Gerar chave Ed25519 da CA para mTLS do etcd
   community.crypto.openssl_privatekey:
@@ -11,12 +15,7 @@
     type: "{{ pki_tipo_curva }}"
     state: "present"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not ca_etcd_chave.stat.exists or (pki_regerar_certs | default(false) | bool)
-
-- name: Verificar se o CSR da CA para mTLS do etcd já existe
-  ansible.builtin.stat:
-    path: "{{ certs.ca_etcd.csr }}"
-  register: ca_etcd_csr
+  when: not ca_etcd_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Gerar CSR da CA para mTLS do etcd
   community.crypto.openssl_csr:
@@ -40,12 +39,7 @@
       - cRLSign
     key_usage_critical: true
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not ca_etcd_csr.stat.exists or (pki_regerar_certs | default(false) | bool)
-
-- name: Verificar se o certificado da CA para mTLS do etcd já existe
-  ansible.builtin.stat:
-    path: "{{ certs.ca_etcd.cert }}"
-  register: ca_etcd_cert
+  when: not ca_etcd_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Gerar certificado autoassinado da CA para mTLS do etcd
   community.crypto.x509_certificate:
@@ -59,4 +53,4 @@
     owner: "root"
     group: "root"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not ca_etcd_cert.stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: not ca_etcd_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)

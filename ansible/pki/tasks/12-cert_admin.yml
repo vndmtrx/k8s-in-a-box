@@ -1,9 +1,13 @@
 # ansible/pki/tasks/12-cert_admin.yml
 ---
-- name: Verificar se a chave do admin já existe
+- name: Verificar arquivos existentes do admin
   ansible.builtin.stat:
-    path: "{{ certs.k8s_admin.chave }}"
-  register: admin_chave
+    path: "{{ item }}"
+  loop:
+    - "{{ certs.k8s_admin.chave }}"
+    - "{{ certs.k8s_admin.csr }}"
+    - "{{ certs.k8s_admin.cert }}"
+  register: k8s_admin_arquivos
 
 - name: Gerar chave Ed25519 para admin
   community.crypto.openssl_privatekey:
@@ -11,12 +15,7 @@
     type: "{{ pki_tipo_curva }}"
     state: "present"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not admin_chave.stat.exists or (pki_regerar_certs | default(false) | bool)
-
-- name: Verificar se o CSR do admin já existe
-  ansible.builtin.stat:
-    path: "{{ certs.k8s_admin.csr }}"
-  register: admin_csr
+  when: not k8s_admin_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Gerar CSR para admin
   community.crypto.openssl_csr:
@@ -38,12 +37,7 @@
       - clientAuth
     extended_key_usage_critical: true
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not admin_csr.stat.exists or (pki_regerar_certs | default(false) | bool)
-
-- name: Verificar se o certificado do admin já existe
-  ansible.builtin.stat:
-    path: "{{ certs.k8s_admin.cert }}"
-  register: admin_cert
+  when: not k8s_admin_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Gerar certificado do admin
   community.crypto.x509_certificate:
@@ -58,4 +52,4 @@
     owner: "root"
     group: "root"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not admin_cert.stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: not k8s_admin_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)

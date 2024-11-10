@@ -1,9 +1,13 @@
 # ansible/pki/tasks/02-ca_kubernetes.yml
 ---
-- name: Verificar se a CA do kubernetes já existe
+- name: Verificar arquivos existentes da CA para mTLS do etcd
   ansible.builtin.stat:
-    path: "{{ certs.ca_k8s.chave }}"
-  register: ca_kubernetes_chave
+    path: "{{ item }}"
+  loop:
+    - "{{ certs.ca_k8s.chave }}"
+    - "{{ certs.ca_k8s.csr }}"
+    - "{{ certs.ca_k8s.cert }}"
+  register: ca_k8s_arquivos
 
 - name: Gerar chave Ed25519 para CA do kubernetes
   community.crypto.openssl_privatekey:
@@ -11,12 +15,7 @@
     type: "{{ pki_tipo_curva }}"
     state: "present"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not ca_kubernetes_chave.stat.exists or (pki_regerar_certs | default(false) | bool)
-
-- name: Verificar se o CSR da CA do kubernetes já existe
-  ansible.builtin.stat:
-    path: "{{ certs.ca_k8s.csr }}"
-  register: ca_kubernetes_csr
+  when: not ca_k8s_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Gerar CSR para CA do kubernetes
   community.crypto.openssl_csr:
@@ -39,12 +38,7 @@
       - cRLSign
     key_usage_critical: true
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not ca_kubernetes_csr.stat.exists or (pki_regerar_certs | default(false) | bool)
-
-- name: Verificar se o certificado da CA do kubernetes já existe
-  ansible.builtin.stat:
-    path: "{{ certs.ca_k8s.cert }}"
-  register: ca_kubernetes_cert
+  when: not ca_k8s_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Gerar certificado autoassinado da CA do kubernetes
   community.crypto.x509_certificate:
@@ -58,4 +52,4 @@
     owner: "root"
     group: "root"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not ca_kubernetes_cert.stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: not ca_k8s_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)

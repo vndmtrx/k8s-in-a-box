@@ -1,9 +1,13 @@
 # ansible/pki/tasks/10-cert_kube_proxy.yml
 ---
-- name: Verificar se a chave do kube-proxy já existe ({{ node_host }})
+- name: Verificar arquivos existentes do kube-proxy ({{ node_host }})
   ansible.builtin.stat:
-    path: "{{ certs.kube_proxy.chave | format(node_host) }}"
-  register: kube_proxy_chave
+    path: "{{ item }}"
+  loop:
+    - "{{ certs.kube_proxy.chave | format(node_host) }}"
+    - "{{ certs.kube_proxy.csr | format(node_host) }}"
+    - "{{ certs.kube_proxy.cert | format(node_host) }}"
+  register: kube_proxy_arquivos
 
 - name: Gerar chave Ed25519 para kube-proxy ({{ node_host }})
   community.crypto.openssl_privatekey:
@@ -11,12 +15,7 @@
     type: "{{ pki_tipo_curva }}"
     state: "present"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not kube_proxy_chave.stat.exists or (pki_regerar_certs | default(false) | bool)
-
-- name: Verificar se o CSR do kube-proxy já existe ({{ node_host }})
-  ansible.builtin.stat:
-    path: "{{ certs.kube_proxy.csr | format(node_host) }}"
-  register: kube_proxy_csr
+  when: not kube_proxy_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Gerar CSR para kube-proxy ({{ node_host }})
   community.crypto.openssl_csr:
@@ -39,12 +38,7 @@
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', 'kube_proxy_san.j2') | from_yaml }}"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not kube_proxy_csr.stat.exists or (pki_regerar_certs | default(false) | bool)
-
-- name: Verificar se o certificado do kube-proxy já existe ({{ node_host }})
-  ansible.builtin.stat:
-    path: "{{ certs.kube_proxy.cert | format(node_host) }}"
-  register: kube_proxy_cert
+  when: not kube_proxy_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Gerar certificado do kube-proxy ({{ node_host }})
   community.crypto.x509_certificate:
@@ -59,4 +53,4 @@
     owner: "root"
     group: "root"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not kube_proxy_cert.stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: not kube_proxy_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)

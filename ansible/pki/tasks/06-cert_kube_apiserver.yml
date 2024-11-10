@@ -1,9 +1,13 @@
 # ansible/pki/tasks/06-cert_kube_apiserver.yml
 ---
-- name: Verificar se a chave do kube-apiserver já existe ({{ manager_host }})
+- name: Verificar arquivos existentes do kube-apiserver ({{ manager_host }})
   ansible.builtin.stat:
-    path: "{{ certs.kube_apiserver.chave | format(manager_host) }}"
-  register: kube_apiserver_chave
+    path: "{{ item }}"
+  loop:
+    - "{{ certs.kube_apiserver.chave | format(manager_host) }}"
+    - "{{ certs.kube_apiserver.csr | format(manager_host) }}"
+    - "{{ certs.kube_apiserver.cert | format(manager_host) }}"
+  register: kube_apiserver_arquivos
 
 - name: Gerar chave Ed25519 para kube-apiserver ({{ manager_host }})
   community.crypto.openssl_privatekey:
@@ -11,12 +15,7 @@
     type: "{{ pki_tipo_curva }}"
     state: "present"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not kube_apiserver_chave.stat.exists or (pki_regerar_certs | default(false) | bool)
-
-- name: Verificar se o CSR do kube-apiserver já existe ({{ manager_host }})
-  ansible.builtin.stat:
-    path: "{{ certs.kube_apiserver.csr | format(manager_host) }}"
-  register: kube_apiserver_csr
+  when: not kube_apiserver_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Gerar CSR para kube-apiserver ({{ manager_host }})
   community.crypto.openssl_csr:
@@ -38,12 +37,7 @@
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', 'kube_apiserver_san.j2') | from_yaml }}"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not kube_apiserver_csr.stat.exists or (pki_regerar_certs | default(false) | bool)
-
-- name: Verificar se o certificado do kube-apiserver já existe ({{ manager_host }})
-  ansible.builtin.stat:
-    path: "{{ certs.kube_apiserver.cert | format(manager_host) }}"
-  register: kube_apiserver_cert
+  when: not kube_apiserver_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
 
 - name: Gerar certificado do kube-apiserver ({{ manager_host }})
   community.crypto.x509_certificate:
@@ -58,4 +52,4 @@
     owner: "root"
     group: "root"
     force: "{{ pki_regerar_certs | default(false) | bool }}"
-  when: not kube_apiserver_cert.stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: not kube_apiserver_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
