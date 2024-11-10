@@ -8,6 +8,53 @@
 
 set -euo pipefail
 
+function main() {
+    CFG="./ansible/.ansible.cfg"
+
+    chmod 0600 id_ed25519
+    ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags todas
+
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags sistema
+    #criar_snapshot 01_sistema_pronto
+
+    #restaurar_snapshot 01_sistema_pronto
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags pki
+    #criar_snapshot 02_pki_pronto
+
+    #restaurar_snapshot 02_pki_pronto
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags haproxy
+    #criar_snapshot 03_haproxy_pronto
+
+    #restaurar_snapshot 03_haproxy_pronto
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags etcd
+    #criar_snapshot 04_etcd_pronto
+
+    #restaurar_snapshot 04_etcd_pronto
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags k8s_base
+    #criar_snapshot 05_k8s_base_pronto
+
+    #restaurar_snapshot 05_k8s_base_pronto
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags kube_apiserver
+    #criar_snapshot 06_kube_apiserver_pronto
+
+    # Monitoramento de Certificados
+
+    #restaurar_snapshot pki_pronto
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags "pki:monitor"
+    #cat arquivos/pki/status-certificados.txt
+
+    if verificar_monitoramento; then
+        echo "Máquina de monitoramento detectada. Instalando componentes de monitoramento..."
+        ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/monitoramento.yml"
+    fi
+}
+
+function verificar_monitoramento() {
+    local ip_monitoramento
+    ip_monitoramento=$(ANSIBLE_CONFIG="$CFG" ansible-inventory --list | python3 -c 'import sys,json; data=json.load(sys.stdin); print(data["_meta"]["hostvars"][data["monitoramento"]["hosts"][0]]["ansible_host"])')
+    nc -z -w 2 "$ip_monitoramento" 22 >/dev/null 2>&1 || return $?
+}
+
 function criar_snapshot() {
     local base_dir=$(basename $(pwd))
     local snapshot_name=$1
@@ -51,36 +98,4 @@ function restaurar_snapshot() {
     vagrant up 2>&1 | grep -E "Bringing|Error:"
 }
 
-CFG="./ansible/.ansible.cfg"
-
-chmod 0600 id_ed25519
-ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags todas
-
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags sistema
-#criar_snapshot 01_sistema_pronto
-
-#restaurar_snapshot 01_sistema_pronto
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags pki
-#criar_snapshot 02_pki_pronto
-
-#restaurar_snapshot 02_pki_pronto
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags haproxy
-#criar_snapshot 03_haproxy_pronto
-
-#restaurar_snapshot 03_haproxy_pronto
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags etcd
-#criar_snapshot 04_etcd_pronto
-
-#restaurar_snapshot 04_etcd_pronto
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags k8s_base
-#criar_snapshot 05_k8s_base_pronto
-
-#restaurar_snapshot 05_k8s_base_pronto
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags kube_apiserver
-#criar_snapshot 06_kube_apiserver_pronto
-
-# Monitoramento
-
-#restaurar_snapshot pki_pronto
-#ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags "pki:monitor"
-#cat arquivos/pki/status-certificados.txt
+main
