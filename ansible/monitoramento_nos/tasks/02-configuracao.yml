@@ -1,0 +1,15 @@
+# ansible/monitoramento_nos/tasks/02-configuracao.yml
+---
+- name: Configurar porta do Node Exporter
+  ansible.builtin.lineinfile:
+    path: /etc/default/prometheus-node-exporter
+    regexp: '^ARGS="--web.listen-address='
+    line: 'ARGS="--web.listen-address=:{{ porta_node_exporter }}"'
+    create: true
+  notify: Reiniciar Node Exporter
+
+- name: Garantir serviço ativo
+  ansible.builtin.systemd:
+    name: prometheus-node-exporter
+    enabled: true
+    state: started

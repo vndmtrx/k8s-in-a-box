@@ -1,0 +1,6 @@
+# ansible/monitoramento_nos/tasks/01-instalacao.yml
+---
+- name: Instalar Node Exporter
+  ansible.builtin.apt:
+    name: prometheus-node-exporter
+    state: present

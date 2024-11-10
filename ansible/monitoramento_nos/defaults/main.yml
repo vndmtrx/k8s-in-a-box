@@ -1,0 +1,3 @@
+# ansible/node_exporter/defaults/main.yml
+---
+porta_node_exporter: 9100
