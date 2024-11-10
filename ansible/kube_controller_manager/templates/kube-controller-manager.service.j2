@@ -1,0 +1,48 @@
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/
+After=network-online.target kube-apiserver.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=kubernetes
+Group=kubernetes
+
+ExecStart=/usr/local/bin/kube-controller-manager \
+  --bind-address=0.0.0.0 \
+  --cluster-cidr={{ rede_cidr_pods }} \
+  --service-cluster-ip-range={{ rede_cidr_services }} \
+  --cluster-name=kubernetes \
+  --authentication-kubeconfig=/etc/kubernetes/controller-manager.conf \
+  --authorization-kubeconfig=/etc/kubernetes/controller-manager.conf \
+  --kubeconfig=/etc/kubernetes/controller-manager.conf \
+  --cluster-signing-cert-file=/etc/kubernetes/pki/controller-manager/{{ certs.ca_k8s.cert | basename }} \
+  --cluster-signing-key-file=/etc/kubernetes/pki/controller-manager/{{ certs.ca_k8s.chave | basename }} \
+  --root-ca-file=/etc/kubernetes/pki/controller-manager/{{ certs.ca_k8s.cert | basename }} \
+  --client-ca-file=/etc/kubernetes/pki/controller-manager/{{ certs.ca_k8s.cert | basename }} \
+  --leader-elect=true \
+  --service-account-private-key-file=/etc/kubernetes/pki/controller-manager/{{ certs.service_account.chave | basename }} \
+  --use-service-account-credentials=true \
+  --v=2
+
+Restart=on-failure
+RestartSec=5
+
+# Limites de recursos
+LimitNOFILE=65536
+LimitNPROC=65536
+
+# Logs
+StandardOutput=append:/var/log/kubernetes/controller-manager.log
+StandardError=append:/var/log/kubernetes/controller-manager.err
+
+# Configurações de segurança
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/kubernetes /var/log/kubernetes
+
+[Install]
+WantedBy=multi-user.target

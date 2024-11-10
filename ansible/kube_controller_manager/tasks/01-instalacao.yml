@@ -1,0 +1,46 @@
+# ansible/kube_controller_manager/tasks/01-instalacao.yml
+---
+- name: Baixar arquivo de checksum
+  ansible.builtin.get_url:
+    url: "{{ checksum_url }}"
+    dest: "/vagrant/arquivos/tmp/kube-controller-manager.sha256"
+    mode: "0644"
+
+- name: Ler checksum do arquivo
+  ansible.builtin.shell: |
+    cat /vagrant/arquivos/tmp/kube-controller-manager.sha256 | tr -d '\n'
+  register: kube_controller_manager_checksum
+  changed_when: false
+
+- name: Baixar binário do kube-controller-manager para pasta temporária
+  ansible.builtin.get_url:
+    url: "{{ download_url }}"
+    dest: "/vagrant/arquivos/tmp/kube-controller-manager"
+    mode: "0755"
+    checksum: "sha256:{{ kube_controller_manager_checksum.stdout }}"
+
+- name: Copiar kube-controller-manager para pasta final
+  ansible.builtin.copy:
+    src: "/vagrant/arquivos/tmp/kube-controller-manager"
+    dest: "/usr/local/bin/kube-controller-manager"
+    mode: "0755"
+    remote_src: yes
+
+- name: Criar arquivos de log
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: touch
+    owner: kubernetes
+    group: kubernetes
+    mode: "0640"
+  loop:
+    - /var/log/kubernetes/controller-manager.log
+    - /var/log/kubernetes/controller-manager.err
+
+- name: Configurar logrotate para o kube-controller-manager
+  ansible.builtin.template:
+    src: kube-controller-manager.logrotate.j2
+    dest: /etc/logrotate.d/kube-controller-manager
+    mode: '0644'
+    owner: root
+    group: root

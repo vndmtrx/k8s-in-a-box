@@ -1,0 +1,13 @@
+/var/log/kubernetes/controller-manager.log /var/log/kubernetes/controller-manager.err {
+    daily
+    size 50M
+    rotate 7
+    missingok
+    notifempty
+    compress
+    delaycompress
+    postrotate
+        systemctl restart kube-controller-manager.service
+    endscript
+    create 0640 kubernetes kubernetes
+}
