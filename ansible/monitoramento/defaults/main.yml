@@ -19,6 +19,9 @@ porta_prometheus: 9090
 porta_grafana: 3000
 porta_node_exporter: 9100
 
+# Portas dos serviços monitorados
+porta_haproxy_stats: 9000
+
 # URLs para download
 prometheus_checksum_url: "https://github.com/prometheus/prometheus/releases/download/v{{ versao_prometheus }}/sha256sums.txt"
 prometheus_download_url: "https://github.com/prometheus/prometheus/releases/download/v{{ versao_prometheus }}/prometheus-{{ versao_prometheus }}.linux-amd64.tar.gz"

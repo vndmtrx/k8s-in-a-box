@@ -68,3 +68,5 @@ frontend stats
     stats refresh 10s
     stats admin if TRUE
     stats auth {{ haproxy_stats_usr }}:{{ haproxy_stats_senha }}
+
+    http-request use-service prometheus-exporter if { path /metrics }
