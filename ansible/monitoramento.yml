@@ -1,0 +1,16 @@
+# ansible/monitoramento.yml
+---
+- name: Configuração do servidor de monitoramento
+  hosts: monitoramento
+  become: true
+  gather_facts: true
+  roles:
+    - role: sistema
+    - role: monitoramento
+
+- name: Instalação dos agentes de monitoramento
+  hosts: monitorados
+  become: true
+  gather_facts: true
+  roles:
+    - role: monitoramento_nos
