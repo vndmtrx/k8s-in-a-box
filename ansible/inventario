@@ -23,4 +23,5 @@ k8s_nodes
 
 [todos:children]
 loadbalancers
+monitoramento
 k8s_nodes
