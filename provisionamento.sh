@@ -37,6 +37,10 @@ function main() {
     #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags kube_apiserver
     #criar_snapshot 06_kube_apiserver_pronto
 
+    #restaurar_snapshot 06_kube_apiserver_pronto
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags kube_controller_manager
+    #criar_snapshot 07_kube_controller_manager_pronto
+
     # Monitoramento de Certificados
 
     #restaurar_snapshot pki_pronto
