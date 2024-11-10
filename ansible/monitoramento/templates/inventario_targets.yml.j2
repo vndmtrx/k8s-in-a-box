@@ -1,0 +1,6 @@
+- targets:
+{% for host in groups[item] %}
+    - '{{ host }}'
+{% endfor %}
+  labels:
+    group: {{ item }}

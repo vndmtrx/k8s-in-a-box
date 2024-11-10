@@ -10,21 +10,31 @@ rule_files:
 
 # Configurações de scraping
 scrape_configs:
+  #################################
+  # Node Exporter em todos os hosts
+  - job_name: 'node_exporter'
+    file_sd_configs:
+      - files:
+        - '/etc/prometheus/targets/inventario_*.yml'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __address__
+        replacement: $1:{{ porta_node_exporter }}
+      - source_labels: [__address__]
+        regex: '(.*):.*'
+        target_label: instance
+        replacement: '${1}'
+
   #####################################
   # Monitoramento do próprio Prometheus
   - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:{{ porta_prometheus }}']
-
-  #################################
-  # Node Exporter em todos os hosts
-  - job_name: 'node'
-    static_configs:
-      - targets:
-{% for host in groups['todos'] %}
-        - '{{ host }}:{{ porta_node_exporter }}'
-{% endfor %}
+    file_sd_configs:
+      - files:
+        - '/etc/prometheus/targets/inventario_monitoramento.yml'
     relabel_configs:
+      - source_labels: [__address__]
+        target_label: __address__
+        replacement: $1:{{ porta_prometheus }}
       - source_labels: [__address__]
         regex: '(.*):.*'
         target_label: instance
@@ -33,17 +43,18 @@ scrape_configs:
   ##########################
   # Monitoramento do HAProxy
   - job_name: 'haproxy'
-    static_configs:
-      - targets:
-{% for host in groups['loadbalancers'] %}
-        - '{{ host }}:{{ porta_haproxy_stats }}'
-{% endfor %}
+    file_sd_configs:
+      - files:
+        - '/etc/prometheus/targets/inventario_loadbalancers.yml'
     metrics_path: /metrics
     scheme: http
     basic_auth:
       username: "{{ haproxy_stats_usr }}"
       password: "{{ haproxy_stats_senha }}"
     relabel_configs:
+      - source_labels: [__address__]
+        target_label: __address__
+        replacement: $1:{{ porta_haproxy_stats }}
       - source_labels: [__address__]
         regex: '(.*):.*'
         target_label: instance
