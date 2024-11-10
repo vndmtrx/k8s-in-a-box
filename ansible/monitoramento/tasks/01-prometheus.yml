@@ -1,0 +1,162 @@
+# ansible/monitoramento/tasks/01-prometheus.yml
+# Exemplos:
+# Uptime:
+# - node_load5 / count(node_cpu_seconds_total{mode="idle"}) without(cpu,mode)
+# Memória Disponível: 
+# - 100 - ((node_memory_MemAvailable_bytes * 100) / node_memory_MemTotal_bytes)
+---
+- name: Criar diretórios do Prometheus no padrão Debian
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - /etc/prometheus
+    - /etc/prometheus/rules
+    - /etc/prometheus/rules.d
+    - /etc/prometheus/scrapes.d
+    - /var/lib/prometheus
+    - /var/log/prometheus
+
+- name: Baixar arquivo SHA256SUMS do Prometheus
+  ansible.builtin.get_url:
+    url: "{{ prometheus_checksum_url }}"
+    dest: "/vagrant/arquivos/tmp/prometheus-SHA256SUMS"
+    mode: "0644"
+
+- name: Extrair checksum do arquivo SHA256SUMS
+  ansible.builtin.shell: |
+    grep "prometheus-{{ versao_prometheus }}.linux-amd64.tar.gz" /vagrant/arquivos/tmp/prometheus-SHA256SUMS | cut -d' ' -f1
+  register: prometheus_checksum
+  changed_when: false
+
+- name: Baixar Prometheus
+  ansible.builtin.get_url:
+    url: "{{ prometheus_download_url }}"
+    dest: "/vagrant/arquivos/tmp/prometheus.tar.gz"
+    mode: "0644"
+    checksum: "sha256:{{ prometheus_checksum.stdout }}"
+
+- name: Extrair binários do Prometheus
+  ansible.builtin.unarchive:
+    src: "/vagrant/arquivos/tmp/prometheus.tar.gz"
+    dest: "/tmp"
+    remote_src: true
+
+- name: Instalar binários do Prometheus
+  ansible.builtin.copy:
+    src: "/tmp/prometheus-{{ versao_prometheus }}.linux-amd64/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    mode: "0755"
+    remote_src: true
+  loop:
+    - prometheus
+    - promtool
+
+- name: Criar usuário prometheus
+  ansible.builtin.user:
+    name: prometheus
+    system: true
+    shell: /usr/sbin/nologin
+    home: /var/lib/prometheus
+    create_home: false
+
+- name: Copiar arquivos de configuração do Prometheus
+  ansible.builtin.copy:
+    src: "/tmp/prometheus-{{ versao_prometheus }}.linux-amd64/{{ item }}"
+    dest: "/etc/prometheus/"
+    mode: "0644"
+    owner: prometheus
+    group: prometheus
+    remote_src: true
+  loop:
+    - consoles
+    - console_libraries
+
+- name: Ajustar permissões dos diretórios de console
+  ansible.builtin.file:
+    path: "/etc/prometheus/{{ item }}"
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: "0755"
+  loop:
+    - consoles
+    - console_libraries
+
+- name: Ajustar permissões dos arquivos nos diretórios de console
+  ansible.builtin.shell: |
+    find /etc/prometheus/{{ item }} -type f -exec chmod 644 {} \; -exec chown prometheus:prometheus {} \;
+  loop:
+    - consoles
+    - console_libraries
+  changed_when: false
+
+- name: Ajustar permissões dos diretórios principais
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: "0750"
+  loop:
+    - /etc/prometheus
+    - /etc/prometheus/rules
+    - /etc/prometheus/rules.d
+    - /etc/prometheus/scrapes.d
+    - /var/log/prometheus
+
+- name: Ajuste de permissões de diretórios sensíveis
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: "0700"
+  loop:
+    - /var/lib/prometheus
+
+- name: Criar arquivos de log
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: touch
+    owner: prometheus
+    group: prometheus
+    mode: "0640"
+  loop:
+    - /var/log/prometheus/prometheus.log
+    - /var/log/prometheus/prometheus.err
+
+- name: Configurar arquivo principal do Prometheus
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+    mode: "0640"
+    owner: prometheus
+    group: prometheus
+    validate: '/usr/local/bin/promtool check config %s'
+  notify: Reiniciar Prometheus
+
+- name: Configurar logrotate para o Prometheus
+  ansible.builtin.template:
+    src: prometheus.logrotate.j2
+    dest: /etc/logrotate.d/prometheus
+    mode: '0644'
+    owner: root
+    group: root
+
+- name: Configurar serviço do Prometheus
+  ansible.builtin.template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+    mode: "0644"
+    owner: root
+    group: root
+  notify: Reiniciar Prometheus
+
+- name: Garantir serviço ativo
+  ansible.builtin.systemd:
+    name: prometheus
+    enabled: true
+    state: started
+    daemon_reload: true

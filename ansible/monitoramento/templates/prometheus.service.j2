@@ -1,0 +1,53 @@
+[Unit]
+Description=Prometheus - Monitoring system & time series database
+Documentation=https://prometheus.io/docs/introduction/overview/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=prometheus
+Group=prometheus
+Environment=GOMAXPROCS=2
+
+ExecStart=/usr/local/bin/prometheus \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/var/lib/prometheus \
+  --storage.tsdb.retention.time={{ tempo_retencao }} \
+  --storage.tsdb.retention.size={{ tamanho_retencao }} \
+  --storage.tsdb.wal-compression \
+  --web.console.templates=/etc/prometheus/consoles \
+  --web.console.libraries=/etc/prometheus/console_libraries \
+  --web.listen-address=:{{ porta_prometheus }} \
+  --log.level=info
+
+# Reload via SIGHUP
+ExecReload=/bin/kill -HUP $MAINPID
+
+# Identificação nos logs
+SyslogIdentifier=prometheus
+
+# Reinício automático
+Restart=always
+RestartSec=10
+
+# Limites de recursos
+LimitNOFILE=65535
+LimitNPROC=65535
+
+# Configurações de segurança
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=full
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/prometheus /var/log/prometheus
+
+# Configuração de logs
+StandardOutput=append:/var/log/prometheus/prometheus.log
+StandardError=append:/var/log/prometheus/prometheus.err
+
+[Install]
+WantedBy=multi-user.target

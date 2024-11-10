@@ -1,0 +1,29 @@
+# Configuração global do Prometheus
+global:
+  scrape_interval: {{ intervalo_coleta }}
+  evaluation_interval: {{ intervalo_avaliacao }}
+  
+# Regras de alerta e recording rules
+rule_files:
+  - "/etc/prometheus/rules/*_rules.yml"
+  - "/etc/prometheus/rules.d/*_rules.yml"
+
+# Configurações de scraping
+scrape_configs:
+  # Monitoramento do próprio Prometheus
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:{{ porta_prometheus }}']
+
+  # Node Exporter em todos os hosts
+  - job_name: 'node'
+    static_configs:
+      - targets:
+{% for host in groups['todos'] %}
+        - '{{ host }}:{{ porta_node_exporter }}'
+{% endfor %}
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: '(.*):.*'
+        target_label: instance
+        replacement: '${1}'
