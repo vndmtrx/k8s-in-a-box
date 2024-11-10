@@ -9,7 +9,7 @@
     - role: monitoramento
 
 - name: Instalação do agente node exporter para monitoramento
-  hosts: todos
+  hosts: todos:monitoramento
   become: true
   gather_facts: true
   roles:

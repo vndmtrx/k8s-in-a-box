@@ -1,5 +1,5 @@
 [loadbalancers]
-loadbalancer01 ansible_host=172.24.0.11 ansible_user=vagrant
+loadbalancer1 ansible_host=172.24.0.11 ansible_user=vagrant
 
 [monitoramento]
 monitoramento1 ansible_host=172.24.0.12 ansible_user=vagrant
@@ -23,5 +23,4 @@ k8s_nodes
 
 [todos:children]
 loadbalancers
-monitoramento
 k8s_nodes
