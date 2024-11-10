@@ -1,6 +1,6 @@
 # ansible/pki/defaults/main.yml
 ---
-pki_regerar_certs: true
+pki_regerar_certs: false
 
 pki_tipo_curva: "Ed25519"
 pki_algoritmo_hash: "sha512"
