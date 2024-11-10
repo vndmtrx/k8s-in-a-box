@@ -10,13 +10,13 @@ ENV["VAGRANT_DEFAULT_PROVIDER"] = "libvirt"
 
 # Definição dos nodes com seus IPs e recursos
 nodes = {
-  "loadbalancer" => { "ip" => "172.24.0.11", "memory" => 512, "cpus" => 1 },
-  "monitoramento" => { "ip" => "172.24.0.12", "memory" => 3072, "cpus" => 2, "as" => false },
-  "manager1" => { "ip" => "172.24.0.21", "memory" => 2048, "cpus" => 2 },
-  "manager2" => { "ip" => "172.24.0.22", "memory" => 2048, "cpus" => 2 },
-  "manager3" => { "ip" => "172.24.0.23", "memory" => 2048, "cpus" => 2 },
-  "worker1" => { "ip" => "172.24.0.31", "memory" => 1536, "cpus" => 1 },
-  "worker2" => { "ip" => "172.24.0.32", "memory" => 1536, "cpus" => 1 }
+  "loadbalancer1"   => { "ip" => "172.24.0.11", "memory" => 512, "cpus" => 1 },
+  "monitoramento1"  => { "ip" => "172.24.0.12", "memory" => 3072, "cpus" => 2, "as" => false },
+  "manager1"        => { "ip" => "172.24.0.21", "memory" => 2048, "cpus" => 2 },
+  "manager2"        => { "ip" => "172.24.0.22", "memory" => 2048, "cpus" => 2 },
+  "manager3"        => { "ip" => "172.24.0.23", "memory" => 2048, "cpus" => 2 },
+  "worker1"         => { "ip" => "172.24.0.31", "memory" => 1536, "cpus" => 1 },
+  "worker2"         => { "ip" => "172.24.0.32", "memory" => 1536, "cpus" => 1 }
 }
 
 Vagrant.configure("2") do |config|
@@ -56,7 +56,7 @@ Vagrant.configure("2") do |config|
   end
 
   nodes.each do |node_name, specs|
-    config.vm.define node_name, autostart: ENV['TODAS'] ? true : specs.fetch("as", true) do |node|
+    config.vm.define node_name, autostart: ENV['MON'] ? true : specs.fetch("as", true) do |node|
       node.vm.hostname = node_name
       node.vm.network "private_network", ip: specs["ip"]
 
