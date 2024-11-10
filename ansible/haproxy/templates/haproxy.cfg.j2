@@ -42,6 +42,9 @@ backend k8s_api_backend
     mode tcp
     balance roundrobin
     option tcp-check
+    timeout tunnel 1h
+    timeout client 3h
+    timeout server 3h
 {% for host in groups['managers'] %}
     server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_kubeapiserver }} check inter 3 rise 2 fall 3
 {% endfor %}
