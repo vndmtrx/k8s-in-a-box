@@ -28,8 +28,8 @@ ProtectControlGroups=true
 ReadWritePaths=/var/lib/etcd /var/log/etcd
 
 # Configuração de logs
-StandardOutput=append:/var/log/etcd/etcd.log
-StandardError=append:/var/log/etcd/etcd.err
+StandardOutput=journal
+StandardError=journal
 SyslogIdentifier=etcd
 
 # Configuração de rotação de logs

@@ -34,8 +34,9 @@ LimitNOFILE=65536
 LimitNPROC=65536
 
 # Logs
-StandardOutput=append:/var/log/kubernetes/controller-manager.log
-StandardError=append:/var/log/kubernetes/controller-manager.err
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kube-controller-manager
 
 # Configurações de segurança
 NoNewPrivileges=true

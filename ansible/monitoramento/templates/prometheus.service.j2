@@ -46,8 +46,9 @@ PrivateTmp=true
 ReadWritePaths=/var/lib/prometheus /var/log/prometheus
 
 # Configuração de logs
-StandardOutput=append:/var/log/prometheus/prometheus.log
-StandardError=append:/var/log/prometheus/prometheus.err
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=prometheus
 
 [Install]
 WantedBy=multi-user.target

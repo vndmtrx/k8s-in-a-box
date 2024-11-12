@@ -63,8 +63,9 @@ LimitNOFILE=65536
 LimitNPROC=65536
 
 # Logs
-StandardOutput=append:/var/log/kubernetes/apiserver.log
-StandardError=append:/var/log/kubernetes/apiserver.err
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kube-apiserver
 
 # Configurações de segurança
 NoNewPrivileges=true
