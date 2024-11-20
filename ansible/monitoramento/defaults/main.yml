@@ -18,6 +18,8 @@ intervalo_avaliacao: "15s"
 porta_prometheus: 9090
 porta_grafana: 3000
 porta_node_exporter: 9100
+porta_loki_http: 3100
+porta_loki_grpc: 9096
 
 # Portas dos serviços monitorados
 porta_haproxy_stats: 9000

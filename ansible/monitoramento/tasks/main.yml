@@ -5,3 +5,9 @@
   tags:
     - monitoramento
     - monitoramento:prometheus
+
+- name: Instalação e configuração do Loki
+  ansible.builtin.import_tasks: 02-loki.yml
+  tags:
+    - monitoramento
+    - monitoramento:loki
