@@ -4,6 +4,9 @@
 # - node_load5 / count(node_cpu_seconds_total{mode="idle"}) without(cpu,mode)
 # Memória Disponível: 
 # - 100 - ((node_memory_MemAvailable_bytes * 100) / node_memory_MemTotal_bytes)
+# Tráfego de rede:
+# - sum by (instance) (rate(node_network_receive_bytes_total{device!="lo"}[5m]))
+# - sum by (instance) (rate(node_network_transmit_bytes_total{device!="lo"}[5m]))
 ---
 - name: Criar diretórios do Prometheus no padrão Debian
   ansible.builtin.file:
