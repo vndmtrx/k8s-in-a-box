@@ -1,3 +1,6 @@
 # ansible/node_exporter/defaults/main.yml
 ---
 porta_node_exporter: 9100
+
+porta_promtail: 9080
+porta_loki_http: 3100

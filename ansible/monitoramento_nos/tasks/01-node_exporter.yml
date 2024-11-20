@@ -1,5 +1,10 @@
-# ansible/monitoramento_nos/tasks/02-configuracao.yml
+# ansible/monitoramento_nos/tasks/01-node_exporter.yml
 ---
+- name: Instalar Node Exporter
+  ansible.builtin.apt:
+    name: prometheus-node-exporter
+    state: present
+
 - name: Configurar porta do Node Exporter
   ansible.builtin.lineinfile:
     path: /etc/default/prometheus-node-exporter

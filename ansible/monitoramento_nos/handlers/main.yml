@@ -5,3 +5,9 @@
     name: prometheus-node-exporter
     state: restarted
     daemon_reload: true
+
+- name: Reiniciar Promtail
+  ansible.builtin.systemd:
+    name: promtail
+    state: restarted
+    daemon_reload: true
