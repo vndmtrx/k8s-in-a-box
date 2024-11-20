@@ -41,13 +41,13 @@
 - [x] Node Exporter
   - [x] Instalação em todos os nós
   - [x] Configuração de métricas
-- [ ] Loki
-  - [ ] Instalação
-  - [ ] Configuração
-  - [ ] Integração com nodes
-- [ ] Promtail
-  - [ ] Instalação nos nodes
-  - [ ] Configuração para logs do systemd
+- [x] Loki
+  - [x] Instalação
+  - [x] Configuração
+  - [x] Integração com nodes
+- [x] Promtail
+  - [x] Instalação nos nodes
+  - [x] Configuração para logs do systemd
   - [ ] Configuração para logs do HAProxy
   - [ ] Configuração para logs do etcd
   - [ ] Configuração para logs do Kubernetes
