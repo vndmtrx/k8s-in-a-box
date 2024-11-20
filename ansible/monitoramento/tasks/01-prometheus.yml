@@ -62,35 +62,6 @@
     home: /var/lib/prometheus
     create_home: false
 
-- name: Copiar arquivos de configuração do Prometheus
-  ansible.builtin.copy:
-    src: "/tmp/prometheus-{{ versao_prometheus }}.linux-amd64/{{ item }}"
-    dest: "/etc/prometheus/"
-    mode: "0644"
-    owner: prometheus
-    group: prometheus
-    remote_src: true
-  loop:
-    - consoles
-    - console_libraries
-
-- name: Ajustar permissões dos diretórios de console
-  ansible.builtin.file:
-    path: "/etc/prometheus/{{ item }}"
-    state: directory
-    mode: "0755"
-  loop:
-    - consoles
-    - console_libraries
-
-- name: Ajustar permissões dos arquivos nos diretórios de console
-  ansible.builtin.shell: |
-    find /etc/prometheus/{{ item }} -type f -exec chmod 644 {} \; -exec chown prometheus:prometheus {} \;
-  loop:
-    - consoles
-    - console_libraries
-  changed_when: false
-
 - name: Ajustar permissões dos diretórios principais
   ansible.builtin.file:
     path: "{{ item }}"
