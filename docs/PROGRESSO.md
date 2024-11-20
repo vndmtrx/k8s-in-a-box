@@ -32,6 +32,31 @@
 - [x] Configuração de backups
 - [x] Monitoramento do cluster
 
+### 📊 Monitoramento e Métricas
+- [x] Prometheus
+  - [x] Instalação
+  - [x] Configuração
+  - [x] Integração com HAProxy
+  - [x] Integração com etcd
+- [x] Node Exporter
+  - [x] Instalação em todos os nós
+  - [x] Configuração de métricas
+- [ ] Loki
+  - [ ] Instalação
+  - [ ] Configuração
+  - [ ] Integração com nodes
+- [ ] Promtail
+  - [ ] Instalação nos nodes
+  - [ ] Configuração para logs do systemd
+  - [ ] Configuração para logs do HAProxy
+  - [ ] Configuração para logs do etcd
+  - [ ] Configuração para logs do Kubernetes
+- [ ] Grafana
+  - [ ] Instalação
+  - [ ] Dashboards de métricas
+  - [ ] Dashboards de logs
+  - [ ] Alertas básicos
+
 ### 🎮 Control Plane
 - [x] Instalação do kube-apiserver
 - [ ] Configuração do kube-controller-manager
