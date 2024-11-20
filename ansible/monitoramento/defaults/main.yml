@@ -1,7 +1,7 @@
 # ansible/monitoramento/defaults/main.yml
 ---
 # Versões dos componentes
-versao_prometheus: "2.50.1"
+versao_prometheus: "3.0.0"
 versao_grafana: "10.4.0"
 
 # Credenciais do Grafana
