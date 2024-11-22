@@ -59,7 +59,7 @@
 
 ### 🎮 Control Plane
 - [x] Instalação do kube-apiserver
-- [ ] Configuração do kube-controller-manager
+- [x] Configuração do kube-controller-manager
 - [ ] Configuração do kube-scheduler
 - [ ] Configuração do etcd como backend
 - [ ] Validação do control plane
