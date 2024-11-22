@@ -23,7 +23,7 @@
 
 - name: Instalar Promtail
   ansible.builtin.apt:
-    name: promtail
+    name: "promtail={{ versao_promtail }}"
     state: present
 
 - name: Configurar Promtail
