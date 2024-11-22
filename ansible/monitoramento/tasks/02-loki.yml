@@ -34,7 +34,7 @@
 
 - name: Instalar Loki
   ansible.builtin.apt:
-    name: "{{ item }}"
+    name: "{{ item }}={{ versao_loki }}"
     state: present
   loop:
     - loki
