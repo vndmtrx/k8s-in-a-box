@@ -1,4 +1,8 @@
 # ansible/monitoramento/tasks/02-loki.yml
+# Exemplos:
+# - LOKI_ADDR="http://172.24.0.12:3100" logcli query '{host="loadbalancer1"}' --since=24h -f
+# - LOKI_ADDR="http://172.24.0.12:3100" logcli query '{host="manager1", unit="etcd.service"}' --since=24h -f
+# - LOKI_ADDR="http://172.24.0.12:3100" logcli query '{host="worker1"}' --since=24h -f
 ---
 - name: Instalar GnuPG
   ansible.builtin.apt:
