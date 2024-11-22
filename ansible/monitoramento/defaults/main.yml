@@ -3,6 +3,7 @@
 # Versões dos componentes
 versao_prometheus: "3.0.0"
 versao_grafana: "10.4.0"
+versao_loki: "3.3.0"
 
 # Credenciais do Grafana
 grafana_admin_usuario: "{{ lookup('env', 'GRAFANA_ADMIN_USER') | default('admin', true) }}"
