@@ -4,10 +4,23 @@
   community.general.timezone:
     name: America/Sao_Paulo
 
-- name: Configurar locale padrão
-  ansible.builtin.locale_gen:
+- name: Descomentar pt_BR.UTF-8 em /etc/locale.gen
+  become: true
+  lineinfile:
+    path: /etc/locale.gen
+    regexp: '^# (pt_BR.UTF-8 UTF-8)'
+    line: 'pt_BR.UTF-8 UTF-8'
+
+- name: Gerar locale pt_BR.UTF-8
+  locale_gen:
     name: pt_BR.UTF-8
     state: present
+
+- name: Configurar LANG permanentemente
+  lineinfile:
+    path: /etc/default/locale
+    line: LANG="pt_BR.UTF-8"
+    create: yes
 
 - name: Habilita o repositório backports
   ansible.builtin.apt_repository:
