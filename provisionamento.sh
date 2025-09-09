@@ -12,13 +12,6 @@ function main() {
     CFG="./ansible/.ansible.cfg"
     chmod 0600 id_ed25519
 
-    readonly tem_monitoramento=$(verificar_monitoramento)
-
-    if [ "${tem_monitoramento}" = "true" ]; then
-        echo "Máquina de monitoramento detectada. Instalando servidor monitoramento..."
-        ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/monitoramento.yml" --tags "sistema,monitoramento"
-    fi
-
     ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags todas
 
     #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags sistema
@@ -53,17 +46,6 @@ function main() {
     #restaurar_snapshot pki_pronto
     #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags "pki:monitor"
     #cat arquivos/pki/status-certificados.txt
-
-    if [ "${tem_monitoramento}" = "true" ]; then
-        echo "Máquina de monitoramento detectada. Instalando componentes de monitoramento nos hosts..."
-        ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/monitoramento.yml" --tags monitoramento_nos
-    fi
-}
-
-function verificar_monitoramento() {
-    local ip_monitoramento
-    ip_monitoramento=$(ANSIBLE_CONFIG="$CFG" ansible-inventory --list | python3 -c 'import sys,json; data=json.load(sys.stdin); print(data["_meta"]["hostvars"][data["monitoramento"]["hosts"][0]]["ansible_host"])')
-    nc -z -w 2 "$ip_monitoramento" 22 >/dev/null 2>&1 && echo "true" || echo "false"
 }
 
 function criar_snapshot() {
