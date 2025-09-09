@@ -12,7 +12,6 @@ PROJETO = "k8sbox"
 # Definição dos nodes com seus IPs e recursos
 nodes = {
   "loadbalancer1" => { "ip" => "172.24.0.21", "memory" => 256,  "cpus" => 1 },
-  "loadbalancer2" => { "ip" => "172.24.0.22", "memory" => 256,  "cpus" => 1 },
   "manager1"      => { "ip" => "172.24.0.31", "memory" => 2048, "cpus" => 2 },
   "manager2"      => { "ip" => "172.24.0.32", "memory" => 2048, "cpus" => 2 },
   "manager3"      => { "ip" => "172.24.0.33", "memory" => 2048, "cpus" => 2 },
@@ -137,9 +136,6 @@ Vagrant.configure("2") do |config|
 
           # Hostname da máquina
           127.0.1.1   #{nome_no}
-
-          # Entrada do IP VIP para a API do kubernetes
-          172.24.0.11 api.#{PROJETO}.local
 
           # Entradas das máquinas do cluster
           #{entradas_cluster}
