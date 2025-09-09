@@ -7,17 +7,23 @@
 # - sudo usermod -a -G libvirt-qemu $(whoami)
 
 ENV["VAGRANT_DEFAULT_PROVIDER"] = "libvirt"
+PROJETO = "k8sbox"
 
 # Definição dos nodes com seus IPs e recursos
 nodes = {
-  "loadbalancer1"   => { "ip" => "172.24.0.11", "memory" => 512, "cpus" => 1 },
-  "monitoramento1"  => { "ip" => "172.24.0.12", "memory" => 3072, "cpus" => 2, "as" => false },
-  "manager1"        => { "ip" => "172.24.0.21", "memory" => 2048, "cpus" => 2 },
-  "manager2"        => { "ip" => "172.24.0.22", "memory" => 2048, "cpus" => 2 },
-  "manager3"        => { "ip" => "172.24.0.23", "memory" => 2048, "cpus" => 2 },
-  "worker1"         => { "ip" => "172.24.0.31", "memory" => 1536, "cpus" => 1 },
-  "worker2"         => { "ip" => "172.24.0.32", "memory" => 1536, "cpus" => 1 }
+  "loadbalancer1" => { "ip" => "172.24.0.21", "memory" => 256,  "cpus" => 1 },
+  "loadbalancer2" => { "ip" => "172.24.0.22", "memory" => 256,  "cpus" => 1 },
+  "manager1"      => { "ip" => "172.24.0.31", "memory" => 2048, "cpus" => 2 },
+  "manager2"      => { "ip" => "172.24.0.32", "memory" => 2048, "cpus" => 2 },
+  "manager3"      => { "ip" => "172.24.0.33", "memory" => 2048, "cpus" => 2 },
+  "worker1"       => { "ip" => "172.24.0.41", "memory" => 4096, "cpus" => 2 },
+  "worker2"       => { "ip" => "172.24.0.42", "memory" => 4096, "cpus" => 2 }
 }
+
+# Definição das linhas do /etc/hosts das máquinas, baseado na informação dos nodes, acima
+entradas_cluster = nodes.map do |nome, specs|
+  "#{specs["ip"]} #{nome}.#{PROJETO}.local"
+end.join("\n")
 
 Vagrant.configure("2") do |config|
   # Gera a chave SSH se não existir
@@ -38,7 +44,7 @@ Vagrant.configure("2") do |config|
   end
 
   # Imagem a ser utilizada
-  config.vm.box = "debian/bookworm64"
+  config.vm.box = "almalinux/10"
   config.vm.post_up_message = ""
   config.ssh.insert_key = false
   config.vm.synced_folder "./", "/vagrant", type: "virtiofs"
@@ -53,17 +59,25 @@ Vagrant.configure("2") do |config|
     libvirt.nested = true
 
     libvirt.nic_model_type = "virtio"
+    libvirt.management_network_name = "vagrant"
+    libvirt.management_network_address = "192.168.250.0/24"
+    libvirt.management_network_mode = "none"
+    libvirt.management_network_autostart = true
   end
 
-  nodes.each do |node_name, specs|
-    config.vm.define node_name, autostart: ENV['MON'] ? true : specs.fetch("as", true) do |node|
-      node.vm.hostname = node_name
-      node.vm.network "private_network", ip: specs["ip"]
+  nodes.each do |nome_no, specs|
+    config.vm.define nome_no do |node|
+      node.vm.hostname = nome_no
+      node.vm.network "private_network", ip: specs["ip"],
+        libvirt__network_name: "#{PROJETO}_mgmt",
+        libvirt__forward_mode: "nat",
+        libvirt__dhcp_enabled: false
 
       # Sobrescreve as configurações de memória e CPU para cada VM
-      node.vm.provider :libvirt do |libvirt|
-        libvirt.memory = specs["memory"]
-        libvirt.cpus = specs["cpus"]
+      node.vm.provider :libvirt do |libvirt_host|
+        libvirt_host.default_prefix = "#{PROJETO}_"
+        libvirt_host.memory = specs["memory"]
+        libvirt_host.cpus = specs["cpus"]
       end
 
       # Adiciona a chave pública se ela não existir
@@ -78,6 +92,62 @@ Vagrant.configure("2") do |config|
           fi
         SHELL
       end
+
+      # Ajustes manuais na rede das VMs
+      node.vm.provision "shell" do |net|
+        net.inline = <<-SHELL
+          (
+            # --- Ajustes padrões da conexão do Vagrant ---
+            nmcli con mod eth0 connection.autoconnect yes
+            nmcli con mod eth0 connection.autoconnect-priority -999
+            nmcli con mod eth0 ipv4.route-metric 500
+            nmcli con mod eth0 ipv4.ignore-auto-dns yes
+            nmcli con mod eth0 ipv4.never-default yes
+            nmcli con mod eth0 ipv6.method ignore
+            nmcli con down eth0 && nmcli con up eth0
+
+            # --- Remove conexões automáticas, se existirem ---
+            nmcli -t -f NAME con show | grep -qx "System eth1" && nmcli con delete "System eth1"
+
+            # --- Cria conexão persistente net_mgmt se não existir ---
+            nmcli -t -f NAME con show | grep -qx "net_mgmt" || \
+              nmcli con add type ethernet con-name net_mgmt ifname eth1 \
+                ipv4.method manual \
+                ipv4.addresses "#{specs["ip"]}/24" \
+                ipv4.gateway "172.24.0.1" \
+                ipv4.route-metric "50" \
+                ipv4.dns "1.1.1.1,8.8.8.8" \
+                ipv6.method ignore \
+                ipv4.dns-search "#{PROJETO}.local"
+            
+            # --- Ativa a conexão ---
+            nmcli con up net_mgmt
+          ) > /dev/null
+          echo "Provisionamento de rede concluído."
+        SHELL
+      end
+
+      # Inserção dos nomes das máquinas do cluster no hosts de cada uma delas
+      node.vm.provision "shell" do |nomes|
+        nomes.inline = <<~SHELL
+          sudo tee /etc/hosts > /dev/null <<EOF
+          # Entradas de loopback
+          127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+          ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+          # Hostname da máquina
+          127.0.1.1   #{nome_no}
+
+          # Entrada do IP VIP para a API do kubernetes
+          172.24.0.11 api.#{PROJETO}.local
+
+          # Entradas das máquinas do cluster
+          #{entradas_cluster}
+          EOF
+          echo "Provisionamento do /etc/hosts concluído."
+        SHELL
+      end
+
     end
   end
 end
