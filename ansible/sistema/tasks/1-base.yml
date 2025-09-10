@@ -1,96 +1,77 @@
 # ansible/sistema/tasks/1-base.yml
 ---
-- name: Configura o TZ para o Brasil
-  community.general.timezone:
-    name: America/Sao_Paulo
-
-- name: Descomentar pt_BR.UTF-8 em /etc/locale.gen
+- name: Atualizar cache do dnf
   become: true
-  lineinfile:
-    path: /etc/locale.gen
-    regexp: '^# (pt_BR.UTF-8 UTF-8)'
-    line: 'pt_BR.UTF-8 UTF-8'
+  ansible.builtin.dnf:
+    update_cache: true
 
-- name: Gerar locale pt_BR.UTF-8
-  locale_gen:
-    name: pt_BR.UTF-8
+- name: Instalar pacotes extras necessários
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ pacotes_extras }}"
     state: present
 
-- name: Configurar LANG permanentemente
-  lineinfile:
-    path: /etc/default/locale
-    line: LANG="pt_BR.UTF-8"
-    create: yes
-
-- name: Habilita o repositório backports
-  ansible.builtin.apt_repository:
-    repo: deb http://deb.debian.org/debian bookworm-backports main contrib non-free non-free-firmware
-    filename: backports
-    state: present
-
-- name: Atualizar cache do apt
-  ansible.builtin.apt:
-    update_cache: yes
-    cache_valid_time: 3600
-
-- name: Atualiza os pacotes da distribuição
-  ansible.builtin.apt:
-    upgrade: 'dist'
-    #default_release: "bookworm-backports"
+- name: Atualizar todos os pacotes
+  become: true
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
   when: atualiza_sistema == "all"
 
-- name: Aplica somente atualizações de segurança
-  ansible.builtin.apt:
-    upgrade: 'safe'
-    #default_release: "bookworm-backports"
+- name: Atualizar apenas pacotes de segurança
+  become: true
+  ansible.builtin.dnf:
+    name: "*"
+    security: true
+    state: latest
   when: atualiza_sistema == "patch"
 
-- name: Cria registros DNS entre as máquinas do cluster
-  ansible.builtin.lineinfile:
-    path: /etc/hosts
-    line: "{{ hostvars[item]['ansible_host'] }} {{ item }}"
-    state: present
-  with_items: "{{ groups['todos'] }}"
+- name: Verificar se precisa reiniciar
+  ansible.builtin.command: needs-restarting -r
+  register: reboot_check
+  ignore_errors: true
+  changed_when: reboot_check.rc == 1
 
-- name: Instalar Tailspin para facilitar a leitura de logs
-  unarchive:
-    src: https://github.com/bensadeh/tailspin/releases/download/4.0.0/tailspin-x86_64-unknown-linux-musl.tar.gz
-    dest: /usr/local/bin
-    remote_src: yes
-    mode: '0755'
+- name: Reiniciar se necessário
+  ansible.builtin.reboot:
+  when: reboot_check.rc == 1
 
-- name: Garante a existência da pasta de temporários
+- name: Configurar o TZ para o especificado em defaults
+  community.general.timezone:
+    name: "{{ timezone_tz }}"
+
+- name: Configurar locale do sistema para o especificado em defaults
+  ansible.builtin.ini_file:
+    path: /etc/locale.conf
+    section: null
+    option: LANG
+    value: "{{ locale_lang }}"
+    create: yes
+
+- name: Gerar arquivo /etc/hosts para cada nó do cluster
+  ansible.builtin.template:
+    src: "hosts.j2"
+    dest: "/etc/hosts"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+- name: Colocar SELinux em modo permissivo
+  become: true
+  ansible.posix.selinux:
+    policy: targeted
+    state: permissive
+
+- name: Instalar última versão do Tailspin para facilitar a leitura de logs
+  ansible.builtin.unarchive:
+    src: "https://github.com/bensadeh/tailspin/releases/latest/download/tailspin-aarch64-unknown-linux-musl.tar.gz"
+    dest: "/usr/local/bin"
+    remote_src: true
+    mode: "0755"
+    creates: "/usr/local/bin/tspin"
+
+- name: Garantir a existência da pasta de temporários
   ansible.builtin.file:
     path: /vagrant/arquivos/tmp
     state: directory
     mode: '0755'
-
-# - name: Instala pacotes base para o Playbook
-#   ansible.builtin.apt:
-#     name:
-#       - firewalld
-#     state: present
-
-# - name: Configura o firewalld
-#   block:
-#     - name: Inicia e habilita o serviço firewalld
-#       ansible.builtin.service:
-#         name: firewalld
-#         state: started
-#         enabled: yes
-
-#     - name: Adiciona a rede interna à zona trusted
-#       ansible.posix.firewalld:
-#         source: 172.24.0.0/16
-#         zone: trusted
-#         state: enabled
-#         permanent: yes
-#         immediate: yes
-
-#     - name: Libera SSH na zona public
-#       ansible.posix.firewalld:
-#         service: ssh
-#         zone: public
-#         state: enabled
-#         permanent: yes
-#         immediate: yes

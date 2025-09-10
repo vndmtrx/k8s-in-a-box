@@ -1,0 +1,11 @@
+# Entradas de loopback
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+# Hostname da máquina
+127.0.1.1   {{ inventory_hostname }}
+
+# Entradas das máquinas do cluster
+{% for host in groups['todos'] %}
+{{ hostvars[host].ansible_host }} {{ host }}.k8sbox.local
+{% endfor %}
