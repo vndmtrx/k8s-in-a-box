@@ -9,15 +9,26 @@
 ENV["VAGRANT_DEFAULT_PROVIDER"] = "libvirt"
 PROJETO = "k8sbox"
 
-# Definição dos nodes com seus IPs e recursos
-nodes = {
-  "loadbalancer1" => { "ip" => "172.24.0.21", "memory" => 512,  "cpus" => 1 },
-  "manager1"      => { "ip" => "172.24.0.31", "memory" => 2048, "cpus" => 2 },
-  "manager2"      => { "ip" => "172.24.0.32", "memory" => 2048, "cpus" => 2 },
-  "manager3"      => { "ip" => "172.24.0.33", "memory" => 2048, "cpus" => 2 },
-  "worker1"       => { "ip" => "172.24.0.41", "memory" => 4096, "cpus" => 2 },
-  "worker2"       => { "ip" => "172.24.0.42", "memory" => 4096, "cpus" => 2 }
-}
+require 'yaml'
+
+# Carrega o inventário do Ansible
+inventario = YAML.load_file("ansible/inventario.yml")
+grupos = inventario["all"]["children"]
+
+# Gera o hash "nodes" a partir do inventário
+nodes = {}
+
+grupos.each do |grupo, dados|
+  next unless dados["hosts"] # só grupos com hosts
+
+  dados["hosts"].each do |nome, props|
+    nodes[nome] = {
+      "ip"     => props["ansible_host"],
+      "memory" => props["memory"],
+      "cpus"   => props["cpus"]
+    }
+  end
+end
 
 # Definição das linhas do /etc/hosts das máquinas, baseado na informação dos nodes, acima
 entradas_cluster = nodes.map do |nome, specs|
