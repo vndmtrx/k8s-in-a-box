@@ -5,61 +5,36 @@
 ## 📋 Progresso do Projeto
 
 ### Infraestrutura Base
-- [x] Configuração do Vagrant
-- [x] Configuração do Ansible
-- [x] Configuração da Rede
-- [x] Preparação do Sistema Base
+- [ ] Configuração do Vagrant
+- [ ] Configuração do Ansible
+- [ ] Configuração da Rede
+- [ ] Preparação do Sistema Base
 
 ### 🔐 PKI (Public Key Infrastructure)
-- [x] CA do etcd
-- [x] CA do Kubernetes
-- [x] Certificados do etcd (servidor/cliente/peer)
-- [x] Certificados do kube-apiserver
-- [x] Certificados dos kubelets
-- [x] Certificados dos componentes do control plane
-- [x] Certificados de administração
+- [ ] CA do etcd
+- [ ] CA do Kubernetes
+- [ ] Certificados do etcd (servidor/cliente/peer)
+- [ ] Certificados do kube-apiserver
+- [ ] Certificados dos kubelets
+- [ ] Certificados dos componentes do control plane
+- [ ] Certificados de administração
 
 ### 🔄 Load Balancer
-- [x] Instalação do HAProxy
-- [x] Configuração do balanceamento do kube-apiserver
-- [x] Configuração do balanceamento do etcd
-- [x] Configuração do monitoramento de saúde (health checks)
-- [x] Interface de estatísticas do HAProxy
+- [ ] Instalação do HAProxy
+- [ ] Configuração do balanceamento do kube-apiserver
+- [ ] Configuração do balanceamento do etcd
+- [ ] Configuração do monitoramento de saúde (health checks)
+- [ ] Interface de estatísticas do HAProxy
 
 ### 📦 Cluster etcd
-- [x] Instalação do etcd
-- [x] Configuração do cluster etcd
-- [x] Configuração de backups
-- [x] Monitoramento do cluster
-
-### 📊 Monitoramento e Métricas
-- [x] Prometheus
-  - [x] Instalação
-  - [x] Configuração
-  - [x] Integração com HAProxy
-  - [x] Integração com etcd
-- [x] Node Exporter
-  - [x] Instalação em todos os nós
-  - [x] Configuração de métricas
-- [x] Loki
-  - [x] Instalação
-  - [x] Configuração
-  - [x] Integração com nodes
-- [x] Promtail
-  - [x] Instalação nos nodes
-  - [x] Configuração para logs do systemd
-  - [ ] Configuração para logs do HAProxy
-  - [ ] Configuração para logs do etcd
-  - [ ] Configuração para logs do Kubernetes
-- [ ] Grafana
-  - [ ] Instalação
-  - [ ] Dashboards de métricas
-  - [ ] Dashboards de logs
-  - [ ] Alertas básicos
+- [ ] Instalação do etcd
+- [ ] Configuração do cluster etcd
+- [ ] Configuração de backups
+- [ ] Monitoramento do cluster
 
 ### 🎮 Control Plane
-- [x] Instalação do kube-apiserver
-- [x] Configuração do kube-controller-manager
+- [ ] Instalação do kube-apiserver
+- [ ] Configuração do kube-controller-manager
 - [ ] Configuração do kube-scheduler
 - [ ] Configuração do etcd como backend
 - [ ] Validação do control plane
@@ -93,10 +68,6 @@
   - [ ] Instalação
   - [ ] Configuração
   - [ ] Validação das métricas
-- [ ] Prometheus + Grafana (opcional)
-  - [ ] Instalação
-  - [ ] Configuração dos dashboards
-  - [ ] Alertas
 
 ### 🎯 Componentes Adicionais
 - [ ] Dashboard do Kubernetes
@@ -130,6 +101,18 @@
 
 ### 🛡️ Segurança
 - [ ] Hardening do Sistema
+- [ ] Configuração de RBAC
+- [ ] Políticas de Rede
+- [ ] Auditoria
+- [ ] Documentação de Segurança
+
+### 🛡️ Segurança
+- [ ] Hardening do Sistema
+  - [ ] Ajustar contextos do SELinux com semanage fcontext + restorecon
+  - [ ] Alterar SELinux para enforcing
+  - [ ] Instalar e configurar firewalld
+  - [ ] Abrir portas mínimas para o Kubernetes
+  - [ ] Configurar parâmetros de rede (sysctl)
 - [ ] Configuração de RBAC
 - [ ] Políticas de Rede
 - [ ] Auditoria
