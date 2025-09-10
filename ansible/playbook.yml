@@ -26,12 +26,6 @@
         - haproxy
         - todas
 
-    - role: pki_monitor
-      run_once: true
-      tags:
-        - pki:monitor
-        - never
-
 - name: Configurações do cluster etcd
   hosts: managers
   become: true
