@@ -131,25 +131,6 @@ Vagrant.configure("2") do |config|
           echo "Provisionamento de rede concluído."
         SHELL
       end
-
-      # Inserção dos nomes das máquinas do cluster no hosts de cada uma delas
-      # node.vm.provision "shell" do |nomes|
-      #   nomes.inline = <<~SHELL
-      #     sudo tee /etc/hosts > /dev/null <<EOF
-      #     # Entradas de loopback
-      #     127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
-      #     ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-
-      #     # Hostname da máquina
-      #     127.0.1.1   #{nome_no}
-
-      #     # Entradas das máquinas do cluster
-      #     #{entradas_cluster}
-      #     EOF
-      #     echo "Provisionamento do /etc/hosts concluído."
-      #   SHELL
-      # end
-
     end
   end
 end
