@@ -11,7 +11,7 @@ PROJETO = "k8sbox"
 
 # Definição dos nodes com seus IPs e recursos
 nodes = {
-  "loadbalancer1" => { "ip" => "172.24.0.21", "memory" => 256,  "cpus" => 1 },
+  "loadbalancer1" => { "ip" => "172.24.0.21", "memory" => 512,  "cpus" => 1 },
   "manager1"      => { "ip" => "172.24.0.31", "memory" => 2048, "cpus" => 2 },
   "manager2"      => { "ip" => "172.24.0.32", "memory" => 2048, "cpus" => 2 },
   "manager3"      => { "ip" => "172.24.0.33", "memory" => 2048, "cpus" => 2 },
@@ -31,6 +31,9 @@ Vagrant.configure("2") do |config|
     puts "Nova chave SSH gerada."
   end
 
+  # Lê o conteúdo da chave pública
+  pubkey = File.read('id_ed25519.pub').strip rescue ""
+
   # Remove as chaves após destruir todas as VMs
   config.trigger.after :destroy do |trigger|
     trigger.ruby do |env, machine|
@@ -46,7 +49,8 @@ Vagrant.configure("2") do |config|
   config.vm.box = "almalinux/10"
   config.vm.post_up_message = ""
   config.ssh.insert_key = false
-  config.vm.synced_folder "./", "/vagrant", type: "virtiofs"
+  #config.vm.synced_folder "./", "/vagrant", type: "virtiofs",  mount_options: ["noseclabel"]
+  config.vm.synced_folder "./", "/vagrant", disabled: true
 
   # Configuração comum para todas as VMs (LibVirt)
   config.vm.provider :libvirt do |libvirt|
@@ -80,16 +84,18 @@ Vagrant.configure("2") do |config|
       end
 
       # Adiciona a chave pública se ela não existir
-      node.vm.provision "shell" do |s|
-        s.inline = <<-SHELL
-          PUBKEY=$(cat /vagrant/id_ed25519.pub)
-          if ! grep -q "$PUBKEY" /home/vagrant/.ssh/authorized_keys; then
-            echo "$PUBKEY" >> /home/vagrant/.ssh/authorized_keys
-            echo "Chave SSH adicionada."
-          else
-            echo "A chave SSH já existe no arquivo authorized_keys."
-          fi
-        SHELL
+      if !pubkey.empty?
+        node.vm.provision "shell" do |s|
+          s.inline = <<-SHELL
+            PUBKEY="#{pubkey}"
+            if ! grep -q "$PUBKEY" /home/vagrant/.ssh/authorized_keys; then
+              echo "$PUBKEY" >> /home/vagrant/.ssh/authorized_keys
+              echo "Chave SSH adicionada."
+            else
+              echo "A chave SSH já existe no arquivo authorized_keys."
+            fi
+          SHELL
+        end
       end
 
       # Ajustes manuais na rede das VMs
@@ -127,22 +133,22 @@ Vagrant.configure("2") do |config|
       end
 
       # Inserção dos nomes das máquinas do cluster no hosts de cada uma delas
-      node.vm.provision "shell" do |nomes|
-        nomes.inline = <<~SHELL
-          sudo tee /etc/hosts > /dev/null <<EOF
-          # Entradas de loopback
-          127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
-          ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+      # node.vm.provision "shell" do |nomes|
+      #   nomes.inline = <<~SHELL
+      #     sudo tee /etc/hosts > /dev/null <<EOF
+      #     # Entradas de loopback
+      #     127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+      #     ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 
-          # Hostname da máquina
-          127.0.1.1   #{nome_no}
+      #     # Hostname da máquina
+      #     127.0.1.1   #{nome_no}
 
-          # Entradas das máquinas do cluster
-          #{entradas_cluster}
-          EOF
-          echo "Provisionamento do /etc/hosts concluído."
-        SHELL
-      end
+      #     # Entradas das máquinas do cluster
+      #     #{entradas_cluster}
+      #     EOF
+      #     echo "Provisionamento do /etc/hosts concluído."
+      #   SHELL
+      # end
 
     end
   end
