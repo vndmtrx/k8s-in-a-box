@@ -9,104 +9,89 @@
 set -euo pipefail
 
 function main() {
+    local vms=$(vagrant status | grep running | awk '{print $1}')
+
     CFG="./ansible/.ansible.cfg"
     chmod 0600 id_ed25519
 
-    readonly tem_monitoramento=$(verificar_monitoramento)
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags todas
 
-    if [ "${tem_monitoramento}" = "true" ]; then
-        echo "Máquina de monitoramento detectada. Instalando servidor monitoramento..."
-        ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/monitoramento.yml" --tags "sistema,monitoramento"
-    fi
-
-    ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags todas
-
-    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags sistema
-    #criar_snapshot 01_sistema_pronto
+    ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags sistema
+    criar_snapshot 01_sistema_pronto
 
     #restaurar_snapshot 01_sistema_pronto
-    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags pki
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags pki
     #criar_snapshot 02_pki_pronto
 
     #restaurar_snapshot 02_pki_pronto
-    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags haproxy
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags haproxy
     #criar_snapshot 03_haproxy_pronto
 
     #restaurar_snapshot 03_haproxy_pronto
-    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags etcd
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags etcd
     #criar_snapshot 04_etcd_pronto
 
     #restaurar_snapshot 04_etcd_pronto
-    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags k8s_base
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags k8s_base
     #criar_snapshot 05_k8s_base_pronto
 
     #restaurar_snapshot 05_k8s_base_pronto
-    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags kube_apiserver
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags kube_apiserver
     #criar_snapshot 06_kube_apiserver_pronto
 
     #restaurar_snapshot 06_kube_apiserver_pronto
-    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags kube_controller_manager
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags kube_controller_manager
     #criar_snapshot 07_kube_controller_manager_pronto
-
-    # Monitoramento de Certificados
-
-    #restaurar_snapshot pki_pronto
-    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags "pki:monitor"
-    #cat arquivos/pki/status-certificados.txt
-
-    if [ "${tem_monitoramento}" = "true" ]; then
-        echo "Máquina de monitoramento detectada. Instalando componentes de monitoramento nos hosts..."
-        ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/monitoramento.yml" --tags monitoramento_nos
-    fi
-}
-
-function verificar_monitoramento() {
-    local ip_monitoramento
-    ip_monitoramento=$(ANSIBLE_CONFIG="$CFG" ansible-inventory --list | python3 -c 'import sys,json; data=json.load(sys.stdin); print(data["_meta"]["hostvars"][data["monitoramento"]["hosts"][0]]["ansible_host"])')
-    nc -z -w 2 "$ip_monitoramento" 22 >/dev/null 2>&1 && echo "true" || echo "false"
 }
 
 function criar_snapshot() {
-    local base_dir=$(basename $(pwd))
-    local snapshot_name=$1
+    local base_dir="k8sbox"
+    local nome_snapshot="$1"
+    local snapshot_desc="${2:-}"
     local vms=$(vagrant status | grep running | awk '{print $1}')
     
-    vagrant halt
+    vagrant halt $vms
     
     for vm in $vms; do
         echo "Criando snapshot para $vm..."
-        local vm_name="${base_dir}_${vm}"
+        local nome_vm="${base_dir}_${vm}"
         
-        if virsh -c qemu:///system snapshot-list "$vm_name" | grep -q "$snapshot_name"; then
-            echo "Deletando snapshot existente '$snapshot_name' para $vm_name..."
-            virsh -c qemu:///system snapshot-delete "$vm_name" "$snapshot_name"
+        if virsh --connect qemu:///system snapshot-list "$nome_vm" | grep -q "$nome_snapshot"; then
+            echo "Deletando snapshot existente $nome_snapshot para $nome_vm..."
+            virsh --connect qemu:///system snapshot-delete "$nome_vm" "$nome_snapshot" >/dev/null
         else
-            echo "Nenhum snapshot '$snapshot_name' encontrado para $vm_name. Continuando com a criação..."
+            echo "Nenhum snapshot $nome_snapshot encontrado para $nome_vm. Continuando com a criação..."
         fi
         
-        virsh -c qemu:///system snapshot-create-as "$vm_name" "$snapshot_name"
+        virsh --connect qemu:///system snapshot-create-as \
+            "$nome_vm" \
+            "$nome_snapshot" \
+            --description "${snapshot_desc:-Snapshot criado pelo script de provisionamento em $(date '+%Y-%m-%d %H:%M:%S')}" \
+            --atomic >/dev/null
+        
+        echo "Snapshot $nome_snapshot criado para $nome_vm."
     done
     
-    vagrant up 2>&1 | grep -E "Bringing|Error:"
+    vagrant up $vms 2>&1 | grep -E "Bringing|Error:"
 }
 
 function restaurar_snapshot() {
-    local base_dir=$(basename $(pwd))
-    local snapshot_name=$1
+    local base_dir="k8sbox"
+    local nome_snapshot=$1
     local vms=$(vagrant status | grep running | awk '{print $1}')
     
-    vagrant halt
+    vagrant halt  $vms
     
     for vm in $vms; do
         echo "Restaurando snapshot para $vm..."
-        local vm_name="${base_dir}_${vm}"
+        local nome_vm="${base_dir}_${vm}"
 
-        if virsh -c qemu:///system snapshot-list "$vm_name" | grep -q "$snapshot_name"; then
-            virsh -c qemu:///system snapshot-revert "$vm_name" "$snapshot_name" >/dev/null
+        if virsh -c qemu:///system snapshot-list "$nome_vm" | grep -q "$nome_snapshot"; then
+            virsh -c qemu:///system snapshot-revert "$nome_vm" "$nome_snapshot" >/dev/null
         fi
     done
     
-    vagrant up 2>&1 | grep -E "Bringing|Error:"
+    vagrant up $vms 2>&1 | grep -E "Bringing|Error:"
 }
 
 main

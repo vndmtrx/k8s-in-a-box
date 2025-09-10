@@ -1,8 +1,0 @@
-# ansible/node_exporter/defaults/main.yml
----
-versao_promtail: "3.3.0"
-
-porta_node_exporter: 9100
-
-porta_promtail: 9080
-porta_loki_http: 3100

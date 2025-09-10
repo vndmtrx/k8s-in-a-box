@@ -1,0 +1,47 @@
+all:
+  vars:
+    ansible_user: vagrant
+
+  children:
+    loadbalancers:
+      hosts:
+        loadbalancer1:
+          ansible_host: 172.24.0.21
+          memory: 512
+          cpus: 1
+
+    managers:
+      hosts:
+        manager1:
+          ansible_host: 172.24.0.31
+          memory: 2048
+          cpus: 2
+        manager2:
+          ansible_host: 172.24.0.32
+          memory: 2048
+          cpus: 2
+        manager3:
+          ansible_host: 172.24.0.33
+          memory: 2048
+          cpus: 2
+
+    workers:
+      hosts:
+        worker1:
+          ansible_host: 172.24.0.41
+          memory: 1024
+          cpus: 1
+        worker2:
+          ansible_host: 172.24.0.42
+          memory: 1024
+          cpus: 1
+
+    k8s_nodes:
+      children:
+        managers: {}
+        workers: {}
+
+    todos:
+      children:
+        loadbalancers: {}
+        k8s_nodes: {}

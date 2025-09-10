@@ -1,4 +1,0 @@
-# ansible/sistema/vars/main.yml
----
-# Variável para controlar a atualização dos pacotes do sistema instalado (all, patch, none)
-atualiza_sistema: "none"
