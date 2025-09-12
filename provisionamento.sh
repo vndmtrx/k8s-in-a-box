@@ -69,7 +69,7 @@ function criar_snapshot() {
             --description "${snapshot_desc:-Snapshot criado pelo script de provisionamento em $(date '+%Y-%m-%d %H:%M:%S')}" \
             --atomic >/dev/null
         
-        echo "Snapshot $nome_snapshot criado para $nome_vm."
+        echo "Snapshot $nome_snapshot criado para $nome_vm..."
     done
     
     vagrant up $vms 2>&1 | grep -E "Bringing|Error:"
