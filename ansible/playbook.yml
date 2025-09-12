@@ -5,65 +5,77 @@
   become: true
   gather_facts: true
   roles:
-    - role: sistema
+    - role: 01-sistema
       tags:
         - sistema
         - todas
 
-- name: Configurações do Load Balancer e geração das chaves dos CAs
-  hosts: loadbalancers
-  become: true
-  gather_facts: true
+- name: Criação local dos CAs e certificados do projeto
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
   roles:
-    - role: pki
-      run_once: true
+    - role: 02-pki
       tags:
         - pki
         - todas
 
-    - role: haproxy
-      tags:
-        - haproxy
-        - todas
 
-- name: Configurações do cluster etcd
-  hosts: managers
-  become: true
-  gather_facts: true
-  roles:
-    - role: etcd
-      tags:
-        - etcd
-        - todas
+# - name: Configurações do Load Balancer e geração das chaves dos CAs
+#   hosts: loadbalancers
+#   become: true
+#   gather_facts: true
+#   roles:
+#     - role: pki
+#       run_once: true
+#       tags:
+#         - pki
+#         - todas
 
-- name: Configurações comuns a todos os nós
-  hosts: k8s_nodes
-  become: true
-  gather_facts: true
-  roles:
-    - role: k8s_base
-      tags:
-        - k8s_base
-        - todas
+#     - role: haproxy
+#       tags:
+#         - haproxy
+#         - todas
 
-- name: Configuração do kube-apiserver
-  hosts: managers
-  become: true
-  gather_facts: true
-  serial: 1
-  roles:
-    - role: kube_apiserver
-      tags:
-        - kube_apiserver
-        - todas
+# - name: Configurações do cluster etcd
+#   hosts: managers
+#   become: true
+#   gather_facts: true
+#   roles:
+#     - role: etcd
+#       tags:
+#         - etcd
+#         - todas
 
-- name: Configuração do kube-controller-manager
-  hosts: managers
-  become: true
-  gather_facts: true
-  serial: 1
-  roles:
-    - role: kube_controller_manager
-      tags:
-        - kube_controller_manager
-        - todas
+# - name: Configurações comuns a todos os nós
+#   hosts: k8s_nodes
+#   become: true
+#   gather_facts: true
+#   roles:
+#     - role: k8s_base
+#       tags:
+#         - k8s_base
+#         - todas
+
+# - name: Configuração do kube-apiserver
+#   hosts: managers
+#   become: true
+#   gather_facts: true
+#   serial: 1
+#   roles:
+#     - role: kube_apiserver
+#       tags:
+#         - kube_apiserver
+#         - todas
+
+# - name: Configuração do kube-controller-manager
+#   hosts: managers
+#   become: true
+#   gather_facts: true
+#   serial: 1
+#   roles:
+#     - role: kube_controller_manager
+#       tags:
+#         - kube_controller_manager
+#         - todas
