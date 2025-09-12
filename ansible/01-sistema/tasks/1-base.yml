@@ -62,16 +62,30 @@
     policy: targeted
     state: permissive
 
-- name: Instalar última versão do Tailspin para facilitar a leitura de logs
-  ansible.builtin.unarchive:
-    src: "https://github.com/bensadeh/tailspin/releases/latest/download/tailspin-aarch64-unknown-linux-musl.tar.gz"
-    dest: "/usr/local/bin"
-    remote_src: true
-    mode: "0755"
-    creates: "/usr/local/bin/tspin"
+- name: Verificar se Tailspin já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/tspin"
+  register: tailspin_bin
 
-- name: Garantir a existência da pasta de temporários
-  ansible.builtin.file:
-    path: /vagrant/arquivos/tmp
-    state: directory
-    mode: '0755'
+- block:
+    - name: Copiar Tailspin para a VM (em /tmp)
+      ansible.builtin.copy:
+        src: "{{ pasta_temporarios }}/tailspin.tar.gz"
+        dest: "/tmp/tailspin.tar.gz"
+        mode: "0644"
+
+    - name: Descompactar Tailspin em /usr/local/bin
+      ansible.builtin.unarchive:
+        src: "/tmp/tailspin.tar.gz"
+        dest: "/usr/local/bin"
+        remote_src: true
+        mode: "0755"
+        creates: "/usr/local/bin/tspin"
+
+  always:
+    - name: Remover arquivo temporário do Tailspin
+      ansible.builtin.file:
+        path: "/tmp/tailspin.tar.gz"
+        state: absent
+  when: not tailspin_bin.stat.exists
+
