@@ -1,9 +1,9 @@
 # Vagrant
 .vagrant/
 
-# Arquivos do projeto
-arquivos/*
-!arquivos/.gitkeep
+# Arquivos gerados automaticamente pelo projeto
+artefatos/*
+!artefatos/.gitkeep
 
 # Chaves SSH
 id_ed25519

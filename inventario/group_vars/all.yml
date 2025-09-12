@@ -1,0 +1,45 @@
+# inventario/group_vars/all.yml
+---
+# Caminho absoluto para a pasta de artefatos
+pasta_artefatos: "{{ playbook_dir }}/../artefatos"
+
+# Versões dos componentes
+versao_haproxy: "3.0"
+versao_etcd: "3.5.14"
+versao_kubernetes: "v1.31.2" # https://dl.k8s.io/release/stable.txt
+
+# Redes do projeto
+rede_cidr_hosts: "172.24.0.0/24"
+rede_cidr_pods: "172.24.4.0/22"
+rede_cidr_services: "172.24.8.0/22"
+
+# Primeiros IPs das redes
+primeiro_ip_hosts: "{{ rede_cidr_hosts | ansible.netcommon.ipaddr('1') }}"
+primeiro_ip_pods: "{{ rede_cidr_pods | ansible.netcommon.ipaddr('1') }}"
+primeiro_ip_services: "{{ rede_cidr_services | ansible.netcommon.ipaddr('1') }}"
+
+# Portas usadas no projeto
+porta_etcd_https: 2379
+porta_etcd_peers: 2380
+porta_etcd_metricas: 2381
+porta_kubeapiserver: 6443
+
+########################################
+### Configurações para a role 01-pki ###
+########################################
+
+# Pasta onde ficam os artefatos dos certificados
+pki_pasta_base: "{{ pasta_artefatos }}/pki"
+
+# Configuração que decide se os certificados serão regerados
+pki_regerar_certs: true
+
+# Configurações padrão para o Root CA
+pki_root_ca:
+  nome: root
+  common_name: "root-ca"
+  organizacao: "K8s-in-a-Box Root CA"
+  path_chave: "{{ pki_pasta_base }}/root/ca-root-chave.pem"
+  path_csr: "{{ pki_pasta_base }}/root/ca-root.csr"
+  path_cert: "{{ pki_pasta_base }}/root/ca-root-cert.pem"
+  validade: "{{ pki_validade.root | default(1825) }}"

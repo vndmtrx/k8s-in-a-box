@@ -1,0 +1,14 @@
+# ansible/02-pki/tasks/main.yml
+---
+- ansible.builtin.import_tasks: 01-setup.yml
+  tags:
+    - pki
+    - pki:setup
+    - pki:dirs
+
+- ansible.builtin.import_tasks: 02-root-ca.yml
+  tags:
+    - pki
+    - pki:ca
+    - pki:root
+    - pki:root:ca

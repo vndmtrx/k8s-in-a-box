@@ -12,7 +12,7 @@ PROJETO = "k8sbox"
 require 'yaml'
 
 # Carrega o inventário do Ansible
-inventario = YAML.load_file("ansible/inventario.yml")
+inventario = YAML.load_file("inventario/hosts.yml")
 grupos = inventario["all"]["children"]
 
 # Gera o hash "nodes" a partir do inventário

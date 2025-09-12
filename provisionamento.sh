@@ -60,7 +60,7 @@ function criar_snapshot() {
             echo "Deletando snapshot existente $nome_snapshot para $nome_vm..."
             virsh --connect qemu:///system snapshot-delete "$nome_vm" "$nome_snapshot" >/dev/null
         else
-            echo "Nenhum snapshot $nome_snapshot encontrado para $nome_vm. Continuando com a criação..."
+            echo "Nenhum snapshot $nome_snapshot encontrado para $nome_vm..."
         fi
         
         virsh --connect qemu:///system snapshot-create-as \
@@ -69,7 +69,7 @@ function criar_snapshot() {
             --description "${snapshot_desc:-Snapshot criado pelo script de provisionamento em $(date '+%Y-%m-%d %H:%M:%S')}" \
             --atomic >/dev/null
         
-        echo "Snapshot $nome_snapshot criado para $nome_vm."
+        echo "Snapshot $nome_snapshot criado para $nome_vm..."
     done
     
     vagrant up $vms 2>&1 | grep -E "Bringing|Error:"

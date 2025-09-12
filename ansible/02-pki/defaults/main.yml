@@ -1,0 +1,13 @@
+# ansible/02-pki/defaults/main.yml
+---
+# Valores técnicos
+pki_cifra_tipo: "ECC"
+pki_cifra_algo: "secp256r1"
+pki_algoritmo_hash: "sha512"
+
+# Validades (em dias)
+pki_validade:
+  root: 1825           # 5 anos
+  intermediario: 365   # 1 ano
+  leaf: 30             # 1 mês
+  alerta: 7            # 1 semana

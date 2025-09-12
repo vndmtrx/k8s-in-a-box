@@ -5,12 +5,13 @@
 ## 📋 Progresso do Projeto
 
 ### Infraestrutura Base
-- [ ] Configuração do Vagrant
-- [ ] Configuração do Ansible
-- [ ] Configuração da Rede
-- [ ] Preparação do Sistema Base
+- [x] Configuração do Vagrant
+- [x] Configuração do Ansible
+- [x] Configuração da Rede
+- [x] Preparação do Sistema Base
 
 ### 🔐 PKI (Public Key Infrastructure)
+- [x] Root CA do projeto
 - [ ] CA do etcd
 - [ ] CA do Kubernetes
 - [ ] Certificados do etcd (servidor/cliente/peer)
