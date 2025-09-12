@@ -60,7 +60,7 @@ function criar_snapshot() {
             echo "Deletando snapshot existente $nome_snapshot para $nome_vm..."
             virsh --connect qemu:///system snapshot-delete "$nome_vm" "$nome_snapshot" >/dev/null
         else
-            echo "Nenhum snapshot $nome_snapshot encontrado para $nome_vm. Continuando com a criação..."
+            echo "Nenhum snapshot $nome_snapshot encontrado para $nome_vm..."
         fi
         
         virsh --connect qemu:///system snapshot-create-as \
