@@ -34,15 +34,62 @@ porta_kubeapiserver: 6443
 # Pasta onde ficam os artefatos dos certificados
 pki_pasta_base: "{{ pasta_artefatos }}/pki"
 
+# Pastas para os CAs e certificados:
+pki_pastas:
+  ca: "{{ pki_pasta_base }}/CAs"
+  etcd: "{{ pki_pasta_base }}/etcd"
+  k8s: "{{ pki_pasta_base }}/k8s"
+
 # Configuração que decide se os certificados serão regerados
 pki_regerar_certs: true
 
-# Configurações padrão para o Root CA
+# Configurações padrão para todos os certificados
+pki_subject_padrao: &pki_subject_padrao
+  C: BR
+  ST: Minas Gerais
+  L: Uberlândia
+  O: K8s-in-a-Box
+
+# Configurações para o Root CA
 pki_root_ca:
-  nome: root
-  common_name: "root-ca"
-  organizacao: "K8s-in-a-Box Root CA"
-  path_chave: "{{ pki_pasta_base }}/root/ca-root-chave.pem"
-  path_csr: "{{ pki_pasta_base }}/root/ca-root.csr"
-  path_cert: "{{ pki_pasta_base }}/root/ca-root-cert.pem"
+  path_chave: "{{ pki_pastas.ca }}/ca-root-chave.pem"
+  path_csr: "{{ pki_pastas.ca }}/ca-root.csr"
+  path_cert: "{{ pki_pastas.ca }}/ca-root-cert.pem"
   validade: "{{ pki_validade.root | default(1825) }}"
+  subject:
+    <<: *pki_subject_padrao
+    OU: Autoridade Raiz
+    CN: K8s-in-a-Box Root CA
+  key_usage:
+    - keyCertSign
+    - cRLSign
+
+# Configurações para os CAs intermediários
+pki_cas_intermediarios:
+  - nome: etcd
+    path_chave: "{{ pki_pastas.ca }}/ca-etcd-chave.pem"
+    path_csr: "{{ pki_pastas.ca }}/ca-etcd.csr"
+    path_cert: "{{ pki_pastas.ca }}/ca-etcd-cert.pem"
+    validade: "{{ pki_validade.intermediario | default(365) }}"
+    subject:
+      <<: *pki_subject_padrao
+      OU: Autoridade Intermediária Etcd
+      CN: K8s-in-a-Box Etcd CA
+    key_usage:
+      - digitalSignature
+      - keyCertSign
+      - cRLSign
+  
+  - nome: kubernetes
+    path_chave: "{{ pki_pastas.ca }}/ca-k8s-chave.pem"
+    path_csr: "{{ pki_pastas.ca }}/ca-k8s.csr"
+    path_cert: "{{ pki_pastas.ca }}/ca-k8s-cert.pem"
+    validade: "{{ pki_validade.intermediario | default(365) }}"
+    subject:
+      <<: *pki_subject_padrao
+      OU: Autoridade Intermediária Kubernetes
+      CN: K8s-in-a-Box Kubernetes CA
+    key_usage:
+      - digitalSignature
+      - keyCertSign
+      - cRLSign

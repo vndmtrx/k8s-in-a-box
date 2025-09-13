@@ -12,3 +12,13 @@
     - pki:ca
     - pki:root
     - pki:root:ca
+
+- ansible.builtin.include_tasks: 03-cas-intermediarios.yml
+  loop: "{{ pki_cas_intermediarios }}"
+  loop_control:
+    label: "{{ item.nome }}"
+  tags:
+    - pki
+    - pki:ca
+    - pki:intermediarios
+    - pki:ca:intermediarios

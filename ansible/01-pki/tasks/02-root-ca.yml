@@ -25,16 +25,12 @@
     privatekey_path: "{{ pki_root_ca.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
     mode: 0600
-    CN: "{{ pki_root_ca.common_name }}"
-    OU:
-      - "{{ pki_root_ca.organizacao }}"
-      - "Autoridade Certificadora Kubernetes in a Box"
+    subject: "{{ pki_root_ca.subject }}"
+    use_common_name_for_san: false
     basic_constraints:
       - "CA:TRUE"
     basic_constraints_critical: true
-    key_usage:
-      - keyCertSign
-      - cRLSign
+    key_usage: "{{ pki_root_ca.key_usage }}"
     key_usage_critical: true
     force: true
   when: not ca_root_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
