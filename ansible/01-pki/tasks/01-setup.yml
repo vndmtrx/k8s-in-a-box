@@ -2,19 +2,14 @@
 ---
 - name: Remover estrutura anterior de outras gerações no caso de regerar os certificados
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ pki_pasta_base }}"
     state: absent
   when: pki_regerar_certs | bool
-  loop:
-    - "{{ pki_pasta_base }}"
 
 - name: Criar estrutura de diretórios para certificados
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: "0755"
-  loop:
-    - "{{ pki_pasta_base }}"
-    - "{{ pki_pasta_base }}/root"
-    - "{{ pki_pasta_base }}/kubernetes"
-    - "{{ pki_pasta_base }}/etcd"
+    recurse: true
+  loop: "{{ pki_pastas.values() | list }}"
