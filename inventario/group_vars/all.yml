@@ -3,6 +3,9 @@
 # Caminho absoluto para a pasta de artefatos
 pasta_artefatos: "{{ playbook_dir }}/../artefatos"
 
+# Pasta onde ficam os artefatos dos certificados
+pasta_temporarios: "{{ pasta_artefatos }}/tmp"
+
 # Versões dos componentes
 versao_haproxy: "3.0"
 versao_etcd: "3.5.14"
@@ -25,7 +28,7 @@ porta_etcd_metricas: 2381
 porta_kubeapiserver: 6443
 
 ########################################
-### Configurações para a role 01-pki ###
+### Configurações para a role 02-pki ###
 ########################################
 
 # Pasta onde ficam os artefatos dos certificados

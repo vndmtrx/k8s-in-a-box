@@ -1,5 +1,5 @@
-# ansible/sistema/defaults/main.yml
-
+# ansible/02-sistema/defaults/main.yml
+---
 # Variável para controlar a atualização dos pacotes do sistema instalado (all, patch, none)
 atualiza_sistema: "none"
 

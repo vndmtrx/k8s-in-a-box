@@ -1,0 +1,14 @@
+# ansible/00-artefatos/tasks/download-artefatos.yml
+---
+- name: Verificar se {{ item.nome }} já existe
+  ansible.builtin.stat:
+    path: "{{ pasta_temporarios }}/{{ item.arquivo }}"
+  register: artefato_info
+
+- name: Baixar {{ item.nome }}
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "{{ pasta_temporarios }}/{{ item.arquivo }}"
+    mode: "0644"
+    checksum: "{{ item.checksum | default(omit) }}"
+  when: not artefato_info.stat.exists

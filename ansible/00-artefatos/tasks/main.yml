@@ -1,0 +1,19 @@
+# ansible/00-artefatos/tasks/main.yml
+---
+- name: Criar pasta de temporários para arquivos baixados
+  ansible.builtin.file:
+    path: "{{ pasta_temporarios }}"
+    state: directory
+    mode: "0755"
+  tags:
+    - artefatos
+    - artefatos:tmp
+
+- name: Baixar artefatos necessários no host
+  ansible.builtin.include_tasks: download-artefatos.yml
+  loop: "{{ download_artefatos }}"
+  loop_control:
+    label: "{{ item.nome }}"
+  tags:
+    - artefatos
+    - artefatos:artefatos

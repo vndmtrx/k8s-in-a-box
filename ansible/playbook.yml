@@ -1,14 +1,16 @@
 # ansible/playbook.yml
 ---
-- name: Configurações base para todas as máquinas
-  hosts: todos
-  become: true
-  gather_facts: true
+- name: Tarefas a serem executadas no host
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
   roles:
-    - role: 01-sistema
+    - role: 00-artefatos
       tags:
-        - sistema
+        - artefatos
         - todas
+
 
 - name: Criação local dos CAs e certificados do projeto
   hosts: localhost
@@ -16,11 +18,20 @@
   become: false
   gather_facts: false
   roles:
-    - role: 02-pki
+    - role: 01-pki
       tags:
         - pki
         - todas
 
+- name: Configurações base para todas as máquinas
+  hosts: todos
+  become: true
+  gather_facts: true
+  roles:
+    - role: 02-sistema
+      tags:
+        - sistema
+        - todas
 
 # - name: Configurações do Load Balancer e geração das chaves dos CAs
 #   hosts: loadbalancers
