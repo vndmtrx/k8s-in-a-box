@@ -53,45 +53,4 @@
     force: true
   when: not ca_intermediario_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
-
-# - name: Criar chave privada do Root CA
-#   community.crypto.openssl_privatekey:
-#     path: "{{ pki_root_ca.path_chave }}"
-#     type: "{{ pki_cifra_tipo }}"
-#     curve: "{{ pki_cifra_algo }}"
-#     state: "present"
-#     force: true
-#   when: not ca_root_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
-#   delegate_to: localhost
-
-# - name: Gerar CSR do Root CA
-#   community.crypto.openssl_csr:
-#     path: "{{ pki_root_ca.path_csr }}"
-#     privatekey_path: "{{ pki_root_ca.path_chave }}"
-#     digest: "{{ pki_algoritmo_hash }}"
-#     mode: 0600
-#     subject: "{{ pki_root_ca.subject }}"
-#     use_common_name_for_san: false
-#     basic_constraints:
-#       - "CA:TRUE"
-#     basic_constraints_critical: true
-#     key_usage:
-#       - keyCertSign
-#       - cRLSign
-#     key_usage_critical: true
-#     force: true
-#   when: not ca_root_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
-#   delegate_to: localhost
-
-# - name: Criar certificado auto-assinado do Root CA
-#   community.crypto.x509_certificate:
-#     path: "{{ pki_root_ca.path_cert }}"
-#     csr_path: "{{ pki_root_ca.path_csr }}"
-#     privatekey_path: "{{ pki_root_ca.path_chave }}"
-#     provider: selfsigned
-#     selfsigned_digest: "{{ pki_algoritmo_hash }}"
-#     selfsigned_not_after: "+{{ pki_validade.root }}d"
-#     mode: "0644"
-#     force: true
-#   when: not ca_root_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
-#   delegate_to: localhost
+  
