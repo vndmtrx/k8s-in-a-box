@@ -12,8 +12,8 @@
 
 ### 🔐 PKI (Public Key Infrastructure)
 - [x] Root CA do projeto
-- [ ] CA do etcd
-- [ ] CA do Kubernetes
+- [x] CA do etcd
+- [x] CA do Kubernetes
 - [ ] Certificados do etcd (servidor/cliente/peer)
 - [ ] Certificados do kube-apiserver
 - [ ] Certificados dos kubelets
