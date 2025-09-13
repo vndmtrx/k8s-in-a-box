@@ -1,4 +1,0 @@
-# ansible/02-sistema/meta/main.yml
----
-dependencies:
-  - role: 00-artefatos
