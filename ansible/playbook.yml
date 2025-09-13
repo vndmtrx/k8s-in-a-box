@@ -10,7 +10,14 @@
       tags:
         - artefatos
         - todas
-    
+
+
+- name: Criação local dos CAs e certificados do projeto
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
+  roles:
     - role: 01-pki
       tags:
         - pki
