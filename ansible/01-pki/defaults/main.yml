@@ -1,4 +1,4 @@
-# ansible/02-pki/defaults/main.yml
+# ansible/01-pki/defaults/main.yml
 ---
 # Valores técnicos
 pki_cifra_tipo: "ECC"

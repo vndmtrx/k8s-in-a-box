@@ -1,4 +1,4 @@
-# ansible/02-pki/tasks/main.yml
+# ansible/01-pki/tasks/main.yml
 ---
 - ansible.builtin.import_tasks: 01-setup.yml
   tags:

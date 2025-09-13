@@ -1,4 +1,4 @@
-# ansible/02-pki/tasks/02-root-ca.yml
+# ansible/01-pki/tasks/02-root-ca.yml
 ---
 - name: Verificar arquivos existentes da CA para mTLS do etcd
   ansible.builtin.stat:

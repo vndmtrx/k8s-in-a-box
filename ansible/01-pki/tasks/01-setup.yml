@@ -1,4 +1,4 @@
-# ansible/02-pki/tasks/01-setup.yml
+# ansible/01-pki/tasks/01-setup.yml
 ---
 - name: Remover estrutura anterior de outras gerações no caso de regerar os certificados
   ansible.builtin.file:
