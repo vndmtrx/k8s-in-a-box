@@ -76,7 +76,6 @@ pki_cas_intermediarios:
       OU: Autoridade Intermediária Etcd
       CN: K8s-in-a-Box Etcd CA
     key_usage:
-      - digitalSignature
       - keyCertSign
       - cRLSign
   
@@ -90,6 +89,5 @@ pki_cas_intermediarios:
       OU: Autoridade Intermediária Kubernetes
       CN: K8s-in-a-Box Kubernetes CA
     key_usage:
-      - digitalSignature
       - keyCertSign
       - cRLSign
