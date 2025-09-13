@@ -1,2 +1,97 @@
 # ansible/01-pki/tasks/03-cas-intermediarios.yml
 ---
+- name: Verificar arquivos existentes da CA intermediária ({{ item.nome }})
+  ansible.builtin.stat:
+    path: "{{ arquivo }}"
+  loop:
+    - "{{ item.path_chave }}"
+    - "{{ item.path_csr }}"
+    - "{{ item.path_cert }}"
+  loop_control:
+    loop_var: arquivo
+    label: "{{ arquivo }}"
+  register: ca_intermediario_arquivos
+  delegate_to: localhost
+
+- name: Criar chave privada da CA intermediária ({{ item.nome }})
+  community.crypto.openssl_privatekey:
+    path: "{{ item.path_chave }}"
+    type: "{{ pki_cifra_tipo }}"
+    curve: "{{ pki_cifra_algo }}"
+    state: "present"
+    force: true
+  when: not ca_intermediario_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
+
+- name: Gerar CSR da CA intermediária ({{ item.nome }})
+  community.crypto.openssl_csr:
+    path: "{{ item.path_csr }}"
+    privatekey_path: "{{ item.path_chave }}"
+    digest: "{{ pki_algoritmo_hash }}"
+    mode: "0600"
+    subject: "{{ item.subject }}"
+    use_common_name_for_san: false
+    basic_constraints:
+      - "CA:TRUE"
+    basic_constraints_critical: true
+    key_usage: "{{ item.key_usage }}"
+    key_usage_critical: true
+    force: true
+  when: not ca_intermediario_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
+
+- name: Assinar certificado da CA intermediária ({{ item.nome }}) com o Root CA
+  community.crypto.x509_certificate:
+    path: "{{ item.path_cert }}"
+    csr_path: "{{ item.path_csr }}"
+    provider: ownca
+    ownca_path: "{{ pki_root_ca.path_cert }}"
+    ownca_privatekey_path: "{{ pki_root_ca.path_chave }}"
+    ownca_digest: "{{ pki_algoritmo_hash }}"
+    ownca_not_after: "+{{ pki_validade.intermediario }}d"
+    mode: "0644"
+    force: true
+  when: not ca_intermediario_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
+
+# - name: Criar chave privada do Root CA
+#   community.crypto.openssl_privatekey:
+#     path: "{{ pki_root_ca.path_chave }}"
+#     type: "{{ pki_cifra_tipo }}"
+#     curve: "{{ pki_cifra_algo }}"
+#     state: "present"
+#     force: true
+#   when: not ca_root_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+#   delegate_to: localhost
+
+# - name: Gerar CSR do Root CA
+#   community.crypto.openssl_csr:
+#     path: "{{ pki_root_ca.path_csr }}"
+#     privatekey_path: "{{ pki_root_ca.path_chave }}"
+#     digest: "{{ pki_algoritmo_hash }}"
+#     mode: 0600
+#     subject: "{{ pki_root_ca.subject }}"
+#     use_common_name_for_san: false
+#     basic_constraints:
+#       - "CA:TRUE"
+#     basic_constraints_critical: true
+#     key_usage:
+#       - keyCertSign
+#       - cRLSign
+#     key_usage_critical: true
+#     force: true
+#   when: not ca_root_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+#   delegate_to: localhost
+
+# - name: Criar certificado auto-assinado do Root CA
+#   community.crypto.x509_certificate:
+#     path: "{{ pki_root_ca.path_cert }}"
+#     csr_path: "{{ pki_root_ca.path_csr }}"
+#     privatekey_path: "{{ pki_root_ca.path_chave }}"
+#     provider: selfsigned
+#     selfsigned_digest: "{{ pki_algoritmo_hash }}"
+#     selfsigned_not_after: "+{{ pki_validade.root }}d"
+#     mode: "0644"
+#     force: true
+#   when: not ca_root_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
+#   delegate_to: localhost
