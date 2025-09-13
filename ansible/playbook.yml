@@ -6,10 +6,11 @@
   become: false
   gather_facts: false
   roles:
-    - role: 00-host
+    - role: 00-artefatos
       tags:
-        - host
+        - artefatos
         - todas
+    
     - role: 01-pki
       tags:
         - pki

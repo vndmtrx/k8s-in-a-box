@@ -16,7 +16,7 @@ function main() {
 
     #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags todas
 
-    ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags host
+    ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags artefatos
 
     ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags pki
 
