@@ -1,4 +1,4 @@
-# ansible/00-host/defaults/main.yml
+# ansible/00-artefatos/defaults/main.yml
 ---
 download_artefatos:
   - nome: "tailspin"
