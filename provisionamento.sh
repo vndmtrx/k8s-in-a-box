@@ -16,32 +16,33 @@ function main() {
 
     #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags todas
 
+    ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags host
+
+    ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags pki
+
     ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags sistema
-    criar_snapshot 01_sistema_pronto
+    #criar_snapshot 01_sistema_pronto
 
     #restaurar_snapshot 01_sistema_pronto
-    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags pki
-    #criar_snapshot 02_pki_pronto
 
-    #restaurar_snapshot 02_pki_pronto
     #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags haproxy
-    #criar_snapshot 03_haproxy_pronto
+    #criar_snapshot 02_haproxy_pronto
 
-    #restaurar_snapshot 03_haproxy_pronto
+    #restaurar_snapshot 02_haproxy_pronto
     #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags etcd
-    #criar_snapshot 04_etcd_pronto
+    #criar_snapshot 03_etcd_pronto
 
-    #restaurar_snapshot 04_etcd_pronto
+    #restaurar_snapshot 03_etcd_pronto
     #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags k8s_base
-    #criar_snapshot 05_k8s_base_pronto
+    #criar_snapshot 04_k8s_base_pronto
 
-    #restaurar_snapshot 05_k8s_base_pronto
+    #restaurar_snapshot 04_k8s_base_pronto
     #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags kube_apiserver
-    #criar_snapshot 06_kube_apiserver_pronto
+    #criar_snapshot 05_kube_apiserver_pronto
 
-    #restaurar_snapshot 06_kube_apiserver_pronto
+    #restaurar_snapshot 05_kube_apiserver_pronto
     #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags kube_controller_manager
-    #criar_snapshot 07_kube_controller_manager_pronto
+    #criar_snapshot 06_kube_controller_manager_pronto
 }
 
 function criar_snapshot() {
@@ -94,4 +95,4 @@ function restaurar_snapshot() {
     vagrant up $vms 2>&1 | grep -E "Bringing|Error:"
 }
 
-main
+time main
