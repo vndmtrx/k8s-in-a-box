@@ -47,7 +47,7 @@
     ownca_path: "{{ item.value.ca_pai.path_cert }}"
     ownca_privatekey_path: "{{ item.value.ca_pai.path_chave }}"
     ownca_digest: "{{ pki_algoritmo_hash }}"
-    ownca_not_after: "+{{ item.value.validade }}d"
+    ownca_not_after: "+{{ pki_validade.intermediario | default(365) }}d"
     mode: "0644"
     force: true
   when: not ca_intermediario_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
