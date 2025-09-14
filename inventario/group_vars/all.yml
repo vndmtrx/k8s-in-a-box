@@ -71,6 +71,7 @@ pki_cas_intermediarios:
     path_csr: "{{ pki_pastas.ca }}/ca-etcd.csr"
     path_cert: "{{ pki_pastas.ca }}/ca-etcd-cert.pem"
     validade: "{{ pki_validade.intermediario | default(365) }}"
+    ca_pai: "{{ pki_root_ca }}"
     subject:
       <<: *pki_subject_padrao
       OU: Autoridade Intermediária Etcd
@@ -84,6 +85,7 @@ pki_cas_intermediarios:
     path_csr: "{{ pki_pastas.ca }}/ca-k8s.csr"
     path_cert: "{{ pki_pastas.ca }}/ca-k8s-cert.pem"
     validade: "{{ pki_validade.intermediario | default(365) }}"
+    ca_pai: "{{ pki_root_ca }}"
     subject:
       <<: *pki_subject_padrao
       OU: Autoridade Intermediária Kubernetes
@@ -120,6 +122,6 @@ pki_certificados:
          | map('regex_replace', '^(.*)$', 'IP:\\1') 
          | list)
       + (groups['managers']
-         | map('regex_replace', '^(.*)$', 'DNS:\\1') 
+         | map('regex_replace', '^(.*)$', 'DNS:\\1.k8sbox.local') 
          | list)
     }}"

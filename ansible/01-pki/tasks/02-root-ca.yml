@@ -43,7 +43,7 @@
     privatekey_path: "{{ pki_root_ca.path_chave }}"
     provider: selfsigned
     selfsigned_digest: "{{ pki_algoritmo_hash }}"
-    selfsigned_not_after: "+{{ pki_validade.root }}d"
+    selfsigned_not_after: "+{{ pki_root_ca.validade }}d"
     mode: "0644"
     force: true
   when: not ca_root_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
