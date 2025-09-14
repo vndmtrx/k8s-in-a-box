@@ -1,21 +1,21 @@
 # ansible/01-pki/tasks/03-cas-intermediarios.yml
 ---
-- name: Verificar arquivos existentes da CA intermediária ({{ item.nome }})
+- name: Verificar arquivos existentes da CA intermediária ({{ item.key }})
   ansible.builtin.stat:
     path: "{{ arquivo }}"
   loop:
-    - "{{ item.path_chave }}"
-    - "{{ item.path_csr }}"
-    - "{{ item.path_cert }}"
+    - "{{ item.value.path_chave }}"
+    - "{{ item.value.path_csr }}"
+    - "{{ item.value.path_cert }}"
   loop_control:
     loop_var: arquivo
     label: "{{ arquivo }}"
   register: ca_intermediario_arquivos
   delegate_to: localhost
 
-- name: Criar chave privada da CA intermediária ({{ item.nome }})
+- name: Criar chave privada da CA intermediária ({{ item.key }})
   community.crypto.openssl_privatekey:
-    path: "{{ item.path_chave }}"
+    path: "{{ item.value.path_chave }}"
     type: "{{ pki_cifra_tipo }}"
     curve: "{{ pki_cifra_algo }}"
     state: "present"
@@ -23,27 +23,27 @@
   when: not ca_intermediario_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
 
-- name: Gerar CSR da CA intermediária ({{ item.nome }})
+- name: Gerar CSR da CA intermediária ({{ item.key }})
   community.crypto.openssl_csr:
-    path: "{{ item.path_csr }}"
-    privatekey_path: "{{ item.path_chave }}"
+    path: "{{ item.value.path_csr }}"
+    privatekey_path: "{{ item.value.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
     mode: "0600"
-    subject: "{{ item.subject }}"
+    subject: "{{ item.value.subject }}"
     use_common_name_for_san: false
     basic_constraints:
       - "CA:TRUE"
     basic_constraints_critical: true
-    key_usage: "{{ item.key_usage }}"
+    key_usage: "{{ item.value.key_usage }}"
     key_usage_critical: true
     force: true
   when: not ca_intermediario_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
 
-- name: Assinar certificado da CA intermediária ({{ item.nome }}) com o Root CA
+- name: Assinar certificado da CA intermediária ({{ item.key }}) com o Root CA
   community.crypto.x509_certificate:
-    path: "{{ item.path_cert }}"
-    csr_path: "{{ item.path_csr }}"
+    path: "{{ item.value.path_cert }}"
+    csr_path: "{{ item.value.path_csr }}"
     provider: ownca
     ownca_path: "{{ pki_root_ca.path_cert }}"
     ownca_privatekey_path: "{{ pki_root_ca.path_chave }}"
@@ -53,4 +53,3 @@
     force: true
   when: not ca_intermediario_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
-  
