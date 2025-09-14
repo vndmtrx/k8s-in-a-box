@@ -60,9 +60,15 @@ pki_root_ca:
     <<: *pki_subject_padrao
     OU: Autoridade Raiz
     CN: K8s-in-a-Box Root CA
+  basic_constraints:
+    - "CA:TRUE"
+    - "pathlen:1"
+  basic_constraints_critical: true
   key_usage:
     - keyCertSign
     - cRLSign
+  key_usage_critical: true
+  usar_cn_como_san: false
 
 # Configurações para os CAs intermediários
 pki_cas_intermediarios:
@@ -76,9 +82,15 @@ pki_cas_intermediarios:
       <<: *pki_subject_padrao
       OU: Autoridade Intermediária Etcd
       CN: K8s-in-a-Box Etcd CA
+    basic_constraints:
+        - "CA:TRUE"
+        - "pathlen:0"
+    basic_constraints_critical: true
     key_usage:
       - keyCertSign
       - cRLSign
+    key_usage_critical: true
+    usar_cn_como_san: false
   
   kubernetes:
     path_chave: "{{ pki_pastas.ca }}/ca-k8s-chave.pem"
@@ -90,9 +102,15 @@ pki_cas_intermediarios:
       <<: *pki_subject_padrao
       OU: Autoridade Intermediária Kubernetes
       CN: K8s-in-a-Box Kubernetes CA
+    basic_constraints:
+        - "CA:TRUE"
+        - "pathlen:0"
+    basic_constraints_critical: true
     key_usage:
       - keyCertSign
       - cRLSign
+    key_usage_critical: true
+    usar_cn_como_san: false
 
 pki_certificados:
   etcd-apiserver-cliente:

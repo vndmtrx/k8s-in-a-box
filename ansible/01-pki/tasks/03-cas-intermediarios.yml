@@ -30,12 +30,11 @@
     digest: "{{ pki_algoritmo_hash }}"
     mode: "0600"
     subject: "{{ item.value.subject }}"
-    use_common_name_for_san: false
-    basic_constraints:
-      - "CA:TRUE"
-    basic_constraints_critical: true
+    use_common_name_for_san: "{{ item.value.usar_cn_como_san }}"
+    basic_constraints: "{{ item.value.basic_constraints }}"
+    basic_constraints_critical: "{{ item.value.basic_constraints_critical }}"
     key_usage: "{{ item.value.key_usage }}"
-    key_usage_critical: true
+    key_usage_critical: "{{ item.value.key_usage_critical }}"
     force: true
   when: not ca_intermediario_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
