@@ -22,3 +22,11 @@
     - pki:ca
     - pki:intermediarios
     - pki:ca:intermediarios
+
+- ansible.builtin.include_tasks: 04-certificados.yml
+  loop: "{{ pki_certificados | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  tags:
+    - pki
+    - pki:certificados
