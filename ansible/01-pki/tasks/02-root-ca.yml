@@ -26,12 +26,11 @@
     digest: "{{ pki_algoritmo_hash }}"
     mode: 0600
     subject: "{{ pki_root_ca.subject }}"
-    use_common_name_for_san: false
-    basic_constraints:
-      - "CA:TRUE"
-    basic_constraints_critical: true
+    use_common_name_for_san: "{{ pki_root_ca.usar_cn_como_san }}"
+    basic_constraints: "{{ pki_root_ca.basic_constraints }}"
+    basic_constraints_critical: "{{ pki_root_ca.basic_constraints_critical }}"
     key_usage: "{{ pki_root_ca.key_usage }}"
-    key_usage_critical: true
+    key_usage_critical: "{{ pki_root_ca.key_usage_critical }}"
     force: true
   when: not ca_root_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
@@ -43,7 +42,7 @@
     privatekey_path: "{{ pki_root_ca.path_chave }}"
     provider: selfsigned
     selfsigned_digest: "{{ pki_algoritmo_hash }}"
-    selfsigned_not_after: "+{{ pki_validade.root }}d"
+    selfsigned_not_after: "+{{ pki_root_ca.validade }}d"
     mode: "0644"
     force: true
   when: not ca_root_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)

@@ -14,11 +14,19 @@
     - pki:root:ca
 
 - ansible.builtin.include_tasks: 03-cas-intermediarios.yml
-  loop: "{{ pki_cas_intermediarios }}"
+  loop: "{{ pki_cas_intermediarios | dict2items }}"
   loop_control:
-    label: "{{ item.nome }}"
+    label: "{{ item.key }}"
   tags:
     - pki
     - pki:ca
     - pki:intermediarios
     - pki:ca:intermediarios
+
+- ansible.builtin.include_tasks: 04-certificados.yml
+  loop: "{{ pki_certificados | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  tags:
+    - pki
+    - pki:certificados
