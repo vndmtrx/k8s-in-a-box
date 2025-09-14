@@ -9,5 +9,5 @@ pki_algoritmo_hash: "sha512"
 pki_validade:
   root: 1825           # 5 anos
   intermediario: 365   # 1 ano
-  leaf: 30             # 1 mês
+  certificado: 30      # 1 mês
   alerta: 7            # 1 semana
