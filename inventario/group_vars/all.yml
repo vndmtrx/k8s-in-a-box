@@ -47,7 +47,7 @@ pki_regerar_certs: true
 pki_subject_padrao: &pki_subject_padrao
   C: BR
   ST: Minas Gerais
-  L: Uberlândia
+  L: Uberlandia
   O: K8s-in-a-Box
 
 # Configurações para o Root CA
@@ -80,7 +80,7 @@ pki_cas_intermediarios:
     ca_pai: "{{ pki_root_ca }}"
     subject:
       <<: *pki_subject_padrao
-      OU: Autoridade Intermediária Etcd
+      OU: Autoridade Intermediaria Etcd
       CN: K8s-in-a-Box Etcd CA
     basic_constraints:
         - "CA:TRUE"
@@ -100,7 +100,7 @@ pki_cas_intermediarios:
     ca_pai: "{{ pki_root_ca }}"
     subject:
       <<: *pki_subject_padrao
-      OU: Autoridade Intermediária Kubernetes
+      OU: Autoridade Intermediaria Kubernetes
       CN: K8s-in-a-Box Kubernetes CA
     basic_constraints:
         - "CA:TRUE"
