@@ -55,7 +55,6 @@ pki_root_ca:
   path_chave: "{{ pki_pastas.ca }}/ca-root-chave.pem"
   path_csr: "{{ pki_pastas.ca }}/ca-root.csr"
   path_cert: "{{ pki_pastas.ca }}/ca-root-cert.pem"
-  validade: "{{ pki_validade.root | default(1825) }}"
   subject:
     <<: *pki_subject_padrao
     OU: Autoridade Raiz
@@ -76,7 +75,6 @@ pki_cas_intermediarios:
     path_chave: "{{ pki_pastas.ca }}/ca-etcd-chave.pem"
     path_csr: "{{ pki_pastas.ca }}/ca-etcd.csr"
     path_cert: "{{ pki_pastas.ca }}/ca-etcd-cert.pem"
-    validade: "{{ pki_validade.intermediario | default(365) }}"
     ca_pai: "{{ pki_root_ca }}"
     subject:
       <<: *pki_subject_padrao
@@ -96,7 +94,6 @@ pki_cas_intermediarios:
     path_chave: "{{ pki_pastas.ca }}/ca-k8s-chave.pem"
     path_csr: "{{ pki_pastas.ca }}/ca-k8s.csr"
     path_cert: "{{ pki_pastas.ca }}/ca-k8s-cert.pem"
-    validade: "{{ pki_validade.intermediario | default(365) }}"
     ca_pai: "{{ pki_root_ca }}"
     subject:
       <<: *pki_subject_padrao
@@ -117,7 +114,6 @@ pki_certificados:
     path_chave: "{{ pki_pastas.etcd }}/etcd-apiserver-cliente-chave.pem"
     path_csr: "{{ pki_pastas.etcd }}/etcd-apiserver-cliente.csr"
     path_cert: "{{ pki_pastas.etcd }}/etcd-apiserver-cliente-cert.pem"
-    validade: "{{ pki_validade.certificado | default(30) }}"
     ca_pai: "{{ pki_cas_intermediarios['etcd'] }}"
     subject:
       <<: *pki_subject_padrao
