@@ -91,3 +91,35 @@ pki_cas_intermediarios:
     key_usage:
       - keyCertSign
       - cRLSign
+
+pki_certificados:
+  etcd-apiserver-cliente:
+    path_chave: "{{ pki_pastas.etcd }}/etcd-apiserver-cliente-chave.pem"
+    path_csr: "{{ pki_pastas.etcd }}/etcd-apiserver-cliente.csr"
+    path_cert: "{{ pki_pastas.etcd }}/etcd-apiserver-cliente-cert.pem"
+    validade: "{{ pki_validade.certificado | default(30) }}"
+    ca_pai: "{{ pki_cas_intermediarios['etcd'] }}"
+    subject:
+      <<: *pki_subject_padrao
+      OU: Cliente Etcd para API Server
+      CN: etcd-apiserver-cliente
+    key_usage:
+      - digitalSignature
+      - keyAgreement
+    key_usage_critical: true
+    extended_key_usage:
+      - clientAuth
+    extended_key_usage_critical: true
+    san: "{{ 
+      [
+        'IP:127.0.0.1',
+        'DNS:localhost'
+      ]
+      + (groups['managers']
+         | map('extract', hostvars, 'ansible_host') 
+         | map('regex_replace', '^(.*)$', 'IP:\\1') 
+         | list)
+      + (groups['managers']
+         | map('regex_replace', '^(.*)$', 'DNS:\\1') 
+         | list)
+    }}"
