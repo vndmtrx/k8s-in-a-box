@@ -70,9 +70,16 @@ pki_cas:
     path_cert: "{{ pki_pastas.ca }}/ca-k8s-cert.pem"
     ca_pai: "{{ pki_root_ca }}"
 
+# Configurações para os certificados
 pki_certs:
   etcd_apiserver_cli:
     path_chave: "{{ pki_pastas.etcd }}/etcd-apiserver-cli-chave.pem"
     path_csr: "{{ pki_pastas.etcd }}/etcd-apiserver-cli.csr"
     path_cert: "{{ pki_pastas.etcd }}/etcd-apiserver-cli-cert.pem"
+    ca_pai: "{{ pki_cas['etcd'] }}"
+
+  etcd_server:
+    path_chave: "{{ pki_pastas.etcd }}/%s-etcd-node-server-chave.pem"
+    path_csr: "{{ pki_pastas.etcd }}/%s-etcd-node-server.csr"
+    path_cert: "{{ pki_pastas.etcd }}/%s-etcd-node-server-cert.pem"
     ca_pai: "{{ pki_cas['etcd'] }}"
