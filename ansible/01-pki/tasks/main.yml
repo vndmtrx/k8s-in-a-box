@@ -1,36 +1,45 @@
 # ansible/01-pki/tasks/main.yml
 ---
-- ansible.builtin.import_tasks: 01-setup.yml
+- ansible.builtin.include_tasks: 01-setup.yml
   tags:
     - pki
     - pki:setup
     - pki:dirs
 
-- ansible.builtin.import_tasks: 02-root-ca.yml
+- ansible.builtin.include_tasks: 02-root-ca.yml
   tags:
     - pki
     - pki:ca
     - pki:root
     - pki:root:ca
 
-- ansible.builtin.import_tasks: 03-ca-etcd.yml
+- ansible.builtin.include_tasks: 03-ca-etcd.yml
   tags:
     - pki
     - pki:ca
     - pki:etcd
     - pki:etcd:ca
 
-- ansible.builtin.import_tasks: 04-ca-kubernetes.yml
+- ansible.builtin.include_tasks: 04-ca-kubernetes.yml
   tags:
     - pki
     - pki:ca
     - pki:kubernetes
     - pki:kubernetes:ca
 
-- ansible.builtin.import_tasks: 05-cert-etcd-apiserver-cli.yml
+- ansible.builtin.include_tasks: 05-cert-etcd-apiserver-cli.yml
   tags:
     - pki
     - pki:cert
     - pki:etcd
-    - pki:etcd:cli
     - pki:etcd:apiserver
+
+- ansible.builtin.include_tasks: 06-cert-etcd-server.yml
+  loop: "{{ groups['managers'] }}"
+  loop_control:
+    loop_var: manager_host
+  tags:
+    - pki
+    - pki:cert
+    - pki:etcd
+    - pki:etcd:server
