@@ -43,3 +43,13 @@
     - pki:cert
     - pki:etcd
     - pki:etcd:server
+
+- ansible.builtin.include_tasks: 07-cert-etcd-peer.yml
+  loop: "{{ groups['managers'] }}"
+  loop_control:
+    loop_var: manager_host
+  tags:
+    - pki
+    - pki:cert
+    - pki:etcd
+    - pki:etcd:peer
