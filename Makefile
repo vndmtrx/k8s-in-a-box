@@ -10,7 +10,7 @@ CFG = ./ansible/.ansible.cfg
 help: ## Mostra esta ajuda
 	@echo "Lista de targets:"; \
 	grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | \
-	awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-14s %s\n", $$1, $$2}'
+	awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-18s %s\n", $$1, $$2}'
 
 up: ## Sobe as VMs e recria a pasta artefatos/
 	mkdir -p $(ARTEFATOS)
@@ -25,15 +25,21 @@ destroy: ## Destroi as VMs
 clean: destroy ## Destroi as VMs e remove a pasta artefatos/
 	rm -rf $(ARTEFATOS)
 
-artefatos: up ## Executa as tasks Ansible para a tag artefatos
+artefatos: up apenas_artefatos ## Executa todas as dependências para a role artefatos
+
+pki: artefatos apenas_pki ## Executa todas as dependências para a role pki
+
+sistema: pki apenas_sistema ## Executa todas as dependências para a role pki
+
+apenas_artefatos: ## Executa apenas a role artefatos (use com um snapshot da máquina não provisionada)
 	@echo "Executando role artefatos..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" -v --tags artefatos
 
-pki: artefatos ## Executa as tasks Ansible para a tag pki
+apenas_pki: ## Executa apenas a role pki (use com um snapshot de artefatos)
 	@echo "Executando role pki..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" -v --tags pki
 
-sistema: pki ## Executa as tasks Ansible para a tag sistema
+apenas_sistema: ## Executa apenas a role sistema (use com um snapshot de pki)
 	@echo "Executando role sistema..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" -v --tags sistema
 
