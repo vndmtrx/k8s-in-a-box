@@ -7,5 +7,5 @@
 
 # Entradas das máquinas do cluster
 {% for host in groups['todos'] %}
-{{ hostvars[host].ansible_host }} {{ host }}.k8sbox.local
+{{ hostvars[host].ansible_host }} {{ hostvars[host].fqdn }}
 {% endfor %}
