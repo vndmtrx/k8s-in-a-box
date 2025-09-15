@@ -1,0 +1,63 @@
+# ansible/01-pki/tasks/04-ca-kubernetes.yml
+---
+- name: Verificar arquivos existentes da CA do Kubernetes
+  ansible.builtin.stat:
+    path: "{{ arquivo }}"
+  loop:
+    - "{{ pki_cas.kubernetes.path_chave }}"
+    - "{{ pki_cas.kubernetes.path_csr }}"
+    - "{{ pki_cas.kubernetes.path_cert }}"
+  loop_control:
+    loop_var: arquivo
+    label: "{{ arquivo }}"
+  register: ca_k8s_arquivos
+  delegate_to: localhost
+
+- name: Criar chave privada da CA do Kubernetes
+  community.crypto.openssl_privatekey:
+    path: "{{ pki_cas.kubernetes.path_chave }}"
+    type: "{{ pki_cifra_tipo }}"
+    curve: "{{ pki_cifra_algo }}"
+    state: "present"
+    force: true
+  when: not ca_k8s_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
+
+- name: Gerar CSR da CA do Kubernetes
+  community.crypto.openssl_csr:
+    path: "{{ pki_cas.kubernetes.path_csr }}"
+    privatekey_path: "{{ pki_cas.kubernetes.path_chave }}"
+    digest: "{{ pki_algoritmo_hash }}"
+    mode: "0600"
+    subject: "{{ pki_subject_padrao 
+      | combine({
+        'OU': 'Autoridade Intermediaria Kubernetes',
+        'CN': 'K8s-in-a-Box Kubernetes CA'
+      })
+    }}"
+    use_common_name_for_san: false
+    basic_constraints:
+        - "CA:TRUE"
+        - "pathlen:0"
+    basic_constraints_critical: true
+    key_usage:
+      - keyCertSign
+      - cRLSign
+    key_usage_critical: true
+    force: true
+  when: not ca_k8s_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
+
+- name: Assinar certificado do CA do Kubernetes com o Root CA
+  community.crypto.x509_certificate:
+    path: "{{ pki_cas.kubernetes.path_cert }}"
+    csr_path: "{{ pki_cas.kubernetes.path_csr }}"
+    provider: ownca
+    ownca_path: "{{ pki_cas.kubernetes.ca_pai.path_cert }}"
+    ownca_privatekey_path: "{{ pki_cas.kubernetes.ca_pai.path_chave }}"
+    ownca_digest: "{{ pki_algoritmo_hash }}"
+    ownca_not_after: "+{{ pki_validade.intermediario | default(365) }}d"
+    mode: "0644"
+    force: true
+  when: not ca_k8s_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost

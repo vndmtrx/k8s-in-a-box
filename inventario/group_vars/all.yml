@@ -47,7 +47,7 @@ pki_regerar_certs: true
 pki_subject_padrao: &pki_subject_padrao
   C: BR
   ST: Minas Gerais
-  L: Uberlândia
+  L: Uberlandia
   O: K8s-in-a-Box
 
 # Configurações para o Root CA
@@ -55,91 +55,31 @@ pki_root_ca:
   path_chave: "{{ pki_pastas.ca }}/ca-root-chave.pem"
   path_csr: "{{ pki_pastas.ca }}/ca-root.csr"
   path_cert: "{{ pki_pastas.ca }}/ca-root-cert.pem"
-  validade: "{{ pki_validade.root | default(1825) }}"
-  subject:
-    <<: *pki_subject_padrao
-    OU: Autoridade Raiz
-    CN: K8s-in-a-Box Root CA
-  basic_constraints:
-    - "CA:TRUE"
-    - "pathlen:1"
-  basic_constraints_critical: true
-  key_usage:
-    - keyCertSign
-    - cRLSign
-  key_usage_critical: true
-  usar_cn_como_san: false
 
 # Configurações para os CAs intermediários
-pki_cas_intermediarios:
+pki_cas:
   etcd:
     path_chave: "{{ pki_pastas.ca }}/ca-etcd-chave.pem"
     path_csr: "{{ pki_pastas.ca }}/ca-etcd.csr"
     path_cert: "{{ pki_pastas.ca }}/ca-etcd-cert.pem"
-    validade: "{{ pki_validade.intermediario | default(365) }}"
     ca_pai: "{{ pki_root_ca }}"
-    subject:
-      <<: *pki_subject_padrao
-      OU: Autoridade Intermediária Etcd
-      CN: K8s-in-a-Box Etcd CA
-    basic_constraints:
-        - "CA:TRUE"
-        - "pathlen:0"
-    basic_constraints_critical: true
-    key_usage:
-      - keyCertSign
-      - cRLSign
-    key_usage_critical: true
-    usar_cn_como_san: false
   
   kubernetes:
     path_chave: "{{ pki_pastas.ca }}/ca-k8s-chave.pem"
     path_csr: "{{ pki_pastas.ca }}/ca-k8s.csr"
     path_cert: "{{ pki_pastas.ca }}/ca-k8s-cert.pem"
-    validade: "{{ pki_validade.intermediario | default(365) }}"
     ca_pai: "{{ pki_root_ca }}"
-    subject:
-      <<: *pki_subject_padrao
-      OU: Autoridade Intermediária Kubernetes
-      CN: K8s-in-a-Box Kubernetes CA
-    basic_constraints:
-        - "CA:TRUE"
-        - "pathlen:0"
-    basic_constraints_critical: true
-    key_usage:
-      - keyCertSign
-      - cRLSign
-    key_usage_critical: true
-    usar_cn_como_san: false
 
-pki_certificados:
-  etcd-apiserver-cliente:
-    path_chave: "{{ pki_pastas.etcd }}/etcd-apiserver-cliente-chave.pem"
-    path_csr: "{{ pki_pastas.etcd }}/etcd-apiserver-cliente.csr"
-    path_cert: "{{ pki_pastas.etcd }}/etcd-apiserver-cliente-cert.pem"
-    validade: "{{ pki_validade.certificado | default(30) }}"
-    ca_pai: "{{ pki_cas_intermediarios['etcd'] }}"
-    subject:
-      <<: *pki_subject_padrao
-      OU: Cliente Etcd para API Server
-      CN: etcd-apiserver-cliente
-    key_usage:
-      - digitalSignature
-      - keyAgreement
-    key_usage_critical: true
-    extended_key_usage:
-      - clientAuth
-    extended_key_usage_critical: true
-    san: "{{ 
-      [
-        'IP:127.0.0.1',
-        'DNS:localhost'
-      ]
-      + (groups['managers']
-         | map('extract', hostvars, 'ansible_host') 
-         | map('regex_replace', '^(.*)$', 'IP:\\1') 
-         | list)
-      + (groups['managers']
-         | map('regex_replace', '^(.*)$', 'DNS:\\1.k8sbox.local') 
-         | list)
-    }}"
+# Configurações para os certificados
+pki_certs:
+  etcd_apiserver_cli:
+    path_chave: "{{ pki_pastas.etcd }}/etcd-apiserver-cli-chave.pem"
+    path_csr: "{{ pki_pastas.etcd }}/etcd-apiserver-cli.csr"
+    path_cert: "{{ pki_pastas.etcd }}/etcd-apiserver-cli-cert.pem"
+    ca_pai: "{{ pki_cas['etcd'] }}"
+
+  etcd_server:
+    path_chave: "{{ pki_pastas.etcd }}/%s-etcd-node-server-chave.pem"
+    path_csr: "{{ pki_pastas.etcd }}/%s-etcd-node-server.csr"
+    path_cert: "{{ pki_pastas.etcd }}/%s-etcd-node-server-cert.pem"
+    ca_pai: "{{ pki_cas['etcd'] }}"

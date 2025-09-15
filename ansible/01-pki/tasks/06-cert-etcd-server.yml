@@ -1,0 +1,64 @@
+# ansible/01-pki/tasks/06-cert-etcd-server.yml
+---
+- name: Verificar arquivos existentes da chave para cliente mTLS do servidor etcd ({{ manager_host }})
+  ansible.builtin.stat:
+    path: "{{ arquivo }}"
+  loop:
+    - "{{ pki_certs.etcd_server.path_chave | format(manager_host) }}"
+    - "{{ pki_certs.etcd_server.path_csr | format(manager_host) }}"
+    - "{{ pki_certs.etcd_server.path_cert | format(manager_host) }}"
+  loop_control:
+    loop_var: arquivo
+    label: "{{ arquivo }}"
+  register: etcd_server_arquivos
+  delegate_to: localhost
+
+- name: Criar chave privada do certificado para cliente mTLS do servidor etcd ({{ manager_host }})
+  community.crypto.openssl_privatekey:
+    path: "{{ pki_certs.etcd_server.path_chave | format(manager_host) }}"
+    type: "{{ pki_cifra_tipo }}"
+    curve: "{{ pki_cifra_algo }}"
+    state: "present"
+    force: true
+  when: not etcd_server_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
+
+- name: Gerar CSR do certificado para cliente mTLS do servidor etcd ({{ manager_host }})
+  community.crypto.openssl_csr:
+    path: "{{ pki_certs.etcd_server.path_csr | format(manager_host) }}"
+    privatekey_path: "{{ pki_certs.etcd_server.path_chave | format(manager_host) }}"
+    digest: "{{ pki_algoritmo_hash }}"
+    mode: "0600"
+    subject: "{{ pki_subject_padrao 
+      | combine({
+        'OU': 'Servidor Etcd',
+        'CN': 'etcd-node-' ~ manager_host ~ '-server'
+      })
+    }}"
+    use_common_name_for_san: false
+    key_usage:
+      - digitalSignature
+      - keyAgreement
+    key_usage_critical: true
+    extended_key_usage:
+      - serverAuth
+      - clientAuth
+    extended_key_usage_critical: true
+    subject_alt_name: "{{ lookup('template', '06-san-etcd-server.j2') | from_yaml }}"
+    force: true
+  when: not etcd_server_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
+
+- name: Assinar certificado para cliente mTLS do servidor etcd ({{ manager_host }}) com o respectivo CA intermediário
+  community.crypto.x509_certificate:
+    path: "{{ pki_certs.etcd_server.path_cert | format(manager_host) }}"
+    csr_path: "{{ pki_certs.etcd_server.path_csr | format(manager_host) }}"
+    provider: ownca
+    ownca_path: "{{ pki_certs.etcd_server.ca_pai.path_cert }}"
+    ownca_privatekey_path: "{{ pki_certs.etcd_server.ca_pai.path_chave }}"
+    ownca_digest: "{{ pki_algoritmo_hash }}"
+    ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
+    mode: "0644"
+    force: true
+  when: not etcd_server_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
