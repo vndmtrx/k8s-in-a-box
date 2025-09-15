@@ -12,6 +12,7 @@ function main() {
     local vms=$(vagrant status | grep running | awk '{print $1}')
 
     CFG="./ansible/.ansible.cfg"
+    mkdir artefatos
     chmod 0600 id_ed25519
 
     #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" --tags todas
@@ -20,7 +21,7 @@ function main() {
 
     ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --tags pki
 
-    ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags sistema
+    #ANSIBLE_CONFIG="$CFG" ansible-playbook "./ansible/playbook.yml" -v --limit "$vms" --tags sistema
     #criar_snapshot 01_sistema_pronto
 
     #restaurar_snapshot 01_sistema_pronto
