@@ -1,0 +1,11 @@
+# IPs e nomes locais
+- IP:127.0.0.1
+- DNS:localhost
+
+# Load Balancer
+- IP:{{ hostvars[groups['loadbalancers'][0]].ansible_host }}
+- DNS:{{ hostvars[groups['loadbalancers'][0]].fqdn }}
+
+# Nó atual
+- IP:{{ hostvars[manager_host].ansible_host }}
+- DNS:{{ hostvars[manager_host].fqdn }}
