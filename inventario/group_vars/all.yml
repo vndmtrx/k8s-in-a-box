@@ -83,3 +83,9 @@ pki_certs:
     path_csr: "{{ pki_pastas.etcd }}/%s-etcd-node-server.csr"
     path_cert: "{{ pki_pastas.etcd }}/%s-etcd-node-server-cert.pem"
     ca_pai: "{{ pki_cas['etcd'] }}"
+  
+  etcd_peer:
+    path_chave: "{{ pki_pastas.etcd }}/%s-etcd-node-peer-chave.pem"
+    path_csr: "{{ pki_pastas.etcd }}/%s-etcd-node-peer.csr"
+    path_cert: "{{ pki_pastas.etcd }}/%s-etcd-node-peer-cert.pem"
+    ca_pai: "{{ pki_cas['etcd'] }}"
