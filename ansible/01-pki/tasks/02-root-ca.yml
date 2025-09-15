@@ -1,6 +1,6 @@
 # ansible/01-pki/tasks/02-root-ca.yml
 ---
-- name: Verificar arquivos existentes da CA para mTLS do etcd
+- name: Verificar arquivos existentes do Root CA
   ansible.builtin.stat:
     path: "{{ item }}"
   loop:
@@ -25,12 +25,21 @@
     privatekey_path: "{{ pki_root_ca.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
     mode: 0600
-    subject: "{{ pki_root_ca.subject }}"
-    use_common_name_for_san: "{{ pki_root_ca.usar_cn_como_san }}"
-    basic_constraints: "{{ pki_root_ca.basic_constraints }}"
-    basic_constraints_critical: "{{ pki_root_ca.basic_constraints_critical }}"
-    key_usage: "{{ pki_root_ca.key_usage }}"
-    key_usage_critical: "{{ pki_root_ca.key_usage_critical }}"
+    subject: "{{ pki_subject_padrao 
+      | combine({
+        'OU': 'Autoridade Raiz',
+        'CN': 'K8s-in-a-Box Root CA'
+      })
+    }}"
+    use_common_name_for_san: false
+    basic_constraints:
+      - "CA:TRUE"
+      - "pathlen:1"
+    basic_constraints_critical: true
+    key_usage:
+      - keyCertSign
+      - cRLSign
+    key_usage_critical: true
     force: true
   when: not ca_root_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
