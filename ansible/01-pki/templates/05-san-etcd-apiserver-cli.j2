@@ -4,6 +4,6 @@
 
 # Todos os managers
 {% for host in groups['managers'] %}
-- IP:{{ hostvars[host]['ansible_host'] }}
-- DNS:{{ host }}.k8sbox.local
+- IP:{{ hostvars[host].ansible_host }}
+- DNS:{{ hostvars[host].fqdn }}
 {% endfor %}
