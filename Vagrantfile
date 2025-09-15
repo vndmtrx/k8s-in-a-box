@@ -37,9 +37,11 @@ end.join("\n")
 
 Vagrant.configure("2") do |config|
   # Gera a chave SSH se não existir
-  unless File.exist?('id_ed25519') && File.exist?('id_ed25519.pub')
-    system('ssh-keygen -t ed25519 -f id_ed25519 -N "" >/dev/null 2>&1')
-    puts "Nova chave SSH gerada."
+  unless ARGV.include?("destroy")
+    unless File.exist?('id_ed25519') && File.exist?('id_ed25519.pub')
+      system('ssh-keygen -t ed25519 -f id_ed25519 -N "" >/dev/null 2>&1')
+      puts "Nova chave SSH gerada."
+    end
   end
 
   # Lê o conteúdo da chave pública
@@ -48,10 +50,10 @@ Vagrant.configure("2") do |config|
   # Remove as chaves após destruir todas as VMs
   config.trigger.after :destroy do |trigger|
     trigger.ruby do |env, machine|
-      if File.exist?('id_ed25519')
-        File.delete('id_ed25519')
-        File.delete('id_ed25519.pub')
-        puts "Chave SSH removida."
+      arquivos = ['id_ed25519', 'id_ed25519.pub']
+      if arquivos.any? { |f| File.exist?(f) }
+        arquivos.each { |f| File.delete(f) if File.exist?(f) }
+        puts "Chaves SSH removidas."
       end
     end
   end
