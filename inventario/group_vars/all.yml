@@ -107,3 +107,9 @@ pki_certs:
     path_csr: "{{ pki_pastas.k8s }}/%s-kube-scheduler.csr"
     path_cert: "{{ pki_pastas.k8s }}/%s-kube-scheduler-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
+
+  kubelet:
+    path_chave: "{{ pki_pastas.k8s }}/%s-kubelet-chave.pem"
+    path_csr: "{{ pki_pastas.k8s }}/%s-kubelet.csr"
+    path_cert: "{{ pki_pastas.k8s }}/%s-kubelet-cert.pem"
+    ca_pai: "{{ pki_cas['kubernetes'] }}"
