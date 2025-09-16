@@ -1,0 +1,21 @@
+# IPs e nomes locais
+- IP:127.0.0.1
+- DNS:localhost
+
+# Load Balancer
+- IP:{{ hostvars[groups['loadbalancers'][0]].ansible_host }}
+- DNS:{{ hostvars[groups['loadbalancers'][0]].fqdn }}
+
+# Nome e IP do nó atual
+- IP:{{ hostvars[manager_host].ansible_host }}
+- DNS:{{ hostvars[manager_host].fqdn }}
+
+# Nome do serviço do Kubernetes
+- DNS:kubernetes
+- DNS:kubernetes.default
+- DNS:kubernetes.default.svc
+- DNS:kubernetes.default.svc.cluster
+- DNS:kubernetes.default.svc.cluster.local
+
+# IP do serviço Kubernetes (primeiro IP do CIDR de serviços)
+- IP:{{ primeiro_ip_services }}
