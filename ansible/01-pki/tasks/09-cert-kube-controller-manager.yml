@@ -1,0 +1,62 @@
+# ansible/01-pki/tasks/09-cert-kube-controller-manager.yml
+---
+- name: Verificar arquivos existentes da chave do kube-controller-manager ({{ manager_host }})
+  ansible.builtin.stat:
+    path: "{{ arquivo }}"
+  loop:
+    - "{{ pki_certs.kube_controller_manager.path_chave | format(manager_host) }}"
+    - "{{ pki_certs.kube_controller_manager.path_csr | format(manager_host) }}"
+    - "{{ pki_certs.kube_controller_manager.path_cert | format(manager_host) }}"
+  loop_control:
+    loop_var: arquivo
+    label: "{{ arquivo }}"
+  register: kube_controller_manager_arquivos
+  delegate_to: localhost
+
+- name: Criar chave privada do certificado para o kube-controller-manager ({{ manager_host }})
+  community.crypto.openssl_privatekey:
+    path: "{{ pki_certs.kube_controller_manager.path_chave | format(manager_host) }}"
+    type: "{{ pki_cifra_tipo }}"
+    curve: "{{ pki_cifra_algo }}"
+    state: "present"
+    force: true
+  when: not kube_controller_manager_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
+
+- name: Gerar CSR do certificado para o kube-controller-manager ({{ manager_host }})
+  community.crypto.openssl_csr:
+    path: "{{ pki_certs.kube_controller_manager.path_csr | format(manager_host) }}"
+    privatekey_path: "{{ pki_certs.kube_controller_manager.path_chave | format(manager_host) }}"
+    digest: "{{ pki_algoritmo_hash }}"
+    mode: "0600"
+    subject: "{{ pki_subject_padrao 
+      | combine({
+        'OU': 'Kubernetes Controller Manager',
+        'CN': 'system:kube-controller-manager'
+      })
+    }}"
+    use_common_name_for_san: false
+    key_usage:
+      - digitalSignature
+    key_usage_critical: true
+    extended_key_usage:
+      - clientAuth
+    extended_key_usage_critical: true
+    subject_alt_name: "{{ lookup('template', '09-san-kube-controller-manager.j2') | from_yaml }}"
+    force: true
+  when: not kube_controller_manager_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
+
+- name: Assinar certificado para o kube-controller-manager ({{ manager_host }}) com o respectivo CA intermediário
+  community.crypto.x509_certificate:
+    path: "{{ pki_certs.kube_controller_manager.path_cert | format(manager_host) }}"
+    csr_path: "{{ pki_certs.kube_controller_manager.path_csr | format(manager_host) }}"
+    provider: ownca
+    ownca_path: "{{ pki_certs.kube_controller_manager.ca_pai.path_cert }}"
+    ownca_privatekey_path: "{{ pki_certs.kube_controller_manager.ca_pai.path_chave }}"
+    ownca_digest: "{{ pki_algoritmo_hash }}"
+    ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
+    mode: "0644"
+    force: true
+  when: not kube_controller_manager_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost

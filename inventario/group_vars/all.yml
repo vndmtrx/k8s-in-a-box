@@ -95,3 +95,9 @@ pki_certs:
     path_csr: "{{ pki_pastas.k8s }}/%s-kube-apiserver.csr"
     path_cert: "{{ pki_pastas.k8s }}/%s-kube-apiserver-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
+
+  kube_controller_manager:
+    path_chave: "{{ pki_pastas.k8s }}/%s-kube-controller-manager-chave.pem"
+    path_csr: "{{ pki_pastas.k8s }}/%s-kube-controller-manager.csr"
+    path_cert: "{{ pki_pastas.k8s }}/%s-kube-controller-manager-cert.pem"
+    ca_pai: "{{ pki_cas['kubernetes'] }}"
