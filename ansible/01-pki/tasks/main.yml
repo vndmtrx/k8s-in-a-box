@@ -73,3 +73,33 @@
     - pki:cert
     - pki:k8s
     - pki:k8s:controller-manager
+
+- ansible.builtin.include_tasks: 10-cert-kube-scheduler.yml
+  loop: "{{ groups['managers'] }}"
+  loop_control:
+    loop_var: manager_host
+  tags:
+    - pki
+    - pki:cert
+    - pki:k8s
+    - pki:k8s:scheduler
+
+- ansible.builtin.include_tasks: 11-cert-kubelet.yml
+  loop: "{{ groups['k8s_nodes'] }}"
+  loop_control:
+    loop_var: node_host
+  tags:
+    - pki
+    - pki:cert
+    - pki:k8s
+    - pki:k8s:kubelet
+
+- ansible.builtin.include_tasks: 12-cert-kube-proxy.yml
+  loop: "{{ groups['k8s_nodes'] }}"
+  loop_control:
+    loop_var: node_host
+  tags:
+    - pki
+    - pki:cert
+    - pki:k8s
+    - pki:k8s:kube-proxy

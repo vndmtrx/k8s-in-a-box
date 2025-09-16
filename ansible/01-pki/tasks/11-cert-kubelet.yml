@@ -1,0 +1,62 @@
+# ansible/01-pki/tasks/11-cert-kubelet.yml
+---
+- name: Verificar arquivos existentes da chave do kubelet ({{ node_host }})
+  ansible.builtin.stat:
+    path: "{{ arquivo }}"
+  loop:
+    - "{{ pki_certs.kubelet.path_chave | format(node_host) }}"
+    - "{{ pki_certs.kubelet.path_csr | format(node_host) }}"
+    - "{{ pki_certs.kubelet.path_cert | format(node_host) }}"
+  loop_control:
+    loop_var: arquivo
+    label: "{{ arquivo }}"
+  register: kubelet_arquivos
+  delegate_to: localhost
+
+- name: Criar chave privada do certificado para o kubelet ({{ node_host }})
+  community.crypto.openssl_privatekey:
+    path: "{{ pki_certs.kubelet.path_chave | format(node_host) }}"
+    type: "{{ pki_cifra_tipo }}"
+    curve: "{{ pki_cifra_algo }}"
+    state: "present"
+    force: true
+  when: not kubelet_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
+
+- name: Gerar CSR do certificado para o kubelet ({{ node_host }})
+  community.crypto.openssl_csr:
+    path: "{{ pki_certs.kubelet.path_csr | format(node_host) }}"
+    privatekey_path: "{{ pki_certs.kubelet.path_chave | format(node_host) }}"
+    digest: "{{ pki_algoritmo_hash }}"
+    mode: "0600"
+    subject: "{{ pki_subject_padrao 
+      | combine({
+        'OU': 'system:nodes',
+        'CN': 'system:node:' ~ node_host
+      })
+    }}"
+    use_common_name_for_san: false
+    key_usage:
+      - digitalSignature
+    key_usage_critical: true
+    extended_key_usage:
+      - clientAuth
+    extended_key_usage_critical: true
+    subject_alt_name: "{{ lookup('template', '11-san-kubelet.j2') | from_yaml }}"
+    force: true
+  when: not kubelet_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
+
+- name: Assinar certificado para o kubelet ({{ node_host }}) com o respectivo CA intermediário
+  community.crypto.x509_certificate:
+    path: "{{ pki_certs.kubelet.path_cert | format(node_host) }}"
+    csr_path: "{{ pki_certs.kubelet.path_csr | format(node_host) }}"
+    provider: ownca
+    ownca_path: "{{ pki_certs.kubelet.ca_pai.path_cert }}"
+    ownca_privatekey_path: "{{ pki_certs.kubelet.ca_pai.path_chave }}"
+    ownca_digest: "{{ pki_algoritmo_hash }}"
+    ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
+    mode: "0644"
+    force: true
+  when: not kubelet_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
