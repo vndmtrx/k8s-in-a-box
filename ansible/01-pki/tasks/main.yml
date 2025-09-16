@@ -93,3 +93,13 @@
     - pki:cert
     - pki:k8s
     - pki:k8s:kubelet
+
+- ansible.builtin.include_tasks: 12-cert-kube-proxy.yml
+  loop: "{{ groups['k8s_nodes'] }}"
+  loop_control:
+    loop_var: node_host
+  tags:
+    - pki
+    - pki:cert
+    - pki:k8s
+    - pki:k8s:kube-proxy

@@ -113,3 +113,9 @@ pki_certs:
     path_csr: "{{ pki_pastas.k8s }}/%s-kubelet.csr"
     path_cert: "{{ pki_pastas.k8s }}/%s-kubelet-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
+
+  kube_proxy:
+    path_chave: "{{ pki_pastas.k8s }}/%s-kube-proxy-chave.pem"
+    path_csr: "{{ pki_pastas.k8s }}/%s-kube-proxy.csr"
+    path_cert: "{{ pki_pastas.k8s }}/%s-kube-proxy-cert.pem"
+    ca_pai: "{{ pki_cas['kubernetes'] }}"
