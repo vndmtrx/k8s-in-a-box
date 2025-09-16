@@ -2,8 +2,8 @@
 ---
 # Valores técnicos
 pki_cifra_tipo: "ECC"
-pki_cifra_algo: "secp256r1"
-pki_algoritmo_hash: "sha512"
+pki_cifra_algo: "secp256r1" # Opções: secp256r1; secp384r1; secp521r1
+pki_algoritmo_hash: "sha256" # Opções: sha256 com secp256r1; sha384 com secp384r1; sha512 com secp521r1
 
 # Validades (em dias)
 pki_validade:
