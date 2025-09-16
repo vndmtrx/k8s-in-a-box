@@ -22,8 +22,8 @@ down: ## Interrompe as VMs
 destroy: ## Destroi as VMs
 	vagrant destroy -f
 
-clean: destroy ## Destroi as VMs e remove a pasta artefatos/
-	rm -rf $(ARTEFATOS)
+clean: destroy ## Destroi as VMs e remove todos os arquivos gerados automaticamente
+	rm -rf $(ARTEFATOS) .vagrant id_ed25519 id_ed25519.pub
 
 artefatos: up apenas_artefatos ## Executa todas as dependências para a role artefatos
 

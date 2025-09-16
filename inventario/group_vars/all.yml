@@ -17,9 +17,9 @@ rede_cidr_pods: "172.24.4.0/22"
 rede_cidr_services: "172.24.8.0/22"
 
 # Primeiros IPs das redes
-primeiro_ip_hosts: "{{ rede_cidr_hosts | ansible.netcommon.ipaddr('1') }}"
-primeiro_ip_pods: "{{ rede_cidr_pods | ansible.netcommon.ipaddr('1') }}"
-primeiro_ip_services: "{{ rede_cidr_services | ansible.netcommon.ipaddr('1') }}"
+primeiro_ip_hosts: "{{ rede_cidr_hosts | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
+primeiro_ip_pods: "{{ rede_cidr_pods | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
+primeiro_ip_services: "{{ rede_cidr_services | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
 
 # Portas usadas no projeto
 porta_etcd_https: 2379
@@ -89,3 +89,15 @@ pki_certs:
     path_csr: "{{ pki_pastas.etcd }}/%s-etcd-node-peer.csr"
     path_cert: "{{ pki_pastas.etcd }}/%s-etcd-node-peer-cert.pem"
     ca_pai: "{{ pki_cas['etcd'] }}"
+
+  kube_apiserver:
+    path_chave: "{{ pki_pastas.k8s }}/%s-kube-apiserver-chave.pem"
+    path_csr: "{{ pki_pastas.k8s }}/%s-kube-apiserver.csr"
+    path_cert: "{{ pki_pastas.k8s }}/%s-kube-apiserver-cert.pem"
+    ca_pai: "{{ pki_cas['kubernetes'] }}"
+
+  kube_controller_manager:
+    path_chave: "{{ pki_pastas.k8s }}/%s-kube-controller-manager-chave.pem"
+    path_csr: "{{ pki_pastas.k8s }}/%s-kube-controller-manager.csr"
+    path_cert: "{{ pki_pastas.k8s }}/%s-kube-controller-manager-cert.pem"
+    ca_pai: "{{ pki_cas['kubernetes'] }}"

@@ -53,3 +53,23 @@
     - pki:cert
     - pki:etcd
     - pki:etcd:peer
+
+- ansible.builtin.include_tasks: 08-cert-kube-apiserver.yml
+  loop: "{{ groups['managers'] }}"
+  loop_control:
+    loop_var: manager_host
+  tags:
+    - pki
+    - pki:cert
+    - pki:k8s
+    - pki:k8s:apiserver
+
+- ansible.builtin.include_tasks: 09-cert-kube-controller-manager.yml
+  loop: "{{ groups['managers'] }}"
+  loop_control:
+    loop_var: manager_host
+  tags:
+    - pki
+    - pki:cert
+    - pki:k8s
+    - pki:k8s:controller-manager
