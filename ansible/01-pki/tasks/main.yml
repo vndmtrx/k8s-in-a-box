@@ -103,3 +103,17 @@
     - pki:cert
     - pki:k8s
     - pki:k8s:kube-proxy
+
+- ansible.builtin.include_tasks: 13-cert-service-account.yml
+  tags:
+    - pki
+    - pki:cert
+    - pki:k8s
+    - pki:etcd:service-account
+
+- ansible.builtin.include_tasks: 14-cert-admin-account.yml
+  tags:
+    - pki
+    - pki:cert
+    - pki:k8s
+    - pki:etcd:admin-account
