@@ -5,7 +5,6 @@
     path: "{{ arquivo }}"
   loop:
     - "{{ pki_certs.admin_account.path_chave }}"
-    - "{{ pki_certs.admin_account.path_csr }}"
     - "{{ pki_certs.admin_account.path_cert }}"
   loop_control:
     loop_var: arquivo
@@ -24,11 +23,9 @@
   delegate_to: localhost
 
 - name: Gerar CSR do certificado para o Admin Account
-  community.crypto.openssl_csr:
-    path: "{{ pki_certs.admin_account.path_csr }}"
+  community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_certs.admin_account.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
-    mode: "0600"
     subject: "{{ pki_subject_padrao 
       | combine({
         'O': 'system:masters',
@@ -43,14 +40,14 @@
     extended_key_usage:
       - clientAuth
     extended_key_usage_critical: true
-    force: true
   when: not admin_account_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
+  register: admin_account_csr
 
 - name: Assinar certificado para o Admin Account com o respectivo CA intermediário
   community.crypto.x509_certificate:
     path: "{{ pki_certs.admin_account.path_cert }}"
-    csr_path: "{{ pki_certs.admin_account.path_csr }}"
+    csr_content: "{{ admin_account_csr.csr }}"
     provider: ownca
     ownca_path: "{{ pki_certs.admin_account.ca_pai.path_cert }}"
     ownca_privatekey_path: "{{ pki_certs.admin_account.ca_pai.path_chave }}"
@@ -58,5 +55,5 @@
     ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
     mode: "0644"
     force: true
-  when: not admin_account_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: not admin_account_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost

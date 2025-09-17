@@ -5,7 +5,6 @@
     path: "{{ arquivo }}"
   loop:
     - "{{ pki_certs.kube_scheduler.path_chave | format(manager_host) }}"
-    - "{{ pki_certs.kube_scheduler.path_csr | format(manager_host) }}"
     - "{{ pki_certs.kube_scheduler.path_cert | format(manager_host) }}"
   loop_control:
     loop_var: arquivo
@@ -24,11 +23,9 @@
   delegate_to: localhost
 
 - name: Gerar CSR do certificado para o kube-scheduler ({{ manager_host }})
-  community.crypto.openssl_csr:
-    path: "{{ pki_certs.kube_scheduler.path_csr | format(manager_host) }}"
+  community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_certs.kube_scheduler.path_chave | format(manager_host) }}"
     digest: "{{ pki_algoritmo_hash }}"
-    mode: "0600"
     subject: "{{ pki_subject_padrao 
       | combine({
         'OU': 'Kubernetes Scheduler',
@@ -43,14 +40,14 @@
       - clientAuth
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', '10-san-kube-scheduler.j2') | from_yaml }}"
-    force: true
   when: not kube_scheduler_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
+  register: kube_scheduler_csr
 
 - name: Assinar certificado para o kube-scheduler ({{ manager_host }}) com o respectivo CA intermediário
   community.crypto.x509_certificate:
     path: "{{ pki_certs.kube_scheduler.path_cert | format(manager_host) }}"
-    csr_path: "{{ pki_certs.kube_scheduler.path_csr | format(manager_host) }}"
+    csr_content: "{{ kube_scheduler_csr.csr }}"
     provider: ownca
     ownca_path: "{{ pki_certs.kube_scheduler.ca_pai.path_cert }}"
     ownca_privatekey_path: "{{ pki_certs.kube_scheduler.ca_pai.path_chave }}"
@@ -58,5 +55,5 @@
     ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
     mode: "0644"
     force: true
-  when: not kube_scheduler_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: not kube_scheduler_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost

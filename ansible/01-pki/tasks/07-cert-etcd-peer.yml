@@ -5,7 +5,6 @@
     path: "{{ arquivo }}"
   loop:
     - "{{ pki_certs.etcd_peer.path_chave | format(manager_host) }}"
-    - "{{ pki_certs.etcd_peer.path_csr | format(manager_host) }}"
     - "{{ pki_certs.etcd_peer.path_cert | format(manager_host) }}"
   loop_control:
     loop_var: arquivo
@@ -24,11 +23,9 @@
   delegate_to: localhost
 
 - name: Gerar CSR do certificado para cliente mTLS do peer etcd ({{ manager_host }})
-  community.crypto.openssl_csr:
-    path: "{{ pki_certs.etcd_peer.path_csr | format(manager_host) }}"
+  community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_certs.etcd_peer.path_chave | format(manager_host) }}"
     digest: "{{ pki_algoritmo_hash }}"
-    mode: "0600"
     subject: "{{ pki_subject_padrao 
       | combine({
         'OU': 'Peer Etcd',
@@ -44,14 +41,14 @@
       - clientAuth
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', '07-san-etcd-peer.j2') | from_yaml }}"
-    force: true
   when: not etcd_peer_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
+  register: etcd_peer_csr
 
 - name: Assinar certificado para cliente mTLS do peer etcd ({{ manager_host }}) com o respectivo CA intermediário
   community.crypto.x509_certificate:
     path: "{{ pki_certs.etcd_peer.path_cert | format(manager_host) }}"
-    csr_path: "{{ pki_certs.etcd_peer.path_csr | format(manager_host) }}"
+    csr_content: "{{ etcd_peer_csr.csr }}"
     provider: ownca
     ownca_path: "{{ pki_certs.etcd_peer.ca_pai.path_cert }}"
     ownca_privatekey_path: "{{ pki_certs.etcd_peer.ca_pai.path_chave }}"
@@ -59,5 +56,5 @@
     ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
     mode: "0644"
     force: true
-  when: not etcd_peer_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: not etcd_peer_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
