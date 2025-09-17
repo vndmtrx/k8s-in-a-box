@@ -52,82 +52,69 @@ pki_subject_padrao: &pki_subject_padrao
 
 # Configurações para o Root CA
 pki_root_ca:
-  path_chave: "{{ pki_pastas.ca }}/root-ca-chave.pem"
-  path_csr: "{{ pki_pastas.ca }}/root-ca.csr"
+  path_chave: "{{ pki_pastas.ca }}/root-ca-priv.pem"
   path_cert: "{{ pki_pastas.ca }}/root-ca-cert.pem"
 
 # Configurações para os CAs intermediários
 pki_cas:
   etcd:
-    path_chave: "{{ pki_pastas.ca }}/ca-etcd-chave.pem"
-    path_csr: "{{ pki_pastas.ca }}/ca-etcd.csr"
+    path_chave: "{{ pki_pastas.ca }}/ca-etcd-priv.pem"
     path_cert: "{{ pki_pastas.ca }}/ca-etcd-cert.pem"
     ca_pai: "{{ pki_root_ca }}"
   
   kubernetes:
-    path_chave: "{{ pki_pastas.ca }}/ca-k8s-chave.pem"
-    path_csr: "{{ pki_pastas.ca }}/ca-k8s.csr"
+    path_chave: "{{ pki_pastas.ca }}/ca-k8s-priv.pem"
     path_cert: "{{ pki_pastas.ca }}/ca-k8s-cert.pem"
     ca_pai: "{{ pki_root_ca }}"
 
 # Configurações para os certificados
 pki_certs:
   etcd_apiserver_cli:
-    path_chave: "{{ pki_pastas.etcd }}/etcd-apiserver-cli-chave.pem"
-    path_csr: "{{ pki_pastas.etcd }}/etcd-apiserver-cli.csr"
+    path_chave: "{{ pki_pastas.etcd }}/etcd-apiserver-cli-priv.pem"
     path_cert: "{{ pki_pastas.etcd }}/etcd-apiserver-cli-cert.pem"
     ca_pai: "{{ pki_cas['etcd'] }}"
 
   etcd_server:
-    path_chave: "{{ pki_pastas.etcd }}/%s-etcd-node-server-chave.pem"
-    path_csr: "{{ pki_pastas.etcd }}/%s-etcd-node-server.csr"
+    path_chave: "{{ pki_pastas.etcd }}/%s-etcd-node-server-priv.pem"
     path_cert: "{{ pki_pastas.etcd }}/%s-etcd-node-server-cert.pem"
     ca_pai: "{{ pki_cas['etcd'] }}"
   
   etcd_peer:
-    path_chave: "{{ pki_pastas.etcd }}/%s-etcd-node-peer-chave.pem"
-    path_csr: "{{ pki_pastas.etcd }}/%s-etcd-node-peer.csr"
+    path_chave: "{{ pki_pastas.etcd }}/%s-etcd-node-peer-priv.pem"
     path_cert: "{{ pki_pastas.etcd }}/%s-etcd-node-peer-cert.pem"
     ca_pai: "{{ pki_cas['etcd'] }}"
 
   kube_apiserver:
-    path_chave: "{{ pki_pastas.k8s }}/%s-kube-apiserver-chave.pem"
-    path_csr: "{{ pki_pastas.k8s }}/%s-kube-apiserver.csr"
+    path_chave: "{{ pki_pastas.k8s }}/%s-kube-apiserver-priv.pem"
     path_cert: "{{ pki_pastas.k8s }}/%s-kube-apiserver-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
 
   kube_controller_manager:
-    path_chave: "{{ pki_pastas.k8s }}/%s-kube-controller-manager-chave.pem"
-    path_csr: "{{ pki_pastas.k8s }}/%s-kube-controller-manager.csr"
+    path_chave: "{{ pki_pastas.k8s }}/%s-kube-controller-manager-priv.pem"
     path_cert: "{{ pki_pastas.k8s }}/%s-kube-controller-manager-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
 
   kube_scheduler:
-    path_chave: "{{ pki_pastas.k8s }}/%s-kube-scheduler-chave.pem"
-    path_csr: "{{ pki_pastas.k8s }}/%s-kube-scheduler.csr"
+    path_chave: "{{ pki_pastas.k8s }}/%s-kube-scheduler-priv.pem"
     path_cert: "{{ pki_pastas.k8s }}/%s-kube-scheduler-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
 
   kubelet:
-    path_chave: "{{ pki_pastas.k8s }}/%s-kubelet-chave.pem"
-    path_csr: "{{ pki_pastas.k8s }}/%s-kubelet.csr"
+    path_chave: "{{ pki_pastas.k8s }}/%s-kubelet-priv.pem"
     path_cert: "{{ pki_pastas.k8s }}/%s-kubelet-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
 
   kube_proxy:
-    path_chave: "{{ pki_pastas.k8s }}/%s-kube-proxy-chave.pem"
-    path_csr: "{{ pki_pastas.k8s }}/%s-kube-proxy.csr"
+    path_chave: "{{ pki_pastas.k8s }}/%s-kube-proxy-priv.pem"
     path_cert: "{{ pki_pastas.k8s }}/%s-kube-proxy-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
 
   service_account:
-    path_chave: "{{ pki_pastas.k8s }}/service-account-chave.pem"
-    path_csr: "{{ pki_pastas.k8s }}/service-account.csr"
+    path_chave: "{{ pki_pastas.k8s }}/service-account-priv.pem"
     path_cert: "{{ pki_pastas.k8s }}/service-account-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
 
   admin_account:
-    path_chave: "{{ pki_pastas.k8s }}/admin-account-chave.pem"
-    path_csr: "{{ pki_pastas.k8s }}/admin-account.csr"
+    path_chave: "{{ pki_pastas.k8s }}/admin-account-priv.pem"
     path_cert: "{{ pki_pastas.k8s }}/admin-account-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
