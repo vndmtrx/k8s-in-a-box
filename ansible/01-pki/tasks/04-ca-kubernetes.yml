@@ -5,7 +5,6 @@
     path: "{{ arquivo }}"
   loop:
     - "{{ pki_cas.kubernetes.path_chave }}"
-    - "{{ pki_cas.kubernetes.path_csr }}"
     - "{{ pki_cas.kubernetes.path_cert }}"
   loop_control:
     loop_var: arquivo
@@ -24,11 +23,9 @@
   delegate_to: localhost
 
 - name: Gerar CSR da CA do Kubernetes
-  community.crypto.openssl_csr:
-    path: "{{ pki_cas.kubernetes.path_csr }}"
+  community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_cas.kubernetes.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
-    mode: "0600"
     subject: "{{ pki_subject_padrao 
       | combine({
         'OU': 'Autoridade Intermediaria Kubernetes',
@@ -44,14 +41,14 @@
       - keyCertSign
       - cRLSign
     key_usage_critical: true
-    force: true
   when: not ca_k8s_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
+  register: ca_k8s_csr
 
 - name: Assinar certificado do CA do Kubernetes com o Root CA
   community.crypto.x509_certificate:
     path: "{{ pki_cas.kubernetes.path_cert }}"
-    csr_path: "{{ pki_cas.kubernetes.path_csr }}"
+    csr_content: "{{ ca_k8s_csr.csr }}"
     provider: ownca
     ownca_path: "{{ pki_cas.kubernetes.ca_pai.path_cert }}"
     ownca_privatekey_path: "{{ pki_cas.kubernetes.ca_pai.path_chave }}"
@@ -59,5 +56,5 @@
     ownca_not_after: "+{{ pki_validade.intermediario | default(365) }}d"
     mode: "0644"
     force: true
-  when: not ca_k8s_arquivos.results[2].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: not ca_k8s_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
