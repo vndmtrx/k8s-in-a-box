@@ -24,7 +24,9 @@
         - todas
 
 - name: Configurações base para todas as máquinas
-  hosts: todos
+  hosts:
+    - todos
+    - clientes
   become: true
   gather_facts: true
   roles:
