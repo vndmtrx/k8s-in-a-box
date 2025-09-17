@@ -7,9 +7,9 @@ pasta_artefatos: "{{ playbook_dir }}/../artefatos"
 pasta_temporarios: "{{ pasta_artefatos }}/tmp"
 
 # Versões dos componentes
-versao_haproxy: "3.0"
-versao_etcd: "3.5.14"
-versao_kubernetes: "v1.31.2" # https://dl.k8s.io/release/stable.txt
+versao_haproxy: "3.2.4"      # https://endoflife.date/haproxy
+versao_etcd: "3.6.4"         # https://endoflife.date/etcd
+versao_kubernetes: "v1.34.1" # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
 
 # Redes do projeto
 rede_cidr_hosts: "172.24.0.0/24"
@@ -52,9 +52,9 @@ pki_subject_padrao: &pki_subject_padrao
 
 # Configurações para o Root CA
 pki_root_ca:
-  path_chave: "{{ pki_pastas.ca }}/ca-root-chave.pem"
-  path_csr: "{{ pki_pastas.ca }}/ca-root.csr"
-  path_cert: "{{ pki_pastas.ca }}/ca-root-cert.pem"
+  path_chave: "{{ pki_pastas.ca }}/root-ca-chave.pem"
+  path_csr: "{{ pki_pastas.ca }}/root-ca.csr"
+  path_cert: "{{ pki_pastas.ca }}/root-ca-cert.pem"
 
 # Configurações para os CAs intermediários
 pki_cas:
@@ -118,4 +118,16 @@ pki_certs:
     path_chave: "{{ pki_pastas.k8s }}/%s-kube-proxy-chave.pem"
     path_csr: "{{ pki_pastas.k8s }}/%s-kube-proxy.csr"
     path_cert: "{{ pki_pastas.k8s }}/%s-kube-proxy-cert.pem"
+    ca_pai: "{{ pki_cas['kubernetes'] }}"
+
+  service_account:
+    path_chave: "{{ pki_pastas.k8s }}/service-account-chave.pem"
+    path_csr: "{{ pki_pastas.k8s }}/service-account.csr"
+    path_cert: "{{ pki_pastas.k8s }}/service-account-cert.pem"
+    ca_pai: "{{ pki_cas['kubernetes'] }}"
+
+  admin_account:
+    path_chave: "{{ pki_pastas.k8s }}/admin-account-chave.pem"
+    path_csr: "{{ pki_pastas.k8s }}/admin-account.csr"
+    path_cert: "{{ pki_pastas.k8s }}/admin-account-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
