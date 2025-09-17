@@ -14,11 +14,11 @@
 - [x] Root CA do projeto
 - [x] CA do etcd
 - [x] CA do Kubernetes
-- [ ] Certificados do etcd (servidor/cliente/peer)
-- [ ] Certificados do kube-apiserver
-- [ ] Certificados dos kubelets
-- [ ] Certificados dos componentes do control plane
-- [ ] Certificados de administração
+- [x] Certificados do etcd (servidor/cliente/peer)
+- [x] Certificados do kube-apiserver
+- [x] Certificados dos kubelets
+- [x] Certificados dos componentes do control plane
+- [x] Certificados de administração
 
 ### 🔄 Load Balancer
 - [ ] Instalação do HAProxy
