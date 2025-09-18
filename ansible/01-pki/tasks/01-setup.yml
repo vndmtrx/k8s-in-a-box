@@ -11,5 +11,4 @@
     path: "{{ item }}"
     state: directory
     mode: "0755"
-    recurse: true
   loop: "{{ pki_pastas.values() | list }}"
