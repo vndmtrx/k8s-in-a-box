@@ -1,15 +1,15 @@
 global
-    log /dev/log local0 debug
-    log /dev/log local1 notice
+    log 127.0.0.1 local2
     chroot /var/lib/haproxy
-    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+    pidfile /var/run/haproxy.pid
+    stats socket /var/lib/haproxy/stats expose-fd listeners
     stats timeout 30s
     user haproxy
     group haproxy
     daemon
 
     # Aumenta limite de conexões
-    maxconn 50000
+    maxconn 5000
 
 defaults
     log     global
@@ -18,10 +18,12 @@ defaults
     option dontlog-normal
     option  tcp-smart-accept
     option  tcp-smart-connect
-    timeout connect {{ timeout_connect }}
-    timeout client  {{ timeout_client }}
-    timeout server  {{ timeout_server }}
-    timeout check   5s
+    timeout connect {{ haproxy_timeout_connect }}
+    timeout client  {{ haproxy_timeout_client }}
+    timeout server  {{ haproxy_timeout_server }}
+    timeout tunnel  {{ haproxy_timeout_tunnel }}
+    timeout check   {{ haproxy_timeout_check }}
+    retries         {{ haproxy_retries }}
 
 # Frontend para o Kubernetes API Server
 frontend k8s_api
@@ -42,11 +44,8 @@ backend k8s_api_backend
     mode tcp
     balance roundrobin
     option tcp-check
-    timeout tunnel 1h
-    timeout client 3h
-    timeout server 3h
 {% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_kubeapiserver }} check inter 3 rise 2 fall 3
+    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_kubeapiserver }} check inter 5s rise 2 fall 3
 {% endfor %}
 
 # Backend para a porta HTTPS do etcd
@@ -54,9 +53,8 @@ backend etcd_https_backend
     mode tcp
     balance roundrobin
     option tcp-check
-    timeout tunnel 1h
 {% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_etcd_https }} check port {{ porta_etcd_metricas }} inter 3 rise 2 fall 3
+    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_etcd_https }} check port {{ porta_etcd_metricas }} inter 5s rise 2 fall 3
 {% endfor %}
 
 # Frontend para estatísticas e administração
@@ -67,9 +65,7 @@ frontend stats
     stats uri /stats
     stats show-node
     stats show-legends
-    stats show-desc K8s e etcd
+    stats show-desc K8s e Etcd
     stats refresh 10s
     stats admin if TRUE
     stats auth {{ haproxy_stats_usr }}:{{ haproxy_stats_senha }}
-
-    http-request use-service prometheus-exporter if { path /metrics }

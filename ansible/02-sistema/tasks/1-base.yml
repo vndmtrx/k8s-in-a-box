@@ -56,11 +56,11 @@
     group: "root"
     mode: "0644"
 
-- name: Colocar SELinux em modo permissivo
+- name: Colocar SELinux em modo desabilitado (iremos tratar do SELinux no futuro)
   become: true
   ansible.posix.selinux:
     policy: targeted
-    state: permissive
+    state: disabled
 
 - name: Verificar se Tailspin já está instalado na VM
   ansible.builtin.stat:
