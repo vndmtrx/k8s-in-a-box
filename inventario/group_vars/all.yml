@@ -7,8 +7,8 @@ pasta_artefatos: "{{ playbook_dir }}/../artefatos"
 pasta_temporarios: "{{ pasta_artefatos }}/tmp"
 
 # Versões dos componentes
-versao_etcd: "3.6.4"         # https://endoflife.date/etcd
-versao_kubernetes: "v1.34.1" # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
+versao_etcd: "v3.6.4"         # https://endoflife.date/etcd
+versao_kubernetes: "v1.34.1"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
 
 # Redes do projeto
 rede_cidr_hosts: "172.24.0.0/24"
