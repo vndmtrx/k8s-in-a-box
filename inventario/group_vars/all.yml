@@ -40,7 +40,7 @@ pki_pastas:
   k8s: "{{ pki_pasta_base }}/k8s"
 
 # Configuração que decide se os certificados serão regerados
-pki_regerar_certs: true
+pki_regerar_certs: false
 
 # Configurações para o Root CA
 pki_root_ca:
