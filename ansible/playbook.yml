@@ -28,7 +28,7 @@
     - todos
     - clientes
   become: true
-  gather_facts: true
+  gather_facts: false
   roles:
     - role: 02-sistema
       tags:
@@ -38,7 +38,7 @@
 - name: Configurações do Load Balancer
   hosts: loadbalancers
   become: true
-  gather_facts: true
+  gather_facts: false
   roles:
     - role: 03-haproxy
       tags:
