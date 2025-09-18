@@ -1,4 +1,4 @@
-# ansible/01-pki/tasks/09-cert-kube-controller-manager.yml
+# ansible/01-pki/tasks/10-cert-kube-controller-manager.yml
 ---
 - name: Verificar arquivos existentes da chave do kube-controller-manager ({{ manager_host }})
   ansible.builtin.stat:
@@ -38,7 +38,7 @@
     extended_key_usage:
       - clientAuth
     extended_key_usage_critical: true
-    subject_alt_name: "{{ lookup('template', '09-san-kube-controller-manager.j2') | from_yaml }}"
+    subject_alt_name: "{{ lookup('template', '10-san-kube-controller-manager.j2') | from_yaml }}"
   when: not kube_controller_manager_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
   register: kube_controller_manager_csr
