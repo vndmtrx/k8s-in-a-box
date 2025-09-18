@@ -27,20 +27,20 @@
 
 - ansible.builtin.include_tasks: 09-cert-kube-apiserver-kubelet-cli.yml
 
-- ansible.builtin.include_tasks: 10-cert-kube-controller-manager.yml
-  loop: "{{ groups['managers'] }}"
-  loop_control:
-    loop_var: manager_host
-
-- ansible.builtin.include_tasks: 11-cert-kube-scheduler.yml
-  loop: "{{ groups['managers'] }}"
-  loop_control:
-    loop_var: manager_host
-
-- ansible.builtin.include_tasks: 12-cert-kubelet.yml
+- ansible.builtin.include_tasks: 10-cert-kubelet.yml
   loop: "{{ groups['k8s_nodes'] }}"
   loop_control:
     loop_var: node_host
+
+- ansible.builtin.include_tasks: 11-cert-kube-controller-manager.yml
+  loop: "{{ groups['managers'] }}"
+  loop_control:
+    loop_var: manager_host
+
+- ansible.builtin.include_tasks: 12-cert-kube-scheduler.yml
+  loop: "{{ groups['managers'] }}"
+  loop_control:
+    loop_var: manager_host
 
 - ansible.builtin.include_tasks: 13-cert-kube-proxy.yml
   loop: "{{ groups['k8s_nodes'] }}"
