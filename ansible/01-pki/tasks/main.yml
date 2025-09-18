@@ -1,126 +1,52 @@
 # ansible/01-pki/tasks/main.yml
 ---
 - ansible.builtin.include_tasks: 01-setup.yml
-  tags:
-    - pki
-    - pki:setup
-    - pki:dirs
 
 - ansible.builtin.include_tasks: 02-root-ca.yml
-  tags:
-    - pki
-    - pki:ca
-    - pki:root
-    - pki:root:ca
 
 - ansible.builtin.include_tasks: 03-ca-etcd.yml
-  tags:
-    - pki
-    - pki:ca
-    - pki:etcd
-    - pki:etcd:ca
 
 - ansible.builtin.include_tasks: 04-ca-kubernetes.yml
-  tags:
-    - pki
-    - pki:ca
-    - pki:kubernetes
-    - pki:kubernetes:ca
 
 - ansible.builtin.include_tasks: 05-cert-etcd-server.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
-  tags:
-    - pki
-    - pki:cert
-    - pki:etcd
-    - pki:etcd:server
 
 - ansible.builtin.include_tasks: 06-cert-etcd-peer.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
-  tags:
-    - pki
-    - pki:cert
-    - pki:etcd
-    - pki:etcd:peer
 
 - ansible.builtin.include_tasks: 07-cert-kube-apiserver.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
-  tags:
-    - pki
-    - pki:cert
-    - pki:k8s
-    - pki:k8s:apiserver
 
 - ansible.builtin.include_tasks: 08-cert-kube-apiserver-etcd-cli.yml
-  tags:
-    - pki
-    - pki:cert
-    - pki:etcd
-    - pki:etcd:apiserver:etcd-client
 
 - ansible.builtin.include_tasks: 09-cert-kube-apiserver-kubelet-cli.yml
-  tags:
-    - pki
-    - pki:cert
-    - pki:k8s
-    - pki:k8s:apiserver:kubelet-client
 
 - ansible.builtin.include_tasks: 10-cert-kube-controller-manager.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
-  tags:
-    - pki
-    - pki:cert
-    - pki:k8s
-    - pki:k8s:controller-manager
 
 - ansible.builtin.include_tasks: 11-cert-kube-scheduler.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
-  tags:
-    - pki
-    - pki:cert
-    - pki:k8s
-    - pki:k8s:scheduler
 
 - ansible.builtin.include_tasks: 12-cert-kubelet.yml
   loop: "{{ groups['k8s_nodes'] }}"
   loop_control:
     loop_var: node_host
-  tags:
-    - pki
-    - pki:cert
-    - pki:k8s
-    - pki:k8s:kubelet
 
 - ansible.builtin.include_tasks: 13-cert-kube-proxy.yml
   loop: "{{ groups['k8s_nodes'] }}"
   loop_control:
     loop_var: node_host
-  tags:
-    - pki
-    - pki:cert
-    - pki:k8s
-    - pki:k8s:kube-proxy
 
 - ansible.builtin.include_tasks: 14-cert-service-account.yml
-  tags:
-    - pki
-    - pki:cert
-    - pki:k8s
-    - pki:etcd:service-account
 
 - ansible.builtin.include_tasks: 15-cert-admin-account.yml
-  tags:
-    - pki
-    - pki:cert
-    - pki:k8s
-    - pki:etcd:admin-account
