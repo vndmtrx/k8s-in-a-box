@@ -31,6 +31,8 @@ pki: artefatos apenas_pki ## Executa todas as dependências para a role pki
 
 sistema: pki apenas_sistema ## Executa todas as dependências para a role pki
 
+haproxy: sistema apenas_haproxy ## Executa todas as dependências para a role haproxy
+
 apenas_artefatos: ## Executa apenas a role artefatos (use com um snapshot da máquina não provisionada)
 	@echo "Executando role artefatos..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" -v --tags artefatos
@@ -42,6 +44,10 @@ apenas_pki: ## Executa apenas a role pki (use com um snapshot de artefatos)
 apenas_sistema: ## Executa apenas a role sistema (use com um snapshot de pki)
 	@echo "Executando role sistema..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" -v --tags sistema
+
+apenas_haproxy: ## Executa apenas a role haproxy (use com um snapshot de sistema)
+	@echo "Executando role sistema..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" -v --tags haproxy
 
 snapshot: ## Cria uma snapshot única (sempre sobrescreve)
 	@if vagrant status | grep -q "not created"; then \
