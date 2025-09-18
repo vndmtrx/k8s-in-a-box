@@ -35,21 +35,15 @@
         - sistema
         - todas
 
-# - name: Configurações do Load Balancer e geração das chaves dos CAs
-#   hosts: loadbalancers
-#   become: true
-#   gather_facts: true
-#   roles:
-#     - role: pki
-#       run_once: true
-#       tags:
-#         - pki
-#         - todas
-
-#     - role: haproxy
-#       tags:
-#         - haproxy
-#         - todas
+- name: Configurações do Load Balancer
+  hosts: loadbalancers
+  become: true
+  gather_facts: true
+  roles:
+    - role: 03-haproxy
+      tags:
+        - haproxy
+        - todas
 
 # - name: Configurações do cluster etcd
 #   hosts: managers
