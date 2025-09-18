@@ -61,11 +61,6 @@ pki_cas:
 
 # Configurações para os certificados
 pki_certs:
-  etcd_apiserver_cli:
-    path_chave: "{{ pki_pastas.etcd }}/etcd-apiserver-cli-priv.pem"
-    path_cert: "{{ pki_pastas.etcd }}/etcd-apiserver-cli-cert.pem"
-    ca_pai: "{{ pki_cas['etcd'] }}"
-
   etcd_server:
     path_chave: "{{ pki_pastas.etcd }}/%s-etcd-node-server-priv.pem"
     path_cert: "{{ pki_pastas.etcd }}/%s-etcd-node-server-cert.pem"
@@ -79,6 +74,16 @@ pki_certs:
   kube_apiserver:
     path_chave: "{{ pki_pastas.k8s }}/%s-kube-apiserver-priv.pem"
     path_cert: "{{ pki_pastas.k8s }}/%s-kube-apiserver-cert.pem"
+    ca_pai: "{{ pki_cas['kubernetes'] }}"
+
+  kube_apiserver_etcd_cli:
+    path_chave: "{{ pki_pastas.etcd }}/kube-apiserver-etcd-cli-priv.pem"
+    path_cert: "{{ pki_pastas.etcd }}/kube-apiserver-etcd-cli-cert.pem"
+    ca_pai: "{{ pki_cas['etcd'] }}"
+
+  kube_apiserver_kubelet_cli:
+    path_chave: "{{ pki_pastas.k8s }}/kube-apiserver-kubelet-cli-priv.pem"
+    path_cert: "{{ pki_pastas.k8s }}/kube-apiserver-kubelet-cli-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
 
   kube_controller_manager:
