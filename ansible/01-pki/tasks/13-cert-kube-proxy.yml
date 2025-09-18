@@ -8,7 +8,7 @@
     - "{{ pki_certs.kube_proxy.path_cert | format(node_host) }}"
   loop_control:
     loop_var: arquivo
-    label: "{{ arquivo }}"
+    label: "{{ arquivo | relpath(pasta_artefatos) }}"
   register: kube_proxy_arquivos
   delegate_to: localhost
 

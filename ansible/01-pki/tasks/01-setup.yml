@@ -8,7 +8,10 @@
 
 - name: Criar estrutura de diretórios para certificados
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ pasta }}"
     state: directory
     mode: "0755"
   loop: "{{ pki_pastas.values() | list }}"
+  loop_control:
+    loop_var: pasta
+    label: "{{ pasta | relpath(pasta_artefatos) }}"

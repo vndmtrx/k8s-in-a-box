@@ -8,7 +8,7 @@
     - "{{ pki_cas.kubernetes.path_cert }}"
   loop_control:
     loop_var: arquivo
-    label: "{{ arquivo }}"
+    label: "{{ arquivo | relpath(pasta_artefatos) }}"
   register: ca_k8s_arquivos
   delegate_to: localhost
 
