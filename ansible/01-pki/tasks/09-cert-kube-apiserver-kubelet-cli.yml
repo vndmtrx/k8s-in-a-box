@@ -1,0 +1,58 @@
+# ansible/01-pki/tasks/09-cert-kube-apiserver-kubelet-cli.yml
+---
+- name: Verificar arquivos existentes da chave para cliente do kube-apiserver para Kubelet
+  ansible.builtin.stat:
+    path: "{{ arquivo }}"
+  loop:
+    - "{{ pki_certs.kube_apiserver_kubelet_cli.path_chave }}"
+    - "{{ pki_certs.kube_apiserver_kubelet_cli.path_cert }}"
+  loop_control:
+    loop_var: arquivo
+    label: "{{ arquivo | relpath(playbook_dir) }}"
+  register: kube_apiserver_kubelet_cli_arquivos
+  delegate_to: localhost
+
+- name: Criar chave privada do certificado para cliente do kube-apiserver para Kubelet
+  community.crypto.openssl_privatekey:
+    path: "{{ pki_certs.kube_apiserver_kubelet_cli.path_chave }}"
+    type: "{{ pki_cifra_tipo }}"
+    curve: "{{ pki_cifra_algo }}"
+    state: "present"
+    force: true
+  when: not kube_apiserver_kubelet_cli_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
+
+- name: Gerar CSR do certificado para cliente do kube-apiserver para Kubelet
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ pki_certs.kube_apiserver_kubelet_cli.path_chave }}"
+    digest: "{{ pki_algoritmo_hash }}"
+    subject:
+      CN: kube-apiserver-kubelet-client
+    use_common_name_for_san: false
+    basic_constraints:
+      - "CA:FALSE"
+    basic_constraints_critical: true
+    key_usage:
+      - digitalSignature
+    key_usage_critical: true
+    extended_key_usage:
+      - clientAuth
+    extended_key_usage_critical: true
+    subject_alt_name: "{{ lookup('template', '09-san-kube-apiserver-kubelet-cli.j2') | from_yaml }}"
+  when: not kube_apiserver_kubelet_cli_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost
+  register: kube_apiserver_kubelet_cli_csr
+
+- name: Assinar certificado para cliente do kube-apiserver para Kubelet com o respectivo CA intermediário
+  community.crypto.x509_certificate:
+    path: "{{ pki_certs.kube_apiserver_kubelet_cli.path_cert }}"
+    csr_content: "{{ kube_apiserver_kubelet_cli_csr.csr }}"
+    provider: ownca
+    ownca_path: "{{ pki_certs.kube_apiserver_kubelet_cli.ca_pai.path_cert }}"
+    ownca_privatekey_path: "{{ pki_certs.kube_apiserver_kubelet_cli.ca_pai.path_chave }}"
+    ownca_digest: "{{ pki_algoritmo_hash }}"
+    ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
+    mode: "0644"
+    force: true
+  when: not kube_apiserver_kubelet_cli_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  delegate_to: localhost

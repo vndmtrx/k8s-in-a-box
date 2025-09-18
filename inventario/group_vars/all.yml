@@ -40,14 +40,7 @@ pki_pastas:
   k8s: "{{ pki_pasta_base }}/k8s"
 
 # Configuração que decide se os certificados serão regerados
-pki_regerar_certs: true
-
-# Configurações padrão para todos os certificados
-pki_subject_padrao: &pki_subject_padrao
-  C: BR
-  ST: Minas Gerais
-  L: Uberlandia
-  O: K8s-in-a-Box
+pki_regerar_certs: false
 
 # Configurações para o Root CA
 pki_root_ca:
@@ -68,11 +61,6 @@ pki_cas:
 
 # Configurações para os certificados
 pki_certs:
-  etcd_apiserver_cli:
-    path_chave: "{{ pki_pastas.etcd }}/etcd-apiserver-cli-priv.pem"
-    path_cert: "{{ pki_pastas.etcd }}/etcd-apiserver-cli-cert.pem"
-    ca_pai: "{{ pki_cas['etcd'] }}"
-
   etcd_server:
     path_chave: "{{ pki_pastas.etcd }}/%s-etcd-node-server-priv.pem"
     path_cert: "{{ pki_pastas.etcd }}/%s-etcd-node-server-cert.pem"
@@ -86,6 +74,16 @@ pki_certs:
   kube_apiserver:
     path_chave: "{{ pki_pastas.k8s }}/%s-kube-apiserver-priv.pem"
     path_cert: "{{ pki_pastas.k8s }}/%s-kube-apiserver-cert.pem"
+    ca_pai: "{{ pki_cas['kubernetes'] }}"
+
+  kube_apiserver_etcd_cli:
+    path_chave: "{{ pki_pastas.etcd }}/kube-apiserver-etcd-cli-priv.pem"
+    path_cert: "{{ pki_pastas.etcd }}/kube-apiserver-etcd-cli-cert.pem"
+    ca_pai: "{{ pki_cas['etcd'] }}"
+
+  kube_apiserver_kubelet_cli:
+    path_chave: "{{ pki_pastas.k8s }}/kube-apiserver-kubelet-cli-priv.pem"
+    path_cert: "{{ pki_pastas.k8s }}/kube-apiserver-kubelet-cli-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
 
   kube_controller_manager:

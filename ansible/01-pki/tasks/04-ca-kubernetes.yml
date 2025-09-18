@@ -8,7 +8,7 @@
     - "{{ pki_cas.kubernetes.path_cert }}"
   loop_control:
     loop_var: arquivo
-    label: "{{ arquivo }}"
+    label: "{{ arquivo | relpath(playbook_dir) }}"
   register: ca_k8s_arquivos
   delegate_to: localhost
 
@@ -26,12 +26,8 @@
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_cas.kubernetes.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
-    subject: "{{ pki_subject_padrao 
-      | combine({
-        'OU': 'Autoridade Intermediaria Kubernetes',
-        'CN': 'K8s-in-a-Box Kubernetes CA'
-      })
-    }}"
+    subject:
+      CN: kubernetes
     use_common_name_for_san: false
     basic_constraints:
         - "CA:TRUE"

@@ -2,11 +2,15 @@
 ---
 - name: Verificar arquivos existentes do Root CA
   ansible.builtin.stat:
-    path: "{{ item }}"
+    path: "{{ arquivo }}"
   loop:
     - "{{ pki_root_ca.path_chave }}"
     - "{{ pki_root_ca.path_cert }}"
+  loop_control:
+    loop_var: arquivo
+    label: "{{ arquivo | relpath(playbook_dir) }}"
   register: ca_root_arquivos
+  delegate_to: localhost
 
 - name: Criar chave privada do Root CA
   community.crypto.openssl_privatekey:
@@ -22,12 +26,13 @@
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_root_ca.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
-    subject: "{{ pki_subject_padrao 
-      | combine({
-        'OU': 'Autoridade Raiz',
-        'CN': 'K8s-in-a-Box Root CA'
-      })
-    }}"
+    subject:
+      C: BR
+      ST: Minas Gerais
+      L: Uberlandia
+      O: K8s-in-a-Box
+      OU: Autoridade Raiz
+      CN: K8s-in-a-Box Root CA
     use_common_name_for_san: false
     basic_constraints:
       - "CA:TRUE"

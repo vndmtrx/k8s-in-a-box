@@ -1,4 +1,4 @@
-# ansible/01-pki/tasks/08-cert-kube-apiserver.yml
+# ansible/01-pki/tasks/07-cert-kube-apiserver.yml
 ---
 - name: Verificar arquivos existentes da chave do kube-apiserver ({{ manager_host }})
   ansible.builtin.stat:
@@ -8,7 +8,7 @@
     - "{{ pki_certs.kube_apiserver.path_cert | format(manager_host) }}"
   loop_control:
     loop_var: arquivo
-    label: "{{ arquivo }}"
+    label: "{{ arquivo | relpath(playbook_dir) }}"
   register: kube_apiserver_arquivos
   delegate_to: localhost
 
@@ -26,20 +26,19 @@
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_certs.kube_apiserver.path_chave | format(manager_host) }}"
     digest: "{{ pki_algoritmo_hash }}"
-    subject: "{{ pki_subject_padrao 
-      | combine({
-        'OU': 'Kubernetes API Server',
-        'CN': 'kube-apiserver'
-      })
-    }}"
+    subject:
+      CN: kube-apiserver
     use_common_name_for_san: false
+    basic_constraints:
+      - "CA:FALSE"
+    basic_constraints_critical: true
     key_usage:
       - digitalSignature
     key_usage_critical: true
     extended_key_usage:
       - serverAuth
     extended_key_usage_critical: true
-    subject_alt_name: "{{ lookup('template', '08-san-kube-apiserver.j2') | from_yaml }}"
+    subject_alt_name: "{{ lookup('template', '07-san-kube-apiserver.j2') | from_yaml }}"
   when: not kube_apiserver_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
   register: kube_apiserver_csr

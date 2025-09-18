@@ -3,6 +3,10 @@ ARTEFATOS := artefatos
 SNAP := makefile_snapshot
 CFG = ./ansible/.ansible.cfg
 
+# Variável para controlar verbosidade (VERBOSE=v, VERBOSE=vv, VERBOSE=vvv)
+VERBOSE ?=
+ANSIBLE_VERBOSE := $(if $(VERBOSE),-$(VERBOSE),)
+
 .DEFAULT_GOAL := help
 
 .PHONY: artefatos pki sistema haproxy etcd k8s_base
@@ -35,19 +39,19 @@ haproxy: sistema apenas_haproxy ## Executa todas as dependências para a role ha
 
 apenas_artefatos: ## Executa apenas a role artefatos (use com um snapshot da máquina não provisionada)
 	@echo "Executando role artefatos..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" -v --tags artefatos
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags artefatos
 
 apenas_pki: ## Executa apenas a role pki (use com um snapshot de artefatos)
 	@echo "Executando role pki..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" -v --tags pki
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags pki
 
 apenas_sistema: ## Executa apenas a role sistema (use com um snapshot de pki)
 	@echo "Executando role sistema..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" -v --tags sistema
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags sistema
 
 apenas_haproxy: ## Executa apenas a role haproxy (use com um snapshot de sistema)
 	@echo "Executando role sistema..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" -v --tags haproxy
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags haproxy
 
 snapshot: ## Cria uma snapshot única (sempre sobrescreve)
 	@if vagrant status | grep -q "not created"; then \

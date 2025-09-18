@@ -1,4 +1,4 @@
-# ansible/01-pki/tasks/14-cert-admin-account.yml
+# ansible/01-pki/tasks/15-cert-admin-account.yml
 ---
 - name: Verificar arquivos existentes da chave para o Admin Account
   ansible.builtin.stat:
@@ -8,7 +8,7 @@
     - "{{ pki_certs.admin_account.path_cert }}"
   loop_control:
     loop_var: arquivo
-    label: "{{ arquivo }}"
+    label: "{{ arquivo | relpath(playbook_dir) }}"
   register: admin_account_arquivos
   delegate_to: localhost
 
@@ -26,14 +26,13 @@
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_certs.admin_account.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
-    subject: "{{ pki_subject_padrao 
-      | combine({
-        'O': 'system:masters',
-        'OU': 'Administração do Kubernetes',
-        'CN': 'kubernetes-admin'
-      })
-    }}"
+    subject:
+        O: system:masters
+        CN: kubernetes-super-admin
     use_common_name_for_san: false
+    basic_constraints:
+      - "CA:FALSE"
+    basic_constraints_critical: true
     key_usage:
       - digitalSignature
     key_usage_critical: true
