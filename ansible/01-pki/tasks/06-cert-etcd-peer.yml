@@ -1,6 +1,6 @@
 # ansible/01-pki/tasks/06-cert-etcd-peer.yml
 ---
-- name: Verificar arquivos existentes da chave para cliente mTLS do peer etcd ({{ manager_host }})
+- name: Verificar arquivos existentes da chave para cliente mTLS do peer Etcd ({{ manager_host }})
   ansible.builtin.stat:
     path: "{{ arquivo }}"
   loop:
@@ -12,7 +12,7 @@
   register: etcd_peer_arquivos
   delegate_to: localhost
 
-- name: Criar chave privada do certificado para cliente mTLS do peer etcd ({{ manager_host }})
+- name: Criar chave privada do certificado para cliente mTLS do peer Etcd ({{ manager_host }})
   community.crypto.openssl_privatekey:
     path: "{{ pki_certs.etcd_peer.path_chave | format(manager_host) }}"
     type: "{{ pki_cifra_tipo }}"
@@ -22,7 +22,7 @@
   when: not etcd_peer_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
 
-- name: Gerar CSR do certificado para cliente mTLS do peer etcd ({{ manager_host }})
+- name: Gerar CSR do certificado para cliente mTLS do peer Etcd ({{ manager_host }})
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_certs.etcd_peer.path_chave | format(manager_host) }}"
     digest: "{{ pki_algoritmo_hash }}"
@@ -44,7 +44,7 @@
   delegate_to: localhost
   register: etcd_peer_csr
 
-- name: Assinar certificado para cliente mTLS do peer etcd ({{ manager_host }}) com o respectivo CA intermediário
+- name: Assinar certificado para cliente mTLS do peer Etcd ({{ manager_host }}) com o respectivo CA intermediário
   community.crypto.x509_certificate:
     path: "{{ pki_certs.etcd_peer.path_cert | format(manager_host) }}"
     csr_content: "{{ etcd_peer_csr.csr }}"
