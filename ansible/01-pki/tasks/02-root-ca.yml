@@ -8,7 +8,7 @@
     - "{{ pki_root_ca.path_cert }}"
   loop_control:
     loop_var: arquivo
-    label: "{{ arquivo | relpath(pasta_artefatos) }}"
+    label: "{{ arquivo | relpath(playbook_dir) }}"
   register: ca_root_arquivos
   delegate_to: localhost
 

@@ -8,7 +8,7 @@
     - "{{ pki_certs.kube_apiserver_kubelet_cli.path_cert }}"
   loop_control:
     loop_var: arquivo
-    label: "{{ arquivo | relpath(pasta_artefatos) }}"
+    label: "{{ arquivo | relpath(playbook_dir) }}"
   register: kube_apiserver_kubelet_cli_arquivos
   delegate_to: localhost
 

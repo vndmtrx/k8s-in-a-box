@@ -8,7 +8,7 @@
     - "{{ pki_certs.etcd_server.path_cert | format(manager_host) }}"
   loop_control:
     loop_var: arquivo
-    label: "{{ arquivo | relpath(pasta_artefatos) }}"
+    label: "{{ arquivo | relpath(playbook_dir) }}"
   register: etcd_server_arquivos
   delegate_to: localhost
 

@@ -14,4 +14,4 @@
   loop: "{{ pki_pastas.values() | list }}"
   loop_control:
     loop_var: pasta
-    label: "{{ pasta | relpath(pasta_artefatos) }}"
+    label: "{{ pasta | relpath(playbook_dir) }}"
