@@ -1,0 +1,25 @@
+# ansible/03-haproxy/tasks/02-configuracao.yml
+---
+- name: Verificar sintaxe do template HAProxy
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /tmp/haproxy.cfg.check
+    mode: '0644'
+    validate: 'haproxy -c -f %s'
+  check_mode: true
+
+- name: Criar configuração do HAProxy
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    mode: '0644'
+    owner: root
+    group: root
+    validate: 'haproxy -c -f %s'
+    backup: yes
+
+- name: Reiniciar HAProxy
+  ansible.builtin.systemd:
+    name: haproxy
+    state: reloaded
+    daemon_reload: true

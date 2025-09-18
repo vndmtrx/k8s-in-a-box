@@ -1,0 +1,16 @@
+# ansible/haproxy/defaults/main.yml
+---
+# Timeouts
+haproxy_timeout_connect: 5s
+haproxy_timeout_client: 1h
+haproxy_timeout_server: 1h
+haproxy_timeout_tunnel: 12h
+haproxy_timeout_check: 5s
+haproxy_retries: 3
+
+# Credenciais
+haproxy_stats_usr: "admin"
+haproxy_stats_senha: "senha_muito_segura!"
+
+# Portas
+porta_haproxy_stats: 9000
