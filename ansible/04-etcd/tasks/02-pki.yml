@@ -1,0 +1,58 @@
+# ansible/04-etcd/tasks/02-pki.yml
+---
+- name: Criar estrutura de diretórios para certificados do etcd
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: etcd
+    group: etcd
+    mode: "0750"
+  loop:
+    - /etc/etcd/pki/server
+    - /etc/etcd/pki/peer
+    - /etc/etcd/pki/ca
+
+# Certificados CA (comuns a todos)
+- name: Copiar certificado CA
+  ansible.builtin.copy:
+    src: "{{ pki_cas.etcd.path_cert }}"
+    dest: "/etc/etcd/pki/ca/{{ pki_cas.etcd.path_cert | basename }}"
+    owner: etcd
+    group: etcd
+    mode: "0644"
+
+# Certificados do servidor (específico do nó)
+- name: Copiar certificados do servidor
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: etcd
+    group: etcd
+    mode: "0600"
+  loop:
+    - src: "{{ pki_certs.etcd_server.path_cert | format(inventory_hostname) }}"
+      dest: "/etc/etcd/pki/server/{{ pki_certs.etcd_server.path_cert | format(inventory_hostname) | basename }}"
+    - src: "{{ pki_certs.etcd_server.path_chave | format(inventory_hostname) }}"
+      dest: "/etc/etcd/pki/server/{{ pki_certs.etcd_server.path_chave | format(inventory_hostname) | basename }}"
+
+# Certificados peer (todos os certificados para comunicação mútua)
+- name: Copiar certificados peer do nó atual
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: etcd
+    group: etcd
+    mode: "0600"
+  loop:
+    - src: "{{ pki_certs.etcd_peer.path_cert | format(inventory_hostname) }}"
+      dest: "/etc/etcd/pki/peer/{{ pki_certs.etcd_peer.path_cert | format(inventory_hostname) | basename }}"
+    - src: "{{ pki_certs.etcd_peer.path_chave | format(inventory_hostname) }}"
+      dest: "/etc/etcd/pki/peer/{{ pki_certs.etcd_peer.path_chave | format(inventory_hostname) | basename }}"
+
+- name: Criar arquivo do secret JWT para etcd
+  copy:
+    content: "{{ etcd_jwt_token | hash('sha256') }}"
+    dest: "/etc/etcd/jwt-secret"
+    mode: '0600'
+    owner: etcd
+    group: etcd
