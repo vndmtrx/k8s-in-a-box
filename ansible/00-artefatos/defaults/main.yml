@@ -1,7 +1,12 @@
 # ansible/00-artefatos/defaults/main.yml
 ---
 download_artefatos:
-  - nome: "tailspin"
+  - nome: "tailspin-bin"
     url: "https://github.com/bensadeh/tailspin/releases/latest/download/tailspin-x86_64-unknown-linux-musl.tar.gz"
     arquivo: "tailspin.tar.gz"
     checksum: ""   # vazio = ignora
+
+  - nome: "etcd-bin"
+    url: "https://github.com/etcd-io/etcd/releases/download/{{ versao_etcd }}/etcd-{{ versao_etcd }}-linux-amd64.tar.gz"
+    arquivo: "etcd-bin.tar.gz"
+    checksum: "sha256:4d5f3101daa534e45ccaf3eec8d21c19b7222db377bcfd5e5a9144155238c105"
