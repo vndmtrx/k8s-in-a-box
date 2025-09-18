@@ -2,6 +2,6 @@
 ---
 download_artefatos:
   - nome: "tailspin"
-    url: "https://github.com/bensadeh/tailspin/releases/latest/download/tailspin-aarch64-unknown-linux-musl.tar.gz"
+    url: "https://github.com/bensadeh/tailspin/releases/latest/download/tailspin-x86_64-unknown-linux-musl.tar.gz"
     arquivo: "tailspin.tar.gz"
     checksum: ""   # vazio = ignora
