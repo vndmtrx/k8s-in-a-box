@@ -42,13 +42,6 @@ pki_pastas:
 # Configuração que decide se os certificados serão regerados
 pki_regerar_certs: true
 
-# Configurações padrão para todos os certificados
-pki_subject_padrao: &pki_subject_padrao
-  C: BR
-  ST: Minas Gerais
-  L: Uberlandia
-  O: K8s-in-a-Box
-
 # Configurações para o Root CA
 pki_root_ca:
   path_chave: "{{ pki_pastas.ca }}/root-ca-priv.pem"

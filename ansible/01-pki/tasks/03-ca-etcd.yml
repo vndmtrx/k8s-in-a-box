@@ -26,12 +26,8 @@
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_cas.etcd.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
-    subject: "{{ pki_subject_padrao 
-      | combine({
-        'OU': 'Autoridade Intermediaria Etcd',
-        'CN': 'K8s-in-a-Box Etcd CA'
-      })
-    }}"
+    subject:
+      CN: etcd-ca
     use_common_name_for_san: false
     basic_constraints:
         - "CA:TRUE"

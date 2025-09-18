@@ -26,13 +26,12 @@
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_certs.etcd_apiserver_cli.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
-    subject: "{{ pki_subject_padrao 
-      | combine({
-        'OU': 'Cliente Etcd para API Server',
-        'CN': 'etcd-apiserver-client'
-      })
-    }}"
+    subject:
+      CN: kube-apiserver-etcd-client
     use_common_name_for_san: false
+    basic_constraints:
+      - "CA:FALSE"
+    basic_constraints_critical: true
     key_usage:
       - digitalSignature
     key_usage_critical: true

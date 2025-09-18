@@ -26,13 +26,13 @@
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_certs.kube_proxy.path_chave | format(node_host) }}"
     digest: "{{ pki_algoritmo_hash }}"
-    subject: "{{ pki_subject_padrao 
-      | combine({
-        'OU': 'system:node-proxier',
-        'CN': 'system:kube-proxy'
-      })
-    }}"
+    subject:
+      O: system:node-proxier
+      CN: system:kube-proxy
     use_common_name_for_san: false
+    basic_constraints:
+      - "CA:FALSE"
+    basic_constraints_critical: true
     key_usage:
       - digitalSignature
     key_usage_critical: true

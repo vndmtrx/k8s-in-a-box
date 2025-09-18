@@ -26,13 +26,12 @@
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_certs.kube_scheduler.path_chave | format(manager_host) }}"
     digest: "{{ pki_algoritmo_hash }}"
-    subject: "{{ pki_subject_padrao 
-      | combine({
-        'OU': 'Kubernetes Scheduler',
-        'CN': 'system:kube-scheduler'
-      })
-    }}"
+    subject:
+      CN: system:kube-scheduler
     use_common_name_for_san: false
+    basic_constraints:
+      - "CA:FALSE"
+    basic_constraints_critical: true
     key_usage:
       - digitalSignature
     key_usage_critical: true

@@ -26,14 +26,13 @@
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_certs.admin_account.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
-    subject: "{{ pki_subject_padrao 
-      | combine({
-        'O': 'system:masters',
-        'OU': 'Administração do Kubernetes',
-        'CN': 'kubernetes-admin'
-      })
-    }}"
+    subject:
+        O: system:masters
+        CN: kubernetes-super-admin
     use_common_name_for_san: false
+    basic_constraints:
+      - "CA:FALSE"
+    basic_constraints_critical: true
     key_usage:
       - digitalSignature
     key_usage_critical: true
