@@ -38,13 +38,6 @@
         - etcd
         - etcdctl
 
-    - name: Copiar documentação DO Etcd
-      ansible.builtin.copy:
-        src: "/tmp/etcd-{{ versao_etcd }}-linux-amd64/Documentation/"
-        dest: "/var/lib/etcd/docs/"
-        mode: "0644"
-        remote_src: true
-
     - name: Criar usuário etcd
       ansible.builtin.user:
         name: etcd
