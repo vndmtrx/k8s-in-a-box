@@ -1,0 +1,53 @@
+---
+# Configuração do nó {{ inventory_hostname }}
+name: {{ inventory_hostname }}
+data-dir: /var/lib/etcd
+
+# URLs cliente (HTTPS)
+listen-client-urls: https://{{ ansible_host }}:{{ porta_etcd_https }},https://127.0.0.1:{{ porta_etcd_https }}
+advertise-client-urls: https://{{ fqdn }}:{{ porta_etcd_https }}
+
+# URLs peer
+listen-peer-urls: https://{{ ansible_host }}:{{ porta_etcd_peers }}
+initial-advertise-peer-urls: https://{{ fqdn }}:{{ porta_etcd_peers }}
+
+# URL de métricas
+listen-metrics-urls: http://{{ ansible_host }}:{{ porta_etcd_metricas }}
+
+# Configuração do cluster
+initial-cluster: {% for host in groups['managers'] %}{{ host }}=https://{{ hostvars[host].fqdn }}:{{ porta_etcd_peers }}{% if not loop.last %},{% endif %}{% endfor %}
+
+initial-cluster-token: etcd-cluster-k8s
+initial-cluster-state: new
+
+# Segurança TLS
+client-transport-security:
+  cert-file: /etc/etcd/pki/server/{{ pki_certs.etcd_server.path_cert | format(inventory_hostname) | basename }}
+  key-file: /etc/etcd/pki/server/{{ pki_certs.etcd_server.path_chave | format(inventory_hostname) | basename }}
+  trusted-ca-file: /etc/etcd/pki/ca/{{ pki_cas.etcd.path_cert | basename }}
+  client-cert-auth: true
+
+peer-transport-security:
+  cert-file: /etc/etcd/pki/peer/{{ pki_certs.etcd_peer.path_cert | format(inventory_hostname) | basename }}
+  key-file: /etc/etcd/pki/peer/{{ pki_certs.etcd_peer.path_chave | format(inventory_hostname) | basename }}
+  trusted-ca-file: /etc/etcd/pki/ca/{{ pki_cas.etcd.path_cert | basename }}
+  client-cert-auth: true
+  auto-tls: false
+
+# Configurações de eleição e consenso
+election-timeout: 1000           # Tempo máximo para eleição de líder (ms)
+heartbeat-interval: 100          # Intervalo de heartbeat (ms)
+auto-compaction-retention: "1"   # Compactação automática a cada 1 hora
+
+# Configurações de performance e limites
+quota-backend-bytes: 8589934592  # 8GB máximo de banco de dados
+max-request-bytes: 1572864       # 1.5MB máximo por requisição
+max-snapshots: 5                 # Número máximo de snapshots mantidos
+max-wals: 5                      # Número máximo de WAL files mantidos
+
+# Configurações de log
+log-level: info
+logger: zap
+
+# Configurações de autenticação
+auth-token: "jwt,sign-method=HS256,ttl=60m,priv-key=/etc/etcd/jwt-secret"

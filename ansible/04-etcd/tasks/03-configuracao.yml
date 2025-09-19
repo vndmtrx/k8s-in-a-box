@@ -1,0 +1,9 @@
+# ansible/04-etcd/tasks/03-configuracao.yml
+---
+- name: Criar arquivo de configuração
+  ansible.builtin.template:
+    src: etcd.conf.yml.j2
+    dest: /etc/etcd/etcd.conf.yml
+    owner: etcd
+    group: etcd
+    mode: "0600"
