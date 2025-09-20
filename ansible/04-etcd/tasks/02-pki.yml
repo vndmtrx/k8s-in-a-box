@@ -34,6 +34,8 @@
       dest: "/etc/etcd/pki/server/{{ pki_certs.etcd_server.path_cert | format(inventory_hostname) | basename }}"
     - src: "{{ pki_certs.etcd_server.path_chave | format(inventory_hostname) }}"
       dest: "/etc/etcd/pki/server/{{ pki_certs.etcd_server.path_chave | format(inventory_hostname) | basename }}"
+  loop_control:
+    label: "{{ item.dest }}"
 
 # Certificados peer (todos os certificados para comunicação mútua)
 - name: Copiar certificados peer do nó atual
@@ -48,3 +50,5 @@
       dest: "/etc/etcd/pki/peer/{{ pki_certs.etcd_peer.path_cert | format(inventory_hostname) | basename }}"
     - src: "{{ pki_certs.etcd_peer.path_chave | format(inventory_hostname) }}"
       dest: "/etc/etcd/pki/peer/{{ pki_certs.etcd_peer.path_chave | format(inventory_hostname) | basename }}"
+  loop_control:
+    label: "{{ item.dest }}"
