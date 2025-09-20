@@ -34,6 +34,8 @@ lint: # Checagem da estrutura do Ansible
 	@command -v ansible-lint >/dev/null 2>&1 || { echo "ansible-lint não está instalado."; exit 1; }
 	@ansible-lint -q ansible/ || true
 
+# Tasks com encadeamento de execução
+
 artefatos: up apenas_artefatos ## Executa todas as dependências para a role artefatos
 
 pki: artefatos apenas_pki ## Executa todas as dependências para a role pki
@@ -43,6 +45,10 @@ sistema: pki apenas_sistema ## Executa todas as dependências para a role pki
 haproxy: sistema apenas_haproxy ## Executa todas as dependências para a role haproxy
 
 etcd: haproxy apenas_etcd ## Executa todas as dependências para a role etcd
+
+k8sbase: etcd apenas_k8sbase ## Executa todas as dependências para a role k8sbase
+
+# Tasks independentes, para executar individualmente (para evitar executar toda a pipeline, ou após um restore de snapshot)
 
 apenas_artefatos: ## Executa apenas a role artefatos (use com um snapshot da máquina não provisionada)
 	@echo "Executando role artefatos..."
@@ -57,12 +63,16 @@ apenas_sistema: ## Executa apenas a role sistema (use com um snapshot de pki)
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags sistema
 
 apenas_haproxy: ## Executa apenas a role haproxy (use com um snapshot de sistema)
-	@echo "Executando role sistema..."
+	@echo "Executando role haproxy..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags haproxy
 
 apenas_etcd: ## Executa apenas a role etcd (use com um snapshot de haproxy)
-	@echo "Executando role sistema..."
+	@echo "Executando role etcd..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags etcd
+
+apenas_k8sbase: ## Executa apenas a role k8sbase (use com um snapshot de haproxy)
+	@echo "Executando role k8sbase..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags k8s-base
 
 snapshot: ## Cria uma snapshot única (sempre sobrescreve)
 	@if vagrant status | grep -q "not created"; then \

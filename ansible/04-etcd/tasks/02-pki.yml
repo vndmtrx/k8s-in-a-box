@@ -4,7 +4,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    owner: etcd
+    owner: root
     group: etcd
     mode: "0750"
   loop:
@@ -17,7 +17,7 @@
   ansible.builtin.copy:
     src: "{{ pki_cas.etcd.path_cert }}"
     dest: "/etc/etcd/pki/ca/{{ pki_cas.etcd.path_cert | basename }}"
-    owner: etcd
+    owner: root
     group: etcd
     mode: "0644"
 
@@ -26,25 +26,29 @@
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    owner: etcd
+    owner: root
     group: etcd
-    mode: "0600"
+    mode: "0640"
   loop:
     - src: "{{ pki_certs.etcd_server.path_cert | format(inventory_hostname) }}"
       dest: "/etc/etcd/pki/server/{{ pki_certs.etcd_server.path_cert | format(inventory_hostname) | basename }}"
     - src: "{{ pki_certs.etcd_server.path_chave | format(inventory_hostname) }}"
       dest: "/etc/etcd/pki/server/{{ pki_certs.etcd_server.path_chave | format(inventory_hostname) | basename }}"
+  loop_control:
+    label: "{{ item.dest }}"
 
 # Certificados peer (todos os certificados para comunicação mútua)
 - name: Copiar certificados peer do nó atual
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    owner: etcd
+    owner: root
     group: etcd
-    mode: "0600"
+    mode: "0640"
   loop:
     - src: "{{ pki_certs.etcd_peer.path_cert | format(inventory_hostname) }}"
       dest: "/etc/etcd/pki/peer/{{ pki_certs.etcd_peer.path_cert | format(inventory_hostname) | basename }}"
     - src: "{{ pki_certs.etcd_peer.path_chave | format(inventory_hostname) }}"
       dest: "/etc/etcd/pki/peer/{{ pki_certs.etcd_peer.path_chave | format(inventory_hostname) | basename }}"
+  loop_control:
+    label: "{{ item.dest }}"
