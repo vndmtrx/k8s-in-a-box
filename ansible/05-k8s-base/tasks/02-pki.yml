@@ -1,0 +1,16 @@
+# ansible/05-k8s-base/tasks/02-pki.yml
+---
+- name: Copiar certificados dos CAs
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: kubernetes
+    group: kubernetes
+    mode: "0644"
+  loop:
+    - src: "{{ pki_cas.kubernetes.path_cert }}"
+      dest: "/etc/kubernetes/pki/{{ pki_cas.kubernetes.path_cert | basename }}"
+    - src: "{{ pki_cas.etcd.path_cert }}"
+      dest: "/etc/kubernetes/pki/{{ pki_cas.etcd.path_cert | basename }}"
+  loop_control:
+    label: "{{ item.dest }}"

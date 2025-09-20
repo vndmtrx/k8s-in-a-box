@@ -1,0 +1,39 @@
+# ansible/05-k8s-base/tasks/01-setup.yml
+---
+- name: Desabilitar swap
+  ansible.builtin.command:
+    cmd: swapoff -a
+  changed_when: false
+
+- name: Remover entrada de swap do /etc/fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s.*)'
+    replace: '# \1'
+
+- name: Criar usuário kubernetes
+  ansible.builtin.user:
+    name: kubernetes
+    system: true
+    shell: /usr/sbin/nologin
+    home: /var/lib/kubernetes
+    create_home: false
+
+- name: Criar diretório de configuração
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: kubernetes
+    mode: "0750"
+  loop:
+    - /etc/kubernetes
+    - /etc/kubernetes/pki
+
+- name: Criar diretório de trabalho do Kubernetes
+  ansible.builtin.file:
+    path: /var/lib/kubernetes
+    state: directory
+    owner: kubernetes
+    group: kubernetes
+    mode: "0700"
