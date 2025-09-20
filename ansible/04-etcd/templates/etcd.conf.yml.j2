@@ -38,9 +38,11 @@ peer-transport-security:
 election-timeout: 1000           # Tempo máximo para eleição de líder (ms)
 heartbeat-interval: 100          # Intervalo de heartbeat (ms)
 auto-compaction-retention: "1"   # Compactação automática a cada 1 hora
+strict-reconfig-check: true      # Evita configurações que podem gerar perda de quorum
 
 # Configurações de performance e limites
 quota-backend-bytes: 8589934592  # 8GB máximo de banco de dados
+snapshot-count: 10000            # Número de transações commitadas para gerar um snapshot
 max-request-bytes: 1572864       # 1.5MB máximo por requisição
 max-snapshots: 5                 # Número máximo de snapshots mantidos
 max-wals: 5                      # Número máximo de WAL files mantidos
@@ -48,6 +50,4 @@ max-wals: 5                      # Número máximo de WAL files mantidos
 # Configurações de log
 log-level: info
 logger: zap
-
-# Configurações de autenticação
-auth-token: "jwt,sign-method=HS256,ttl=60m,priv-key=/etc/etcd/jwt-secret"
+log-outputs: ["systemd/journal"]
