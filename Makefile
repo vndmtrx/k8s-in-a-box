@@ -1,3 +1,6 @@
+PHONY_TARGETS := $(shell grep -E '^[a-zA-Z0-9_-]+:' Makefile | cut -d: -f1)
+.PHONY: $(PHONY_TARGETS)
+
 SHELL := /usr/bin/env bash
 ARTEFATOS := artefatos
 SNAP := makefile_snapshot
@@ -8,8 +11,6 @@ VERBOSE ?=
 ANSIBLE_VERBOSE := $(if $(VERBOSE),-$(VERBOSE),)
 
 .DEFAULT_GOAL := help
-
-.PHONY: artefatos pki sistema haproxy etcd k8s_base
 
 help: ## Mostra esta ajuda
 	@echo "Lista de targets:"; \
@@ -28,6 +29,10 @@ destroy: ## Destroi as VMs
 
 clean: destroy ## Destroi as VMs e remove todos os arquivos gerados automaticamente
 	rm -rf $(ARTEFATOS) .vagrant id_ed25519 id_ed25519.pub
+
+lint: # Checagem da estrutura do Ansible
+	@command -v ansible-lint >/dev/null 2>&1 || { echo "ansible-lint não está instalado."; exit 1; }
+	@ansible-lint -q ansible/ || true
 
 artefatos: up apenas_artefatos ## Executa todas as dependências para a role artefatos
 
