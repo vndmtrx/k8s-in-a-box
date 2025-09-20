@@ -1,14 +1,5 @@
 # ansible/04-etcd/tasks/01-instalacao.yml
 ---
-- name: Criar diretórios do etcd no padrão do AlmaLinux
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    mode: "0755"
-  loop:
-    - /etc/etcd
-    - /var/lib/etcd
-
 - name: Verificar se o executável do Etcd já está instalado na VM
   ansible.builtin.stat:
     path: "/usr/local/bin/etcd"
@@ -38,7 +29,7 @@
         - etcd
         - etcdctl
 
-    - name: Criar usuário etcd
+    - name: Criar usuário Etcd
       ansible.builtin.user:
         name: etcd
         system: true
@@ -46,17 +37,17 @@
         home: /var/lib/etcd
         create_home: false
 
-    - name: Ajustar permissões dos diretórios
+    - name: Ajustar permissões do diretório de configuração
       ansible.builtin.file:
         path: "{{ item }}"
         state: directory
-        owner: etcd
+        owner: root
         group: etcd
         mode: "0750"
       loop:
         - /etc/etcd
 
-    - name: Ajuste extra de permissões
+    - name: Ajuste da pasta de trabalho do Etcd
       ansible.builtin.file:
         path: "{{ item }}"
         state: directory
