@@ -14,6 +14,10 @@
     dest: /etc/systemd/system/etcd.service
     mode: "0644"
 
+- name: Forçar sincronização imediata do relógio com NTP (chrony)
+  ansible.builtin.command: chronyc -a makestep
+  changed_when: true
+
 - name: Garantir serviço ativo
   ansible.builtin.systemd:
     name: etcd

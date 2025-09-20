@@ -26,6 +26,7 @@ client-transport-security:
   key-file: /etc/etcd/pki/server/{{ pki_certs.etcd_server.path_chave | format(inventory_hostname) | basename }}
   trusted-ca-file: /etc/etcd/pki/ca/{{ pki_cas.etcd.path_cert | basename }}
   client-cert-auth: true
+  auto-tls: false
 
 peer-transport-security:
   cert-file: /etc/etcd/pki/peer/{{ pki_certs.etcd_peer.path_cert | format(inventory_hostname) | basename }}
@@ -42,12 +43,10 @@ strict-reconfig-check: true      # Evita configurações que podem gerar perda d
 
 # Configurações de performance e limites
 quota-backend-bytes: 8589934592  # 8GB máximo de banco de dados
-snapshot-count: 10000            # Número de transações commitadas para gerar um snapshot
 max-request-bytes: 1572864       # 1.5MB máximo por requisição
-max-snapshots: 5                 # Número máximo de snapshots mantidos
 max-wals: 5                      # Número máximo de WAL files mantidos
 
 # Configurações de log
 log-level: info
 logger: zap
-log-outputs: ["systemd/journal"]
+log-outputs: ["stderr"]
