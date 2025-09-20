@@ -48,11 +48,3 @@
       dest: "/etc/etcd/pki/peer/{{ pki_certs.etcd_peer.path_cert | format(inventory_hostname) | basename }}"
     - src: "{{ pki_certs.etcd_peer.path_chave | format(inventory_hostname) }}"
       dest: "/etc/etcd/pki/peer/{{ pki_certs.etcd_peer.path_chave | format(inventory_hostname) | basename }}"
-
-- name: Criar arquivo do secret JWT para etcd
-  copy:
-    content: "{{ etcd_jwt_token | hash('sha256') }}"
-    dest: "/etc/etcd/jwt-secret"
-    mode: '0600'
-    owner: etcd
-    group: etcd
