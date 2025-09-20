@@ -113,7 +113,7 @@ pki_certs:
     ca_pai: "{{ pki_cas['kubernetes'] }}"
 
 ##############################################
-### Configurações para a role 02-artefatos ###
+### Configurações para a role 00-artefatos ###
 ##############################################
 
 # Para verificar as versões e os checksums:
