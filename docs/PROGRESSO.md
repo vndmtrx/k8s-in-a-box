@@ -21,17 +21,15 @@
 - [x] Certificados de administração
 
 ### 🔄 Load Balancer
-- [ ] Instalação do HAProxy
-- [ ] Configuração do balanceamento do kube-apiserver
-- [ ] Configuração do balanceamento do etcd
-- [ ] Configuração do monitoramento de saúde (health checks)
-- [ ] Interface de estatísticas do HAProxy
+- [x] Instalação do HAProxy
+- [x] Configuração do balanceamento do kube-apiserver
+- [x] Configuração do balanceamento do etcd
+- [x] Configuração do monitoramento de saúde (health checks)
+- [x] Interface de estatísticas do HAProxy
 
 ### 📦 Cluster etcd
-- [ ] Instalação do etcd
-- [ ] Configuração do cluster etcd
-- [ ] Configuração de backups
-- [ ] Monitoramento do cluster
+- [x] Instalação do etcd
+- [x] Configuração do cluster etcd
 
 ### 🎮 Control Plane
 - [ ] Instalação do kube-apiserver
