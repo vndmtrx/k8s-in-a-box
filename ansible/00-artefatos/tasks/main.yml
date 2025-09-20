@@ -8,6 +8,3 @@
 
 - name: Baixar artefatos necessários no host
   ansible.builtin.include_tasks: download-artefatos.yml
-  loop: "{{ download_artefatos }}"
-  loop_control:
-    label: "{{ item.nome }}"
