@@ -1,7 +1,0 @@
-# ansible/etcd/tasks/pre-tasks.yml
----
-- name: Instala logrotate para rotacionar os logs do etcd
-  ansible.builtin.apt:
-    name:
-      - logrotate
-    state: present
