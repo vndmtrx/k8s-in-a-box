@@ -7,6 +7,20 @@
     state: disabled
   notify: Reboot Necessário
 
+- name: Garantir que chronyd está ativo
+  ansible.builtin.service:
+    name: chronyd
+    state: started
+    enabled: true
+
+- name: Configurar makestep no chrony.conf (para problemas de sincronia com snapshots)
+  ansible.builtin.lineinfile:
+    path: /etc/chrony.conf
+    regexp: '^makestep'
+    line: 'makestep 1.0 -1'
+    state: present
+  notify: Reiniciar chronyd
+
 - name: Atualizar cache do dnf
   become: true
   ansible.builtin.dnf:

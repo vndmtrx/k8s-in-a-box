@@ -5,3 +5,8 @@
     connect_timeout: 15
     reboot_timeout: 300
     post_reboot_delay: 10
+
+- name: Reiniciar chronyd
+  ansible.builtin.service:
+    name: chronyd
+    state: restarted
