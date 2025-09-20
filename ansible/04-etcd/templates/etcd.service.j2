@@ -1,0 +1,40 @@
+[Unit]
+Description=etcd - Distributed key-value store
+Documentation=https://etcd.io/docs
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=etcd
+Group=etcd
+WorkingDirectory=/var/lib/etcd
+EnvironmentFile=-/etc/default/etcd
+ExecStart=/usr/local/bin/etcd --config-file=/etc/etcd/etcd.conf.yml
+Restart=on-failure
+RestartSec=10
+LimitNOFILE=65536
+LimitNPROC=65536
+
+# Configurações de segurança
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ReadWritePaths=/var/lib/etcd
+
+# Configuração de logs
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=etcd
+
+# Configuração de rotação de logs
+LogRateLimitIntervalSec=0
+LogRateLimitBurst=0
+
+[Install]
+WantedBy=multi-user.target

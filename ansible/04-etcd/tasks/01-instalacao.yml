@@ -1,0 +1,74 @@
+# ansible/04-etcd/tasks/01-instalacao.yml
+---
+- name: Criar diretórios do etcd no padrão do AlmaLinux
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - /etc/etcd
+    - /var/lib/etcd
+
+- name: Verificar se o executável do Etcd já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/etcd"
+  register: etcd_bin
+
+- block:
+    - name: Copiar Etcd para a VM (em /tmp)
+      ansible.builtin.copy:
+        src: "{{ pasta_temporarios }}/etcd-bin.tar.gz"
+        dest: "/tmp/etcd-bin.tar.gz"
+        mode: "0644"
+
+    - name: Descompactar Etcd em /usr/local/bin
+      ansible.builtin.unarchive:
+        src: "/tmp/etcd-bin.tar.gz"
+        dest: "/tmp"
+        remote_src: true
+        mode: "0755"
+
+    - name: Instalar binários do Etcd
+      ansible.builtin.copy:
+        src: "/tmp/etcd-{{ versao_etcd }}-linux-amd64/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+        mode: "0755"
+        remote_src: true
+      loop:
+        - etcd
+        - etcdctl
+
+    - name: Criar usuário etcd
+      ansible.builtin.user:
+        name: etcd
+        system: true
+        shell: /usr/sbin/nologin
+        home: /var/lib/etcd
+        create_home: false
+
+    - name: Ajustar permissões dos diretórios
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: etcd
+        group: etcd
+        mode: "0750"
+      loop:
+        - /etc/etcd
+
+    - name: Ajuste extra de permissões
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: etcd
+        group: etcd
+        mode: "0700"
+      loop:
+        - /var/lib/etcd
+
+  always:
+    - name: Remover arquivo temporário do Etcd
+      ansible.builtin.file:
+        path: "/tmp/etcd-bin.tar.gz"
+        state: absent
+  when: not etcd_bin.stat.exists

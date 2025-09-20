@@ -10,3 +10,4 @@ pacotes_extras:
   - mtr
   - nano
   - dnf-utils
+  - bash-completion

@@ -1,4 +1,4 @@
-# ansible/haproxy/defaults/main.yml
+# ansible/03-haproxy/defaults/main.yml
 ---
 # Timeouts
 haproxy_timeout_connect: 5s

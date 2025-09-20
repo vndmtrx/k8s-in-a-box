@@ -45,7 +45,7 @@ backend k8s_api_backend
     balance roundrobin
     option tcp-check
 {% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_kubeapiserver }} check inter 5s rise 2 fall 3
+    server {{ host }} {{ hostvars[host].fqdn }}:{{ porta_kubeapiserver }} check inter 5s rise 2 fall 3
 {% endfor %}
 
 # Backend para a porta HTTPS do etcd
@@ -54,7 +54,7 @@ backend etcd_https_backend
     balance roundrobin
     option tcp-check
 {% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ porta_etcd_https }} check port {{ porta_etcd_metricas }} inter 5s rise 2 fall 3
+    server {{ host }} {{ hostvars[host].fqdn }}:{{ porta_etcd_https }} check port {{ porta_etcd_metricas }} observe layer4 error-limit 50 on-error mark-down inter 5s rise 2 fall 3
 {% endfor %}
 
 # Frontend para estatísticas e administração
@@ -65,6 +65,7 @@ frontend stats
     stats uri /stats
     stats show-node
     stats show-legends
+    stats show-modules
     stats show-desc K8s e Etcd
     stats refresh 10s
     stats admin if TRUE

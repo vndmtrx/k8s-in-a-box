@@ -1,5 +1,12 @@
 # ansible/02-sistema/tasks/1-base.yml
 ---
+- name: Colocar SELinux em modo desabilitado (iremos tratar do SELinux no futuro)
+  become: true
+  ansible.posix.selinux:
+    policy: targeted
+    state: disabled
+  notify: Reboot Necessário
+
 - name: Atualizar cache do dnf
   become: true
   ansible.builtin.dnf:
@@ -31,10 +38,7 @@
   register: reboot_check
   ignore_errors: true
   changed_when: reboot_check.rc == 1
-
-- name: Reiniciar se necessário
-  ansible.builtin.reboot:
-  when: reboot_check.rc == 1
+  notify: Reboot Necessário
 
 - name: Configurar o TZ para o especificado em defaults
   community.general.timezone:
@@ -56,12 +60,6 @@
     group: "root"
     mode: "0644"
 
-- name: Colocar SELinux em modo desabilitado (iremos tratar do SELinux no futuro)
-  become: true
-  ansible.posix.selinux:
-    policy: targeted
-    state: disabled
-
 - name: Verificar se Tailspin já está instalado na VM
   ansible.builtin.stat:
     path: "/usr/local/bin/tspin"
@@ -79,6 +77,8 @@
         src: "/tmp/tailspin.tar.gz"
         dest: "/usr/local/bin"
         remote_src: true
+        owner: "root"
+        group: "root"
         mode: "0755"
         creates: "/usr/local/bin/tspin"
 

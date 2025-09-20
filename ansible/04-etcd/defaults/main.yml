@@ -1,0 +1,10 @@
+# ansible/04-etcd/defaults/main.yml
+---
+# Credenciais
+etcd_jwt_token: "token-jwt-realmente-muito-longo-e-seguro!"
+
+# Portas
+porta_etcd_grpc: 2378
+porta_etcd_https: 2379
+porta_etcd_peers: 2380
+porta_etcd_metricas: 2381
