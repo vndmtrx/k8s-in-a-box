@@ -1,11 +1,5 @@
 # ansible/02-sistema/handlers/main.yml
 ---
-- name: Reboot Necessário
-  ansible.builtin.reboot:
-    connect_timeout: 15
-    reboot_timeout: 300
-    post_reboot_delay: 10
-
 - name: Reiniciar chronyd
   ansible.builtin.service:
     name: chronyd
