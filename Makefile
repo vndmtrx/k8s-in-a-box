@@ -30,7 +30,7 @@ destroy: ## Destroi as VMs
 clean: destroy ## Destroi as VMs e remove todos os arquivos gerados automaticamente
 	rm -rf $(ARTEFATOS) .vagrant id_ed25519 id_ed25519.pub
 
-lint: # Checagem da estrutura do Ansible
+lint: ## Checagem da estrutura do Ansible
 	@command -v ansible-lint >/dev/null 2>&1 || { echo "ansible-lint não está instalado."; exit 1; }
 	@ansible-lint -q ansible/ || true
 

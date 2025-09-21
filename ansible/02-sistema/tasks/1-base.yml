@@ -5,7 +5,6 @@
   ansible.posix.selinux:
     policy: targeted
     state: disabled
-  notify: Reboot Necessário
 
 - name: Garantir que chronyd está ativo
   ansible.builtin.service:
@@ -26,12 +25,6 @@
   ansible.builtin.dnf:
     update_cache: true
 
-- name: Instalar pacotes extras necessários
-  become: true
-  ansible.builtin.dnf:
-    name: "{{ pacotes_extras }}"
-    state: present
-
 - name: Atualizar todos os pacotes
   become: true
   ansible.builtin.dnf:
@@ -47,24 +40,35 @@
     state: latest
   when: atualiza_sistema == "patch"
 
+- name: Instalar pacotes extras necessários
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ pacotes_extras }}"
+    state: present
+
 - name: Verificar se precisa reiniciar
   ansible.builtin.command: needs-restarting -r
   register: reboot_check
   ignore_errors: true
   changed_when: reboot_check.rc == 1
-  notify: Reboot Necessário
+  failed_when: reboot_check.rc not in [0, 1]
+
+- name: Reiniciar se necessário
+  ansible.builtin.reboot:
+  when: reboot_check.rc == 1
 
 - name: Configurar o TZ para o especificado em defaults
   community.general.timezone:
     name: "{{ timezone_tz }}"
 
-- name: Configurar locale do sistema para o especificado em defaults
-  ansible.builtin.ini_file:
-    path: /etc/locale.conf
-    section: null
-    option: LANG
-    value: "{{ locale_lang }}"
-    create: yes
+- name: Ler configuração atual do locale
+  ansible.builtin.command: localectl status
+  register: resultado_locale
+  changed_when: false
+
+- name: Configurar locale se necessário
+  ansible.builtin.command: "localectl set-locale LANG={{ locale_lang }}"
+  when: "'LANG=' ~ locale_lang not in resultado_locale.stdout"
 
 - name: Gerar arquivo /etc/hosts para cada nó do cluster
   ansible.builtin.template:
