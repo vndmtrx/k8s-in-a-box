@@ -55,6 +55,11 @@ pki_cas:
     path_cert: "{{ pki_pastas.ca }}/ca-k8s-cert.pem"
     ca_pai: "{{ pki_root_ca }}"
 
+  front_proxy:
+    path_chave: "{{ pki_pastas.ca }}/ca-front-proxy-priv.pem"
+    path_cert: "{{ pki_pastas.ca }}/ca-front-proxy-cert.pem"
+    ca_pai: "{{ pki_root_ca }}"
+
 # Configurações para os certificados
 pki_certs:
   etcd_server:
@@ -81,6 +86,11 @@ pki_certs:
     path_chave: "{{ pki_pastas.k8s }}/kube-apiserver-kubelet-cli-priv.pem"
     path_cert: "{{ pki_pastas.k8s }}/kube-apiserver-kubelet-cli-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
+
+  kube_front_proxy_cli:
+    path_chave: "{{ pki_pastas.k8s }}/kube-front-proxy-cli-priv.pem"
+    path_cert: "{{ pki_pastas.k8s }}/kube-front-proxy-cli-cert.pem"
+    ca_pai: "{{ pki_cas['front_proxy'] }}"
 
   kube_controller_manager:
     path_chave: "{{ pki_pastas.k8s }}/%s-kube-controller-manager-priv.pem"

@@ -1,4 +1,4 @@
-# ansible/01-pki/tasks/07-cert-kube-apiserver.yml
+# ansible/01-pki/tasks/08-cert-kube-apiserver.yml
 ---
 - name: Verificar arquivos existentes da chave do kube-apiserver ({{ manager_host }})
   ansible.builtin.stat:
@@ -38,7 +38,7 @@
     extended_key_usage:
       - serverAuth
     extended_key_usage_critical: true
-    subject_alt_name: "{{ lookup('template', '07-san-kube-apiserver.j2') | from_yaml }}"
+    subject_alt_name: "{{ lookup('template', '08-san-kube-apiserver.j2') | from_yaml }}"
   when: not kube_apiserver_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
   register: kube_apiserver_csr

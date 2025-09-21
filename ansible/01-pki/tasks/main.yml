@@ -8,45 +8,49 @@
 
 - ansible.builtin.include_tasks: 04-ca-kubernetes.yml
 
-- ansible.builtin.include_tasks: 05-cert-etcd-server.yml
+- ansible.builtin.include_tasks: 05-ca-front-proxy.yml
+
+- ansible.builtin.include_tasks: 06-cert-etcd-server.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
 
-- ansible.builtin.include_tasks: 06-cert-etcd-peer.yml
+- ansible.builtin.include_tasks: 07-cert-etcd-peer.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
 
-- ansible.builtin.include_tasks: 07-cert-kube-apiserver.yml
+- ansible.builtin.include_tasks: 08-cert-kube-apiserver.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
 
-- ansible.builtin.include_tasks: 08-cert-kube-apiserver-etcd-cli.yml
+- ansible.builtin.include_tasks: 09-cert-kube-apiserver-etcd-cli.yml
 
-- ansible.builtin.include_tasks: 09-cert-kube-apiserver-kubelet-cli.yml
+- ansible.builtin.include_tasks: 10-cert-kube-apiserver-kubelet-cli.yml
 
-- ansible.builtin.include_tasks: 10-cert-kubelet.yml
+- ansible.builtin.include_tasks: 11-cert-front-proxy-cli.yml
+
+- ansible.builtin.include_tasks: 12-cert-kubelet.yml
   loop: "{{ groups['k8s_nodes'] }}"
   loop_control:
     loop_var: node_host
 
-- ansible.builtin.include_tasks: 11-cert-kube-controller-manager.yml
+- ansible.builtin.include_tasks: 13-cert-kube-controller-manager.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
 
-- ansible.builtin.include_tasks: 12-cert-kube-scheduler.yml
+- ansible.builtin.include_tasks: 14-cert-kube-scheduler.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
 
-- ansible.builtin.include_tasks: 13-cert-kube-proxy.yml
+- ansible.builtin.include_tasks: 15-cert-kube-proxy.yml
   loop: "{{ groups['k8s_nodes'] }}"
   loop_control:
     loop_var: node_host
 
-- ansible.builtin.include_tasks: 14-cert-service-account.yml
+- ansible.builtin.include_tasks: 16-cert-service-account.yml
 
-- ansible.builtin.include_tasks: 15-cert-admin-account.yml
+- ansible.builtin.include_tasks: 17-cert-admin-account.yml

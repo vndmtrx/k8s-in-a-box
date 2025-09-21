@@ -1,4 +1,4 @@
-# ansible/01-pki/tasks/13-cert-kube-proxy.yml
+# ansible/01-pki/tasks/15-cert-kube-proxy.yml
 ---
 - name: Verificar arquivos existentes da chave do kube-proxy ({{ node_host }})
   ansible.builtin.stat:
@@ -39,7 +39,7 @@
     extended_key_usage:
       - clientAuth
     extended_key_usage_critical: true
-    subject_alt_name: "{{ lookup('template', '13-san-kube-proxy.j2') | from_yaml }}"
+    subject_alt_name: "{{ lookup('template', '15-san-kube-proxy.j2') | from_yaml }}"
   when: not kube_proxy_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
   register: kube_proxy_csr
