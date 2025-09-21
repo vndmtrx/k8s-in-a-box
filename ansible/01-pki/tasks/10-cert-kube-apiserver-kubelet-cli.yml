@@ -1,4 +1,4 @@
-# ansible/01-pki/tasks/09-cert-kube-apiserver-kubelet-cli.yml
+# ansible/01-pki/tasks/10-cert-kube-apiserver-kubelet-cli.yml
 ---
 - name: Verificar arquivos existentes da chave para cliente do kube-apiserver para Kubelet
   ansible.builtin.stat:
@@ -38,7 +38,7 @@
     extended_key_usage:
       - clientAuth
     extended_key_usage_critical: true
-    subject_alt_name: "{{ lookup('template', '09-san-kube-apiserver-kubelet-cli.j2') | from_yaml }}"
+    subject_alt_name: "{{ lookup('template', '10-san-kube-apiserver-kubelet-cli.j2') | from_yaml }}"
   when: not kube_apiserver_kubelet_cli_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
   register: kube_apiserver_kubelet_cli_csr
