@@ -1,16 +1,17 @@
 [Unit]
-Description=etcd - Distributed key-value store
-Documentation=https://etcd.io/docs
+Description=Kubernetes API Server
+Documentation=https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=notify
-User=etcd
-Group=etcd
+User=kubernetes
+Group=kubernetes
 
-WorkingDirectory=/var/lib/etcd
-ExecStart=/usr/local/bin/etcd --config-file=/etc/etcd/etcd.conf.yml
+WorkingDirectory=/var/lib/kubernetes
+EnvironmentFile=-/etc/kubernetes/kube-apiserver.env
+ExecStart=/usr/local/bin/kube-apiserver $KUBE_API_SERVER_OPTS
 
 Restart=on-failure
 RestartSec=10
@@ -28,12 +29,12 @@ PrivateDevices=true
 ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true
-ReadWritePaths=/var/lib/etcd
+ReadWritePaths=/var/lib/kubernetes
 
-# Configuração de logs
+# Logs
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=etcd
+SyslogIdentifier=kube-apiserver
 
 [Install]
 WantedBy=multi-user.target

@@ -15,7 +15,7 @@ ANSIBLE_VERBOSE := $(if $(VERBOSE),-$(VERBOSE),)
 help: ## Mostra esta ajuda
 	@echo "Lista de targets:"; \
 	grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | \
-	awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-18s %s\n", $$1, $$2}'
+	awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-22s %s\n", $$1, $$2}'
 
 up: ## Sobe as VMs e recria a pasta artefatos/
 	mkdir -p $(ARTEFATOS)
@@ -34,45 +34,49 @@ lint: ## Checagem da estrutura do Ansible
 	@command -v ansible-lint >/dev/null 2>&1 || { echo "ansible-lint não está instalado."; exit 1; }
 	@ansible-lint -q ansible/ || true
 
-# Tasks com encadeamento de execução
-
-artefatos: up apenas_artefatos ## Executa todas as dependências para a role artefatos
-
-pki: artefatos apenas_pki ## Executa todas as dependências para a role pki
-
-sistema: pki apenas_sistema ## Executa todas as dependências para a role pki
-
-haproxy: sistema apenas_haproxy ## Executa todas as dependências para a role haproxy
-
-etcd: haproxy apenas_etcd ## Executa todas as dependências para a role etcd
-
-k8sbase: etcd apenas_k8sbase ## Executa todas as dependências para a role k8sbase
-
 # Tasks independentes, para executar individualmente (para evitar executar toda a pipeline, ou após um restore de snapshot)
-
-apenas_artefatos: ## Executa apenas a role artefatos (use com um snapshot da máquina não provisionada)
+artefatos: ## Executa apenas a role artefatos (use com um snapshot da máquina não provisionada)
 	@echo "Executando role artefatos..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags artefatos
 
-apenas_pki: ## Executa apenas a role pki (use com um snapshot de artefatos)
+pki: ## Executa apenas a role pki (use com um snapshot de artefatos)
 	@echo "Executando role pki..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags pki
 
-apenas_sistema: ## Executa apenas a role sistema (use com um snapshot de pki)
+sistema: ## Executa apenas a role sistema (use com um snapshot de pki)
 	@echo "Executando role sistema..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags sistema
 
-apenas_haproxy: ## Executa apenas a role haproxy (use com um snapshot de sistema)
+haproxy: ## Executa apenas a role haproxy (use com um snapshot de sistema)
 	@echo "Executando role haproxy..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags haproxy
 
-apenas_etcd: ## Executa apenas a role etcd (use com um snapshot de haproxy)
+etcd: ## Executa apenas a role etcd (use com um snapshot de haproxy)
 	@echo "Executando role etcd..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags etcd
 
-apenas_k8sbase: ## Executa apenas a role k8sbase (use com um snapshot de haproxy)
+k8s-base: ## Executa apenas a role k8sbase (use com um snapshot de haproxy)
 	@echo "Executando role k8sbase..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags k8s-base
+
+kube-apiserver: ## Executa apenas a role kubeapiserver (use com um snapshot de apenas_k8sbase)
+	@echo "Executando role kubeapiserver..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags kube-apiserver
+
+# Tasks com encadeamento de execução
+cadeia-artefatos: up artefatos ## Executa todas as dependências para a role artefatos
+
+cadeia-pki: cadeia-artefatos pki ## Executa todas as dependências para a role pki
+
+cadeia-sistema: cadeia-pki sistema ## Executa todas as dependências para a role pki
+
+cadeia-haproxy: cadeia-sistema haproxy ## Executa todas as dependências para a role haproxy
+
+cadeia-etcd: cadeia-haproxy etcd ## Executa todas as dependências para a role etcd
+
+cadeia-k8s-base: cadeia-etcd k8s-base ## Executa todas as dependências para a role k8sbase
+
+cadeia-kube-apiserver: cadeia-k8s-base kube-apiserver ## Executa todas as dependências para a role kubeapiserver
 
 snapshot: ## Cria uma snapshot única (sempre sobrescreve)
 	@if vagrant status | grep -q "not created"; then \

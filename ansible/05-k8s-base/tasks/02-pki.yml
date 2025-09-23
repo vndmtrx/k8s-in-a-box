@@ -8,9 +8,12 @@
     group: kubernetes
     mode: "0644"
   loop:
-    - src: "{{ pki_cas.kubernetes.path_cert }}"
-      dest: "/etc/kubernetes/pki/{{ pki_cas.kubernetes.path_cert | basename }}"
     - src: "{{ pki_cas.etcd.path_cert }}"
       dest: "/etc/kubernetes/pki/{{ pki_cas.etcd.path_cert | basename }}"
+    - src: "{{ pki_cas.kubernetes.path_cert }}"
+      dest: "/etc/kubernetes/pki/{{ pki_cas.kubernetes.path_cert | basename }}"
+    - src: "{{ pki_cas.front_proxy.path_cert }}"
+      dest: "/etc/kubernetes/pki/{{ pki_cas.front_proxy.path_cert | basename }}"
+
   loop_control:
     label: "{{ item.dest }}"

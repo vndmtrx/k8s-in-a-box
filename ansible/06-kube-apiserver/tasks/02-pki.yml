@@ -1,0 +1,56 @@
+# ansible/06-kube-apiserver/tasks/02-pki.yml
+---
+- name: Criar estrutura de diretórios para certificados
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: kubernetes
+    mode: "0750"
+  loop:
+    - /etc/kubernetes/pki/apiserver
+
+- name: Copiar certificados necessários para o kube-apiserver
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: kubernetes
+    group: kubernetes
+    mode: "{{ item.mode }}"
+  loop:
+    - src: "{{ pki_certs.kube_apiserver.path_cert | format(inventory_hostname) }}"
+      dest: "/etc/kubernetes/pki/apiserver/{{ pki_certs.kube_apiserver.path_cert | format(inventory_hostname) | basename }}"
+      mode: "0644"
+    - src: "{{ pki_certs.kube_apiserver.path_chave | format(inventory_hostname) }}"
+      dest: "/etc/kubernetes/pki/apiserver/{{ pki_certs.kube_apiserver.path_chave | format(inventory_hostname) | basename }}"
+      mode: "0640"
+
+    - src: "{{ pki_certs.kube_apiserver_etcd_cli.path_cert }}"
+      dest: "/etc/kubernetes/pki/apiserver/{{ pki_certs.kube_apiserver_etcd_cli.path_cert | basename }}"
+      mode: "0644"
+    - src: "{{ pki_certs.kube_apiserver_etcd_cli.path_chave }}"
+      dest: "/etc/kubernetes/pki/apiserver/{{ pki_certs.kube_apiserver_etcd_cli.path_chave | basename }}"
+      mode: "0640"
+
+    - src: "{{ pki_certs.kube_apiserver_kubelet_cli.path_cert }}"
+      dest: "/etc/kubernetes/pki/apiserver/{{ pki_certs.kube_apiserver_kubelet_cli.path_cert | basename }}"
+      mode: "0644"
+    - src: "{{ pki_certs.kube_apiserver_kubelet_cli.path_chave }}"
+      dest: "/etc/kubernetes/pki/apiserver/{{ pki_certs.kube_apiserver_kubelet_cli.path_chave | basename }}"
+      mode: "0640"
+
+    - src: "{{ pki_certs.kube_front_proxy_cli.path_cert }}"
+      dest: "/etc/kubernetes/pki/apiserver/{{ pki_certs.kube_front_proxy_cli.path_cert | basename }}"
+      mode: "0644"
+    - src: "{{ pki_certs.kube_front_proxy_cli.path_chave }}"
+      dest: "/etc/kubernetes/pki/apiserver/{{ pki_certs.kube_front_proxy_cli.path_chave | basename }}"
+      mode: "0640"
+
+    - src: "{{ pki_certs.service_account.path_cert }}"
+      dest: "/etc/kubernetes/pki/apiserver/{{ pki_certs.service_account.path_cert | basename }}"
+      mode: "0644"
+    - src: "{{ pki_certs.service_account.path_chave }}"
+      dest: "/etc/kubernetes/pki/apiserver/{{ pki_certs.service_account.path_chave | basename }}"
+      mode: "0640"
+  loop_control:
+    label: "{{ item.dest }}"

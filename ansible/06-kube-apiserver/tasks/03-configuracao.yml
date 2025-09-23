@@ -1,9 +1,15 @@
-# ansible/kube_apiserver/tasks/03-configuracao.yml
+# ansible/06-kube-apiserver/tasks/03-configuracao.yml
 ---
 - name: Configurar serviço do kube-apiserver
   ansible.builtin.template:
     src: kube-apiserver.service.j2
     dest: /etc/systemd/system/kube-apiserver.service
+    mode: "0644"
+
+- name: Configurar parâmetros de inicialização do kube-apiserver
+  ansible.builtin.template:
+    src: kube-apiserver.env.j2
+    dest: /etc/kubernetes/kube-apiserver.env
     mode: "0644"
 
 - name: Garantir serviço ativo
