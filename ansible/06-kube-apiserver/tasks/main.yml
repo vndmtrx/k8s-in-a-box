@@ -1,0 +1,7 @@
+# ansible/06-kube-apiserver/tasks/main.yml
+---
+- ansible.builtin.include_tasks: 01-setup.yml
+
+- ansible.builtin.include_tasks: 02-pki.yml
+
+- ansible.builtin.include_tasks: 03-configuracao.yml
