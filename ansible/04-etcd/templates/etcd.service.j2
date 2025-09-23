@@ -8,11 +8,14 @@ Wants=network-online.target
 Type=notify
 User=etcd
 Group=etcd
+
 WorkingDirectory=/var/lib/etcd
-EnvironmentFile=-/etc/default/etcd
 ExecStart=/usr/local/bin/etcd --config-file=/etc/etcd/etcd.conf.yml
+
 Restart=on-failure
 RestartSec=10
+
+# Limites de recursos
 LimitNOFILE=65536
 LimitNPROC=65536
 
@@ -31,10 +34,6 @@ ReadWritePaths=/var/lib/etcd
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=etcd
-
-# Configuração de rotação de logs
-LogRateLimitIntervalSec=0
-LogRateLimitBurst=0
 
 [Install]
 WantedBy=multi-user.target
