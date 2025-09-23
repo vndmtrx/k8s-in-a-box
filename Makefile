@@ -63,6 +63,10 @@ kube-apiserver: ## Executa apenas a role kubeapiserver (use com um snapshot de a
 	@echo "Executando role kubeapiserver..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags kube-apiserver
 
+k8s-in-a-box: up ## Executa todo o projeto
+	@echo "Executando todas as roles..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags todas
+
 # Tasks com encadeamento de execução
 cadeia-artefatos: up artefatos ## Executa todas as dependências para a role artefatos
 
