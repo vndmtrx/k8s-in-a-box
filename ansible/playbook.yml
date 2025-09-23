@@ -65,16 +65,16 @@
         - k8s-base
         - todas
 
-# - name: Configuração do kube-apiserver
-#   hosts: managers
-#   become: true
-#   gather_facts: true
-#   serial: 1
-#   roles:
-#     - role: kube_apiserver
-#       tags:
-#         - kube_apiserver
-#         - todas
+- name: Configuração do kube-apiserver
+  hosts: managers
+  become: true
+  gather_facts: true
+  serial: 1
+  roles:
+    - role: 06-kube-apiserver
+      tags:
+        - kube-apiserver
+        - todas
 
 # - name: Configuração do kube-controller-manager
 #   hosts: managers
