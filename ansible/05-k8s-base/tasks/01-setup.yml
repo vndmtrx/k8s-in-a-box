@@ -37,3 +37,15 @@
     owner: kubernetes
     group: kubernetes
     mode: "0700"
+
+- name: Verificar se o executável do kubectl já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/kubectl"
+  register: kubectl_bin
+
+- name: Copiar kubectl para a VM
+  ansible.builtin.copy:
+    src: "{{ pasta_temporarios }}/kubectl"
+    dest: "/usr/local/bin/kubectl"
+    mode: "0755"
+  when: not kubectl_bin.stat.exists
