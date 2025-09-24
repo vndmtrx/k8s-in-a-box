@@ -1,4 +1,4 @@
-# ansible/05-k8s-base/tasks/main.yml
+# ansible/05-kubernetes-base/tasks/main.yml
 ---
 - ansible.builtin.import_tasks: 01-setup.yml
 
