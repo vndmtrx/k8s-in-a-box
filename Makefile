@@ -55,13 +55,17 @@ etcd: ## Executa apenas a role etcd (use com um snapshot de haproxy)
 	@echo "Executando role etcd..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags etcd
 
-k8s-base: ## Executa apenas a role k8sbase (use com um snapshot de haproxy)
-	@echo "Executando role k8sbase..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags k8s-base
+kubernetes-base: ## Executa apenas a role kubernetes-base (use com um snapshot de etcd)
+	@echo "Executando role kubernetes-base..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags kubernetes-base
 
-kube-apiserver: ## Executa apenas a role kubeapiserver (use com um snapshot de apenas_k8sbase)
-	@echo "Executando role kubeapiserver..."
+kube-apiserver: ## Executa apenas a role kube-apiserver (use com um snapshot de kubernetes-base)
+	@echo "Executando role kube-apiserver..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags kube-apiserver
+
+kube-controller-manager: ## Executa apenas a role kube-controller-manager (use com um snapshot de kube-apiserver)
+	@echo "Executando role kube-controller-manager..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags kube-controller-manager
 
 k8s-in-a-box: up ## Executa todo o projeto
 	@echo "Executando todas as roles..."
@@ -78,9 +82,11 @@ cadeia-haproxy: cadeia-sistema haproxy ## Executa todas as dependências para a 
 
 cadeia-etcd: cadeia-haproxy etcd ## Executa todas as dependências para a role etcd
 
-cadeia-k8s-base: cadeia-etcd k8s-base ## Executa todas as dependências para a role k8sbase
+cadeia-kubernetes-base: cadeia-etcd kubernetes-base ## Executa todas as dependências para a role kubernetes-base
 
-cadeia-kube-apiserver: cadeia-k8s-base kube-apiserver ## Executa todas as dependências para a role kubeapiserver
+cadeia-kube-apiserver: cadeia-kubernetes-base kube-apiserver ## Executa todas as dependências para a role kube-apiserver
+
+cadeia-kube-controller-manager: cadeia-kube-apiserver kube-controller-manager ## Executa todas as dependências para a role kube-controller-manager
 
 snapshot: ## Cria uma snapshot única (sempre sobrescreve)
 	@if vagrant status | grep -q "not created"; then \

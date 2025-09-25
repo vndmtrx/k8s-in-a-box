@@ -11,7 +11,7 @@ Group=kubernetes
 
 WorkingDirectory=/var/lib/kubernetes
 EnvironmentFile=-/etc/kubernetes/kube-apiserver.env
-ExecStart=/usr/local/bin/kube-apiserver $KUBE_API_SERVER_OPTS
+ExecStart=/usr/local/bin/kube-apiserver $KUBE_APISERVER_OPTS
 
 Restart=on-failure
 RestartSec=10

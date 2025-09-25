@@ -1,4 +1,4 @@
-# ansible/06-kube-apiserver/tasks/01-setup.yml
+# ansible/06-kube-apiserver/tasks/01-instalacao.yml
 ---
 - name: Verificar se o executável do kube-apiserver já está instalado na VM
   ansible.builtin.stat:

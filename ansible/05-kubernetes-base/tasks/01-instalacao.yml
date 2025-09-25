@@ -1,4 +1,4 @@
-# ansible/05-kubernetes-base/tasks/01-setup.yml
+# ansible/05-kubernetes-base/tasks/01-instalacao.yml
 ---
 - name: Desabilitar swap
   ansible.builtin.command:
