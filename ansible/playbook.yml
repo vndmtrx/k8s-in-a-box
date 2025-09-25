@@ -60,29 +60,27 @@
   become: true
   gather_facts: false
   roles:
-    - role: 05-k8s-base
+    - role: 05-kubernetes-base
       tags:
-        - k8s-base
+        - kubernetes-base
         - todas
 
 - name: Configuração do kube-apiserver
   hosts: managers
   become: true
   gather_facts: true
-  serial: 1
   roles:
     - role: 06-kube-apiserver
       tags:
         - kube-apiserver
         - todas
 
-# - name: Configuração do kube-controller-manager
-#   hosts: managers
-#   become: true
-#   gather_facts: true
-#   serial: 1
-#   roles:
-#     - role: kube_controller_manager
-#       tags:
-#         - kube_controller_manager
-#         - todas
+- name: Configuração do kube-controller-manager
+  hosts: managers
+  become: true
+  gather_facts: true
+  roles:
+    - role: 07-kube-controller-manager
+      tags:
+        - kube-controller-manager
+        - todas
