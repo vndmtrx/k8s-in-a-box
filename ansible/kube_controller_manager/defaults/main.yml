@@ -1,8 +1,0 @@
-# ansible/kube_controller_manager/defaults/main.yml
----
-# Versão do Kubernetes
-versao_kubernetes: "v1.31.2"  # https://dl.k8s.io/release/stable.txt
-
-# URLs para download do binário e checksum
-checksum_url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-controller-manager.sha256"
-download_url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-controller-manager"
