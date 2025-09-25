@@ -1,0 +1,26 @@
+# ansible/07-kube-controller-manager/tasks/03-configuracao.yml
+---
+- name: Configurar serviço do kube-controller-manager
+  ansible.builtin.template:
+    src: kube-controller-manager.service.j2
+    dest: /etc/systemd/system/kube-controller-manager.service
+    mode: "0644"
+
+- name: Configurar parâmetros de inicialização do kube-controller-manager
+  ansible.builtin.template:
+    src: kube-controller-manager.env.j2
+    dest: /etc/kubernetes/kube-controller-manager.env
+    mode: "0644"
+
+- name: Criar kubeconfig com configuração para o kube-controller-manager
+  ansible.builtin.template:
+    src: kube-controller-manager.kubeconfig.j2
+    dest: /etc/kubernetes/kube-controller-manager.kubeconfig
+    mode: "0644"
+
+- name: Garantir serviço ativo
+  ansible.builtin.systemd:
+    name: kube-controller-manager
+    enabled: yes
+    state: restarted
+    daemon_reload: true
