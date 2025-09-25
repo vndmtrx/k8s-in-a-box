@@ -4,16 +4,34 @@
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    owner: kubernetes
+    owner: root
     group: kubernetes
-    mode: "0644"
+    mode: "{{ item.mode }}"
   loop:
     - src: "{{ pki_cas.etcd.path_cert }}"
       dest: "/etc/kubernetes/pki/{{ pki_cas.etcd.path_cert | basename }}"
+      mode: "0644"
+    
     - src: "{{ pki_cas.kubernetes.path_cert }}"
       dest: "/etc/kubernetes/pki/{{ pki_cas.kubernetes.path_cert | basename }}"
+      mode: "0644"
+    - src: "{{ pki_cas.kubernetes.path_chave }}"
+      dest: "/etc/kubernetes/pki/{{ pki_cas.kubernetes.path_chave | basename }}"
+      mode: "0640"
+    
     - src: "{{ pki_cas.front_proxy.path_cert }}"
       dest: "/etc/kubernetes/pki/{{ pki_cas.front_proxy.path_cert | basename }}"
+      mode: "0644"
+    - src: "{{ pki_cas.front_proxy.path_chave }}"
+      dest: "/etc/kubernetes/pki/{{ pki_cas.front_proxy.path_chave | basename }}"
+      mode: "0640"
+    
+    - src: "{{ pki_certs.admin_account.path_cert }}"
+      dest: "/etc/kubernetes/pki/{{ pki_certs.admin_account.path_cert | basename }}"
+      mode: "0644"
+    - src: "{{ pki_certs.admin_account.path_chave }}"
+      dest: "/etc/kubernetes/pki/{{ pki_certs.admin_account.path_chave | basename }}"
+      mode: "0640"
 
   loop_control:
     label: "{{ item.dest }}"
