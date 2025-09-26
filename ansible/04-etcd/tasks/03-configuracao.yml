@@ -26,3 +26,7 @@
     enabled: yes
     state: restarted
     daemon_reload: true
+
+- name: Aguardar etcd estabilizar
+  ansible.builtin.pause:
+    seconds: 10
