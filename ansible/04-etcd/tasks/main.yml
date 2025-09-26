@@ -5,3 +5,5 @@
 - ansible.builtin.include_tasks: 02-pki.yml
 
 - ansible.builtin.include_tasks: 03-configuracao.yml
+
+- ansible.builtin.include_tasks: 04-config-etcdctl.yml
