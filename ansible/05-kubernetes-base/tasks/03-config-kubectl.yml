@@ -26,6 +26,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0700"
+  when: ansible_user is defined
 
 - name: Criar symlink do kubeconfig para usuário padrão do vagrant
   ansible.builtin.file:
@@ -35,3 +36,4 @@
     force: true
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
+  when: ansible_user is defined
