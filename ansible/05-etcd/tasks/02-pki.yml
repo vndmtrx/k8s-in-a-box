@@ -1,4 +1,4 @@
-# ansible/04-etcd/tasks/02-pki.yml
+# ansible/05-etcd/tasks/02-pki.yml
 ---
 - name: Criar estrutura de diretórios para certificados do etcd
   ansible.builtin.file:

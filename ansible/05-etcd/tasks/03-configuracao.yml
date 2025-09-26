@@ -1,4 +1,4 @@
-# ansible/04-etcd/tasks/03-configuracao.yml
+# ansible/05-etcd/tasks/03-configuracao.yml
 ---
 - name: Criar arquivo de configuração
   ansible.builtin.template:

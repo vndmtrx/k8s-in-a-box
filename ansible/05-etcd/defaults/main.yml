@@ -1,4 +1,4 @@
-# ansible/04-etcd/defaults/main.yml
+# ansible/05-etcd/defaults/main.yml
 ---
 # Credenciais
 etcd_jwt_token: "token-jwt-realmente-muito-longo-e-seguro!"
