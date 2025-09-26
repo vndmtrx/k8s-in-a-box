@@ -1,4 +1,4 @@
-# ansible/01-pki/tasks/04-ca-kubernetes.yml
+# ansible/01-pki/tasks/103-ca-kubernetes.yml
 ---
 - name: Verificar arquivos existentes da CA do Kubernetes
   ansible.builtin.stat:

@@ -1,4 +1,4 @@
-# ansible/01-pki/tasks/02-root-ca.yml
+# ansible/01-pki/tasks/101-root-ca.yml
 ---
 - name: Verificar arquivos existentes do Root CA
   ansible.builtin.stat:
