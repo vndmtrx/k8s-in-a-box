@@ -37,43 +37,43 @@ lint: ## Checagem da estrutura do Ansible
 # Tasks independentes, para executar individualmente (para evitar executar toda a pipeline, ou após um restore de snapshot)
 artefatos: ## Executa apenas a role artefatos (use com um snapshot da máquina não provisionada)
 	@echo "Executando role artefatos..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags artefatos
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags artefatos
 
 pki: ## Executa apenas a role pki (use com um snapshot de artefatos)
 	@echo "Executando role pki..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags pki
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags pki
 
 sistema: ## Executa apenas a role sistema (use com um snapshot de pki)
 	@echo "Executando role sistema..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags sistema
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags sistema
 
 haproxy: ## Executa apenas a role haproxy (use com um snapshot de sistema)
 	@echo "Executando role haproxy..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags haproxy
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags haproxy
 
 etcd: ## Executa apenas a role etcd (use com um snapshot de haproxy)
 	@echo "Executando role etcd..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags etcd
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags etcd
 
 kubernetes-base: ## Executa apenas a role kubernetes-base (use com um snapshot de etcd)
 	@echo "Executando role kubernetes-base..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags kubernetes-base
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kubernetes-base
 
 kube-apiserver: ## Executa apenas a role kube-apiserver (use com um snapshot de kubernetes-base)
 	@echo "Executando role kube-apiserver..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags kube-apiserver
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kube-apiserver
 
 kube-controller-manager: ## Executa apenas a role kube-controller-manager (use com um snapshot de kube-apiserver)
 	@echo "Executando role kube-controller-manager..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags kube-controller-manager
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kube-controller-manager
 
 kube-scheduler: ## Executa apenas a role kube-scheduler (use com um snapshot de kube-controller-manager)
 	@echo "Executando role kube-controller-manager..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags kube-scheduler
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kube-scheduler
 
 k8s-in-a-box: up ## Executa todo o projeto
 	@echo "Executando todas as roles..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/playbook.yml" $(ANSIBLE_VERBOSE) --tags todas
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags todas
 
 # Tasks com encadeamento de execução
 cadeia-artefatos: up artefatos ## Executa todas as dependências para a role artefatos
