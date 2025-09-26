@@ -35,12 +35,11 @@
 - [x] Configuração do etcd como backend
 - [x] Instalação do kube-apiserver
 - [x] Configuração do kube-controller-manager
-- [ ] Configuração do kube-scheduler
-- [ ] Validação do control plane
+- [x] Configuração do kube-scheduler
 - [ ] Geração dos arquivos kubeconfig
-  - [ ] kubeconfig do admin
+  - [x] kubeconfig do admin
   - [x] kubeconfig do controller-manager
-  - [ ] kubeconfig do scheduler
+  - [x] kubeconfig do scheduler
   - [ ] kubeconfig do kubelet (para cada nó)
   - [ ] kubeconfig do kube-proxy
 
