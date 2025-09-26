@@ -11,6 +11,35 @@
     regexp: '^([^#].*?\sswap\s.*)'
     replace: '# \1'
 
+- name: Garantir configuração de módulos necessários
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/kubernetes.conf
+    content: |
+      overlay
+      br_netfilter
+      ip_tables
+      ip6_tables
+      nf_nat
+      xt_conntrack
+      vxlan
+    mode: "0644"
+
+- name: Recarregar módulos listados em /etc/modules-load.d
+  ansible.builtin.systemd:
+    name: systemd-modules-load
+    state: restarted
+
+- name: Configurar parâmetros de rede para Kubernetes
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop:
+    - { key: "net.bridge.bridge-nf-call-ip6tables", value: "1" }
+    - { key: "net.bridge.bridge-nf-call-iptables", value: "1" }
+    - { key: "net.ipv4.ip_forward", value: "1" }
+
 - name: Criar usuário kubernetes
   ansible.builtin.user:
     name: kubernetes
