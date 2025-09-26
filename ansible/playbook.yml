@@ -11,7 +11,6 @@
         - artefatos
         - todas
 
-
 - name: Criação local dos CAs e certificados do projeto
   hosts: localhost
   connection: local
