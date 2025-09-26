@@ -84,3 +84,13 @@
       tags:
         - kube-controller-manager
         - todas
+
+- name: Configuração do kube-scheduler
+  hosts: managers
+  become: true
+  gather_facts: true
+  roles:
+    - role: 08-kube-scheduler
+      tags:
+        - kube-scheduler
+        - todas
