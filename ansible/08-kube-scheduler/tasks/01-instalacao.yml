@@ -1,0 +1,13 @@
+# ansible/08-kube-scheduler/tasks/01-instalacao.yml
+---
+- name: Verificar se o executável do kube-scheduler já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/kube-scheduler"
+  register: kube_scheduler_bin
+
+- name: Copiar kube-scheduler para a VM
+  ansible.builtin.copy:
+    src: "{{ pasta_temporarios }}/kube-scheduler"
+    dest: "/usr/local/bin/kube-scheduler"
+    mode: "0755"
+  when: not kube_scheduler_bin.stat.exists

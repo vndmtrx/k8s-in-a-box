@@ -1,4 +1,4 @@
-# ansible/01-pki/tasks/03-ca-etcd.yml
+# ansible/01-pki/tasks/102-ca-etcd.yml
 ---
 - name: Verificar arquivos existentes da CA do Etcd
   ansible.builtin.stat:

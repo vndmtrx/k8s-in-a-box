@@ -1,0 +1,22 @@
+# ansible/04-etcd/tasks/04-config-etcdctl.yml
+---
+- name: Criar arquivo de configuração do etcdctl em /etc/profile.d
+  ansible.builtin.template:
+    src: etcdctl-env.sh.j2
+    dest: /etc/profile.d/etcdctl-env.sh
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Criar link simbólico para root (etcdctl config)
+  ansible.builtin.file:
+    src: /etc/profile.d/etcdctl-env.sh
+    dest: /root/.etcdctl-env
+    state: link
+
+- name: Criar link simbólico para usuário ansible (etcdctl config)
+  ansible.builtin.file:
+    src: /etc/profile.d/etcdctl-env.sh
+    dest: "/home/{{ ansible_user }}/.etcdctl-env"
+    state: link
+  when: ansible_user is defined

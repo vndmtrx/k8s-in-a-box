@@ -2,55 +2,57 @@
 ---
 - ansible.builtin.include_tasks: 01-setup.yml
 
-- ansible.builtin.include_tasks: 02-root-ca.yml
+- ansible.builtin.include_tasks: 101-root-ca.yml
 
-- ansible.builtin.include_tasks: 03-ca-etcd.yml
+- ansible.builtin.include_tasks: 102-ca-etcd.yml
 
-- ansible.builtin.include_tasks: 04-ca-kubernetes.yml
+- ansible.builtin.include_tasks: 103-ca-kubernetes.yml
 
-- ansible.builtin.include_tasks: 05-ca-front-proxy.yml
+- ansible.builtin.include_tasks: 104-ca-front-proxy.yml
 
-- ansible.builtin.include_tasks: 06-cert-etcd-server.yml
+- ansible.builtin.include_tasks: 201-cert-etcd-server.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
 
-- ansible.builtin.include_tasks: 07-cert-etcd-peer.yml
+- ansible.builtin.include_tasks: 202-cert-etcd-peer.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
 
-- ansible.builtin.include_tasks: 08-cert-kube-apiserver.yml
+- ansible.builtin.include_tasks: 203-cert-etcd-cli.yml
+
+- ansible.builtin.include_tasks: 211-cert-kube-apiserver.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
 
-- ansible.builtin.include_tasks: 09-cert-kube-apiserver-etcd-cli.yml
+- ansible.builtin.include_tasks: 212-cert-kube-apiserver-etcd-cli.yml
 
-- ansible.builtin.include_tasks: 10-cert-kube-apiserver-kubelet-cli.yml
+- ansible.builtin.include_tasks: 213-cert-kube-apiserver-kubelet-cli.yml
 
-- ansible.builtin.include_tasks: 11-cert-front-proxy-cli.yml
+- ansible.builtin.include_tasks: 214-cert-kube-controller-manager.yml
+  loop: "{{ groups['managers'] }}"
+  loop_control:
+    loop_var: manager_host
 
-- ansible.builtin.include_tasks: 12-cert-kubelet.yml
+- ansible.builtin.include_tasks: 215-cert-kube-scheduler.yml
+  loop: "{{ groups['managers'] }}"
+  loop_control:
+    loop_var: manager_host
+
+- ansible.builtin.include_tasks: 221-cert-kubelet.yml
   loop: "{{ groups['k8s_nodes'] }}"
   loop_control:
     loop_var: node_host
 
-- ansible.builtin.include_tasks: 13-cert-kube-controller-manager.yml
-  loop: "{{ groups['managers'] }}"
-  loop_control:
-    loop_var: manager_host
-
-- ansible.builtin.include_tasks: 14-cert-kube-scheduler.yml
-  loop: "{{ groups['managers'] }}"
-  loop_control:
-    loop_var: manager_host
-
-- ansible.builtin.include_tasks: 15-cert-kube-proxy.yml
+- ansible.builtin.include_tasks: 222-cert-kube-proxy.yml
   loop: "{{ groups['k8s_nodes'] }}"
   loop_control:
     loop_var: node_host
 
-- ansible.builtin.include_tasks: 16-cert-service-account.yml
+- ansible.builtin.include_tasks: 223-cert-service-account.yml
 
-- ansible.builtin.include_tasks: 17-cert-admin-account.yml
+- ansible.builtin.include_tasks: 224-cert-admin-account.yml
+
+- ansible.builtin.include_tasks: 231-cert-front-proxy-cli.yml

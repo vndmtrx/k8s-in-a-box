@@ -1,4 +1,4 @@
-# ansible/01-pki/tasks/06-cert-etcd-server.yml
+# ansible/01-pki/tasks/201-cert-etcd-server.yml
 ---
 - name: Verificar arquivos existentes da chave para cliente mTLS do servidor Etcd ({{ manager_host }})
   ansible.builtin.stat:
@@ -39,7 +39,7 @@
       - serverAuth
       - clientAuth
     extended_key_usage_critical: true
-    subject_alt_name: "{{ lookup('template', '06-san-etcd-server.j2') | from_yaml }}"
+    subject_alt_name: "{{ lookup('template', '201-san-etcd-server.j2') | from_yaml }}"
   when: not etcd_server_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
   delegate_to: localhost
   register: etcd_server_csr
