@@ -72,6 +72,11 @@ pki_certs:
     path_cert: "{{ pki_pastas.etcd }}/%s-etcd-node-peer-cert.pem"
     ca_pai: "{{ pki_cas['etcd'] }}"
 
+  etcd_cli:
+    path_chave: "{{ pki_pastas.etcd }}/etcd-cli-priv.pem"
+    path_cert: "{{ pki_pastas.etcd }}/etcd-cli-cert.pem"
+    ca_pai: "{{ pki_cas['etcd'] }}"
+
   kube_apiserver:
     path_chave: "{{ pki_pastas.k8s }}/%s-kube-apiserver-priv.pem"
     path_cert: "{{ pki_pastas.k8s }}/%s-kube-apiserver-cert.pem"
