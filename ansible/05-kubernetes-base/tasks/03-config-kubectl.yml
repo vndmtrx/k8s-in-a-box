@@ -1,0 +1,37 @@
+- name: Criar kubeconfig com configuração para o kubectl
+  ansible.builtin.template:
+    src: admin.kubeconfig.j2
+    dest: /etc/kubernetes/admin.kubeconfig
+    mode: "0644"
+
+- name: Criar diretório ~/.kube para root
+  ansible.builtin.file:
+    path: /root/.kube
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Criar symlink do kubeconfig para root
+  ansible.builtin.file:
+    src: /etc/kubernetes/admin.kubeconfig
+    dest: /root/.kube/config
+    state: link
+    force: true
+
+- name: Criar diretório ~/.kube para usuário padrão do vagrant
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0700"
+
+- name: Criar symlink do kubeconfig para usuário padrão do vagrant
+  ansible.builtin.file:
+    src: /etc/kubernetes/admin.kubeconfig
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    state: link
+    force: true
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
