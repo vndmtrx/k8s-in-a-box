@@ -138,7 +138,7 @@ pki_certs:
 # Versões dos componentes
 versao_etcd: "v3.6.5"         # https://endoflife.date/etcd
 versao_kubernetes: "v1.34.1"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
-versao_pause: "pause:3.10"    # https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd
+versao_pause: "pause:3.10.1"  # https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd
 
 download_artefatos:
   tailspin-bin:
