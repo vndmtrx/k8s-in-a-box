@@ -3,5 +3,8 @@
 - name: Configurar pacotes
   ansible.builtin.import_tasks: 01-instalacao.yml
 
-- name: Aplicar configuração
-  ansible.builtin.import_tasks: 02-configuracao.yml
+- name: Aplicar configuração do Haproxy
+  ansible.builtin.import_tasks: 02-configuracao-haproxy.yml
+
+- name: Aplicar configuração do Keepalived
+  ansible.builtin.import_tasks: 03-configuracao-keepalived.yml

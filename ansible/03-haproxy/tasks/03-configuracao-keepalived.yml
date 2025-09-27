@@ -1,0 +1,21 @@
+# ansible/03-haproxy/tasks/03-configuracao-keepalived.yml
+---
+- name: Criar configuração do Keepalived
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    mode: '0644'
+    owner: root
+    group: root
+    backup: yes
+
+- name: Habilitar Keepalived no boot
+  ansible.builtin.systemd:
+    name: keepalived
+    enabled: true
+
+- name: Garantir que Keepalived está rodando
+  ansible.builtin.systemd:
+    name: keepalived
+    enabled: yes
+    state: restarted

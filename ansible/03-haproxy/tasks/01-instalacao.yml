@@ -1,9 +1,10 @@
 # ansible/03-haproxy/tasks/01-instalacao.yml
 ---
-- name: Instalar pacotes necessários para o Haproxy
+- name: Instalar pacotes necessários para o Haproxy e Keepalived
   ansible.builtin.dnf:
     name:
       - haproxy
+      - keepalived
       - openssl
       - socat
     state: present
