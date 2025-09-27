@@ -1,0 +1,99 @@
+# ansible/04-kubernetes-base/tasks/01-instalacao.yml
+---
+- name: Instalar pacotes necessários para o kubernetes
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ pacotes_kubernetes }}"
+    state: present
+
+- name: Garantir configuração de módulos necessários
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/kubernetes.conf
+    content: |
+      overlay
+      br_netfilter
+      ip_tables
+      ip6_tables
+      nf_nat
+      xt_conntrack
+      vxlan
+    mode: "0644"
+
+- name: Recarregar módulos listados em /etc/modules-load.d
+  ansible.builtin.systemd:
+    name: systemd-modules-load
+    state: restarted
+
+- name: Desabilitar swap
+  ansible.builtin.command:
+    cmd: swapoff -a
+  changed_when: false
+
+- name: Remover entrada de swap do /etc/fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s.*)'
+    replace: '# \1'
+
+- name: Verificar se precisa reiniciar
+  ansible.builtin.command: needs-restarting -r
+  register: reboot_check_k8s
+  ignore_errors: true
+  changed_when: reboot_check_k8s.rc == 1
+  failed_when: reboot_check_k8s.rc not in [0, 1]
+
+- name: Reiniciar se necessário
+  ansible.builtin.reboot:
+    post_reboot_delay: 10
+    reboot_timeout: 300
+  when: reboot_check_k8s.rc == 1
+
+- name: Configurar parâmetros de rede para Kubernetes
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop:
+    - { key: "net.bridge.bridge-nf-call-ip6tables", value: "1" }
+    - { key: "net.bridge.bridge-nf-call-iptables", value: "1" }
+    - { key: "net.ipv4.ip_forward", value: "1" }
+
+- name: Criar usuário kubernetes
+  ansible.builtin.user:
+    name: kubernetes
+    system: true
+    shell: /usr/sbin/nologin
+    home: /var/lib/kubernetes
+    create_home: false
+
+- name: Criar diretório de configuração
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: kubernetes
+    mode: "0750"
+  loop:
+    - /etc/kubernetes
+    - /etc/kubernetes/pki
+
+- name: Criar diretório de trabalho do Kubernetes
+  ansible.builtin.file:
+    path: /var/lib/kubernetes
+    state: directory
+    owner: kubernetes
+    group: kubernetes
+    mode: "0700"
+
+- name: Verificar se o executável do kubectl já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/kubectl"
+  register: kubectl_bin
+
+- name: Copiar kubectl para a VM
+  ansible.builtin.copy:
+    src: "{{ pasta_temporarios }}/kubectl"
+    dest: "/usr/local/bin/kubectl"
+    mode: "0755"
+  when: not kubectl_bin.stat.exists

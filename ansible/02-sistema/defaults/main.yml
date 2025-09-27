@@ -11,5 +11,6 @@ pacotes_extras:
   - glibc-langpack-pt
   - mtr
   - nano
+  - wget
   - dnf-utils
   - bash-completion

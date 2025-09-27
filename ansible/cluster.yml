@@ -25,7 +25,6 @@
 - name: Configurações base para todas as máquinas
   hosts:
     - todos
-    # - clientes
   become: true
   gather_facts: false
   roles:
@@ -44,30 +43,30 @@
         - haproxy
         - todas
 
-- name: Configurações do cluster Etcd
-  hosts: managers
-  become: true
-  gather_facts: false
-  roles:
-    - role: 04-etcd
-      tags:
-        - etcd
-        - todas
-
 - name: Configurações comuns a todos os nós
   hosts: k8s_nodes
   become: true
   gather_facts: false
   roles:
-    - role: 05-kubernetes-base
+    - role: 04-kubernetes-base
       tags:
         - kubernetes-base
+        - todas
+
+- name: Configurações do cluster Etcd
+  hosts: managers
+  become: true
+  gather_facts: false
+  roles:
+    - role: 05-etcd
+      tags:
+        - etcd
         - todas
 
 - name: Configuração do kube-apiserver
   hosts: managers
   become: true
-  gather_facts: true
+  gather_facts: false
   roles:
     - role: 06-kube-apiserver
       tags:
@@ -77,7 +76,7 @@
 - name: Configuração do kube-controller-manager
   hosts: managers
   become: true
-  gather_facts: true
+  gather_facts: false
   roles:
     - role: 07-kube-controller-manager
       tags:
@@ -87,9 +86,19 @@
 - name: Configuração do kube-scheduler
   hosts: managers
   become: true
-  gather_facts: true
+  gather_facts: false
   roles:
     - role: 08-kube-scheduler
       tags:
         - kube-scheduler
+        - todas
+
+- name: Configuração do kubelet
+  hosts: k8s_nodes
+  become: true
+  gather_facts: false
+  roles:
+    - role: 09-kubelet
+      tags:
+        - kubelet
         - todas

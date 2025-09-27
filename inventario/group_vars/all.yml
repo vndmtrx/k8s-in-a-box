@@ -8,8 +8,8 @@ pasta_temporarios: "{{ pasta_artefatos }}/tmp"
 
 # Redes do projeto
 rede_cidr_hosts: "172.24.0.0/24"
-rede_cidr_pods: "172.24.4.0/22"
-rede_cidr_services: "172.24.8.0/22"
+rede_cidr_pods: "172.24.4.0/24"
+rede_cidr_services: "172.24.8.0/24"
 
 # Primeiros IPs das redes
 primeiro_ip_hosts: "{{ rede_cidr_hosts | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
@@ -138,6 +138,7 @@ pki_certs:
 # Versões dos componentes
 versao_etcd: "v3.6.5"         # https://endoflife.date/etcd
 versao_kubernetes: "v1.34.1"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
+versao_pause: "pause:3.10"    # https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd
 
 download_artefatos:
   tailspin-bin:

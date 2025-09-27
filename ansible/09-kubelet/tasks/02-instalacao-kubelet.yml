@@ -1,0 +1,13 @@
+# ansible/09-kubelet/tasks/02-instalacao-kubelet.yml
+---
+- name: Verificar se o executável do kubelet já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/kubelet"
+  register: kubelet_bin
+
+- name: Copiar kubelet para a VM
+  ansible.builtin.copy:
+    src: "{{ pasta_temporarios }}/kubelet"
+    dest: "/usr/local/bin/kubelet"
+    mode: "0755"
+  when: not kubelet_bin.stat.exists
