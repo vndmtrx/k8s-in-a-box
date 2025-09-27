@@ -27,8 +27,8 @@
     privatekey_path: "{{ pki_certs.admin_account.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
     subject:
-        O: system:masters
-        CN: kubernetes-super-admin
+      O: system:masters
+      CN: kubernetes-super-admin
     use_common_name_for_san: false
     basic_constraints:
       - "CA:FALSE"
