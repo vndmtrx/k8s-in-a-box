@@ -92,3 +92,13 @@
       tags:
         - kube-scheduler
         - todas
+
+- name: Configuração do kubelet
+  hosts: k8s_nodes
+  become: true
+  gather_facts: false
+  roles:
+    - role: 09-kubelet
+      tags:
+        - kubelet
+        - todas
