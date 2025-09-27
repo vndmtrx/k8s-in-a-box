@@ -1,15 +1,10 @@
 # ansible/04-kubernetes-base/tasks/01-instalacao.yml
 ---
-- name: Desabilitar swap
-  ansible.builtin.command:
-    cmd: swapoff -a
-  changed_when: false
-
-- name: Remover entrada de swap do /etc/fstab
-  ansible.builtin.replace:
-    path: /etc/fstab
-    regexp: '^([^#].*?\sswap\s.*)'
-    replace: '# \1'
+- name: Instalar pacotes necessários para o kubernetes
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ pacotes_kubernetes }}"
+    state: present
 
 - name: Garantir configuração de módulos necessários
   ansible.builtin.copy:
@@ -28,6 +23,30 @@
   ansible.builtin.systemd:
     name: systemd-modules-load
     state: restarted
+
+- name: Desabilitar swap
+  ansible.builtin.command:
+    cmd: swapoff -a
+  changed_when: false
+
+- name: Remover entrada de swap do /etc/fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s.*)'
+    replace: '# \1'
+
+- name: Verificar se precisa reiniciar
+  ansible.builtin.command: needs-restarting -r
+  register: reboot_check_k8s
+  ignore_errors: true
+  changed_when: reboot_check_k8s.rc == 1
+  failed_when: reboot_check_k8s.rc not in [0, 1]
+
+- name: Reiniciar se necessário
+  ansible.builtin.reboot:
+    post_reboot_delay: 10
+    reboot_timeout: 300
+  when: reboot_check_k8s.rc == 1
 
 - name: Configurar parâmetros de rede para Kubernetes
   ansible.posix.sysctl:
