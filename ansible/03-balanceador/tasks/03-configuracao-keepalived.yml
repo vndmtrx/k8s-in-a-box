@@ -1,4 +1,4 @@
-# ansible/03-haproxy/tasks/03-configuracao-keepalived.yml
+# ansible/03-balanceador/tasks/03-configuracao-keepalived.yml
 ---
 - name: Criar configuração do Keepalived
   ansible.builtin.template:
