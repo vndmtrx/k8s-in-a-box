@@ -1,10 +1,10 @@
 # ansible/02-sistema/tasks/1-base.yml
 ---
-- name: Colocar SELinux em modo desabilitado (iremos tratar do SELinux no futuro)
+- name: Colocar SELinux em modo permissivo (iremos tratar do SELinux no futuro)
   become: true
   ansible.posix.selinux:
     policy: targeted
-    state: disabled
+    state: permissive
 
 - name: Garantir que chronyd está ativo
   ansible.builtin.service:
@@ -55,6 +55,8 @@
 
 - name: Reiniciar se necessário
   ansible.builtin.reboot:
+    post_reboot_delay: 10
+    reboot_timeout: 300
   when: reboot_check.rc == 1
 
 - name: Configurar o TZ para o especificado em defaults
