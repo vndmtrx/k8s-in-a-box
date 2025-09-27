@@ -71,6 +71,10 @@ kube-scheduler: ## Executa apenas a role kube-scheduler (use com um snapshot de 
 	@echo "Executando role kube-controller-manager..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kube-scheduler
 
+kubelet: ## Executa apenas a role kubelet (use com um snapshot de kube-scheduler)
+	@echo "Executando role kubelet..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kubelet
+
 k8s-in-a-box: up ## Executa todo o projeto
 	@echo "Executando todas as roles..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags todas
@@ -93,6 +97,8 @@ cadeia-kube-apiserver: cadeia-kubernetes-base kube-apiserver ## Executa todas as
 cadeia-kube-controller-manager: cadeia-kube-apiserver kube-controller-manager ## Executa todas as dependências para a role kube-controller-manager
 
 cadeia-kube-scheduler: cadeia-kube-controller-manager kube-scheduler ## Executa todas as dependências para a role kube-scheduler
+
+cadeia-kubelet: cadeia-kube-scheduler kubelet ## Executa todas as dependências para a role kubelet
 
 snapshot: ## Cria uma snapshot única (sempre sobrescreve)
 	@if vagrant status | grep -q "not created"; then \
