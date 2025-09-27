@@ -33,14 +33,14 @@
         - sistema
         - todas
 
-- name: Configurações do Load Balancer
+- name: Configurações do Balanceador de carga
   hosts: loadbalancers
   become: true
   gather_facts: false
   roles:
-    - role: 03-haproxy
+    - role: 03-balanceador
       tags:
-        - haproxy
+        - balanceador
         - todas
 
 - name: Configurações comuns a todos os nós

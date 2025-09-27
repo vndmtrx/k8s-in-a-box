@@ -3,8 +3,8 @@
 - DNS:localhost
 
 # Load Balancer
-- IP:{{ hostvars[groups['loadbalancers'][0]].ansible_host }}
-- DNS:{{ hostvars[groups['loadbalancers'][0]].fqdn }}
+- IP:{{ keepalived_vip_ip }}
+- DNS:{{ vip_api_fqdn }}
 
 # Nome e IP do nó atual
 - IP:{{ hostvars[manager_host].ansible_host }}

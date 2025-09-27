@@ -1,0 +1,18 @@
+global_defs {
+   router_id K8S_IN_A_BOX
+}
+
+vrrp_instance VI_1 {
+    state {{ 'MASTER' if inventory_hostname == groups['loadbalancers'][0] else 'BACKUP' }}
+    interface eth1
+    virtual_router_id 51
+    priority {{ 200 if inventory_hostname == groups['loadbalancers'][0] else 100 }}
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass {{ keepalived_senha }}
+    }
+    virtual_ipaddress {
+        {{ keepalived_vip_cidr }}
+    }
+}

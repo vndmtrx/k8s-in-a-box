@@ -47,19 +47,19 @@ sistema: ## Executa apenas a role sistema (use com um snapshot de pki)
 	@echo "Executando role sistema..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags sistema
 
-haproxy: ## Executa apenas a role haproxy (use com um snapshot de sistema)
-	@echo "Executando role haproxy..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags haproxy
+balanceador: ## Executa apenas a role balanceador (use com um snapshot de sistema)
+	@echo "Executando role balanceador..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags balanceador
 
-etcd: ## Executa apenas a role etcd (use com um snapshot de haproxy)
-	@echo "Executando role etcd..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags etcd
-
-kubernetes-base: ## Executa apenas a role kubernetes-base (use com um snapshot de etcd)
+kubernetes-base: ## Executa apenas a role kubernetes-base (use com um snapshot de balanceador)
 	@echo "Executando role kubernetes-base..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kubernetes-base
 
-kube-apiserver: ## Executa apenas a role kube-apiserver (use com um snapshot de kubernetes-base)
+etcd: ## Executa apenas a role etcd (use com um snapshot de kubernetes-base)
+	@echo "Executando role etcd..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags etcd
+
+kube-apiserver: ## Executa apenas a role kube-apiserver (use com um snapshot de etcd)
 	@echo "Executando role kube-apiserver..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kube-apiserver
 
@@ -86,13 +86,13 @@ cadeia-pki: cadeia-artefatos pki ## Executa todas as dependências para a role p
 
 cadeia-sistema: cadeia-pki sistema ## Executa todas as dependências para a role pki
 
-cadeia-haproxy: cadeia-sistema haproxy ## Executa todas as dependências para a role haproxy
+cadeia-balanceador: cadeia-sistema balanceador ## Executa todas as dependências para a role balanceador
 
-cadeia-etcd: cadeia-haproxy etcd ## Executa todas as dependências para a role etcd
+cadeia-kubernetes-base: cadeia-balanceador kubernetes-base ## Executa todas as dependências para a role kubernetes-base
 
-cadeia-kubernetes-base: cadeia-etcd kubernetes-base ## Executa todas as dependências para a role kubernetes-base
+cadeia-etcd: cadeia-kubernetes-base etcd ## Executa todas as dependências para a role etcd
 
-cadeia-kube-apiserver: cadeia-kubernetes-base kube-apiserver ## Executa todas as dependências para a role kube-apiserver
+cadeia-kube-apiserver: cadeia-etcd kube-apiserver ## Executa todas as dependências para a role kube-apiserver
 
 cadeia-kube-controller-manager: cadeia-kube-apiserver kube-controller-manager ## Executa todas as dependências para a role kube-controller-manager
 

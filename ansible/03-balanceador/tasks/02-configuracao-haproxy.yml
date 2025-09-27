@@ -1,4 +1,4 @@
-# ansible/03-haproxy/tasks/02-configuracao.yml
+# ansible/03-balanceador/tasks/02-configuracao-haproxy.yml
 ---
 - name: Verificar sintaxe do template HAProxy
   ansible.builtin.template:
@@ -27,4 +27,5 @@
 - name: Garantir que HAProxy está rodando
   ansible.builtin.systemd:
     name: haproxy
-    state: started
+    enabled: yes
+    state: restarted
