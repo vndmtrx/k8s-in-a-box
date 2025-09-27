@@ -1,4 +1,4 @@
-# ansible/01-pki/tasks/11-cert-front-proxy-cli.yml
+# ansible/01-pki/tasks/231-cert-front-proxy-cli.yml
 ---
 - name: Verificar arquivos existentes da chave para certificado do Kube Proxy
   ansible.builtin.stat:
