@@ -3,7 +3,10 @@
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 
 # Hostname da máquina
-127.0.1.1   {{ inventory_hostname }}
+127.0.1.1 {{ inventory_hostname }}
+
+# Entradas para os FQDNs dos endpoints
+{{ keepalived_vip_ip }} {{ vip_api_fqdn }} {{ vip_etcd_fqdn }}
 
 # Entradas das máquinas do cluster
 {% for host in groups['todos'] %}
