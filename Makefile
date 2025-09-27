@@ -47,11 +47,11 @@ sistema: ## Executa apenas a role sistema (use com um snapshot de pki)
 	@echo "Executando role sistema..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags sistema
 
-haproxy: ## Executa apenas a role haproxy (use com um snapshot de sistema)
-	@echo "Executando role haproxy..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags haproxy
+balanceador: ## Executa apenas a role balanceador (use com um snapshot de sistema)
+	@echo "Executando role balanceador..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags balanceador
 
-kubernetes-base: ## Executa apenas a role kubernetes-base (use com um snapshot de haproxy)
+kubernetes-base: ## Executa apenas a role kubernetes-base (use com um snapshot de balanceador)
 	@echo "Executando role kubernetes-base..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kubernetes-base
 
@@ -86,9 +86,9 @@ cadeia-pki: cadeia-artefatos pki ## Executa todas as dependências para a role p
 
 cadeia-sistema: cadeia-pki sistema ## Executa todas as dependências para a role pki
 
-cadeia-haproxy: cadeia-sistema haproxy ## Executa todas as dependências para a role haproxy
+cadeia-balanceador: cadeia-sistema balanceador ## Executa todas as dependências para a role balanceador
 
-cadeia-kubernetes-base: cadeia-haproxy kubernetes-base ## Executa todas as dependências para a role kubernetes-base
+cadeia-kubernetes-base: cadeia-balanceador kubernetes-base ## Executa todas as dependências para a role kubernetes-base
 
 cadeia-etcd: cadeia-kubernetes-base etcd ## Executa todas as dependências para a role etcd
 
