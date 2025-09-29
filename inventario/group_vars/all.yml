@@ -12,8 +12,8 @@ pasta_temporarios: "{{ pasta_artefatos }}/tmp"
 
 # Redes do projeto
 rede_cidr_hosts: "172.24.0.0/24"
-rede_cidr_pods: "172.24.4.0/24"
-rede_cidr_services: "172.24.8.0/24"
+rede_cidr_pods: "172.25.0.0/17"
+rede_cidr_services: "172.25.128.0/17"
 
 # Primeiros IPs das redes
 primeiro_ip_hosts: "{{ rede_cidr_hosts | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
