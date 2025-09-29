@@ -11,3 +11,30 @@
     dest: "/usr/local/bin/kubelet"
     mode: "0755"
   when: not kubelet_bin.stat.exists
+
+- name: Criar diretórios necessários para o kubelet
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: root
+    group: kubernetes
+    mode: "{{ item.mode | default('0750') }}"
+  loop:
+    # Configuração
+    - { path: /etc/kubernetes/manifests }
+    - { path: /var/lib/kubelet }
+
+    # Plugins CSI e storage
+    - { path: /var/lib/kubelet/plugins }
+    - { path: /var/lib/kubelet/plugins_registry }
+
+    # CNI
+    - { path: /opt/cni/bin }
+    - { path: /etc/cni/net.d }
+
+    # Estado dos pods
+    - { path: /var/lib/kubelet/pods }
+
+    # Logs dos containers
+    - { path: /var/log/pods, mode: "0755" }
+    - { path: /var/log/containers, mode: "0755" }

@@ -1,0 +1,76 @@
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+
+# Autenticação
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    enabled: true
+    cacheTTL: 0s
+  x509:
+    clientCAFile: /var/lib/kubelet/pki/{{ pki_cas.kubernetes.path_cert | basename }}
+tlsCertFile: /var/lib/kubelet/pki/{{ pki_certs.kubelet.path_cert | format(inventory_hostname) | basename }}
+tlsPrivateKeyFile: /var/lib/kubelet/pki/{{ pki_certs.kubelet.path_chave | format(inventory_hostname) | basename }}
+
+# Autorização
+authorization:
+  mode: Webhook
+  webhook:
+    cacheAuthorizedTTL: 0s
+    cacheUnauthorizedTTL: 0s
+
+# Cluster
+clusterDomain: cluster.local
+clusterDNS:
+  - {{ coredns_ip }}
+
+# Runtime
+cgroupDriver: systemd
+containerRuntimeEndpoint: unix:///var/run/containerd/containerd.sock
+
+# Recursos / agendamento
+cpuManagerReconcilePeriod: 0s
+memorySwap: {}
+evictionPressureTransitionPeriod: 0s
+shutdownGracePeriod: 0s
+shutdownGracePeriodCriticalPods: 0s
+
+# Certificados
+rotateCertificates: true
+
+# Pods estáticos
+staticPodPath: /etc/kubernetes/manifests
+
+# Status e relatórios
+nodeStatusReportFrequency: 0s
+nodeStatusUpdateFrequency: 0s
+
+# Healthz
+healthzBindAddress: 127.0.0.1
+healthzPort: 10248
+
+# Frequências e timeouts
+fileCheckFrequency: 0s
+httpCheckFrequency: 0s
+runtimeRequestTimeout: 0s
+streamingConnectionIdleTimeout: 0s
+syncFrequency: 0s
+volumeStatsAggPeriod: 0s
+
+# Garbage collection de imagens
+imageMaximumGCAge: 0s
+imageMinimumGCAge: 0s
+
+# Loop de crash
+crashLoopBackOff: {}
+
+# Logging
+logging:
+  verbosity: 0
+  flushFrequency: 0
+  options:
+    json:
+      infoBufferSize: "0"
+    text:
+      infoBufferSize: "0"
