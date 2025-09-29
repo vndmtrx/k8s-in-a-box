@@ -38,6 +38,7 @@
     key_usage_critical: true
     extended_key_usage:
       - clientAuth
+      - serverAuth
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', '221-san-kubelet.j2') | from_yaml }}"
   when: not kubelet_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
