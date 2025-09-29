@@ -1,0 +1,32 @@
+# ansible/09-kubelet/tasks/04-configuracao.yml
+---
+- name: Configurar parâmetros de inicialização do kubelet
+  ansible.builtin.template:
+    src: kubelet.env.j2
+    dest: /var/lib/kubelet/kubelet.env
+    mode: "0644"
+
+- name: Criar arquivo de configuração principal do kubelet
+  ansible.builtin.template:
+    src: kubelet-config.yml.j2
+    dest: /var/lib/kubelet/kubelet-config.yml
+    mode: "0644"
+
+- name: Criar kubeconfig com configs de usuário para o kubelet
+  ansible.builtin.template:
+    src: kubelet.kubeconfig.j2
+    dest: /var/lib/kubelet/kubelet.kubeconfig
+    mode: "0644"
+
+- name: Configurar serviço do kubelet
+  ansible.builtin.template:
+    src: kubelet.service.j2
+    dest: /etc/systemd/system/kubelet.service
+    mode: "0644"
+
+- name: Garantir serviço ativo
+  ansible.builtin.systemd:
+    name: kubelet
+    enabled: yes
+    state: restarted
+    daemon_reload: true
