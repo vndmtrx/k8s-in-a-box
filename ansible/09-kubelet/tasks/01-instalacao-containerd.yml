@@ -28,8 +28,8 @@
       {{
         containerd_config.stdout
         | regex_replace('SystemdCgroup = false', 'SystemdCgroup = true')
-        | regex_replace('sandbox_image = "registry.k8s.io/pause:[0-9.]+\"',
-                        'sandbox_image = "registry.k8s.io/{{ versao_pause }}"')
+        | regex_replace('sandbox_image = "registry.k8s.io/pause:[0-9.]+"',
+                        'sandbox_image = "registry.k8s.io/%s"' % versao_pause)
       }}
     mode: "0644"
 
@@ -37,7 +37,7 @@
   ansible.builtin.systemd:
     name: containerd
     enabled: true
-    state: started
+    state: restarted
 
 - name: Verificar se imagem pause já existe no containerd
   ansible.builtin.command: ctr images ls -q
