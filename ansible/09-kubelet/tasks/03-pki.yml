@@ -1,6 +1,6 @@
 # ansible/09-kubelet/tasks/03-pki.yml
 ---
-- name: Criar estrutura de diretórios para certificados
+- name: Criar estrutura de diretórios para certificados do kubelet
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -8,7 +8,7 @@
     group: kubernetes
     mode: "0750"
   loop:
-    - /etc/kubernetes/pki/kubelet
+    - /var/lib/kubelet/pki
 
 - name: Copiar certificados necessários para o kubelet
   ansible.builtin.copy:
@@ -18,11 +18,14 @@
     group: kubernetes
     mode: "{{ item.mode }}"
   loop:
+    - src: "{{ pki_cas.kubernetes.path_cert }}"
+      dest: "/var/lib/kubelet/pki/{{ pki_cas.kubernetes.path_cert | basename }}"
+      mode: "0644"
     - src: "{{ pki_certs.kubelet.path_cert | format(inventory_hostname) }}"
-      dest: "/etc/kubernetes/pki/kubelet/{{ pki_certs.kubelet.path_cert | format(inventory_hostname) | basename }}"
+      dest: "/var/lib/kubelet/pki/{{ pki_certs.kubelet.path_cert | format(inventory_hostname) | basename }}"
       mode: "0644"
     - src: "{{ pki_certs.kubelet.path_chave | format(inventory_hostname) }}"
-      dest: "/etc/kubernetes/pki/kubelet/{{ pki_certs.kubelet.path_chave | format(inventory_hostname) | basename }}"
+      dest: "/var/lib/kubelet/pki/{{ pki_certs.kubelet.path_chave | format(inventory_hostname) | basename }}"
       mode: "0640"
   loop_control:
     label: "{{ item.dest }}"
