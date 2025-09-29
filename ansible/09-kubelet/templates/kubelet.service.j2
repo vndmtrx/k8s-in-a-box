@@ -1,0 +1,32 @@
+[Unit]
+Description=Kubernetes Kubelet
+Documentation=https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=root
+Group=root
+
+WorkingDirectory=/var/lib/kubelet
+EnvironmentFile=-/var/lib/kubelet/kubelet.env
+ExecStart=/usr/local/bin/kubelet $KUBELET_OPTS
+
+Restart=always
+RestartSec=10
+
+CPUAccounting=true
+IPAccounting=true
+MemoryAccounting=true
+StartLimitInterval=0
+RuntimeDirectory=kubelet
+StateDirectory=kubelet
+
+# Logs
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kubelet
+
+[Install]
+WantedBy=multi-user.target
