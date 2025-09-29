@@ -2,8 +2,6 @@
 - IP:127.0.0.1
 - DNS:localhost
 
-# Todos os managers
-{% for host in groups['managers'] %}
-- IP:{{ hostvars[host].ansible_host }}
-- DNS:{{ hostvars[host].fqdn }}
-{% endfor %}
+# Nó atual
+- IP:{{ hostvars[manager_host].ansible_host }}
+- DNS:{{ hostvars[manager_host].fqdn }}
