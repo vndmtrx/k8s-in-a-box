@@ -102,3 +102,13 @@
       tags:
         - kubelet
         - todas
+
+- name: Configuração do kube-proxy
+  hosts: k8s_nodes
+  become: true
+  gather_facts: false
+  roles:
+    - role: 10-kube-proxy
+      tags:
+        - kube-proxy
+        - todas
