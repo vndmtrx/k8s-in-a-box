@@ -30,8 +30,8 @@
       CN: front-proxy-ca
     use_common_name_for_san: false
     basic_constraints:
-        - "CA:TRUE"
-        - "pathlen:0"
+      - "CA:TRUE"
+      - "pathlen:0"
     basic_constraints_critical: true
     key_usage:
       - keyCertSign
