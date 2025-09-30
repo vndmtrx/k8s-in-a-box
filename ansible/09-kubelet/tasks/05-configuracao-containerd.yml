@@ -1,0 +1,33 @@
+# ansible/09-kubelet/tasks/05-configuracao-containerd.yml
+---
+- name: Gerar configuração padrão do containerd
+  ansible.builtin.command: containerd config default
+  register: containerd_config
+  changed_when: false
+
+- name: Salvar configuração do containerd ajustada para funcionar com o Kubelet
+  ansible.builtin.copy:
+    dest: /etc/containerd/config.toml
+    content: >-
+      {{
+        containerd_config.stdout
+        | regex_replace('SystemdCgroup = false', 'SystemdCgroup = true')
+        | regex_replace('sandbox_image = "registry.k8s.io/pause:[0-9.]+"',
+                        'sandbox_image = "registry.k8s.io/%s"' % versao_pause)
+      }}
+    mode: "0644"
+
+- name: Habilitar e iniciar containerd
+  ansible.builtin.systemd:
+    name: containerd
+    enabled: true
+    state: restarted
+
+- name: Verificar se imagem pause já existe no containerd
+  ansible.builtin.command: ctr images ls -q
+  register: ctr_imagens
+  changed_when: false
+
+- name: Pré-puxar imagem pause
+  ansible.builtin.command: "ctr images pull registry.k8s.io/{{ versao_pause }}"
+  when: "'registry.k8s.io/' ~ versao_pause not in ctr_imagens.stdout_lines"

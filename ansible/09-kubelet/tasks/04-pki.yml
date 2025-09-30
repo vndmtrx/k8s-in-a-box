@@ -1,4 +1,4 @@
-# ansible/09-kubelet/tasks/03-pki.yml
+# ansible/09-kubelet/tasks/04-pki.yml
 ---
 - name: Criar estrutura de diretórios para certificados do kubelet
   ansible.builtin.file:
