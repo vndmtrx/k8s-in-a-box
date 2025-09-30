@@ -6,8 +6,6 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=kubernetes
-Group=kubernetes
 
 WorkingDirectory=/var/lib/kubernetes
 EnvironmentFile=-/etc/kubernetes/kube-scheduler.env
@@ -15,21 +13,6 @@ ExecStart=/usr/local/bin/kube-scheduler $KUBE_SCHEDULER_OPTS
 
 Restart=on-failure
 RestartSec=10
-
-# Limites de recursos
-LimitNOFILE=65536
-LimitNPROC=65536
-
-# Configurações de segurança
-NoNewPrivileges=true
-ProtectSystem=full
-ProtectHome=true
-PrivateTmp=true
-PrivateDevices=true
-ProtectKernelTunables=true
-ProtectKernelModules=true
-ProtectControlGroups=true
-ReadWritePaths=/var/lib/kubernetes
 
 # Logs
 StandardOutput=journal
