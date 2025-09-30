@@ -1,0 +1,23 @@
+[Unit]
+Description=Kubernetes Kube Proxy
+Documentation=https://kubernetes.io/docs/reference/command-line-tools-reference/kube-proxy/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+WorkingDirectory=/var/lib/kubernetes
+EnvironmentFile=-/etc/kubernetes/kube-proxy.env
+ExecStart=/usr/local/bin/kube-proxy $KUBE_PROXY_OPTS
+
+Restart=on-failure
+RestartSec=10
+
+# Logs
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kube-proxy
+
+[Install]
+WantedBy=multi-user.target
