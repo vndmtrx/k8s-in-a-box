@@ -28,10 +28,6 @@
     - { path: /var/lib/kubelet/plugins }
     - { path: /var/lib/kubelet/plugins_registry }
 
-    # CNI
-    - { path: /opt/cni/bin }
-    - { path: /etc/cni/net.d }
-
     # Estado dos pods
     - { path: /var/lib/kubelet/pods }
 
