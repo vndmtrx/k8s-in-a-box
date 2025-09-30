@@ -4,6 +4,10 @@
 
 - ansible.builtin.include_tasks: 02-instalacao-kubelet.yml
 
-- ansible.builtin.include_tasks: 03-pki.yml
+- ansible.builtin.include_tasks: 03-instalacao-plugins-cni.yml
 
-- ansible.builtin.include_tasks: 04-configuracao.yml
+- ansible.builtin.include_tasks: 04-pki.yml
+
+- ansible.builtin.include_tasks: 05-configuracao-containerd.yml
+
+- ansible.builtin.include_tasks: 06-configuracao-kubelet.yml

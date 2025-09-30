@@ -67,6 +67,7 @@ keepalived_senha: "SenhaSuperSecreta123"
 versao_etcd: "v3.6.5"         # https://endoflife.date/etcd
 versao_kubernetes: "v1.34.1"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
 versao_pause: "pause:3.10.1"  # https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd
+versao_cni: "v1.8.0"          # https://github.com/containernetworking/plugins/releases e https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/
 
 download_artefatos:
   tailspin-bin:
@@ -107,6 +108,12 @@ download_artefatos:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubectl"
     arquivo: "kubectl"
     checksum: "sha256:7721f265e18709862655affba5343e85e1980639395d5754473dafaadcaa69e3"
+
+  cni-plugins-bin:
+    url: "https://github.com/containernetworking/plugins/releases/download/{{ versao_cni }}/cni-plugins-linux-amd64-{{ versao_cni }}.tgz"
+    arquivo: "cni-plugins.tgz"
+    checksum: "sha256:ab3bda535f9d90766cccc90d3dddb5482003dd744d7f22bcf98186bf8eea8be6"
+
 
 ########################################
 ### Configurações para a role 02-pki ###

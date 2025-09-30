@@ -1,4 +1,4 @@
-# ansible/09-kubelet/tasks/04-configuracao.yml
+# ansible/09-kubelet/tasks/06-configuracao-kubelet.yml
 ---
 - name: Configurar parâmetros de inicialização do kubelet
   ansible.builtin.template:
