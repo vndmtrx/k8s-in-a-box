@@ -25,14 +25,14 @@
   ansible.builtin.dnf:
     update_cache: true
 
-- name: Atualizar todos os pacotes
+- name: Atualizar todos os pacotes  # noqa package-latest
   become: true
   ansible.builtin.dnf:
     name: "*"
     state: latest
   when: atualiza_sistema == "all"
 
-- name: Atualizar apenas pacotes de segurança
+- name: Atualizar apenas pacotes de segurança  # noqa package-latest
   become: true
   ansible.builtin.dnf:
     name: "*"
@@ -63,7 +63,7 @@
   community.general.timezone:
     name: "{{ timezone_tz }}"
 
-- name: Ler configuração atual do locale
+- name: Ler configuração atual do locale  # noqa no-changed-when
   ansible.builtin.command: localectl status
   register: resultado_locale
   changed_when: false
@@ -71,6 +71,7 @@
 - name: Configurar locale se necessário
   ansible.builtin.command: "localectl set-locale LANG={{ locale_lang }}"
   when: "'LANG=' ~ locale_lang not in resultado_locale.stdout"
+  changed_when: true
 
 - name: Gerar arquivo /etc/hosts para cada nó do cluster
   ansible.builtin.template:
@@ -85,7 +86,9 @@
     path: "/usr/local/bin/tspin"
   register: tailspin_bin
 
-- block:
+- name: Instalar Tailspin se não existir
+  when: not tailspin_bin.stat.exists
+  block:
     - name: Copiar Tailspin para a VM (em /tmp)
       ansible.builtin.copy:
         src: "{{ pasta_temporarios }}/tailspin.tar.gz"
@@ -107,5 +110,3 @@
       ansible.builtin.file:
         path: "/tmp/tailspin.tar.gz"
         state: absent
-  when: not tailspin_bin.stat.exists
-
