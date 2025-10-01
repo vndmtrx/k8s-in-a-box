@@ -36,21 +36,19 @@
 - [x] Instalação do kube-apiserver
 - [x] Configuração do kube-controller-manager
 - [x] Configuração do kube-scheduler
-- [ ] Geração dos arquivos kubeconfig
+- [x] Geração dos arquivos kubeconfig
   - [x] kubeconfig do admin
   - [x] kubeconfig do controller-manager
   - [x] kubeconfig do scheduler
-  - [ ] kubeconfig do kubelet (para cada nó)
-  - [ ] kubeconfig do kube-proxy
+  - [x] kubeconfig do kubelet (para cada nó)
+  - [x] kubeconfig do kube-proxy
 
 ### 👷 Workers
-- [ ] Configuração do Container Runtime
-  - [ ] Escolha do runtime (containerd/CRI-O)
-  - [ ] Instalação e configuração
-  - [ ] Configuração da rede do container
-- [ ] Instalação do kubelet
-- [ ] Configuração do kube-proxy
-- [ ] Configuração dos logs do sistema
+- [x] Configuração do Container Runtime
+  - [x] Escolha do runtime (containerd/CRI-O)
+  - [x] Instalação e configuração
+- [x] Instalação do kubelet
+- [x] Configuração do kube-proxy
 
 ### 🌐 Rede do Cluster
 - [ ] Escolha do CNI Plugin
@@ -60,12 +58,6 @@
 - [ ] Instalação do CoreDNS
 - [ ] Configuração do MetalLB
 - [ ] Validação da rede
-
-### 📊 Monitoramento e Métricas
-- [ ] Metrics Server
-  - [ ] Instalação
-  - [ ] Configuração
-  - [ ] Validação das métricas
 
 ### 🎯 Componentes Adicionais
 - [ ] Dashboard do Kubernetes
