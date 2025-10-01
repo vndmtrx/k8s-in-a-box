@@ -1,7 +1,10 @@
 # ansible/04-kubernetes-base/tasks/main.yml
 ---
-- ansible.builtin.import_tasks: 01-instalacao.yml
+- name: Configurar pacotes
+  ansible.builtin.import_tasks: 01-instalacao.yml
 
-- ansible.builtin.import_tasks: 02-pki.yml
+- name: Transferir PKIs
+  ansible.builtin.import_tasks: 02-pki.yml
 
-- ansible.builtin.import_tasks: 03-config-kubectl.yml
+- name: Aplicar configuração do kubectl
+  ansible.builtin.import_tasks: 03-config-kubectl.yml
