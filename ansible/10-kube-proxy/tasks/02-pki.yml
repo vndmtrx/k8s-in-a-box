@@ -1,3 +1,4 @@
+# ansible/09-kube-proxy/tasks/02-pki.yml
 ---
 - name: Criar estrutura de diretórios para certificados do kube-proxy
   ansible.builtin.file:
