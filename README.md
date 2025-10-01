@@ -13,7 +13,7 @@ Este projeto está em desenvolvimento ativo, seguindo uma abordagem progressiva 
 ### 🟢 Componentes Concluídos
 - Infraestrutura com Vagrant/LibVirt
 - Framework de Automação Ansible
-- Sistema Base das VMs (Debian Bookworm)
+- Sistema Base das VMs (AlmaLinux 10)
 - PKI (Certificados para todos componentes)
 - Load Balancer (HAProxy)
   - Balanceamento do API Server
@@ -24,39 +24,37 @@ Este projeto está em desenvolvimento ativo, seguindo uma abordagem progressiva 
   - Instalação e Configuração
   - mTLS entre membros
   - Monitoramento de Saúde
+- Control Plane
+  - Instalação do kube-apiserver
+  - Configuração do controller-manager
+  - Configuração do scheduler
+  - Integração com etcd
+  - Alta Disponibilidade via HAProxy
+- Workers e Runtime
+  - Container Runtime
+  - Kubelet
+  - Kube-proxy
+- Arquivos de Configuração
+  - kubeconfig do admin
+  - kubeconfig do controller-manager
+  - kubeconfig do scheduler
+  - kubeconfig do kubelet
+  - kubeconfig do kube-proxy
 
 ### 🟡 Em Desenvolvimento
-1. **Control Plane**
-    - Instalação do kube-apiserver
-    - Configuração do controller-manager
-    - Configuração do scheduler
-    - Integração com etcd
-    - Alta Disponibilidade via HAProxy
-
-2. **Workers e Runtime**
-    - Container Runtime
-    - Kubelet
-    - Kube-proxy
-
-3. **Arquivos de Configuração**
-    - kubeconfig do admin
-    - kubeconfig do controller-manager
-    - kubeconfig do scheduler
-    - kubeconfig do kubelet
-    - kubeconfig do kube-proxy
-
-### ⚪ Etapas Futuras
 - **Rede do Cluster**
   - CNI Plugin
   - CoreDNS
   - MetalLB
+- **Componentes Adicionais**
+  - Dashboard
+  - Helm
+
+### ⚪ Etapas Futuras
 - **Observabilidade**
   - Metrics Server
   - Sistema de Logs
   - Prometheus + Grafana (não prometo nada)
-- **Componentes Adicionais**
-  - Dashboard
-  - Helm
 - **Validação e Documentação**
   - Testes de Carga
   - Exemplos de Uso
@@ -73,9 +71,9 @@ O cluster é composto por:
 ## Pré-requisitos
 
 - Vagrant com provider LibVirt
-- Ansible 2.9+
-- Debian Bookworm 64-bit (base para as VMs)
-- 9.5 GB RAM disponível
+- Ansible 2.19+
+- Debian Trixie 64-bit (base para as VMs)
+- 6,1 GB RAM disponível
 - 9 vCPUs disponíveis
 
 ## Início Rápido
@@ -86,37 +84,32 @@ git clone https://github.com/vndmtrx/k8s-in-a-box.git
 cd k8s-in-a-box
 ```
 
-2. Inicie as VMs:
+2. Faça o provisionamento da estrutura completa
 ```bash
-vagrant up
-```
-
-3. Execute o provisionamento:
-```bash
-./provisionamento.sh
+make k8s-in-a-box
 ```
 
 ## Acessando as VMs
 
 Use o comando SSH com o arquivo de configuração fornecido neste repositório:
 ```bash
-ssh -F ssh_config 172.24.0.11  # Load Balancer
-ssh -F ssh_config 172.24.0.21  # Manager 1
-ssh -F ssh_config 172.24.0.22  # Manager 2
-ssh -F ssh_config 172.24.0.23  # Manager 3
-ssh -F ssh_config 172.24.0.31  # Worker 1
-ssh -F ssh_config 172.24.0.32  # Worker 2
+ssh -F ssh_config 172.24.0.21  # Load Balancer
+ssh -F ssh_config 172.24.0.31  # Manager 1
+ssh -F ssh_config 172.24.0.32  # Manager 2
+ssh -F ssh_config 172.24.0.33  # Manager 3
+ssh -F ssh_config 172.24.0.41  # Worker 1
+ssh -F ssh_config 172.24.0.42  # Worker 2
 ```
 
 ## Rede
 
 Todas as máquinas estão em uma rede privada:
-- Load Balancer: 172.24.0.11
-- Manager 1: 172.24.0.21
-- Manager 2: 172.24.0.22
-- Manager 3: 172.24.0.23
-- Worker 1: 172.24.0.31
-- Worker 2: 172.24.0.32
+- Load Balancer: 172.24.0.21
+- Manager 1: 172.24.0.31
+- Manager 2: 172.24.0.32
+- Manager 3: 172.24.0.33
+- Worker 1: 172.24.0.41
+- Worker 2: 172.24.0.42
 
 ## Notas Importantes
 
