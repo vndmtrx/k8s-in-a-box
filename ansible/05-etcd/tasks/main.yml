@@ -1,9 +1,13 @@
 # ansible/04-etcd/tasks/main.yml
 ---
-- ansible.builtin.include_tasks: 01-instalacao.yml
+- name: Instalar as dependências do Etcd
+  ansible.builtin.include_tasks: 01-instalacao.yml
 
-- ansible.builtin.include_tasks: 02-pki.yml
+- name: Transferir os PKIs que o Etcd precisa
+  ansible.builtin.include_tasks: 02-pki.yml
 
-- ansible.builtin.include_tasks: 03-configuracao.yml
+- name: Efetuar criação dos arquivos de configuração
+  ansible.builtin.include_tasks: 03-configuracao.yml
 
-- ansible.builtin.include_tasks: 04-config-etcdctl.yml
+- name: Efetuar configuração do funcionamento do Etcdctl
+  ansible.builtin.include_tasks: 04-config-etcdctl.yml
