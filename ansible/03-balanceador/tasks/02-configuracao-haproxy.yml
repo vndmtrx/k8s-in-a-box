@@ -17,7 +17,7 @@
     owner: root
     group: root
     validate: 'haproxy -c -f %s'
-    backup: yes
+    backup: true
 
 - name: Habilitar HAProxy no boot
   ansible.builtin.systemd:
@@ -27,5 +27,5 @@
 - name: Garantir que HAProxy está rodando
   ansible.builtin.systemd:
     name: haproxy
-    enabled: yes
+    enabled: true
     state: restarted

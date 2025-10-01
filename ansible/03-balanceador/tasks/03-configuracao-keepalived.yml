@@ -7,7 +7,7 @@
     mode: '0644'
     owner: root
     group: root
-    backup: yes
+    backup: true
 
 - name: Habilitar Keepalived no boot
   ansible.builtin.systemd:
@@ -17,5 +17,5 @@
 - name: Garantir que Keepalived está rodando
   ansible.builtin.systemd:
     name: keepalived
-    enabled: yes
+    enabled: true
     state: restarted
