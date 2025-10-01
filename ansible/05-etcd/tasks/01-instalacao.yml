@@ -5,7 +5,9 @@
     path: "/usr/local/bin/etcd"
   register: etcd_bin
 
-- block:
+- name: Instalar o Etcd se não existir
+  when: not etcd_bin.stat.exists
+  block:
     - name: Copiar Etcd para a VM (em /tmp)
       ansible.builtin.copy:
         src: "{{ pasta_temporarios }}/etcd-bin.tar.gz"
@@ -62,4 +64,3 @@
       ansible.builtin.file:
         path: "/tmp/etcd-bin.tar.gz"
         state: absent
-  when: not etcd_bin.stat.exists

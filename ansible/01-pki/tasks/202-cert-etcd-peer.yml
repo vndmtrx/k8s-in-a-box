@@ -44,7 +44,7 @@
   delegate_to: localhost
   register: etcd_peer_csr
 
-- name: Assinar certificado para cliente mTLS do peer Etcd ({{ manager_host }}) com o respectivo CA intermediário
+- name: Assinar certificado para cliente mTLS do peer Etcd com o respectivo CA intermediário ({{ manager_host }})
   community.crypto.x509_certificate:
     path: "{{ pki_certs.etcd_peer.path_cert | format(manager_host) }}"
     csr_content: "{{ etcd_peer_csr.csr }}"

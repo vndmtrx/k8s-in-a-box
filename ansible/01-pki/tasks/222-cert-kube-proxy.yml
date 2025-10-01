@@ -44,7 +44,7 @@
   delegate_to: localhost
   register: kube_proxy_csr
 
-- name: Assinar certificado para o kube-proxy ({{ node_host }}) com o respectivo CA intermediário
+- name: Assinar certificado para o kube-proxy com o respectivo CA intermediário ({{ node_host }})
   community.crypto.x509_certificate:
     path: "{{ pki_certs.kube_proxy.path_cert | format(node_host) }}"
     csr_content: "{{ kube_proxy_csr.csr }}"

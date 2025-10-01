@@ -1,3 +1,4 @@
+# ansible/09-kube-proxy/tasks/03-configuracao.yml
 ---
 - name: Configurar serviço do kube-proxy
   ansible.builtin.template:
@@ -20,6 +21,6 @@
 - name: Garantir serviço ativo
   ansible.builtin.systemd:
     name: kube-proxy
-    enabled: yes
+    enabled: true
     state: restarted
     daemon_reload: true

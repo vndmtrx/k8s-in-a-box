@@ -1,58 +1,76 @@
 # ansible/01-pki/tasks/main.yml
 ---
-- ansible.builtin.include_tasks: 01-setup.yml
+- name: Configuração inicial da geração de certificados
+  ansible.builtin.include_tasks: 01-setup.yml
 
-- ansible.builtin.include_tasks: 101-root-ca.yml
+- name: Geração do Root CA
+  ansible.builtin.include_tasks: 101-root-ca.yml
 
-- ansible.builtin.include_tasks: 102-ca-etcd.yml
+- name: Geração do CA do Etcd
+  ansible.builtin.include_tasks: 102-ca-etcd.yml
 
-- ansible.builtin.include_tasks: 103-ca-kubernetes.yml
+- name: Geração do CA do Kubernetes
+  ansible.builtin.include_tasks: 103-ca-kubernetes.yml
 
-- ansible.builtin.include_tasks: 104-ca-front-proxy.yml
+- name: Geração do CA do Front-proxy
+  ansible.builtin.include_tasks: 104-ca-front-proxy.yml
 
-- ansible.builtin.include_tasks: 201-cert-etcd-server.yml
+- name: Geração do certificado de Servidor para Etcd
+  ansible.builtin.include_tasks: 201-cert-etcd-server.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
 
-- ansible.builtin.include_tasks: 202-cert-etcd-peer.yml
+- name: Geração do certificado de Peer para Etcd
+  ansible.builtin.include_tasks: 202-cert-etcd-peer.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
 
-- ansible.builtin.include_tasks: 203-cert-etcd-cli.yml
+- name: Geração do certificado de Cliente para Etcd e Etcdctl
+  ansible.builtin.include_tasks: 203-cert-etcd-cli.yml
 
-- ansible.builtin.include_tasks: 211-cert-kube-apiserver.yml
+- name: Geração do certificado do kube-apiserver
+  ansible.builtin.include_tasks: 211-cert-kube-apiserver.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
 
-- ansible.builtin.include_tasks: 212-cert-kube-apiserver-etcd-cli.yml
+- name: Geração do certificado de Cliente Etcd do kube-apiserver
+  ansible.builtin.include_tasks: 212-cert-kube-apiserver-etcd-cli.yml
 
-- ansible.builtin.include_tasks: 213-cert-kube-apiserver-kubelet-cli.yml
+- name: Geração do certificado de Cliente Kubelet do kube-apiserver
+  ansible.builtin.include_tasks: 213-cert-kube-apiserver-kubelet-cli.yml
 
-- ansible.builtin.include_tasks: 214-cert-kube-controller-manager.yml
+- name: Geração do certificado do kube-controller-manager
+  ansible.builtin.include_tasks: 214-cert-kube-controller-manager.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
 
-- ansible.builtin.include_tasks: 215-cert-kube-scheduler.yml
+- name: Geração do certificado do kube-scheduler
+  ansible.builtin.include_tasks: 215-cert-kube-scheduler.yml
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
 
-- ansible.builtin.include_tasks: 221-cert-kubelet.yml
+- name: Geração do certificado do kubelet
+  ansible.builtin.include_tasks: 221-cert-kubelet.yml
   loop: "{{ groups['k8s_nodes'] }}"
   loop_control:
     loop_var: node_host
 
-- ansible.builtin.include_tasks: 222-cert-kube-proxy.yml
+- name: Geração do certificado do kube-proxy
+  ansible.builtin.include_tasks: 222-cert-kube-proxy.yml
   loop: "{{ groups['k8s_nodes'] }}"
   loop_control:
     loop_var: node_host
 
-- ansible.builtin.include_tasks: 223-cert-service-account.yml
+- name: Geração do certificado para o Service Account
+  ansible.builtin.include_tasks: 223-cert-service-account.yml
 
-- ansible.builtin.include_tasks: 224-cert-admin-account.yml
+- name: Geração do certificado para o Admin Account
+  ansible.builtin.include_tasks: 224-cert-admin-account.yml
 
-- ansible.builtin.include_tasks: 231-cert-front-proxy-cli.yml
+- name: Geração do certificado de Cliente do Front-proxy
+  ansible.builtin.include_tasks: 231-cert-front-proxy-cli.yml

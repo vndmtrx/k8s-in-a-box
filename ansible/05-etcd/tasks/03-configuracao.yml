@@ -23,6 +23,6 @@
 - name: Garantir serviço ativo
   ansible.builtin.systemd:
     name: etcd
-    enabled: yes
+    enabled: true
     state: restarted
     daemon_reload: true

@@ -30,6 +30,12 @@ destroy: ## Destroi as VMs
 clean: destroy ## Destroi as VMs e remove todos os arquivos gerados automaticamente
 	rm -rf $(ARTEFATOS) .vagrant id_ed25519 id_ed25519.pub
 
+arquivos-newlines: ## Adiciona quebra de linha no final dos arquivos que não têm
+	find . -type f \
+	  -not -path "./.git/*" \
+	  -not -path "./artefatos/*" \
+	  -exec sh -c '[ -n "$$(tail -c1 "$$1" 2>/dev/null)" ] && echo >> "$$1"' _ {} \;
+
 lint: ## Checagem da estrutura do Ansible
 	@command -v ansible-lint >/dev/null 2>&1 || { echo "ansible-lint não está instalado."; exit 1; }
 	@ansible-lint -q ansible/ || true

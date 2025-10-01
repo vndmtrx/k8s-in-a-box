@@ -1,9 +1,13 @@
 # ansible/09-kubelet/tasks/01-instalacao-containerd.yml
 ---
 - name: Adicionar repositório Docker
-  ansible.builtin.get_url:
-    url: https://download.docker.com/linux/centos/docker-ce.repo
-    dest: /etc/yum.repos.d/docker-ce.repo
+  ansible.builtin.yum_repository:
+    name: docker-ce-stable
+    description: Docker CE Stable - $basearch
+    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+    enabled: true
+    gpgcheck: true
+    gpgkey: https://download.docker.com/linux/centos/gpg
 
 - name: Instalar containerd
   ansible.builtin.dnf:
@@ -15,4 +19,3 @@
     path: /etc/containerd
     state: directory
     mode: "0755"
-

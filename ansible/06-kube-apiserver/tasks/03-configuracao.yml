@@ -15,6 +15,6 @@
 - name: Garantir serviço ativo
   ansible.builtin.systemd:
     name: kube-apiserver
-    enabled: yes
+    enabled: true
     state: restarted
     daemon_reload: true

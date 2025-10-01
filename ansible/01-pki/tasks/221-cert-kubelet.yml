@@ -45,7 +45,7 @@
   delegate_to: localhost
   register: kubelet_csr
 
-- name: Assinar certificado para o kubelet ({{ node_host }}) com o respectivo CA intermediário
+- name: Assinar certificado para o kubelet com o respectivo CA intermediário ({{ node_host }})
   community.crypto.x509_certificate:
     path: "{{ pki_certs.kubelet.path_cert | format(node_host) }}"
     csr_content: "{{ kubelet_csr.csr }}"

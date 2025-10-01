@@ -31,3 +31,4 @@
 - name: Pré-puxar imagem pause
   ansible.builtin.command: "ctr images pull registry.k8s.io/{{ versao_pause }}"
   when: "'registry.k8s.io/' ~ versao_pause not in ctr_imagens.stdout_lines"
+  changed_when: true

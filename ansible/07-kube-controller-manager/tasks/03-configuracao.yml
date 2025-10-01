@@ -21,6 +21,6 @@
 - name: Garantir serviço ativo
   ansible.builtin.systemd:
     name: kube-controller-manager
-    enabled: yes
+    enabled: true
     state: restarted
     daemon_reload: true

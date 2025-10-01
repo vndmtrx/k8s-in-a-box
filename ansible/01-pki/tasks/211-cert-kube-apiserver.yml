@@ -43,7 +43,7 @@
   delegate_to: localhost
   register: kube_apiserver_csr
 
-- name: Assinar certificado para o kube-apiserver ({{ manager_host }}) com o respectivo CA intermediário
+- name: Assinar certificado para o kube-apiserver com o respectivo CA intermediário ({{ manager_host }})
   community.crypto.x509_certificate:
     path: "{{ pki_certs.kube_apiserver.path_cert | format(manager_host) }}"
     csr_content: "{{ kube_apiserver_csr.csr }}"
