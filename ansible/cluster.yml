@@ -9,7 +9,7 @@
     - role: 00-artefatos
       tags:
         - artefatos
-        - todas
+        - cluster
 
 - name: Criação local dos CAs e certificados do projeto
   hosts: localhost
@@ -20,7 +20,7 @@
     - role: 01-pki
       tags:
         - pki
-        - todas
+        - cluster
 
 - name: Configurações base para todas as máquinas
   hosts:
@@ -31,7 +31,7 @@
     - role: 02-sistema
       tags:
         - sistema
-        - todas
+        - cluster
 
 - name: Configurações do Balanceador de carga
   hosts: loadbalancers
@@ -41,7 +41,7 @@
     - role: 03-balanceador
       tags:
         - balanceador
-        - todas
+        - cluster
 
 - name: Configurações comuns a todos os nós
   hosts: k8s_nodes
@@ -51,7 +51,7 @@
     - role: 04-kubernetes-base
       tags:
         - kubernetes-base
-        - todas
+        - cluster
 
 - name: Configurações do cluster Etcd
   hosts: managers
@@ -61,7 +61,7 @@
     - role: 05-etcd
       tags:
         - etcd
-        - todas
+        - cluster
 
 - name: Configuração do kube-apiserver
   hosts: managers
@@ -71,7 +71,7 @@
     - role: 06-kube-apiserver
       tags:
         - kube-apiserver
-        - todas
+        - cluster
 
 - name: Configuração do kube-controller-manager
   hosts: managers
@@ -81,7 +81,7 @@
     - role: 07-kube-controller-manager
       tags:
         - kube-controller-manager
-        - todas
+        - cluster
 
 - name: Configuração do kube-scheduler
   hosts: managers
@@ -91,7 +91,7 @@
     - role: 08-kube-scheduler
       tags:
         - kube-scheduler
-        - todas
+        - cluster
 
 - name: Configuração do kubelet
   hosts: k8s_nodes
@@ -101,7 +101,7 @@
     - role: 09-kubelet
       tags:
         - kubelet
-        - todas
+        - cluster
 
 - name: Configuração do kube-proxy
   hosts: k8s_nodes
@@ -111,4 +111,4 @@
     - role: 10-kube-proxy
       tags:
         - kube-proxy
-        - todas
+        - cluster
