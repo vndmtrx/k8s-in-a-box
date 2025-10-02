@@ -74,3 +74,16 @@ logging:
       infoBufferSize: "0"
     text:
       infoBufferSize: "0"
+
+# Labels e Taints
+{% if inventory_hostname in groups['managers'] %}
+nodeLabels:
+  node-role.kubernetes.io/control-plane: ""
+  node.kubernetes.io/exclude-from-external-load-balancers: ""
+registerWithTaints:
+- key: "node-role.kubernetes.io/control-plane"
+  effect: "NoSchedule"
+{% elif inventory_hostname in groups['workers'] %}
+nodeLabels:
+  node-role.kubernetes.io/worker: ""
+{% endif %}
