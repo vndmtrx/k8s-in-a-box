@@ -68,7 +68,9 @@ versao_etcd: "v3.6.5"         # https://endoflife.date/etcd
 versao_kubernetes: "v1.34.1"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
 versao_pause: "pause:3.10.1"  # https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd
 versao_cni: "v1.8.0"          # https://github.com/containernetworking/plugins/releases e https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/
+versao_helm: "v3.19.0"        # https://github.com/helm/helm/releases
 
+# Kubernetes: https://kubernetes.io/releases/download/
 download_artefatos:
   tailspin-bin:
     url: "https://github.com/bensadeh/tailspin/releases/latest/download/tailspin-x86_64-unknown-linux-musl.tar.gz"
@@ -114,6 +116,10 @@ download_artefatos:
     arquivo: "cni-plugins.tgz"
     checksum: "sha256:ab3bda535f9d90766cccc90d3dddb5482003dd744d7f22bcf98186bf8eea8be6"
 
+  helm-bin:
+    url: "https://get.helm.sh/helm-{{ versao_helm }}-linux-amd64.tar.gz"
+    arquivo: "helm.tar.gz"
+    checksum: "sha256:a7f81ce08007091b86d8bd696eb4d86b8d0f2e1b9f6c714be62f82f96a594496"
 
 ########################################
 ### Configurações para a role 02-pki ###
