@@ -1,7 +1,0 @@
-# Lista de endpoints (todos os managers)
-export ETCDCTL_ENDPOINTS="{% for host in groups['managers'] -%}https://{{ hostvars[host].fqdn }}:2379{% if not loop.last %},{% endif %}{%- endfor %}"
-
-# PKI do etcd
-export ETCDCTL_CACERT="/etc/etcd/pki/ca/{{ pki_cas.etcd.path_cert | basename }}"
-export ETCDCTL_CERT="/etc/etcd/pki/client/{{ pki_certs.etcd_cli.path_cert | basename }}"
-export ETCDCTL_KEY="/etc/etcd/pki/client/{{ pki_certs.etcd_cli.path_chave | basename }}"
