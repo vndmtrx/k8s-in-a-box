@@ -94,6 +94,8 @@ ops: ## Executa toda a construção do cliente kubox para operação do cluster
 	vagrant up kubox
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops
 
+k8s-in-a-box: cluster ops ## Executa todo o projeto
+
 # Tasks com encadeamento de execução
 cadeia-artefatos: up artefatos ## Executa todas as dependências para a role artefatos
 
