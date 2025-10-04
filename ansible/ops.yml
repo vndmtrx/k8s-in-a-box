@@ -21,3 +21,14 @@
       tags:
         - ferramentas-ops
         - ops
+
+- name: Aplicação de configurações no cluster
+  hosts:
+    - clientes
+  become: false
+  gather_facts: false
+  roles:
+    - role: 12-configuracoes-cluster
+      tags:
+        - configuracoes-ops
+        - ops
