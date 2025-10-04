@@ -14,7 +14,7 @@
 - name: Instalação das ferramentas de operação do cluster
   hosts:
     - clientes
-  become: true
+  become: false
   gather_facts: false
   roles:
     - role: 11-ferramentas-cluster
