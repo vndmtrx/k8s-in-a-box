@@ -8,22 +8,28 @@
 - name: Instalar o etcdctl se não existir
   when: not etcdctl_bin.stat.exists
   block:
+    - name: Garantir que a pasta de destino do etcdctl existe
+      ansible.builtin.file:
+        path: /tmp/etcdctl
+        state: directory
+        mode: "0755"
+
     - name: Copiar etcdctl para a VM (em /tmp)
       ansible.builtin.copy:
         src: "{{ pasta_temporarios }}/etcd-bin.tar.gz"
         dest: "/tmp/etcd-bin.tar.gz"
         mode: "0644"
 
-    - name: Descompactar etcdctl em /usr/local/bin
+    - name: Descompactar etcdctl
       ansible.builtin.unarchive:
         src: "/tmp/etcd-bin.tar.gz"
-        dest: "/tmp"
+        dest: "/tmp/etcd"
         remote_src: true
         mode: "0755"
 
-    - name: Instalar binário do etcdctl
+    - name: Instalar binário do etcdctl em /usr/local/bin
       ansible.builtin.copy:
-        src: "/tmp/etcd-{{ versao_etcd }}-linux-amd64/{{ item }}"
+        src: "/tmp/etcd/etcd-{{ versao_etcd }}-linux-amd64/{{ item }}"
         dest: "/usr/local/bin/{{ item }}"
         mode: "0755"
         remote_src: true
@@ -32,12 +38,12 @@
         - etcdctl
 
   always:
-    - name: Remover diretório temporário do Etcd
+    - name: Remover diretório temporário do etcdctl
       ansible.builtin.file:
-        path: "/tmp/etcd-{{ versao_etcd }}-linux-amd64"
+        path: "/tmp/etcd"
         state: absent
 
-    - name: Remover arquivo temporário do Etcd
+    - name: Remover arquivo temporário do etcdctl
       ansible.builtin.file:
         path: "/tmp/etcd-bin.tar.gz"
         state: absent
@@ -50,7 +56,7 @@
 - name: Instalar o kubectl se não existir
   when: not kubectl_bin.stat.exists
   block:
-    - name: Copiar kubectl para a VM
+    - name: Copiar kubectl para a VM em /usr/local/bin
       ansible.builtin.copy:
         src: "{{ pasta_temporarios }}/kubectl"
         dest: "/usr/local/bin/kubectl"
