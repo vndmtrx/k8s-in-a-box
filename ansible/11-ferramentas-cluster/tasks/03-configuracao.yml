@@ -14,7 +14,6 @@
       if [ -f ~/.etcdctl-env ]; then
         source ~/.etcdctl-env
       fi
-    create: yes
 
 - name: Criar kubeconfig com configuração para o kubectl
   ansible.builtin.template:
