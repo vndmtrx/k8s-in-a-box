@@ -1,0 +1,7 @@
+# ansible/12-configuracoes-cluster/tasks/main.yml
+---
+- name: Configurar Labels e Taints dos nós do cluster
+  ansible.builtin.import_tasks: 01-labels-taints.yml
+
+- name: Configuração do Flannel
+  ansible.builtin.import_tasks: 02-flannel.yml

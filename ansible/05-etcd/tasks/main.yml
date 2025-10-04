@@ -8,6 +8,3 @@
 
 - name: Efetuar criação dos arquivos de configuração
   ansible.builtin.include_tasks: 03-configuracao.yml
-
-- name: Efetuar configuração do funcionamento do Etcdctl
-  ansible.builtin.include_tasks: 04-config-etcdctl.yml

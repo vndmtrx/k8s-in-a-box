@@ -85,9 +85,24 @@ kube-proxy: ## Executa apenas a role kube-proxy (use com um snapshot de kubelet)
 	@echo "Executando role kube-proxy..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kube-proxy
 
-cluster: up ## Executa todo o projeto
-	@echo "Executando todas as roles..."
+cluster: up ## Executa toda a construção do cluster kubernetes
+	@echo "Executando todas as roles de cluster..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster
+
+ops: ## Executa toda a construção do cliente kubox para operação do cluster
+	@echo "Executando todas as roles de operações..."
+	vagrant up kubox
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops
+
+ferramentas-ops: ## Executa apenas a role ferramentas-ops
+	@echo "Executando role ferramentas-ops..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ferramentas-ops
+
+configuracoes-ops: ## Executa apenas a role configuracoes-ops
+	@echo "Executando role configuracoes-ops..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags configuracoes-ops
+
+k8s-in-a-box: cluster ops ## Executa todo o projeto
 
 # Tasks com encadeamento de execução
 cadeia-artefatos: up artefatos ## Executa todas as dependências para a role artefatos

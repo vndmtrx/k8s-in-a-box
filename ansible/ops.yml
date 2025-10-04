@@ -1,0 +1,34 @@
+# ansible/ops.yml
+---
+- name: Configurações base para as máquinas clientes
+  hosts:
+    - clientes
+  become: true
+  gather_facts: false
+  roles:
+    - role: 02-sistema
+      tags:
+        - sistema-ops
+        - ops
+
+- name: Instalação das ferramentas de operação do cluster
+  hosts:
+    - clientes
+  become: false
+  gather_facts: false
+  roles:
+    - role: 11-ferramentas-cluster
+      tags:
+        - ferramentas-ops
+        - ops
+
+- name: Aplicação de configurações no cluster
+  hosts:
+    - clientes
+  become: false
+  gather_facts: false
+  roles:
+    - role: 12-configuracoes-cluster
+      tags:
+        - configuracoes-ops
+        - ops

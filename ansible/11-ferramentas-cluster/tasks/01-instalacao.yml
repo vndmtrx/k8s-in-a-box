@@ -1,0 +1,126 @@
+# ansible/11-ferramentas-cluster/tasks/01-instalacao.yml
+---
+- name: Verificar se o executável do etcdctl já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/etcdctl"
+  register: etcdctl_bin
+
+- name: Instalar o etcdctl se não existir
+  when: not etcdctl_bin.stat.exists
+  block:
+    - name: Garantir que a pasta de destino do etcdctl existe
+      ansible.builtin.file:
+        path: /tmp/etcdctl
+        state: directory
+        mode: "0755"
+
+    - name: Copiar etcdctl para a VM (em /tmp)
+      ansible.builtin.copy:
+        src: "{{ pasta_temporarios }}/etcd-bin.tar.gz"
+        dest: "/tmp/etcd-bin.tar.gz"
+        mode: "0644"
+
+    - name: Descompactar etcdctl
+      ansible.builtin.unarchive:
+        src: "/tmp/etcd-bin.tar.gz"
+        dest: "/tmp/etcd"
+        remote_src: true
+        mode: "0755"
+
+    - name: Instalar binário do etcdctl em /usr/local/bin
+      ansible.builtin.copy:
+        src: "/tmp/etcd/etcd-{{ versao_etcd }}-linux-amd64/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+        mode: "0755"
+        remote_src: true
+      become: true
+      loop:
+        - etcdctl
+
+  always:
+    - name: Remover diretório temporário do etcdctl
+      ansible.builtin.file:
+        path: "/tmp/etcd"
+        state: absent
+
+    - name: Remover arquivo temporário do etcdctl
+      ansible.builtin.file:
+        path: "/tmp/etcd-bin.tar.gz"
+        state: absent
+
+- name: Verificar se o executável do kubectl já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/kubectl"
+  register: kubectl_bin
+
+- name: Instalar o kubectl se não existir
+  when: not kubectl_bin.stat.exists
+  block:
+    - name: Copiar kubectl para a VM em /usr/local/bin
+      ansible.builtin.copy:
+        src: "{{ pasta_temporarios }}/kubectl"
+        dest: "/usr/local/bin/kubectl"
+        mode: "0755"
+      become: true
+
+    - name: Criar diretório ~/.kube para usuário padrão do vagrant
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/.kube"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0700"
+
+    - name: Criar diretório de PKIs para as ferramentas
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/.kube/pki"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0700"
+
+- name: Verificar se o executável do helm já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/helm"
+  register: helm_bin
+
+- name: Instalar o helm se não existir
+  when: not helm_bin.stat.exists
+  block:
+    - name: Garantir que a pasta de destino do helm existe
+      ansible.builtin.file:
+        path: /tmp/helm
+        state: directory
+        mode: "0755"
+
+    - name: Copiar helm para a VM (em /tmp)
+      ansible.builtin.copy:
+        src: "{{ pasta_temporarios }}/helm-bin.tar.gz"
+        dest: "/tmp/helm-bin.tar.gz"
+        mode: "0644"
+
+    - name: Descompactar helm
+      ansible.builtin.unarchive:
+        src: "/tmp/helm-bin.tar.gz"
+        dest: "/tmp/helm"
+        remote_src: true
+        mode: "0755"
+
+    - name: Instalar binário do helm em /usr/local/bin
+      ansible.builtin.copy:
+        src: "/tmp/helm/linux-amd64/helm"
+        dest: "/usr/local/bin/helm"
+        mode: "0755"
+        remote_src: true
+      become: true
+
+  always:
+    - name: Remover diretório temporário do helm
+      ansible.builtin.file:
+        path: "/tmp/helm"
+        state: absent
+
+    - name: Remover arquivo temporário do helm
+      ansible.builtin.file:
+        path: "/tmp/helm-bin.tar.gz"
+        state: absent

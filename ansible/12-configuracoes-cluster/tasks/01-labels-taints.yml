@@ -1,0 +1,38 @@
+# ansible/12-configuracoes-cluster/tasks/01-labels-taints.yml
+---
+- name: Aplicar taint NoSchedule nos managers
+  ansible.builtin.command:
+    cmd: "kubectl taint node {{ manager_host }} node-role.kubernetes.io/control-plane=:NoSchedule"
+  loop: "{{ groups['managers'] }}"
+  loop_control:
+    loop_var: manager_host
+  register: resultado_taint_managers
+  changed_when: "'node/' ~ manager_host ~ ' modified' in resultado_taint_managers.stdout"
+  failed_when: false
+
+- name: Aplicar label control-plane nos managers
+  ansible.builtin.command:
+    cmd: "kubectl label node {{ manager_host }} node-role.kubernetes.io/control-plane="
+  loop: "{{ groups['managers'] }}"
+  loop_control:
+    loop_var: manager_host
+  register: resultado_label_managers
+  changed_when: "'node/' ~ manager_host ~ ' labeled' in resultado_label_managers.stdout"
+
+- name: Aplicar label worker nos workers
+  ansible.builtin.command:
+    cmd: "kubectl label node {{ worker_host }} node-role.kubernetes.io/worker="
+  loop: "{{ groups['workers'] }}"
+  loop_control:
+    loop_var: worker_host
+  register: resultado_label_workers
+  changed_when: "'node/' ~ worker_host ~ ' labeled' in resultado_label_workers.stdout"
+
+- name: Aplicar label instance-type nos nodes do cluster
+  ansible.builtin.command:
+    cmd: "kubectl label node {{ node_host }} node.kubernetes.io/instance-type=libvirt"
+  loop: "{{ groups['k8s_nodes'] }}"
+  loop_control:
+    loop_var: node_host
+  register: resultado_label_instancetype
+  changed_when: "'node/' ~ node_host ~ ' labeled' in resultado_label_instancetype.stdout"

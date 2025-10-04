@@ -53,19 +53,3 @@
       dest: "/etc/etcd/pki/peer/{{ pki_certs.etcd_peer.path_chave | format(inventory_hostname) | basename }}"
   loop_control:
     label: "{{ item.dest }}"
-
-# Certificado de cliente (usado para o etcdctl)
-- name: Copiar certificados cliente para o nó atual
-  ansible.builtin.copy:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: root
-    group: etcd
-    mode: "0640"
-  loop:
-    - src: "{{ pki_certs.etcd_cli.path_cert }}"
-      dest: "/etc/etcd/pki/client/{{ pki_certs.etcd_cli.path_cert | basename }}"
-    - src: "{{ pki_certs.etcd_cli.path_chave }}"
-      dest: "/etc/etcd/pki/client/{{ pki_certs.etcd_cli.path_chave | basename }}"
-  loop_control:
-    label: "{{ item.dest }}"

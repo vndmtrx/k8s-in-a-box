@@ -29,7 +29,6 @@
         remote_src: true
       loop:
         - etcd
-        - etcdctl
 
     - name: Criar usuário Etcd
       ansible.builtin.user:
