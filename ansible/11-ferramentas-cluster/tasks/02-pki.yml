@@ -16,6 +16,13 @@
       dest: "/home/{{ ansible_user }}/.kube/pki/{{ pki_cas.kubernetes.path_cert | basename }}"
       mode: "0644"
 
+    - src: "{{ pki_certs.etcd_cli.path_cert }}"
+      dest: "/home/{{ ansible_user }}/.kube/pki/{{ pki_certs.etcd_cli.path_cert | basename }}"
+      mode: "0644"
+    - src: "{{ pki_certs.etcd_cli.path_chave }}"
+      dest: "/home/{{ ansible_user }}/.kube/pki/{{ pki_certs.etcd_cli.path_chave | basename }}"
+      mode: "0640"
+
     - src: "{{ pki_certs.admin_account.path_cert }}"
       dest: "/home/{{ ansible_user }}/.kube/pki/{{ pki_certs.admin_account.path_cert | basename }}"
       mode: "0644"

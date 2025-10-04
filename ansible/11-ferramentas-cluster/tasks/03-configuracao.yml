@@ -1,3 +1,21 @@
+# ansible/11-ferramentas-cluster/tasks/03-configuracao.yml
+---
+- name: Criar arquivo de configuração do etcdctl
+  ansible.builtin.template:
+    src: etcdctl-env.sh.j2
+    dest: "/home/{{ ansible_user }}/.etcdctl-env"
+    mode: "0644"
+
+- name: Garantir que o etcdctl-env é carregado no .bashrc
+  ansible.builtin.blockinfile:
+    path: /home/{{ ansible_user }}/.bashrc
+    marker: "# {mark} ANSIBLE_ETCDCTL_ENV"
+    block: |
+      if [ -f ~/.etcdctl-env ]; then
+        source ~/.etcdctl-env
+      fi
+    create: yes
+
 - name: Criar kubeconfig com configuração para o kubectl
   ansible.builtin.template:
     src: kubectl-admin.kubeconfig.j2
