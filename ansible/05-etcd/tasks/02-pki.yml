@@ -53,4 +53,3 @@
       dest: "/etc/etcd/pki/peer/{{ pki_certs.etcd_peer.path_chave | format(inventory_hostname) | basename }}"
   loop_control:
     label: "{{ item.dest }}"
-
