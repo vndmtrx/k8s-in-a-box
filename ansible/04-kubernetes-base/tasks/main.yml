@@ -5,6 +5,3 @@
 
 - name: Transferir PKIs
   ansible.builtin.import_tasks: 02-pki.yml
-
-- name: Aplicar configuração do kubectl
-  ansible.builtin.import_tasks: 03-config-kubectl.yml
