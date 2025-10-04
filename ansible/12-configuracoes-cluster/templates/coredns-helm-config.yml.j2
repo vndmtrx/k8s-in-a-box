@@ -1,0 +1,31 @@
+# Serviço que expõe o CoreDNS dentro do cluster
+service:
+  name: kube-dns
+  type: ClusterIP
+  # IP fixo para o serviço
+  clusterIP: {{ coredns_ip }}
+
+# Número de réplicas do CoreDNS
+replicaCount: 2
+
+# Recursos mínimos para estabilidade
+resources:
+  requests:
+    cpu: 100m
+    memory: 70Mi
+  limits:
+    cpu: 500m
+    memory: 170Mi
+
+# Anti-affinity para garantir que os pods de CoreDNS
+# não sejam agendados no mesmo nó
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: k8s-app
+              operator: In
+              values:
+                - kube-dns
+        topologyKey: "kubernetes.io/hostname"

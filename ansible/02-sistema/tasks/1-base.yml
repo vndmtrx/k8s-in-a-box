@@ -30,7 +30,7 @@
   ansible.builtin.dnf:
     name: "*"
     state: latest
-  when: atualiza_sistema == "all"
+  when: atualiza_sistema == "todos"
 
 - name: Atualizar apenas pacotes de segurança  # noqa package-latest
   become: true
@@ -38,7 +38,7 @@
     name: "*"
     security: true
     state: latest
-  when: atualiza_sistema == "patch"
+  when: atualiza_sistema == "seguranca"
 
 - name: Instalar pacotes extras necessários
   become: true

@@ -23,13 +23,13 @@
     - name: Descompactar etcdctl
       ansible.builtin.unarchive:
         src: "/tmp/etcd-bin.tar.gz"
-        dest: "/tmp/etcd"
+        dest: "/tmp/etcdctl"
         remote_src: true
         mode: "0755"
 
     - name: Instalar binário do etcdctl em /usr/local/bin
       ansible.builtin.copy:
-        src: "/tmp/etcd/etcd-{{ versao_etcd }}-linux-amd64/{{ item }}"
+        src: "/tmp/etcdctl/etcd-{{ versao_etcd }}-linux-amd64/{{ item }}"
         dest: "/usr/local/bin/{{ item }}"
         mode: "0755"
         remote_src: true
@@ -40,7 +40,7 @@
   always:
     - name: Remover diretório temporário do etcdctl
       ansible.builtin.file:
-        path: "/tmp/etcd"
+        path: "/tmp/etcdctl"
         state: absent
 
     - name: Remover arquivo temporário do etcdctl

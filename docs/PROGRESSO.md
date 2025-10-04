@@ -51,10 +51,10 @@
 - [x] Configuração do kube-proxy
 
 ### 🌐 Rede do Cluster
-- [ ] Escolha do CNI Plugin
-  - [ ] Instalação do plugin escolhido
-  - [ ] Configuração da rede dos pods
-  - [ ] Configuração da rede dos serviços
+- [x] Escolha do CNI Plugin
+  - [x] Instalação do plugin escolhido
+  - [x] Configuração da rede dos pods
+  - [x] Configuração da rede dos serviços
 - [ ] Instalação do CoreDNS
 - [ ] Configuração do MetalLB
 - [ ] Validação da rede

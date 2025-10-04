@@ -3,5 +3,8 @@
 - name: Configurar Labels e Taints dos nós do cluster
   ansible.builtin.import_tasks: 01-labels-taints.yml
 
-- name: Configuração do Flannel
+- name: Instalação e configuração do Flannel
   ansible.builtin.import_tasks: 02-flannel.yml
+
+- name: Instalação e configuração do CoreDNS
+  ansible.builtin.import_tasks: 03-coredns.yml

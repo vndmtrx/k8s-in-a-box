@@ -23,9 +23,10 @@ grupos.each do |grupo, dados|
 
   dados["hosts"].each do |nome, props|
     nodes[nome] = {
-      "ip"     => props["ansible_host"],
-      "memory" => props["memory"],
-      "cpus"   => props["cpus"]
+      "ip"        => props["ansible_host"],
+      "memory"    => props["memory"],
+      "cpus"      => props["cpus"],
+      "autostart" => props.fetch("autostart", true)
     }
   end
 end
@@ -82,7 +83,7 @@ Vagrant.configure("2") do |config|
   end
 
   nodes.each do |nome_no, specs|
-    config.vm.define nome_no do |node|
+    config.vm.define nome_no, autostart: specs["autostart"] do |node|
       node.vm.hostname = nome_no
       node.vm.network "private_network", ip: specs["ip"],
         libvirt__network_name: "#{PROJETO}_mgmt",
