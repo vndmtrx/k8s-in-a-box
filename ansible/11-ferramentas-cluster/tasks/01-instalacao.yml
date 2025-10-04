@@ -83,3 +83,44 @@
   ansible.builtin.stat:
     path: "/usr/local/bin/helm"
   register: helm_bin
+
+- name: Instalar o helm se não existir
+  when: not helm_bin.stat.exists
+  block:
+    - name: Garantir que a pasta de destino do helm existe
+      ansible.builtin.file:
+        path: /tmp/helm
+        state: directory
+        mode: "0755"
+
+    - name: Copiar helm para a VM (em /tmp)
+      ansible.builtin.copy:
+        src: "{{ pasta_temporarios }}/helm-bin.tar.gz"
+        dest: "/tmp/helm-bin.tar.gz"
+        mode: "0644"
+
+    - name: Descompactar helm
+      ansible.builtin.unarchive:
+        src: "/tmp/helm-bin.tar.gz"
+        dest: "/tmp/helm"
+        remote_src: true
+        mode: "0755"
+
+    - name: Instalar binário do helm em /usr/local/bin
+      ansible.builtin.copy:
+        src: "/tmp/helm/linux-amd64/helm"
+        dest: "/usr/local/bin/helm"
+        mode: "0755"
+        remote_src: true
+      become: true
+
+  always:
+    - name: Remover diretório temporário do helm
+      ansible.builtin.file:
+        path: "/tmp/helm"
+        state: absent
+
+    - name: Remover arquivo temporário do helm
+      ansible.builtin.file:
+        path: "/tmp/helm-bin.tar.gz"
+        state: absent
