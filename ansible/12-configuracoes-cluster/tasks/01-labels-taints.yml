@@ -1,14 +1,24 @@
 # ansible/12-configuracoes-cluster/tasks/01-labels-taints.yml
 ---
-- name: Aplicar taint NoSchedule nos managers
+- name: Verificar taints atuais dos managers
   ansible.builtin.command:
-    cmd: "kubectl taint node {{ manager_host }} node-role.kubernetes.io/control-plane=:NoSchedule"
+    cmd: "kubectl get node {{ manager_host }} -o jsonpath='{.spec.taints}'"
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
-  register: resultado_taint_managers
-  changed_when: "'node/' ~ manager_host ~ ' modified' in resultado_taint_managers.stdout"
-  failed_when: false
+  register: taints_atuais
+  changed_when: false
+
+- name: Aplicar taint NoSchedule nos managers
+  ansible.builtin.command:
+    cmd: "kubectl taint node {{ item.manager_host }} node-role.kubernetes.io/control-plane=:NoSchedule"
+  loop: "{{ taints_atuais.results }}"
+  loop_control:
+    loop_var: item
+    label: "{{ item.manager_host }}"
+  when: "'NoSchedule' not in item.stdout"
+  register: resultado_taint
+  changed_when: "'node/' ~ item.manager_host ~ ' tainted' in resultado_taint.stdout"
 
 - name: Aplicar label control-plane nos managers
   ansible.builtin.command:
