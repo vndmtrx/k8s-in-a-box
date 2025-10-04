@@ -94,6 +94,10 @@ ops: ## Executa toda a construção do cliente kubox para operação do cluster
 	vagrant up kubox
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops
 
+ferramentas-ops: ## Executa apenas a role ferramentas-ops
+	@echo "Executando role ferramentas-ops..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ferramentas-ops
+
 k8s-in-a-box: cluster ops ## Executa todo o projeto
 
 # Tasks com encadeamento de execução
