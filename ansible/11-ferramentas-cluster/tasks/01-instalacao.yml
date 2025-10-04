@@ -1,0 +1,29 @@
+# ansible/11-ferramentas-cluster/tasks/01-instalacao.yml
+---
+- name: Verificar se o executável do kubectl já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/kubectl"
+  register: kubectl_bin
+
+- name: Copiar kubectl para a VM
+  ansible.builtin.copy:
+    src: "{{ pasta_temporarios }}/kubectl"
+    dest: "/usr/local/bin/kubectl"
+    mode: "0755"
+  when: not kubectl_bin.stat.exists
+
+- name: Criar diretório ~/.kube para usuário padrão do vagrant
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0700"
+
+- name: Criar diretório de PKIs para as ferramentas
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube/pki"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0700"

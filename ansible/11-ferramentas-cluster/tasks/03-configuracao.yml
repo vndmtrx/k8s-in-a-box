@@ -1,0 +1,5 @@
+- name: Criar kubeconfig com configuração para o kubectl
+  ansible.builtin.template:
+    src: kubectl-admin.kubeconfig.j2
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    mode: "0644"
