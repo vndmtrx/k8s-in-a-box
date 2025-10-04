@@ -17,9 +17,12 @@ help: ## Mostra esta ajuda
 	grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | \
 	awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-22s %s\n", $$1, $$2}'
 
-up: ## Sobe as VMs e recria a pasta artefatos/
+up-cluster: ## Sobe as VMs e recria a pasta artefatos/
 	mkdir -p $(ARTEFATOS)
 	vagrant up
+
+up-ops: ## Sobe a vm kubox
+	vagrant up kubox
 
 down: ## Interrompe as VMs
 	vagrant halt
@@ -85,13 +88,12 @@ kube-proxy: ## Executa apenas a role kube-proxy (use com um snapshot de kubelet)
 	@echo "Executando role kube-proxy..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kube-proxy
 
-cluster: up ## Executa toda a construção do cluster kubernetes
+cluster: up-cluster ## Executa toda a construção do cluster kubernetes
 	@echo "Executando todas as roles de cluster..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster
 
-ops: ## Executa toda a construção do cliente kubox para operação do cluster
+ops: up-ops ## Executa toda a construção do cliente kubox para operação do cluster
 	@echo "Executando todas as roles de operações..."
-	vagrant up kubox
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops
 
 ferramentas-ops: ## Executa apenas a role ferramentas-ops
@@ -105,7 +107,7 @@ configuracoes-ops: ## Executa apenas a role configuracoes-ops
 k8s-in-a-box: cluster ops ## Executa todo o projeto
 
 # Tasks com encadeamento de execução
-cadeia-artefatos: up artefatos ## Executa todas as dependências para a role artefatos
+cadeia-artefatos: up-cluster artefatos ## Executa todas as dependências para a role artefatos
 
 cadeia-pki: cadeia-artefatos pki ## Executa todas as dependências para a role pki
 
