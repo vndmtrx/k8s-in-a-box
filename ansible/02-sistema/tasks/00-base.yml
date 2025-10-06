@@ -6,6 +6,12 @@
     policy: targeted
     state: permissive
 
+- name: Instalar pacotes extras necessários
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ pacotes_extras }}"
+    state: present
+
 - name: Configurar o TZ para o especificado em defaults
   community.general.timezone:
     name: "{{ timezone_tz }}"

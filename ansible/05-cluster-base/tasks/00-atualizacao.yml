@@ -34,12 +34,6 @@
     state: latest
   when: atualiza_sistema == "seguranca"
 
-- name: Instalar pacotes extras necessários
-  become: true
-  ansible.builtin.dnf:
-    name: "{{ pacotes_extras }}"
-    state: present
-
 - name: Verificar se precisa reiniciar
   ansible.builtin.command: needs-restarting -r
   register: reboot_check
