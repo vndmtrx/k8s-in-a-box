@@ -1,0 +1,21 @@
+# Número de réplicas do Metrics Server
+replicas: 2
+
+# Recursos mínimos para estabilidade
+resources:
+  requests:
+    cpu: 100m
+    memory: 200Mi
+
+# Anti-affinity para garantir que os pods do Metrics Server
+# não sejam agendados no mesmo nó
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+                - metrics-server
+        topologyKey: kubernetes.io/hostname
