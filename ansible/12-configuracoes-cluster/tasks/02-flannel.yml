@@ -20,7 +20,7 @@
         cmd: "kubectl label ns kube-flannel pod-security.kubernetes.io/enforce=privileged"
       changed_when: true
 
-    - name: Adicionar repositório helm flannel
+    - name: Adicionar repositório helm do Flannel
       ansible.builtin.command:
         cmd: "helm repo add flannel https://flannel-io.github.io/flannel/"
       changed_when: true

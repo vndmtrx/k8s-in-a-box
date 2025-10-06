@@ -96,6 +96,10 @@ ops: up-ops ## Executa toda a construção do cliente kubox para operação do c
 	@echo "Executando todas as roles de operações..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops
 
+sistema-ops: ## Executa apenas a role ferramentas-ops
+	@echo "Executando role ferramentas-ops..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags sistema-ops
+
 ferramentas-ops: ## Executa apenas a role ferramentas-ops
 	@echo "Executando role ferramentas-ops..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ferramentas-ops

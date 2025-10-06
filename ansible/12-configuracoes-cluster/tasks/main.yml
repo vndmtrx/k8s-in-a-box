@@ -8,3 +8,6 @@
 
 - name: Instalação e configuração do CoreDNS
   ansible.builtin.import_tasks: 03-coredns.yml
+
+- name: Instalação e configuração do Metrics Server
+  ansible.builtin.import_tasks: 04-metrics.yml
