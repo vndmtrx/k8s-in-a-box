@@ -1,0 +1,10 @@
+# ansible/12-ferramentas-cluster/tasks/main.yml
+---
+- name: Configurar pacotes
+  ansible.builtin.import_tasks: 01-instalacao.yml
+
+- name: Transferir PKIs
+  ansible.builtin.import_tasks: 02-pki.yml
+
+- name: Configuração das ferramentas
+  ansible.builtin.import_tasks: 03-configuracao.yml

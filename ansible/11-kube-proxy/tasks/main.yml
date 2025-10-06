@@ -1,0 +1,10 @@
+# ansible/11-kube-proxy/tasks/main.yml
+---
+- name: Instalar dependências do kube-proxy
+  ansible.builtin.include_tasks: 01-instalacao.yml
+
+- name: Transferir os PKIs necessários
+  ansible.builtin.import_tasks: 02-pki.yml
+
+- name: Efetuar criação dos arquivos de configuração
+  ansible.builtin.import_tasks: 03-configuracao.yml

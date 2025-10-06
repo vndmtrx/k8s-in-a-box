@@ -1,0 +1,13 @@
+# ansible/11-kube-proxy/tasks/01-instalacao.yml
+---
+- name: Verificar se o executável do kube-proxy já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/kube-proxy"
+  register: kube_proxy_bin
+
+- name: Copiar kube-proxy para a VM
+  ansible.builtin.copy:
+    src: "{{ pasta_temporarios }}/kube-proxy"
+    dest: "/usr/local/bin/kube-proxy"
+    mode: "0755"
+  when: not kube_proxy_bin.stat.exists

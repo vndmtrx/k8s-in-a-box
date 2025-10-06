@@ -1,0 +1,26 @@
+# ansible/09-kube-scheduler/tasks/03-configuracao.yml
+---
+- name: Configurar serviço do kube-scheduler
+  ansible.builtin.template:
+    src: kube-scheduler.service.j2
+    dest: /etc/systemd/system/kube-scheduler.service
+    mode: "0644"
+
+- name: Configurar parâmetros de inicialização do kube-scheduler
+  ansible.builtin.template:
+    src: kube-scheduler.env.j2
+    dest: /etc/kubernetes/kube-scheduler.env
+    mode: "0644"
+
+- name: Criar kubeconfig com configuração para o kube-scheduler
+  ansible.builtin.template:
+    src: kube-scheduler.kubeconfig.j2
+    dest: /etc/kubernetes/kube-scheduler.kubeconfig
+    mode: "0644"
+
+- name: Garantir serviço ativo
+  ansible.builtin.systemd:
+    name: kube-scheduler
+    enabled: true
+    state: restarted
+    daemon_reload: true

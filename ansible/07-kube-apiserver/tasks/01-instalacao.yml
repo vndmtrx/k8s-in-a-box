@@ -1,0 +1,13 @@
+# ansible/07-kube-apiserver/tasks/01-instalacao.yml
+---
+- name: Verificar se o executável do kube-apiserver já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/kube-apiserver"
+  register: kube_apiserver_bin
+
+- name: Copiar kube-apiserver para a VM
+  ansible.builtin.copy:
+    src: "{{ pasta_temporarios }}/kube-apiserver"
+    dest: "/usr/local/bin/kube-apiserver"
+    mode: "0755"
+  when: not kube_apiserver_bin.stat.exists
