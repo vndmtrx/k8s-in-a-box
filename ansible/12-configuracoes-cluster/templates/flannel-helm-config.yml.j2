@@ -1,14 +1,19 @@
 # Range de IPs dos Pods
 podCidr: "{{ rede_cidr_pods }}"
 
-# Backend de rede
-backend: "vxlan"
+flannel:
+  # Backend de rede
+  backend: "vxlan"
 
-# Recursos mínimos para estabilidade
-resources:
-  requests:
-    cpu: "100m"
-    memory: "64Mi"
-  limits:
-    cpu: "500m"
-    memory: "256Mi"
+  # Recursos mínimos para estabilidade
+  resources:
+    requests:
+      cpu: 100m
+      memory: 50Mi
+  
+  # Onde rodar no cluster (por padrão, em todos os nós)
+  tolerations:
+  - effect: NoExecute
+    operator: Exists
+  - effect: NoSchedule
+    operator: Exists
