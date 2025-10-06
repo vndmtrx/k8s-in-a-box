@@ -1,4 +1,4 @@
-# ansible/02-sistema/handlers/main.yml
+# ansible/05-cluster-base/handlers/main.yml
 ---
 - name: Reiniciar chronyd
   ansible.builtin.service:
