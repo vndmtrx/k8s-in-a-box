@@ -10,14 +10,14 @@ replicaCount: 2
 
 # Recursos mínimos para estabilidade
 resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
   requests:
     cpu: 100m
-    memory: 70Mi
-  limits:
-    cpu: 500m
-    memory: 170Mi
+    memory: 128Mi
 
-# Anti-affinity para garantir que os pods de CoreDNS
+# Anti-affinity para garantir que os pods do CoreDNS
 # não sejam agendados no mesmo nó
 affinity:
   podAntiAffinity:
