@@ -1,6 +1,0 @@
-# ansible/02-sistema/handlers/main.yml
----
-- name: Reiniciar chronyd
-  ansible.builtin.service:
-    name: chronyd
-    state: restarted

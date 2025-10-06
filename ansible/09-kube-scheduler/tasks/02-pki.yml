@@ -1,0 +1,28 @@
+# ansible/09-kube-scheduler/tasks/02-pki.yml
+---
+- name: Criar estrutura de diretórios para certificados
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: kubernetes
+    mode: "0750"
+  loop:
+    - /etc/kubernetes/pki/scheduler
+
+- name: Copiar certificados necessários para o scheduler
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: kubernetes
+    mode: "{{ item.mode }}"
+  loop:
+    - src: "{{ pki_certs.kube_scheduler.path_cert | format(inventory_hostname) }}"
+      dest: "/etc/kubernetes/pki/scheduler/{{ pki_certs.kube_scheduler.path_cert | format(inventory_hostname) | basename }}"
+      mode: "0644"
+    - src: "{{ pki_certs.kube_scheduler.path_chave | format(inventory_hostname) }}"
+      dest: "/etc/kubernetes/pki/scheduler/{{ pki_certs.kube_scheduler.path_chave | format(inventory_hostname) | basename }}"
+      mode: "0640"
+  loop_control:
+    label: "{{ item.dest }}"

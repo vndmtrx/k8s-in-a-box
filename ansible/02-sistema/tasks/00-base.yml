@@ -1,0 +1,65 @@
+# ansible/02-sistema/tasks/00-base.yml
+---
+- name: Colocar SELinux em modo permissivo (iremos tratar do SELinux no futuro)
+  become: true
+  ansible.posix.selinux:
+    policy: targeted
+    state: permissive
+
+- name: Instalar pacotes extras necessários
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ pacotes_extras }}"
+    state: present
+
+- name: Configurar o TZ para o especificado em defaults
+  community.general.timezone:
+    name: "{{ timezone_tz }}"
+
+- name: Ler configuração atual do locale  # noqa no-changed-when
+  ansible.builtin.command: localectl status
+  register: resultado_locale
+  changed_when: false
+
+- name: Configurar locale se necessário
+  ansible.builtin.command: "localectl set-locale LANG={{ locale_lang }}"
+  when: "'LANG=' ~ locale_lang not in resultado_locale.stdout"
+  changed_when: true
+
+- name: Gerar arquivo /etc/hosts para cada nó do cluster
+  ansible.builtin.template:
+    src: "hosts.j2"
+    dest: "/etc/hosts"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+- name: Verificar se Tailspin já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/tspin"
+  register: tailspin_bin
+
+- name: Instalar Tailspin se não existir
+  when: not tailspin_bin.stat.exists
+  block:
+    - name: Copiar Tailspin para a VM (em /tmp)
+      ansible.builtin.copy:
+        src: "{{ pasta_temporarios }}/tailspin.tar.gz"
+        dest: "/tmp/tailspin.tar.gz"
+        mode: "0644"
+
+    - name: Descompactar Tailspin em /usr/local/bin
+      ansible.builtin.unarchive:
+        src: "/tmp/tailspin.tar.gz"
+        dest: "/usr/local/bin"
+        remote_src: true
+        owner: "root"
+        group: "root"
+        mode: "0755"
+        creates: "/usr/local/bin/tspin"
+
+  always:
+    - name: Remover arquivo temporário do Tailspin
+      ansible.builtin.file:
+        path: "/tmp/tailspin.tar.gz"
+        state: absent

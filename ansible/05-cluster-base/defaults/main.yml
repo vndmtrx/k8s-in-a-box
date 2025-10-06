@@ -1,0 +1,11 @@
+# ansible/05-cluster-base/defaults/main.yml
+---
+pacotes_kubernetes:
+  - iproute
+  - iptables
+  - iptables-nft
+  - ethtool
+  - socat
+  - conntrack-tools
+  - tar
+  - xz

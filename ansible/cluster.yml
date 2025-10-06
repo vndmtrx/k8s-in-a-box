@@ -43,12 +43,22 @@
         - balanceador
         - cluster
 
-- name: Configurações comuns a todos os nós
-  hosts: k8s_nodes
+- name: Configurações do NFS
+  hosts: loadbalancers
   become: true
   gather_facts: false
   roles:
-    - role: 04-kubernetes-base
+    - role: 04-nfs
+      tags:
+        - nfs
+        - cluster
+
+- name: Configurações comuns a todos os nós
+  hosts: cluster
+  become: true
+  gather_facts: false
+  roles:
+    - role: 05-cluster-base
       tags:
         - kubernetes-base
         - cluster
@@ -58,7 +68,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 05-etcd
+    - role: 06-etcd
       tags:
         - etcd
         - cluster
@@ -68,7 +78,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 06-kube-apiserver
+    - role: 07-kube-apiserver
       tags:
         - kube-apiserver
         - cluster
@@ -78,7 +88,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 07-kube-controller-manager
+    - role: 08-kube-controller-manager
       tags:
         - kube-controller-manager
         - cluster
@@ -88,27 +98,27 @@
   become: true
   gather_facts: false
   roles:
-    - role: 08-kube-scheduler
+    - role: 09-kube-scheduler
       tags:
         - kube-scheduler
         - cluster
 
 - name: Configuração do kubelet
-  hosts: k8s_nodes
+  hosts: cluster
   become: true
   gather_facts: false
   roles:
-    - role: 09-kubelet
+    - role: 10-kubelet
       tags:
         - kubelet
         - cluster
 
 - name: Configuração do kube-proxy
-  hosts: k8s_nodes
+  hosts: cluster
   become: true
   gather_facts: false
   roles:
-    - role: 10-kube-proxy
+    - role: 11-kube-proxy
       tags:
         - kube-proxy
         - cluster

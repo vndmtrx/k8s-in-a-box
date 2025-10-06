@@ -17,7 +17,7 @@
   become: false
   gather_facts: false
   roles:
-    - role: 11-ferramentas-cluster
+    - role: 12-ferramentas-cluster
       tags:
         - ferramentas-ops
         - ops
@@ -28,7 +28,7 @@
   become: false
   gather_facts: false
   roles:
-    - role: 12-configuracoes-cluster
+    - role: 13-configuracoes-cluster
       tags:
         - configuracoes-ops
         - ops

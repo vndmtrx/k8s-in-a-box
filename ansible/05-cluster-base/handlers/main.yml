@@ -1,0 +1,11 @@
+# ansible/05-cluster-base/handlers/main.yml
+---
+- name: Reiniciar chronyd
+  ansible.builtin.service:
+    name: chronyd
+    state: restarted
+
+- name: Reiniciar VM
+  ansible.builtin.reboot:
+    post_reboot_delay: 10
+    reboot_timeout: 300

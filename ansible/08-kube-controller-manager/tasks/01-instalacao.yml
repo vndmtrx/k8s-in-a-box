@@ -1,0 +1,13 @@
+# ansible/08-kube-controller-manager/tasks/01-instalacao.yml
+---
+- name: Verificar se o executável do kube-controller-manager já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/kube-controller-manager"
+  register: kube_controller_manager_bin
+
+- name: Copiar kube-controller-manager para a VM
+  ansible.builtin.copy:
+    src: "{{ pasta_temporarios }}/kube-controller-manager"
+    dest: "/usr/local/bin/kube-controller-manager"
+    mode: "0755"
+  when: not kube_controller_manager_bin.stat.exists

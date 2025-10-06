@@ -1,0 +1,10 @@
+# ansible/09-kube-scheduler/tasks/main.yml
+---
+- name: Instalar dependências do kube-scheduler
+  ansible.builtin.include_tasks: 01-instalacao.yml
+
+- name: Transferir os PKIs que o kube-scheduler precisa
+  ansible.builtin.import_tasks: 02-pki.yml
+
+- name: Efetuar criação dos arquivos de configuração
+  ansible.builtin.import_tasks: 03-configuracao.yml

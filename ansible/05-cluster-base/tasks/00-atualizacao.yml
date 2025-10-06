@@ -1,0 +1,43 @@
+# ansible/05-cluster-base/tasks/00-atualizacao.yml
+---
+- name: Garantir que chronyd está ativo
+  ansible.builtin.service:
+    name: chronyd
+    state: started
+    enabled: true
+
+- name: Configurar makestep no chrony.conf (para problemas de sincronia com snapshots)
+  ansible.builtin.lineinfile:
+    path: /etc/chrony.conf
+    regexp: '^makestep'
+    line: 'makestep 1.0 -1'
+    state: present
+  notify: Reiniciar chronyd
+
+- name: Atualizar cache do dnf
+  become: true
+  ansible.builtin.dnf:
+    update_cache: true
+
+- name: Atualizar todos os pacotes  # noqa package-latest
+  become: true
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+  when: atualiza_sistema == "todos"
+
+- name: Atualizar apenas pacotes de segurança  # noqa package-latest
+  become: true
+  ansible.builtin.dnf:
+    name: "*"
+    security: true
+    state: latest
+  when: atualiza_sistema == "seguranca"
+
+- name: Verificar se precisa reiniciar
+  ansible.builtin.command: needs-restarting -r
+  register: reboot_check
+  ignore_errors: true
+  changed_when: reboot_check.rc == 1
+  failed_when: reboot_check.rc not in [0, 1]
+  notify: Reiniciar VM

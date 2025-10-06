@@ -56,13 +56,13 @@
 
 - name: Geração do certificado do kubelet
   ansible.builtin.include_tasks: 221-cert-kubelet.yml
-  loop: "{{ groups['k8s_nodes'] }}"
+  loop: "{{ groups['cluster'] }}"
   loop_control:
     loop_var: node_host
 
 - name: Geração do certificado do kube-proxy
   ansible.builtin.include_tasks: 222-cert-kube-proxy.yml
-  loop: "{{ groups['k8s_nodes'] }}"
+  loop: "{{ groups['cluster'] }}"
   loop_control:
     loop_var: node_host
 
