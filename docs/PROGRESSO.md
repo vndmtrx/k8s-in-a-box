@@ -55,32 +55,9 @@
   - [x] Instalação do plugin escolhido
   - [x] Configuração da rede dos pods
   - [x] Configuração da rede dos serviços
-- [ ] Instalação do CoreDNS
+- [x] Instalação do CoreDNS
 - [ ] Configuração do MetalLB
 - [ ] Validação da rede
-
-### 🎯 Componentes Adicionais
-- [ ] Dashboard do Kubernetes
-  - [ ] Instalação
-  - [ ] Configuração de acesso
-  - [ ] Configuração de RBAC
-- [ ] Gerenciamento de Logs
-  - [ ] Agregação de logs
-  - [ ] Armazenamento
-- [ ] Helm (Gerenciador de Pacotes)
-  - [ ] Instalação
-  - [ ] Configuração de repositórios
-
-### 🔍 Validação e Testes
-- [ ] Testes de Componentes
-  - [ ] Control plane
-  - [ ] Workers
-  - [ ] Rede
-- [ ] Testes de Carga
-  - [ ] Criação de pods
-  - [ ] Escalonamento
-  - [ ] Recuperação de falhas
-- [ ] Documentação de Testes
 
 ### 📚 Documentação
 - [ ] Guia de Instalação
@@ -88,13 +65,6 @@
 - [ ] Guia de Troubleshooting
 - [ ] Guia de Backup e Recuperação
 - [ ] Guia de Atualização
-
-### 🛡️ Segurança
-- [ ] Hardening do Sistema
-- [ ] Configuração de RBAC
-- [ ] Políticas de Rede
-- [ ] Auditoria
-- [ ] Documentação de Segurança
 
 ### 🛡️ Segurança
 - [ ] Hardening do Sistema
