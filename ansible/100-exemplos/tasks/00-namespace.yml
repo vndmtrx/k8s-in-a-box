@@ -1,0 +1,18 @@
+# ansible/100-exemplos/tasks/00-namespace.yml
+---
+- name: Garantir diretório exemplos na home do usuário do ansible
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/exemplos/"
+    state: directory
+    mode: "0755"
+
+- name: Copiar exemplo hello completo para a pasta de exemplos
+  ansible.builtin.copy:
+    src: "namespace-exemplos.yml"
+    dest: "/home/{{ ansible_user }}/exemplos/"
+    mode: "0644"
+
+- name: Aplicar Manifests do Hello
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/exemplos/namespace-exemplos.yml"
+  changed_when: true
