@@ -20,7 +20,7 @@
         cmd: "helm repo update"
       changed_when: false
 
-    - name: Garantir diretório chartsna home do usuário do ansible
+    - name: Garantir diretório charts na home do usuário do ansible
       ansible.builtin.file:
         path: "/home/{{ ansible_user }}/charts"
         state: directory
