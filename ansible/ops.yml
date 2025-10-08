@@ -32,3 +32,13 @@
       tags:
         - configuracoes-ops
         - ops
+
+- name: Implantação dos exemplos de deploys no cluster
+  hosts:
+    - clientes
+  become: false
+  gather_facts: false
+  roles:
+    - role: 100-exemplos
+      tags:
+        - exemplos

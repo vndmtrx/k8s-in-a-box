@@ -1,0 +1,25 @@
+controller:
+  service:
+    type: NodePort
+    nodePorts:
+      http: "30080"
+      https: "30443"
+
+  replicaCount: 3
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 90Mi
+    limits:
+      cpu: 100m
+      memory: 200Mi
+
+  ingressClass: nginx
+  
+  nodeSelector:
+    node-role.kubernetes.io/control-plane: ""
+  tolerations:
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"

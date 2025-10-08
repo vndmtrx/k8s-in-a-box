@@ -10,10 +10,3 @@ flannel:
     requests:
       cpu: 100m
       memory: 50Mi
-  
-  # Onde rodar no cluster (por padrão, em todos os nós)
-  tolerations:
-  - effect: NoExecute
-    operator: Exists
-  - effect: NoSchedule
-    operator: Exists

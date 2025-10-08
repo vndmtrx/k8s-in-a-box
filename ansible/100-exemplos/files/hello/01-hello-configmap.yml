@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hello-ingress
+  namespace: exemplos
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes in a Box</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #007bff, #00aaff);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        text-align: center;
+        padding: 2rem;
+        box-sizing: border-box;
+      }
+
+      .icon {
+        font-size: clamp(3rem, 8vw, 5rem);
+        margin-bottom: 0.3em;
+      }
+
+      h1 {
+        font-size: clamp(1.8rem, 5vw, 3em);
+        margin-bottom: 0.6em;
+        line-height: 1.3;
+      }
+
+      p {
+        font-size: clamp(1rem, 2vw, 1.1em);
+        max-width: 700px;
+        margin: 0 auto 1.8rem auto;
+        line-height: 1.6;
+        text-align: center;
+        word-spacing: 0.05em;
+      }
+
+      .repo {
+        margin-top: 1rem;
+      }
+
+      .repo span {
+        display: block;
+        font-size: 0.95em;
+        margin-bottom: 0.3rem;
+        opacity: 0.9;
+      }
+
+      .repo a img {
+        height: 28px;
+        vertical-align: middle;
+      }
+
+      footer {
+        margin-top: 3rem;
+        font-size: 0.9em;
+        opacity: 0.9;
+      }
+
+      .badges {
+        margin-top: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .badges img {
+        height: 22px;
+      }
+
+      @media (max-width: 480px) {
+        .repo a img {
+          height: 26px;
+        }
+        .badges img {
+          height: 20px;
+        }
+      }
+    </style>
+    </head>
+    <body>
+      <div class="icon">⚡</div>
+      <h1>Bem-vindo ao Cluster Kubernetes in a Box</h1>
+      <p>Este ambiente foi criado para demonstrar um cluster Kubernetes totalmente automatizado, simples de gerenciar
+      e pronto para laboratório ou desenvolvimento.</p>
+
+      <div class="repo">
+        <span>Veja o projeto completo no repositório:</span>
+        <a href="https://github.com/vndmtrx/k8s-in-a-box" target="_blank" rel="noopener noreferrer">
+          <img src="https://img.shields.io/badge/GitHub-k8s--in--a--box-black?logo=github&style=flat" alt="GitHub badge">
+        </a>
+      </div>
+
+      <footer>
+        <div class="badges">
+          <img src="https://img.shields.io/badge/Vagrant-1563FF?logo=vagrant&logoColor=white&style=flat" alt="Vagrant">
+          <img src="https://img.shields.io/badge/Ansible-EE0000?logo=ansible&logoColor=white&style=flat" alt="Ansible">
+          <img src="https://img.shields.io/badge/AlmaLinux-0076C0?logo=almalinux&logoColor=white&style=flat" alt="AlmaLinux">
+          <img src="https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white&style=flat" alt="Kubernetes">
+          <img src="https://img.shields.io/badge/Helm-0F1689?logo=helm&logoColor=white&style=flat" alt="Helm">
+          <img src="https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white&style=flat" alt="Nginx">
+        </div>
+        <div style="margin-top: 0.8rem;">
+          &#169; Kubernetes in a Box — MIT License
+        </div>
+      </footer>
+    </body>
+    </html>
