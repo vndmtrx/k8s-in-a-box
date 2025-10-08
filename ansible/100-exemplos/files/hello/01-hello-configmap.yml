@@ -94,7 +94,8 @@ data:
     <body>
       <div class="icon">⚡</div>
       <h1>Bem-vindo ao Cluster Kubernetes in a Box</h1>
-      <p>Este ambiente foi criado para demonstrar um cluster Kubernetes totalmente automatizado, simples de gerenciar e pronto para laboratório ou desenvolvimento.</p>
+      <p>Este ambiente foi criado para demonstrar um cluster Kubernetes totalmente automatizado, simples de gerenciar
+      e pronto para laboratório ou desenvolvimento.</p>
 
       <div class="repo">
         <span>Veja o projeto completo no repositório:</span>
