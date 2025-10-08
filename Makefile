@@ -108,6 +108,10 @@ configuracoes-ops: ## Executa apenas a role configuracoes-ops
 	@echo "Executando role configuracoes-ops..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags configuracoes-ops
 
+exemplos: ## Executa apenas a role exemplos
+	@echo "Executando role exemplos..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags exemplos
+
 k8s-in-a-box: cluster ops ## Executa todo o projeto
 
 # Tasks com encadeamento de execução
