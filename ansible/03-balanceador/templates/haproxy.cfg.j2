@@ -75,13 +75,12 @@ frontend stats
 ######################## Ingress Controller ########################
 frontend ingress_http
     bind *:80
-    mode http
-    option httplog
-    redirect scheme https code 301 if !{ ssl_fc }
+    mode tcp
+    option tcplog
     default_backend ingress_http_backend
 
 frontend ingress_https
-    bind *:443 ssl crt /etc/haproxy/certs/
+    bind *:443
     mode tcp
     option tcplog
     default_backend ingress_https_backend
