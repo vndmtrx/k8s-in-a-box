@@ -12,7 +12,7 @@
   block:
     - name: Adicionar repositório helm do Kubernetes Dashboard
       ansible.builtin.command:
-        cmd: "helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/"
+        cmd: helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
       changed_when: true
 
     - name: Atualizar repositórios helm
@@ -20,7 +20,7 @@
         cmd: "helm repo update"
       changed_when: false
 
-    - name: Garantir diretório charts/ na home do usuário do ansible
+    - name: Garantir diretório charts na home do usuário do ansible
       ansible.builtin.file:
         path: "/home/{{ ansible_user }}/charts"
         state: directory
@@ -35,8 +35,8 @@
     - name: Instalar chart do Kubernetes Dashboard
       ansible.builtin.command:
         cmd: >
-          helm install metrics-server metrics-server/metrics-server
-          --namespace kube-metrics
+          helm install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
+          --namespace kubernetes-dashboard
           --create-namespace
           --values /home/{{ ansible_user }}/charts/dashboard-config.yml
       changed_when: true
