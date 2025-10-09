@@ -60,6 +60,10 @@ balanceador: ## Executa apenas a role balanceador (use com um snapshot de sistem
 	@echo "Executando role balanceador..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags balanceador
 
+nfs: ## Executa apenas a role balanceador (use com um snapshot de sistema)
+	@echo "Executando role nfs..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags nfs
+
 kubernetes-base: ## Executa apenas a role kubernetes-base (use com um snapshot de balanceador)
 	@echo "Executando role kubernetes-base..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kubernetes-base
@@ -123,7 +127,9 @@ cadeia-sistema: cadeia-pki sistema ## Executa todas as dependências para a role
 
 cadeia-balanceador: cadeia-sistema balanceador ## Executa todas as dependências para a role balanceador
 
-cadeia-kubernetes-base: cadeia-balanceador kubernetes-base ## Executa todas as dependências para a role kubernetes-base
+cadeia-nfs: cadeia-balanceador nfs ## Executa todas as dependências para a role balanceador
+
+cadeia-kubernetes-base: cadeia-nfs kubernetes-base ## Executa todas as dependências para a role kubernetes-base
 
 cadeia-etcd: cadeia-kubernetes-base etcd ## Executa todas as dependências para a role etcd
 
