@@ -40,3 +40,12 @@
           --create-namespace
           --values /home/{{ ansible_user }}/charts/ingress-helm-config.yml
       changed_when: true
+
+    - name: Aguardar Ingress Controller disponível
+      ansible.builtin.command: >
+        kubectl -n kube-ingress-controller wait
+        --for=condition=available deployment/ingress-nginx-controller
+        --timeout=180s
+      register: resultado_ingress
+      changed_when: false
+      failed_when: resultado_ingress.rc != 0

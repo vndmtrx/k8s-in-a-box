@@ -39,3 +39,12 @@
           --namespace kube-system
           --values /home/{{ ansible_user }}/charts/coredns-helm-config.yml
       changed_when: true
+
+    - name: Aguardar CoreDNS disponível
+      ansible.builtin.command: >
+        kubectl -n kube-system wait
+        --for=condition=available deployment/coredns
+        --timeout=180s
+      register: resultado_coredns
+      changed_when: false
+      failed_when: resultado_coredns.rc != 0
