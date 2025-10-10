@@ -105,16 +105,16 @@ ops-up: ## Sobe a vm de ferramentas de operação do cluster
 	vagrant up kubox
 
 ops-sistema: ## Executa apenas a role ferramentas-ops
-	@echo "Executando role ferramentas-ops..."
+	@echo "Executando role ops-sistema..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-sistema
 
 ops-ferramentas: ## Executa apenas a role ferramentas-ops
-	@echo "Executando role ferramentas-ops..."
+	@echo "Executando role ops-ferramentas..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-ferramentas
 
 ops-configuracoes: ## Executa apenas a role configuracoes-ops
-	@echo "Executando role configuracoes-ops..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-configuracoes
+	@echo "Executando role ops-addons..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-addons
 
 ops: ops-up ## Executa toda a construção do cliente kubox para operação do cluster
 	@echo "Executando todas as roles de operações..."

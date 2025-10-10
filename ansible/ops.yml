@@ -22,15 +22,15 @@
         - ops-ferramentas
         - ops
 
-- name: Aplicação de configurações no cluster
+- name: Aplicação de addons no cluster
   hosts:
     - clientes
   become: false
   gather_facts: false
   roles:
-    - role: 13-configuracoes-cluster
+    - role: 13-addons-cluster
       tags:
-        - ops-configuracoes
+        - ops-addons
         - ops
 
 - name: Implantação dos exemplos de deploys no cluster
