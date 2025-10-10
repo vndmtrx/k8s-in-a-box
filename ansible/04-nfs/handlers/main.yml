@@ -1,0 +1,4 @@
+# ansible/04-nfs/handlers/main.yml
+---
+- name: Recarregar exportações NFS
+  ansible.builtin.command: exportfs -ra

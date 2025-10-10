@@ -1,2 +1,7 @@
 # ansible/04-nfs/tasks/main.yml
 ---
+- name: Instalar pacotes
+  ansible.builtin.import_tasks: 01-instalacao.yml
+
+- name: Configurar NFS
+  ansible.builtin.import_tasks: 02-configuracao.yml

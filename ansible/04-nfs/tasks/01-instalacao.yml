@@ -1,0 +1,12 @@
+# ansible/04-nfs/tasks/01-instalacao.yml
+---
+- name: Instalar pacote do NFS
+  ansible.builtin.package:
+    name: nfs-utils
+    state: present
+
+- name: Criar diretório para compartilhamento
+  ansible.builtin.file:
+    path: /srv/nfs/k8s
+    state: directory
+    mode: "0777"

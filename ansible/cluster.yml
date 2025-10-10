@@ -8,7 +8,7 @@
   roles:
     - role: 00-artefatos
       tags:
-        - artefatos
+        - cluster-artefatos
         - cluster
 
 - name: Criação local dos CAs e certificados do projeto
@@ -19,7 +19,7 @@
   roles:
     - role: 01-pki
       tags:
-        - pki
+        - cluster-pki
         - cluster
 
 - name: Configurações base para todas as máquinas
@@ -30,7 +30,7 @@
   roles:
     - role: 02-sistema
       tags:
-        - sistema
+        - cluster-sistema
         - cluster
 
 - name: Configurações do Balanceador de carga
@@ -40,17 +40,17 @@
   roles:
     - role: 03-balanceador
       tags:
-        - balanceador
+        - cluster-balanceador
         - cluster
 
 - name: Configurações do NFS
-  hosts: loadbalancers
+  hosts: nfs
   become: true
   gather_facts: false
   roles:
     - role: 04-nfs
       tags:
-        - nfs
+        - cluster-nfs
         - cluster
 
 - name: Configurações comuns a todos os nós
@@ -60,7 +60,7 @@
   roles:
     - role: 05-cluster-base
       tags:
-        - kubernetes-base
+        - cluster-kubernetes-base
         - cluster
 
 - name: Configurações do cluster Etcd
@@ -70,7 +70,7 @@
   roles:
     - role: 06-etcd
       tags:
-        - etcd
+        - cluster-etcd
         - cluster
 
 - name: Configuração do kube-apiserver
@@ -80,7 +80,7 @@
   roles:
     - role: 07-kube-apiserver
       tags:
-        - kube-apiserver
+        - cluster-kube-apiserver
         - cluster
 
 - name: Configuração do kube-controller-manager
@@ -90,7 +90,7 @@
   roles:
     - role: 08-kube-controller-manager
       tags:
-        - kube-controller-manager
+        - cluster-kube-controller-manager
         - cluster
 
 - name: Configuração do kube-scheduler
@@ -100,7 +100,7 @@
   roles:
     - role: 09-kube-scheduler
       tags:
-        - kube-scheduler
+        - cluster-kube-scheduler
         - cluster
 
 - name: Configuração do kubelet
@@ -110,7 +110,7 @@
   roles:
     - role: 10-kubelet
       tags:
-        - kubelet
+        - cluster-kubelet
         - cluster
 
 - name: Configuração do kube-proxy
@@ -120,5 +120,5 @@
   roles:
     - role: 11-kube-proxy
       tags:
-        - kube-proxy
+        - cluster-kube-proxy
         - cluster

@@ -1,0 +1,16 @@
+# ansible/04-nfs/tasks/02-configuracao.yml
+---
+- name: Aplicar template de exportações NFS
+  ansible.builtin.template:
+    src: exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Recarregar exportações NFS
+
+- name: Ativar e iniciar serviço NFS
+  ansible.builtin.service:
+    name: nfs-server
+    state: restarted
+    enabled: true

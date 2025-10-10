@@ -15,14 +15,7 @@ ANSIBLE_VERBOSE := $(if $(VERBOSE),-$(VERBOSE),)
 help: ## Mostra esta ajuda
 	@echo "Lista de targets:"; \
 	grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | \
-	awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-22s %s\n", $$1, $$2}'
-
-up-cluster: ## Sobe as VMs e recria a pasta artefatos/
-	mkdir -p $(ARTEFATOS)
-	vagrant up
-
-up-ops: ## Sobe a vm kubox
-	vagrant up kubox
+	awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-32s %s\n", $$1, $$2}'
 
 down: ## Interrompe as VMs
 	vagrant halt
@@ -43,99 +36,99 @@ lint: ## Checagem da estrutura do Ansible
 	@command -v ansible-lint >/dev/null 2>&1 || { echo "ansible-lint não está instalado."; exit 1; }
 	@ansible-lint -q ansible/ || true
 
+k8s-in-a-box: cluster ops ## Executa todo o projeto
+
+##########################################################################################
+################################### Criação do Cluster ###################################
+
+cluster-up: ## Sobe as VMs e recria a pasta artefatos/
+	mkdir -p $(ARTEFATOS)
+	vagrant up
+
 # Tasks independentes, para executar individualmente (para evitar executar toda a pipeline, ou após um restore de snapshot)
-artefatos: ## Executa apenas a role artefatos (use com um snapshot da máquina não provisionada)
+cluster-artefatos: ## Executa apenas a role artefatos
 	@echo "Executando role artefatos..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags artefatos
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-artefatos
 
-pki: ## Executa apenas a role pki (use com um snapshot de artefatos)
+cluster-pki: ## Executa apenas a role pki
 	@echo "Executando role pki..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags pki
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-pki
 
-sistema: ## Executa apenas a role sistema (use com um snapshot de pki)
+cluster-sistema: ## Executa apenas a role sistema
 	@echo "Executando role sistema..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags sistema
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-sistema
 
-balanceador: ## Executa apenas a role balanceador (use com um snapshot de sistema)
+cluster-balanceador: ## Executa apenas a role balanceador
 	@echo "Executando role balanceador..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags balanceador
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-balanceador
 
-kubernetes-base: ## Executa apenas a role kubernetes-base (use com um snapshot de balanceador)
+cluster-nfs: ## Executa apenas a role balanceador
+	@echo "Executando role nfs..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-nfs
+
+cluster-kubernetes-base: ## Executa apenas a role kubernetes-base
 	@echo "Executando role kubernetes-base..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kubernetes-base
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kubernetes-base
 
-etcd: ## Executa apenas a role etcd (use com um snapshot de kubernetes-base)
+cluster-etcd: ## Executa apenas a role etcd
 	@echo "Executando role etcd..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags etcd
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-etcd
 
-kube-apiserver: ## Executa apenas a role kube-apiserver (use com um snapshot de etcd)
+cluster-kube-apiserver: ## Executa apenas a role kube-apiserver
 	@echo "Executando role kube-apiserver..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kube-apiserver
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kube-apiserver
 
-kube-controller-manager: ## Executa apenas a role kube-controller-manager (use com um snapshot de kube-apiserver)
+cluster-kube-controller-manager: ## Executa apenas a role kube-controller-manager
 	@echo "Executando role kube-controller-manager..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kube-controller-manager
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kube-controller-manager
 
-kube-scheduler: ## Executa apenas a role kube-scheduler (use com um snapshot de kube-controller-manager)
+cluster-kube-scheduler: ## Executa apenas a role kube-scheduler
 	@echo "Executando role kube-controller-manager..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kube-scheduler
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kube-scheduler
 
-kubelet: ## Executa apenas a role kubelet (use com um snapshot de kube-scheduler)
+cluster-kubelet: ## Executa apenas a role kubelet
 	@echo "Executando role kubelet..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kubelet
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kubelet
 
-kube-proxy: ## Executa apenas a role kube-proxy (use com um snapshot de kubelet)
+cluster-kube-proxy: ## Executa apenas a role kube-proxy
 	@echo "Executando role kube-proxy..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags kube-proxy
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kube-proxy
 
-cluster: up-cluster ## Executa toda a construção do cluster kubernetes
+cluster: cluster-up ## Executa toda a construção do cluster kubernetes
 	@echo "Executando todas as roles de cluster..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster
 
-ops: up-ops ## Executa toda a construção do cliente kubox para operação do cluster
+############################################################################################
+################################### Operações no Cluster ###################################
+
+ops-up: ## Sobe a vm de ferramentas de operação do cluster
+	vagrant up kubox
+
+ops-sistema: ## Executa apenas a role ferramentas-ops
+	@echo "Executando role ops-sistema..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-sistema
+
+ops-ferramentas: ## Executa apenas a role ferramentas-ops
+	@echo "Executando role ops-ferramentas..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-ferramentas
+
+ops-configuracoes: ## Executa apenas a role configuracoes-ops
+	@echo "Executando role ops-addons..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-addons
+
+ops: ops-up ## Executa toda a construção do cliente kubox para operação do cluster
 	@echo "Executando todas as roles de operações..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops
 
-sistema-ops: ## Executa apenas a role ferramentas-ops
-	@echo "Executando role ferramentas-ops..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags sistema-ops
-
-ferramentas-ops: ## Executa apenas a role ferramentas-ops
-	@echo "Executando role ferramentas-ops..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ferramentas-ops
-
-configuracoes-ops: ## Executa apenas a role configuracoes-ops
-	@echo "Executando role configuracoes-ops..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags configuracoes-ops
+################################################################################
+################################### Exemplos ###################################
 
 exemplos: ## Executa apenas a role exemplos
 	@echo "Executando role exemplos..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags exemplos
 
-k8s-in-a-box: cluster ops ## Executa todo o projeto
-
-# Tasks com encadeamento de execução
-cadeia-artefatos: up-cluster artefatos ## Executa todas as dependências para a role artefatos
-
-cadeia-pki: cadeia-artefatos pki ## Executa todas as dependências para a role pki
-
-cadeia-sistema: cadeia-pki sistema ## Executa todas as dependências para a role pki
-
-cadeia-balanceador: cadeia-sistema balanceador ## Executa todas as dependências para a role balanceador
-
-cadeia-kubernetes-base: cadeia-balanceador kubernetes-base ## Executa todas as dependências para a role kubernetes-base
-
-cadeia-etcd: cadeia-kubernetes-base etcd ## Executa todas as dependências para a role etcd
-
-cadeia-kube-apiserver: cadeia-etcd kube-apiserver ## Executa todas as dependências para a role kube-apiserver
-
-cadeia-kube-controller-manager: cadeia-kube-apiserver kube-controller-manager ## Executa todas as dependências para a role kube-controller-manager
-
-cadeia-kube-scheduler: cadeia-kube-controller-manager kube-scheduler ## Executa todas as dependências para a role kube-scheduler
-
-cadeia-kubelet: cadeia-kube-scheduler kubelet ## Executa todas as dependências para a role kubelet
-
-cadeia-kube-proxy: cadeia-kubelet kube-proxy ## Executa todas as dependências para a role kube-proxy
+##############################################################################
+################################### Extras ###################################
 
 snapshot: ## Cria uma snapshot única (sempre sobrescreve)
 	@if vagrant status | grep -q "not created"; then \

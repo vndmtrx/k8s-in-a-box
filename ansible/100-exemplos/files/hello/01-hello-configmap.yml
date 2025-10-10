@@ -47,6 +47,44 @@ data:
         word-spacing: 0.05em;
       }
 
+      .dashboard {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 1.5rem 2rem;
+        max-width: 700px;
+        margin: 2rem auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        font-size: 0.9em;
+        line-height: 1.6;
+      }
+
+      .dashboard a {
+        color: #fff;
+        font-weight: 600;
+        text-decoration: underline;
+      }
+
+      .dashboard pre {
+        background: rgba(0, 0, 0, 0.25);
+        color: #f1f1f1;
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        text-align: left;
+        font-size: 0.9em;
+        overflow-x: auto;
+        margin-top: 0.8rem;
+        font-family: "Courier New", monospace;
+        box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .dashboard code {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-family: "Fira Code", monospace;
+        font-size: 0.9em;
+      }
+
       .repo {
         margin-top: 1rem;
       }
@@ -96,6 +134,13 @@ data:
       <h1>Bem-vindo ao Cluster Kubernetes in a Box</h1>
       <p>Este ambiente foi criado para demonstrar um cluster Kubernetes totalmente automatizado, simples de gerenciar
       e pronto para laboratório ou desenvolvimento.</p>
+
+      <div class="dashboard">
+        <p>Acesse o <strong>Dashboard do Kubernetes</strong> em:<br>
+        <a href="/dashboard" target="_blank" rel="noopener noreferrer">kubernetes-dashboard</a></p>
+        <p>Para gerar o token de acesso, execute na vm kubox (acessível com <code>vagrant ssh kubox</code>):</p>
+        <pre>kubectl -n kubernetes-dashboard create token dashboard-admin</pre>
+      </div>
 
       <div class="repo">
         <span>Veja o projeto completo no repositório:</span>
