@@ -1,5 +1,3 @@
 {% for host in groups['cluster'] %}
-/srv/nfs/k8s {{ hostvars[host].ansible_host }}(rw,sync,no_subtree_check,no_root_squash) 
-{{ hostvars[host].fqdn }}(rw,sync,no_subtree_check,no_root_squash)
-
+/srv/nfs/k8s {{ hostvars[host].ansible_host }}(rw,sync,no_subtree_check,no_root_squash)
 {% endfor %}
