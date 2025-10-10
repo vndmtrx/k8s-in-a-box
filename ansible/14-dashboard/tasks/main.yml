@@ -1,4 +1,0 @@
-# ansible/14-dashboard/tasks/main.yml
----
-- name: Instalar o Kubernetes Dashboard
-  ansible.builtin.import_tasks: 01-instalacao.yml
