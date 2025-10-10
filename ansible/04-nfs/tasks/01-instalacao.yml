@@ -9,6 +9,4 @@
   ansible.builtin.file:
     path: /srv/nfs/k8s
     state: directory
-    owner: nobody
-    group: nobody
     mode: "0777"
