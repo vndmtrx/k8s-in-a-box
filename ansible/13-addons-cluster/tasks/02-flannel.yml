@@ -49,3 +49,12 @@
           --namespace kube-flannel
           --values /home/{{ ansible_user }}/charts/flannel-helm-config.yml
       changed_when: true
+
+    - name: Aguardar Flannel disponível
+      ansible.builtin.command: >
+        kubectl -n kube-flannel rollout status 
+        daemonset/kube-flannel-ds
+        --timeout=30s
+      register: resultado_flannel
+      changed_when: false
+      failed_when: resultado_flannel.rc != 0
