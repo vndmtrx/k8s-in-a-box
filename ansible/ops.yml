@@ -8,7 +8,7 @@
   roles:
     - role: 02-sistema
       tags:
-        - sistema-ops
+        - ops-sistema
         - ops
 
 - name: Instalação das ferramentas de operação do cluster
@@ -19,7 +19,7 @@
   roles:
     - role: 12-ferramentas-cluster
       tags:
-        - ferramentas-ops
+        - ops-ferramentas
         - ops
 
 - name: Aplicação de configurações no cluster
@@ -30,7 +30,7 @@
   roles:
     - role: 13-configuracoes-cluster
       tags:
-        - configuracoes-ops
+        - ops-configuracoes
         - ops
 
 - name: Implantação dos exemplos de deploys no cluster
