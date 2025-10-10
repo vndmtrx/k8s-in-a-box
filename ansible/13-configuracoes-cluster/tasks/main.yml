@@ -14,3 +14,6 @@
 
 - name: Instalação e configuração do Nginx Ingress Controller
   ansible.builtin.import_tasks: 05-ingress.yml
+
+- name: Instalação e configuração do Kubernetes Dashboard
+  ansible.builtin.import_tasks: 06-dashboard.yml
