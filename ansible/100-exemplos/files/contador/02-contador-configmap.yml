@@ -14,20 +14,28 @@ data:
       mkdir($baseDir, 0777, true);
     }
 
-    // Lê contador atual
-    $contador = 0;
+    // Define timezone local (São Paulo)
+    date_default_timezone_set('America/Sao_Paulo');
+
+    // Lê valores anteriores (se existirem)
     if (file_exists($arquivoContador)) {
       $contador = (int)file_get_contents($arquivoContador);
+    } else {
+      $contador = 0;
     }
 
-    // Incrementa e salva
+    if (file_exists($arquivoUltimo)) {
+      $dataHora = trim(file_get_contents($arquivoUltimo));
+    } else {
+      $dataHora = "primeiro acesso";
+    }
+
+    // Exibe os valores atuais antes de atualizar
     $contador++;
     file_put_contents($arquivoContador, $contador);
 
-    // Registra o horário do acesso
-    $dataHora = date('d/m/Y H:i:s');
-    file_put_contents($arquivoUltimo, $dataHora);
-
+    $novaData = date('d/m/Y H:i:s');
+    file_put_contents($arquivoUltimo, $novaData);
     ?>
     <!DOCTYPE html>
     <html lang="pt-BR">
