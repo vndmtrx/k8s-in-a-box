@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: contador-pagina
+  namespace: exemplos
+data:
+  index.php: |
+    <?php
+    $baseDir = '/dados';
+    $arquivoContador = "$baseDir/contador.txt";
+    $arquivoUltimo = "$baseDir/ultimo.txt";
+
+    if (!file_exists($baseDir)) {
+      mkdir($baseDir, 0777, true);
+    }
+
+    // Lê contador atual
+    $contador = 0;
+    if (file_exists($arquivoContador)) {
+      $contador = (int)file_get_contents($arquivoContador);
+    }
+
+    // Incrementa e salva
+    $contador++;
+    file_put_contents($arquivoContador, $contador);
+
+    // Registra o horário do acesso
+    $dataHora = date('d/m/Y H:i:s');
+    file_put_contents($arquivoUltimo, $dataHora);
+
+    ?>
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Contador de Acessos - Kubernetes in a Box</title>
+      <style>
+        body {
+          margin: 0;
+          font-family: "Segoe UI", Arial, sans-serif;
+          background: linear-gradient(135deg, #007bff, #00aaff);
+          color: #fff;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          text-align: center;
+          padding: 2rem;
+          box-sizing: border-box;
+        }
+
+        .icon {
+          font-size: clamp(3rem, 8vw, 5rem);
+          margin-bottom: 0.3em;
+        }
+
+        h1 {
+          font-size: clamp(1.8rem, 5vw, 3em);
+          margin-bottom: 0.6em;
+        }
+
+        p {
+          font-size: clamp(1rem, 2vw, 1.1em);
+          margin: 0.3em 0;
+        }
+
+        .contador {
+          background-color: rgba(255, 255, 255, 0.15);
+          border-radius: 12px;
+          padding: 1.5rem 2rem;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          font-size: 1em;
+          line-height: 1.6;
+          margin-top: 1rem;
+        }
+
+        .contador a {
+          color: #fff;
+          text-decoration: none;
+        }
+        
+        footer {
+          margin-top: 3rem;
+          font-size: 0.9em;
+          opacity: 0.9;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="icon">📈</div>
+      <h1>Contador de Acessos</h1>
+
+      <div class="contador">
+        <p><strong>Total de acessos:</strong> <?= $contador ?></p>
+        <p><strong>Último acesso:</strong> <?= htmlspecialchars($dataHora) ?></p>
+        <p><strong><a href="/">Voltar à página inicial</a></strong></a>
+      </div>
+
+      <footer>
+        <p>Dados persistidos em usando Volume Dinâmico</p>
+      </footer>
+    </body>
+    </html>

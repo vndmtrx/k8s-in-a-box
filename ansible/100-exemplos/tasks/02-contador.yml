@@ -1,0 +1,18 @@
+# ansible/100-exemplos/tasks/02-contador.yml
+---
+- name: Garantir diretório exemplos/contador na home do usuário do ansible
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/exemplos/contador/"
+    state: directory
+    mode: "0755"
+
+- name: Copiar exemplo contador completo para a pasta de exemplos
+  ansible.builtin.copy:
+    src: "contador/"
+    dest: "/home/{{ ansible_user }}/exemplos/contador/"
+    mode: "0644"
+
+- name: Aplicar Manifests do Contador
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/exemplos/contador/"
+  changed_when: true
