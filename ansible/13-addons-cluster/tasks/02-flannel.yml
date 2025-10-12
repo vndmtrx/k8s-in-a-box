@@ -1,60 +1,46 @@
 # ansible/13-configuracoes-cluster/tasks/02-flannel.yml
 ---
-- name: Verificar releases instaladas no Helm
+- name: Adicionar repositório helm do Flannel
   ansible.builtin.command:
-    cmd: "helm list -Aq"
-  register: helm_releases
-  failed_when: false
+    cmd: "helm repo add flannel https://flannel-io.github.io/flannel/"
+  register: resultado_repo_add
+  changed_when: "'already exists' not in resultado_repo_add.stdout"
+
+- name: Atualizar repositórios helm
+  ansible.builtin.command:
+    cmd: "helm repo update"
   changed_when: false
 
-- name: Instalar o Flannel se não estiver instalado
-  when: not (helm_releases.stdout | regex_search('^flannel$', multiline=True))
-  block:
-    - name: Garantir que namespace kube-flannel existe
-      ansible.builtin.command:
-        cmd: "kubectl create ns kube-flannel"
-      changed_when: true
+- name: Garantir diretório charts na home do usuário do ansible
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/charts"
+    state: directory
+    mode: "0755"
 
-    - name: Aplicar label PodSecurity no namespace kube-flannel
-      ansible.builtin.command:
-        cmd: "kubectl label ns kube-flannel pod-security.kubernetes.io/enforce=privileged"
-      changed_when: true
+- name: Criar arquivo de configuração Helm para o Flannel
+  ansible.builtin.template:
+    src: flannel-helm-config.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/flannel-helm-config.yml"
+    mode: "0644"
 
-    - name: Adicionar repositório helm do Flannel
-      ansible.builtin.command:
-        cmd: "helm repo add flannel https://flannel-io.github.io/flannel/"
-      changed_when: true
+- name: Criar manifesto de namespace e PodSecurity para o Flannel
+  ansible.builtin.template:
+    src: flannel-namespace.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/flannel-namespace.yml"
+    mode: "0644"
 
-    - name: Atualizar repositórios helm
-      ansible.builtin.command:
-        cmd: "helm repo update"
-      changed_when: false
+- name: Aplicar manifesto do namespace Flannel
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/flannel-namespace.yml"
+  register: resultado_ns
+  changed_when: "'configured' in resultado_ns.stdout or 'created' in resultado_ns.stdout"
 
-    - name: Garantir diretório charts na home do usuário do ansible
-      ansible.builtin.file:
-        path: "/home/{{ ansible_user }}/charts"
-        state: directory
-        mode: "0755"
-
-    - name: Criar arquivo de configuração Helm para o Flannel
-      ansible.builtin.template:
-        src: flannel-helm-config.yml.j2
-        dest: "/home/{{ ansible_user }}/charts/flannel-helm-config.yml"
-        mode: "0644"
-
-    - name: Instalar chart do Flannel
-      ansible.builtin.command:
-        cmd: >
-          helm install flannel flannel/flannel
-          --namespace kube-flannel
-          --values /home/{{ ansible_user }}/charts/flannel-helm-config.yml
-      changed_when: true
-
-    - name: Aguardar Flannel disponível
-      ansible.builtin.command: >
-        kubectl -n kube-flannel rollout status 
-        daemonset/kube-flannel-ds
-        --timeout=30s
-      register: resultado_flannel
-      changed_when: false
-      failed_when: resultado_flannel.rc != 0
+- name: Instalar chart do Flannel
+  ansible.builtin.command:
+    cmd: >
+      helm upgrade --install flannel flannel/flannel
+      --namespace kube-flannel
+      --values /home/{{ ansible_user }}/charts/flannel-helm-config.yml
+      --atomic --wait --timeout 60s
+  register: resultado_helm_upgrade
+  changed_when: "'installed' in resultado_helm_upgrade.stdout or 'upgraded' in resultado_helm_upgrade.stdout"

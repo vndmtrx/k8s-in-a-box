@@ -1,50 +1,35 @@
 # ansible/13-configuracoes-cluster/tasks/03-coredns.yml
 ---
-- name: Verificar releases instaladas no Helm
+- name: Adicionar repositório helm do CoreDNS
   ansible.builtin.command:
-    cmd: "helm list -Aq"
-  register: helm_releases
-  failed_when: false
+    cmd: "helm repo add coredns https://coredns.github.io/helm"
+  register: resultado_repo_add
+  changed_when: "'already exists' not in resultado_repo_add.stdout"
+
+- name: Atualizar repositórios helm
+  ansible.builtin.command:
+    cmd: "helm repo update"
   changed_when: false
 
-- name: Instalar o CoreDNS se não estiver instalado
-  when: not (helm_releases.stdout | regex_search('^coredns$', multiline=True))
-  block:
-    - name: Adicionar repositório helm do CoreDNS
-      ansible.builtin.command:
-        cmd: "helm repo add coredns https://coredns.github.io/helm"
-      changed_when: true
+- name: Garantir diretório charts na home do usuário do ansible
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/charts"
+    state: directory
+    mode: "0755"
 
-    - name: Atualizar repositórios helm
-      ansible.builtin.command:
-        cmd: "helm repo update"
-      changed_when: false
+- name: Criar arquivo de configuração Helm para o CoreDNS
+  ansible.builtin.template:
+    src: coredns-helm-config.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/coredns-helm-config.yml"
+    mode: "0644"
 
-    - name: Garantir diretório charts na home do usuário do ansible
-      ansible.builtin.file:
-        path: "/home/{{ ansible_user }}/charts"
-        state: directory
-        mode: "0755"
+- name: Instalar chart do CoreDNS
+  ansible.builtin.command:
+    cmd: >
+      helm upgrade --install coredns coredns/coredns
+      --namespace kube-system
+      --values /home/{{ ansible_user }}/charts/coredns-helm-config.yml
+      --atomic --wait --timeout 60s
+  register: resultado_helm_upgrade
+  changed_when: "'installed' in resultado_helm_upgrade.stdout or 'upgraded' in resultado_helm_upgrade.stdout"
 
-    - name: Criar arquivo de configuração Helm para o CoreDNS
-      ansible.builtin.template:
-        src: coredns-helm-config.yml.j2
-        dest: "/home/{{ ansible_user }}/charts/coredns-helm-config.yml"
-        mode: "0644"
-
-    - name: Instalar chart do CoreDNS
-      ansible.builtin.command:
-        cmd: >
-          helm install coredns coredns/coredns
-          --namespace kube-system
-          --values /home/{{ ansible_user }}/charts/coredns-helm-config.yml
-      changed_when: true
-
-    - name: Aguardar CoreDNS disponível
-      ansible.builtin.command: >
-        kubectl -n kube-system wait
-        --for=condition=available deployment/coredns
-        --timeout=180s
-      register: resultado_coredns
-      changed_when: false
-      failed_when: resultado_coredns.rc != 0
