@@ -30,6 +30,6 @@
       --namespace kube-ingress-controller
       --create-namespace
       --values /home/{{ ansible_user }}/charts/ingress-helm-config.yml
-      --atomic --wait --timeout 60s
+      --atomic --wait --timeout 120s
   register: resultado_helm_upgrade
   changed_when: "'installed' in resultado_helm_upgrade.stdout or 'upgraded' in resultado_helm_upgrade.stdout"
