@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: hello-ingress
   namespace: exemplos
+  labels:
+    app: hello-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:

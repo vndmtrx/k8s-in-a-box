@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: contador
   namespace: exemplos
+  labels:
+    app: contador-pvc
 spec:
   selector:
     app: contador

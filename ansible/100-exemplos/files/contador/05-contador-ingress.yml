@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: contador
   namespace: exemplos
+  labels:
+    app: contador-pvc
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:

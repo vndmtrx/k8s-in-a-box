@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: contador-pvc
   namespace: exemplos
+  labels:
+    app: contador-pvc
 spec:
   accessModes:
     - ReadWriteOnce

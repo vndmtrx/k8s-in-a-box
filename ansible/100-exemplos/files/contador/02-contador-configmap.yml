@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: contador-pagina
   namespace: exemplos
+  labels:
+    app: contador-pvc
 data:
   index.php: |
     <?php
