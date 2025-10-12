@@ -36,7 +36,7 @@ lint: ## Checagem da estrutura do Ansible
 	@command -v ansible-lint >/dev/null 2>&1 || { echo "ansible-lint não está instalado."; exit 1; }
 	@ansible-lint -q ansible/ || true
 
-k8s-in-a-box: cluster ops ## Executa todo o projeto
+k8s-in-a-box: cluster ops exemplos ## Executa todo o projeto
 
 ##########################################################################################
 ################################### Criação do Cluster ###################################
@@ -112,7 +112,7 @@ ops-ferramentas: ## Executa apenas a role ferramentas-ops
 	@echo "Executando role ops-ferramentas..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-ferramentas
 
-ops-configuracoes: ## Executa apenas a role configuracoes-ops
+ops-addons: ## Executa apenas a role configuracoes-ops
 	@echo "Executando role ops-addons..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-addons
 

@@ -40,3 +40,12 @@
           --create-namespace
           --values /home/{{ ansible_user }}/charts/metrics-helm-config.yml
       changed_when: true
+
+    - name: Aguardar Metrics Server disponível
+      ansible.builtin.command: >
+        kubectl -n kube-metrics wait
+        --for=condition=available deployment/metrics-server
+        --timeout=180s
+      register: resultado_metrics
+      changed_when: false
+      failed_when: resultado_metrics.rc != 0

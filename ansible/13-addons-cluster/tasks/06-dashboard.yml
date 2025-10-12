@@ -8,7 +8,7 @@
   changed_when: false
 
 - name: Instalar o Kubernetes Dashboard se não estiver instalado
-  when: not (helm_releases.stdout | regex_search('^ingress-nginx$', multiline=True))
+  when: not (helm_releases.stdout | regex_search('^kubernetes-dashboard$', multiline=True))
   block:
     - name: Adicionar repositório helm do Kubernetes Dashboard
       ansible.builtin.command:
