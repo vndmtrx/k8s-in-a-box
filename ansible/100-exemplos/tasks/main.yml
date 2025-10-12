@@ -5,3 +5,6 @@
 
 - name: Implantação do exemplo Hello
   ansible.builtin.import_tasks: 01-hello.yml
+
+- name: Implantação do exemplo Contador
+  ansible.builtin.import_tasks: 02-contador.yml

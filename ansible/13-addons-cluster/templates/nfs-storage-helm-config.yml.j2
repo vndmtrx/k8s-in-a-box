@@ -1,0 +1,32 @@
+replicaCount: 1
+strategyType: Recreate
+
+nfs:
+  server: "{{ hostvars['nfs1'].ansible_host }}"
+  path: /srv/nfs/k8s
+  mountOptions:
+    - vers=4.2
+    - noatime
+  volumeName: nfs-subdir-external-provisioner-root
+  reclaimPolicy: Retain
+
+storageClass:
+  create: true
+  defaultClass: true
+  name: servidor-nfs
+  reclaimPolicy: Delete
+  archiveOnDelete: false
+  accessModes: ReadWriteOnce
+  volumeBindingMode: Immediate
+
+serviceAccount:
+  create: true
+  name: nfs-admin
+
+resources:
+  limits:
+   cpu: 100m
+   memory: 128Mi
+  requests:
+   cpu: 100m
+   memory: 128Mi

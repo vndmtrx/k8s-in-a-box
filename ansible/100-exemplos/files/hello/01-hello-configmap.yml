@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: hello-ingress
   namespace: exemplos
+  labels:
+    app: hello-ingress
 data:
   index.html: |
     <!DOCTYPE html>
@@ -60,8 +62,7 @@ data:
 
       .dashboard a {
         color: #fff;
-        font-weight: 600;
-        text-decoration: underline;
+        text-decoration: none;
       }
 
       .dashboard pre {
@@ -136,10 +137,13 @@ data:
       e pronto para laboratório ou desenvolvimento.</p>
 
       <div class="dashboard">
-        <p>Acesse o <strong>Dashboard do Kubernetes</strong> em:<br>
-        <a href="/dashboard" target="_blank" rel="noopener noreferrer">kubernetes-dashboard</a></p>
+        <p>Acesse o Dashboard do Kubernetes em:
+        <strong><a href="/dashboard" target="_blank" rel="noopener noreferrer">Dashboard</a></strong></p>
         <p>Para gerar o token de acesso, execute na vm kubox (acessível com <code>vagrant ssh kubox</code>):</p>
         <pre>kubectl -n kubernetes-dashboard create token dashboard-admin</pre>
+        <br/>
+        <p>Veja também o Contador de Acessos do cluster, que implementa volumes dinâmicos:
+        <strong><a href="/contador" rel="noopener noreferrer">Contador</a></strong></p>
       </div>
 
       <div class="repo">
