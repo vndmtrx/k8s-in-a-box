@@ -23,18 +23,6 @@
     dest: "/home/{{ ansible_user }}/charts/dashboard-helm-config.yml"
     mode: "0644"
 
-- name: Criar arquivo manifest para implantação do Service Account no cluster
-  ansible.builtin.template:
-    src: dashboard-admin.yml.j2
-    dest: "/home/{{ ansible_user }}/charts/dashboard-admin.yml"
-    mode: "0644"
-
-- name: Criar Service Account dashboard-admin para acessar o dashboard
-  ansible.builtin.command:
-    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/dashboard-admin.yml"
-  register: resultado_label
-  changed_when: "'created' in resultado_label.stdout"
-
 - name: Instalar chart do Kubernetes Dashboard
   ansible.builtin.command:
     cmd: >
@@ -46,3 +34,14 @@
   register: resultado_helm_upgrade
   changed_when: "'installed' in resultado_helm_upgrade.stdout or 'upgraded' in resultado_helm_upgrade.stdout"
 
+- name: Criar arquivo manifest para implantação do Service Account no cluster
+  ansible.builtin.template:
+    src: dashboard-admin.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/dashboard-admin.yml"
+    mode: "0644"
+
+- name: Criar Service Account dashboard-admin para acessar o dashboard
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/dashboard-admin.yml"
+  register: resultado_label
+  changed_when: "'created' in resultado_label.stdout"
