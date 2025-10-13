@@ -9,11 +9,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: contador
+      app: contador-app
   template:
     metadata:
       labels:
-        app: contador
+        app: contador-app
     spec:
       containers:
         - name: php

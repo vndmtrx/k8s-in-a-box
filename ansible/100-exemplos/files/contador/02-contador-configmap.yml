@@ -11,6 +11,7 @@ data:
     $baseDir = '/dados';
     $arquivoContador = "$baseDir/contador.txt";
     $arquivoUltimo = "$baseDir/ultimo.txt";
+    $arquivoCron = "$baseDir/cron.txt";
 
     if (!file_exists($baseDir)) {
       mkdir($baseDir, 0777, true);
@@ -21,7 +22,7 @@ data:
 
     // Lê valores anteriores (se existirem)
     if (file_exists($arquivoContador)) {
-      $contador = (int)file_get_contents($arquivoContador);
+      $contador = (int) file_get_contents($arquivoContador);
     } else {
       $contador = 0;
     }
@@ -30,6 +31,12 @@ data:
       $dataHora = trim(file_get_contents($arquivoUltimo));
     } else {
       $dataHora = "primeiro acesso";
+    }
+
+    if (file_exists($arquivoCron)) {
+      $cronData = trim(file_get_contents($arquivoCron));
+    } else {
+      $cronData = "cron job ainda não executou";
     }
 
     // Exibe os valores atuais antes de atualizar
@@ -104,12 +111,13 @@ data:
 
       <div class="contador">
         <p><strong>Total de acessos:</strong> <?= $contador ?></p>
-        <p><strong>Último acesso:</strong> <?= htmlspecialchars($dataHora) ?></p>
-        <p><strong><a href="/">Voltar à página inicial</a></strong></a>
+        <p><strong>&Uacute;ltimo acesso:</strong> <?= htmlspecialchars($dataHora) ?></p>
+        <p><strong>&Uacute;ltimo CronJob:</strong> <?= htmlspecialchars($cronData) ?></p>
+        <p><strong><a href="/">Voltar &agrave; p&aacute;gina inicial</a></strong></a>
       </div>
 
       <footer>
-        <p>Dados persistidos em usando Volume Dinâmico</p>
+        <p>Dados persistidos em usando Volume Din&acirc;mico</p>
       </footer>
     </body>
     </html>
