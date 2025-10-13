@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: contador
+  namespace: exemplos
+  labels:
+    app: contador-pvc
+spec:
+  schedule: "*/10 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: grava-data
+            image: debian:stable
+            command: ["/bin/sh", "-c", "TZ='America/Sao_Paulo' date '+%d/%m/%Y %H:%M:%S' > /dados/cron.txt"]
+            volumeMounts:
+            - name: dados
+              mountPath: /dados
+          restartPolicy: OnFailure
+          volumes:
+          - name: dados
+            persistentVolumeClaim:
+              claimName: contador-pvc
