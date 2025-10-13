@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: contador
+  name: contador-cronjob
   namespace: exemplos
   labels:
     app: contador-pvc
@@ -12,7 +12,7 @@ spec:
       template:
         spec:
           containers:
-          - name: grava-data
+          - name: cronjob-escrita-pvc
             image: debian:stable
             command: ["/bin/sh", "-c", "TZ='America/Sao_Paulo' date '+%d/%m/%Y %H:%M:%S' > /dados/cron.txt"]
             volumeMounts:
