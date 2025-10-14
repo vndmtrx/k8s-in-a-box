@@ -32,4 +32,3 @@
       --atomic --wait --timeout 120s
   register: resultado_helm_upgrade
   changed_when: "'installed' in resultado_helm_upgrade.stdout or 'upgraded' in resultado_helm_upgrade.stdout"
-

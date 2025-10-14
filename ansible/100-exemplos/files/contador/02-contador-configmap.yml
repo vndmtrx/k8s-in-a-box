@@ -97,7 +97,7 @@ data:
           color: #fff;
           text-decoration: none;
         }
-        
+
         footer {
           margin-top: 3rem;
           font-size: 0.9em;

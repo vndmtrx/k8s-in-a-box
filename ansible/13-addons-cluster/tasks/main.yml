@@ -3,8 +3,13 @@
 - name: Configurar Labels e Taints dos nós do cluster
   ansible.builtin.import_tasks: 01-labels-taints.yml
 
-- name: Instalação e configuração do Flannel
+- name: Instalar Flannel
   ansible.builtin.import_tasks: 02-flannel.yml
+  when: plugin_cni == "flannel"
+
+- name: Instalar Cilium
+  ansible.builtin.import_tasks: 02-cilium.yml
+  when: plugin_cni == "cilium"
 
 - name: Instalação e configuração do CoreDNS
   ansible.builtin.import_tasks: 03-coredns.yml

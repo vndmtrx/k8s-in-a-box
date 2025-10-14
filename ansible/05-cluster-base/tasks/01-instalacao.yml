@@ -15,7 +15,12 @@
       ip_tables
       ip6_tables
       nf_nat
+      nf_conntrack
       xt_conntrack
+      ip_vs
+      ip_vs_rr
+      ip_vs_wrr
+      ip_vs_sh
       vxlan
     mode: "0644"
 
