@@ -12,14 +12,14 @@ spec:
       template:
         spec:
           containers:
-          - name: cronjob-escrita-pvc
-            image: debian:stable
-            command: ["/bin/sh", "-c", "TZ='America/Sao_Paulo' date '+%d/%m/%Y %H:%M:%S' > /dados/cron.txt"]
-            volumeMounts:
-            - name: dados
-              mountPath: /dados
+            - name: cronjob-escrita-pvc
+              image: debian:stable
+              command: ["/bin/sh", "-c", "TZ='America/Sao_Paulo' date '+%d/%m/%Y %H:%M:%S' > /dados/cron.txt"]
+              volumeMounts:
+                - name: dados
+                  mountPath: /dados
           restartPolicy: OnFailure
           volumes:
-          - name: dados
-            persistentVolumeClaim:
-              claimName: contador-pvc
+            - name: dados
+              persistentVolumeClaim:
+                claimName: contador-pvc
