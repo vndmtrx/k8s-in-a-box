@@ -1,4 +1,4 @@
-# ansible/13-configuracoes-cluster/tasks/02-flannel.yml
+# ansible/13-configuracoes-cluster/tasks/02-cilium.yml
 ---
 - name: Adicionar repositório helm do Cilium
   ansible.builtin.command:
@@ -23,11 +23,23 @@
     dest: "/home/{{ ansible_user }}/charts/cilium-helm-config.yml"
     mode: "0644"
 
+- name: Criar manifesto de namespace e PodSecurity para o Cilium
+  ansible.builtin.template:
+    src: cilium-namespace.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/cilium-namespace.yml"
+    mode: "0644"
+
+- name: Aplicar manifesto do namespace Cilium
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/cilium-namespace.yml"
+  register: resultado_ns
+  changed_when: "'configured' in resultado_ns.stdout or 'created' in resultado_ns.stdout"
+
 - name: Instalar chart do Cilium
   ansible.builtin.command:
     cmd: >
       helm upgrade --install cilium cilium/cilium
-      --namespace kube-system
+      --namespace cni-cilium
       --values /home/{{ ansible_user }}/charts/cilium-helm-config.yml
       --atomic --wait --timeout 120s
   register: resultado_helm_upgrade
