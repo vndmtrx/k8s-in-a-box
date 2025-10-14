@@ -140,7 +140,7 @@ data:
         <p>Acesse o Dashboard do Kubernetes em:
         <strong><a href="/dashboard" target="_blank" rel="noopener noreferrer">Dashboard</a></strong></p>
         <p>Para gerar o token de acesso, execute na vm kubox (acessível com <code>vagrant ssh kubox</code>):</p>
-        <pre>kubectl -n kubernetes-dashboard create token dashboard-admin</pre>
+        <pre>kubectl -n dashboard create token dashboard-admin</pre>
         <br/>
         <p>Veja também o Contador de Acessos do cluster, que implementa volumes dinâmicos:
         <strong><a href="/contador" rel="noopener noreferrer">Contador</a></strong></p>
