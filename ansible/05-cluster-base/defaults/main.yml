@@ -7,5 +7,8 @@ pacotes_kubernetes:
   - ethtool
   - socat
   - conntrack-tools
+  - ipvsadm
+  - ipset
   - tar
   - xz
+
