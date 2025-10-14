@@ -1,0 +1,34 @@
+# ansible/13-configuracoes-cluster/tasks/02-flannel.yml
+---
+- name: Adicionar repositório helm do Cilium
+  ansible.builtin.command:
+    cmd: "helm repo add cilium https://helm.cilium.io/"
+  register: resultado_repo_add
+  changed_when: "'already exists' not in resultado_repo_add.stdout"
+
+- name: Atualizar repositórios helm
+  ansible.builtin.command:
+    cmd: "helm repo update"
+  changed_when: false
+
+- name: Garantir diretório charts na home do usuário do ansible
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/charts"
+    state: directory
+    mode: "0755"
+
+- name: Criar arquivo de configuração Helm para o Cilium
+  ansible.builtin.template:
+    src: cilium-helm-config.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/cilium-helm-config.yml"
+    mode: "0644"
+
+- name: Instalar chart do Cilium
+  ansible.builtin.command:
+    cmd: >
+      helm upgrade --install cilium cilium/cilium
+      --namespace kube-system
+      --values /home/{{ ansible_user }}/charts/cilium-helm-config.yml
+      --atomic --wait --timeout 120s
+  register: resultado_helm_upgrade
+  changed_when: "'installed' in resultado_helm_upgrade.stdout or 'upgraded' in resultado_helm_upgrade.stdout"
