@@ -27,7 +27,7 @@
   ansible.builtin.command:
     cmd: >
       helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx
-      --namespace kube-ingress-controller
+      --namespace ingress-nginx
       --create-namespace
       --values /home/{{ ansible_user }}/charts/ingress-helm-config.yml
       --atomic --wait --timeout 120s

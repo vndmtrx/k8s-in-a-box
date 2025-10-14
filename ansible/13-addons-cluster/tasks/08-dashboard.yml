@@ -27,7 +27,7 @@
   ansible.builtin.command:
     cmd: >
       helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
-      --namespace kubernetes-dashboard
+      --namespace dashboard
       --create-namespace
       --values /home/{{ ansible_user }}/charts/dashboard-helm-config.yml
       --atomic --wait --timeout 120s
