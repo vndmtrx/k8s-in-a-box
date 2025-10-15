@@ -1,0 +1,34 @@
+# ansible/03-balanceador/tasks/04-configuracao-dnsmasq.yml
+---
+- name: Comentar a linha 'local-service=host' no dnsmasq.conf
+  ansible.builtin.lineinfile:
+    path: /etc/dnsmasq.conf
+    regexp: '^local-service=host'
+    line: '#local-service=host'
+    state: present
+    backrefs: yes
+
+- name: Criar configuração principal do Dnsmasq
+  become: true
+  ansible.builtin.template:
+    src: dnsmasq-k8sbox.conf.j2
+    dest: /etc/dnsmasq.d/k8sbox.conf
+    mode: "0644"
+
+- name: Gerar arquivo de hosts do Dnsmasq
+  become: true
+  ansible.builtin.template:
+    src: dnsmasq-hosts.j2
+    dest: /etc/dnsmasq.hosts
+    mode: "0644"
+
+- name: Habilitar Dnsmasq no boot
+  ansible.builtin.systemd:
+    name: dnsmasq
+    enabled: true
+
+- name: Garantir que Dnsmasq está rodando
+  ansible.builtin.systemd:
+    name: dnsmasq
+    enabled: true
+    state: restarted
