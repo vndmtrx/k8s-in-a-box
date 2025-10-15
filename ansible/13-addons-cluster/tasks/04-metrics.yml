@@ -27,7 +27,7 @@
   ansible.builtin.command:
     cmd: >
       helm upgrade --install metrics-server metrics-server/metrics-server
-      --namespace kube-system
+      --namespace metrics-system
       --create-namespace
       --values /home/{{ ansible_user }}/charts/metrics-helm-config.yml
       --atomic --wait --timeout 120s
