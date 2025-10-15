@@ -7,4 +7,5 @@
       - keepalived
       - openssl
       - socat
+      - dnsmasq
     state: present
