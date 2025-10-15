@@ -12,6 +12,12 @@
     dest: /etc/kubernetes/kube-proxy.env
     mode: "0644"
 
+- name: Criar arquivo de configuração principal do kube-proxy
+  ansible.builtin.template:
+    src: kube-proxy-config.yml.j2
+    dest: /etc/kubernetes/kube-proxy-config.yml
+    mode: "0644"
+
 - name: Criar kubeconfig com configuração para o kube-proxy
   ansible.builtin.template:
     src: kube-proxy.kubeconfig.j2
