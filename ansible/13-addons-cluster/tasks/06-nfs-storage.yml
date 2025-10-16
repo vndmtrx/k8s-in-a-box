@@ -27,7 +27,7 @@
   ansible.builtin.command:
     cmd: >
       helm upgrade --install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
-      --namespace storage
+      --namespace nfs-storage
       --create-namespace
       --values /home/{{ ansible_user }}/charts/nfs-storage-helm-config.yml
       --atomic --wait --timeout 120s

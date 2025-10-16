@@ -24,6 +24,9 @@ primeiro_ip_pods: "{{ rede_cidr_pods | ansible.utils.ipaddr('1') | ansible.utils
 primeiro_ip_services: "{{ rede_cidr_services | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
 coredns_ip: "{{ rede_cidr_services | ansible.utils.ipaddr('10') | ansible.utils.ipaddr('address') }}"
 
+# Range de IPs para o MetalLB fazer LoadBalancing
+metallb_ips_loadbalacing: "172.24.0.240-172.24.0.250"
+
 # Portas usadas no projeto
 porta_etcd_https: 2379
 porta_etcd_peers: 2380
