@@ -31,7 +31,7 @@
 
 - name: Aplicar manifesto do namespace MetalLB
   ansible.builtin.command:
-    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/cilium-namespace.yml"
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/metallb-namespace.yml"
   register: resultado_ns
   changed_when: "'configured' in resultado_ns.stdout or 'created' in resultado_ns.stdout"
 
@@ -44,3 +44,15 @@
       --atomic --wait --timeout 120s
   register: resultado_helm_upgrade
   changed_when: "'installed' in resultado_helm_upgrade.stdout or 'upgraded' in resultado_helm_upgrade.stdout"
+
+- name: Criar manifesto de configuração do Advertisement e do IP Pool do MetalLB
+  ansible.builtin.template:
+    src: metallb-adv-pool.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/metallb-adv-pool.yml"
+    mode: "0644"
+
+- name: Aplicar manifesto do Advertisement/IP Pool
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/metallb-adv-pool.yml"
+  register: resultado_adv
+  changed_when: "'configured' in resultado_adv.stdout or 'created' in resultado_ns.stdout"
