@@ -1,0 +1,29 @@
+controller:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+  tolerations:
+    - key: "node-role.kubernetes.io/control-plane"
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/master"
+      effect: "NoSchedule"
+
+speaker:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+
+  frr:
+    enabled: false  # desabilita BGP
+  tolerateMaster: true
+
+prometheus:
+  serviceMonitor:
+    enabled: false
+
+crds:
+  enabled: true
