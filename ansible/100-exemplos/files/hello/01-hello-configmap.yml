@@ -138,7 +138,7 @@ data:
 
       <div class="dashboard">
         <p>Acesse o Dashboard do Kubernetes em:
-        <strong><a href="/dashboard" target="_blank" rel="noopener noreferrer">Dashboard</a></strong></p>
+        <strong><a href="https://172.24.0.101/" target="_blank" rel="noopener noreferrer">Dashboard</a></strong></p>
         <p>Para gerar o token de acesso, execute na vm kubox (acessível com <code>vagrant ssh kubox</code>):</p>
         <pre>kubectl -n dashboard create token dashboard-admin</pre>
         <br/>
