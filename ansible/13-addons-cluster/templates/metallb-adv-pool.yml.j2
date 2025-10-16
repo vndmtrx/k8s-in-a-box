@@ -1,17 +1,28 @@
 apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: pool-fixo
+  namespace: metallb
+spec:
+  autoAssign: false
+  addresses:
+    - {{ metallb_ips_manuais }}
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: pool-dinamico
+  namespace: metallb
+spec:
+  addresses:
+    - {{ metallb_ips_loadbalacing }}
+---
+apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
   name: anuncio-l2
   namespace: metallb
 spec:
   ipAddressPools:
-    - pool-l2
----
-apiVersion: metallb.io/v1beta1
-kind: IPAddressPool
-metadata:
-  name: pool-l2
-  namespace: metallb
-spec:
-  addresses:
-    - {{ metallb_ips_loadbalacing }}
+    - pool-fixo
+    - pool-dinamico
