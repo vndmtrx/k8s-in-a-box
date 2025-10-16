@@ -28,6 +28,7 @@
     cmd: >
       helm upgrade --install coredns coredns/coredns
       --namespace dns-system
+      --create-namespace
       --values /home/{{ ansible_user }}/charts/coredns-helm-config.yml
       --atomic --wait --timeout 120s
   register: resultado_helm_upgrade
