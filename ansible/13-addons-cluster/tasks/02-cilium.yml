@@ -44,3 +44,15 @@
       --atomic --wait --timeout 120s
   register: resultado_helm_upgrade
   changed_when: "'installed' in resultado_helm_upgrade.stdout or 'upgraded' in resultado_helm_upgrade.stdout"
+
+- name: Criar manifesto de configuração do LoadBalancer do Hubble no Cilium
+  ansible.builtin.template:
+    src: cilium-hubble-loadbalancer.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/cilium-hubble-loadbalancer.yml"
+    mode: "0644"
+
+- name: Aplicar manifesto do LoadBalancer
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/cilium-hubble-loadbalancer.yml"
+  register: resultado_lb
+  changed_when: "'configured' in resultado_lb.stdout or 'created' in resultado_lb.stdout"
