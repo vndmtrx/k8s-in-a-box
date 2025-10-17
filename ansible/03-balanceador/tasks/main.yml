@@ -8,6 +8,3 @@
 
 - name: Aplicar configuração do Keepalived
   ansible.builtin.import_tasks: 03-configuracao-keepalived.yml
-
-- name: Aplicar configuração do Dnsmasq
-  ansible.builtin.import_tasks: 04-configuracao-dnsmasq.yml
