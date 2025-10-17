@@ -137,8 +137,11 @@ data:
       e pronto para laboratório ou desenvolvimento.</p>
 
       <div class="dashboard">
-        <p>Acesse o Dashboard do Kubernetes em:
-        <strong><a href="/dashboard" target="_blank" rel="noopener noreferrer">Dashboard</a></strong></p>
+        <p>Acesse os serviços de monitoramento implantados no projeto do Kubernetes in a Box<br/>
+        Monitor de Redes do Cilium:
+        <strong><a href="http://172.24.0.102/" target="_blank" rel="noopener noreferrer">Monitor</a></strong>; 
+        Dashboard do Kubernetes:
+        <strong><a href="https://172.24.0.101/" target="_blank" rel="noopener noreferrer">Dashboard</a></strong></p>
         <p>Para gerar o token de acesso, execute na vm kubox (acessível com <code>vagrant ssh kubox</code>):</p>
         <pre>kubectl -n dashboard create token dashboard-admin</pre>
         <br/>

@@ -23,5 +23,8 @@
 - name: Instalação e configuração do NFS Subdir External Provisioner
   ansible.builtin.import_tasks: 06-nfs-storage.yml
 
+- name: Instalação e configuração do MetalLB
+  ansible.builtin.import_tasks: 07-metallb.yml
+
 - name: Instalação e configuração do Kubernetes Dashboard
   ansible.builtin.import_tasks: 08-dashboard.yml

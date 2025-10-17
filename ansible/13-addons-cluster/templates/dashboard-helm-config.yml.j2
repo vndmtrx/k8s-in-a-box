@@ -1,25 +1,14 @@
 app:
-  ingress:
-    enabled: true
-    ingressClassName: nginx
-
-    hosts: []
-
-    path: /dashboard(/|$)(.*)
-    pathType: ImplementationSpecific
-
-    tls:
-      enabled: true
-      secretName: k8s-dev-dashboard-tls
-
-    annotations:
-      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/rewrite-target: /$2
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-
   settings:
     global:
       clusterName: "Kubernetes in a Box"
       defaultNamespace: _all
       namespaceFallbackList:
       - default
+
+kong:
+  proxy:
+    type: LoadBalancer
+    loadBalancerIP: 172.24.0.101
+    http:
+      enabled: false

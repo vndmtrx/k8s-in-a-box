@@ -55,4 +55,4 @@
   ansible.builtin.command:
     cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/metallb-adv-pool.yml"
   register: resultado_adv
-  changed_when: "'configured' in resultado_adv.stdout or 'created' in resultado_ns.stdout"
+  changed_when: "'configured' in resultado_adv.stdout or 'created' in resultado_adv.stdout"
