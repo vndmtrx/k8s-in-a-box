@@ -60,7 +60,7 @@ Algumas escolhas foram tomadas para simplificar o laboratório e maximizar o apr
 1. **Runtime Containerd**: Escolhido pela simplicidade de instalação na distribuição atual e, apesar de terem sido feitos testes com o CRI-O, este runtime não está nas configurações do projeto.
 1. **Plugin de Rede**: Foi utilizado o Canal (Calico + Flannel) como padrão para uso completo dos recursos de rede, como Network Policies. O CNI Flannel simples também foi disponibilizado.
 
-# Arquitetura e Configurações de Instalação
+## Arquitetura e Configurações de Instalação
 
 Aqui está a base do laboratório: uma topologia mínima funcional e uma topologia de referência. A mínima existe para quem tem menos memória disponível; a de referência é a em uso atualmente e serve de guia para as configurações abaixo.
 
@@ -205,9 +205,15 @@ make clean
 - Para produção, sempre gere e use suas próprias chaves SSH
 - O `Makefile` do projeto utiliza uma configuração específica do Ansible localizada em `./ansible/.ansible.cfg`
 
-## Licença
+## Conformidade e Validação
 
-Este projeto está licenciado sob a [Licença MIT](LICENSE) - veja o arquivo LICENSE para detalhes.
+Como parte do estudo, o cluster foi também submetido ao teste de conformidade oficial da CNCF, utilizando a ferramenta `sonobuoy`.  
+Esse teste é o mesmo utilizado para validar distribuições Kubernetes certificadas, verificando a compatibilidade e o comportamento esperado dos componentes centrais do sistema.
+
+A execução foi **bem-sucedida**, com todos os testes aplicáveis aprovados, confirmando que o ambiente atende às especificações oficiais do Kubernetes.  
+O processo avaliou desde o plano de controle até os nós de trabalho, garantindo a integridade e o funcionamento coerente de todo o cluster.
+
+Esse resultado representa o esforço de automação construído com **Ansible**, **Vagrant** e **LibVirt**, que permite não apenas reproduzir o ambiente de forma consistente, mas também estudar e compreender cada etapa da formação de um cluster Kubernetes completo e funcional.
 
 ## Nota Pessoal
 
@@ -216,6 +222,10 @@ Este repositório é resultado de um estudo contínuo sobre como montar um clust
 Este projeto não é apenas uma implementação, mas um caminho de estudo estruturado para compreender cada aspecto do funcionamento do Kubernetes.
 
 Sinta‑se à vontade para contribuir com sugestões, issues e pull requests.
+
+## Licença
+
+Este projeto está licenciado sob a [Licença MIT](LICENSE) - veja o arquivo LICENSE para detalhes.
 
 ---
 
