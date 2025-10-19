@@ -68,25 +68,36 @@ Aqui está a base do laboratório: uma topologia mínima funcional e uma topolog
 
 A personalização do cluster é feita em dois arquivos principais:
 - `inventario/hosts.yml` que define as VMs que compõem o cluster. Cada host contém endereço IP, FQDN, memória e CPU. Máquinas adicionais podem ser habilitadas descomentando blocos adicionais para managers ou workers. Exemplos de definições padrão:
-  - Configuração mínima para rodar:
+  - **Configuração mínima para rodar:**
     - 1x `LoadBalancer`: *vCPUs: 1; RAM: 384MB*
     - 1x `Servidor NFS`: *vCPUs: 1; RAM: 384MB*
     - 1x `Manager`:      *vCPUs: 1; RAM: 2048MB*
     - 1x `Worker`:       *vCPUs: 1; RAM: 2048MB*
     - 1x `Bastion Host`: *vCPUs: 1; RAM: 384MB*
     
-    Totalizando 5,2GB de RAM e 5 vCPUs;
+    *Totalizando 5,2GB de RAM e 5 vCPUs;*
   
-  - Configuração de Referência do projeto:
+  - **Configuração de Referência do projeto:**
     - 2x `LoadBalancer`: *vCPUs: 2; RAM: 512MB*
     - 1x `Servidor NFS`: *vCPUs: 2; RAM: 384MB*
     - 3x `Manager`:      *vCPUs: 3; RAM: 3072MB*
     - 2x `Worker`:       *vCPUs: 3; RAM: 3072MB*
     - 1x `Bastion Host`: *vCPUs: 1; RAM: 384MB*
 
-    Totalizando 16,2GB de RAM e 11 vCPUs;
+    *Totalizando 16,2GB de RAM e 11 vCPUs;*
 
-> 💡 O cluster é facilmente expansível para mais ou menos máquinas, de acordo com a disponibilidade de memória e núcleos de processamento, com possibilidade de expansão da quantidade de Load Balancers, Manager Nodes e Worker Nodes, através do arquivo de inventário em [inventario/hosts.yml](inventario/hosts.yml)
+* `inventario/group_vars/all.yml` define as variáveis globais do projeto e centraliza as configurações que controlam o comportamento das *roles* do Ansible. É nele que se personaliza a instalação e o funcionamento do cluster.
+  Algumas das principais opções que podem ser ajustadas:
+
+  * **Plugin de CNI:** permite escolher entre `flannel` ou `canal` (Flannel + Calico) para a rede dos pods.
+  * **Versões dos componentes:** define quais versões do Kubernetes, etcd, Helm e CNI Plugins serão utilizadas.
+  * **Redes do cluster:** configura os blocos de endereçamento das redes de *hosts*, *pods* e *services*.
+  * **Faixas de IPs do MetalLB:** controla os intervalos disponíveis para LoadBalancers e IPs fixos.
+  * **Parâmetros de HAProxy e Keepalived:** ajusta timeouts, portas e o IP virtual (VIP) usado para alta disponibilidade.
+  * **Certificados e artefatos:** define estrutura de diretórios e se os certificados serão regenerados automaticamente.
+
+> 💡 Juntos, `hosts.yml` e `all.yml` formam o núcleo de personalização do projeto: o primeiro define onde o cluster será executado, e o segundo define como ele será configurado. Essa separação torna o ambiente previsível, reproduzível e fácil de adaptar a diferentes topologias, sem alterar as roles ou playbooks principais.
+> O cluster pode ser expandido ou reduzido conforme a capacidade de memória e processamento disponível, bastando ajustar os parâmetros definidos nos arquivos de inventário.
 
 ### Topologia de rede
 
