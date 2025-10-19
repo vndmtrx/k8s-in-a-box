@@ -56,27 +56,16 @@
   - [x] Configuração da rede dos pods
   - [x] Configuração da rede dos serviços
 - [x] Instalação do CoreDNS
-- [ ] Configuração do MetalLB
-- [ ] Validação da rede
+- [x] Configuração do MetalLB
+- [x] Validação da rede
 
 ### 📚 Documentação
+- [x] README do Projeto
 - [ ] Guia de Instalação
 - [ ] Guia de Operação
 - [ ] Guia de Troubleshooting
 - [ ] Guia de Backup e Recuperação
 - [ ] Guia de Atualização
-
-### 🛡️ Segurança
-- [ ] Hardening do Sistema
-  - [ ] Ajustar contextos do SELinux com semanage fcontext + restorecon
-  - [ ] Alterar SELinux para enforcing
-  - [ ] Instalar e configurar firewalld
-  - [ ] Abrir portas mínimas para o Kubernetes
-  - [ ] Configurar parâmetros de rede (sysctl)
-- [ ] Configuração de RBAC
-- [ ] Políticas de Rede
-- [ ] Auditoria
-- [ ] Documentação de Segurança
 
 ---
 
