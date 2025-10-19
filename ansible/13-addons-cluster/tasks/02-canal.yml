@@ -1,0 +1,32 @@
+# ansible/13-configuracoes-cluster/tasks/02-canal.yml
+---
+- name: Garantir diretório charts na home do usuário do ansible
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/charts"
+    state: directory
+    mode: "0755"
+
+- name: Baixar manifesto do Canal (Flannel + Calico)
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/projectcalico/calico/refs/heads/master/manifests/canal.yaml"
+    dest: "/home/{{ ansible_user }}/charts/canal-manifest.yaml"
+    mode: "0644"
+
+- name: Ajustar faixa de rede dos pods no net-conf.json
+  ansible.builtin.replace:
+    path: "/home/{{ ansible_user }}/charts/canal-manifest.yaml"
+    regexp: '"Network":\s*".*?"'
+    replace: '"Network": "{{ rede_cidr_pods }}"'
+
+- name: Aplicar manifesto do Canal
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/canal-manifest.yaml"
+  register: resultado_aplicacao
+  changed_when: "'created' in resultado_aplicacao.stdout or 'configured' in resultado_aplicacao.stdout"
+
+- name: Aguardar pods do Canal ficarem prontos
+  ansible.builtin.command:
+    cmd: "kubectl -n kube-system wait --for=condition=Ready pod -l k8s-app=canal --timeout=180s"
+  register: resultado_wait
+  failed_when: "'error' in resultado_wait.stderr or 'timed out' in resultado_wait.stderr"
+  changed_when: false

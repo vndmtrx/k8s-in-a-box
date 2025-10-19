@@ -7,9 +7,9 @@
   ansible.builtin.import_tasks: 02-flannel.yml
   when: plugin_cni == "flannel"
 
-- name: Instalar Cilium
-  ansible.builtin.import_tasks: 02-cilium.yml
-  when: plugin_cni == "cilium"
+- name: Instalar Canal (Flannel + Calico)
+  ansible.builtin.import_tasks: 02-canal.yml
+  when: plugin_cni == "canal"
 
 - name: Instalação e configuração do CoreDNS
   ansible.builtin.import_tasks: 03-coredns.yml
