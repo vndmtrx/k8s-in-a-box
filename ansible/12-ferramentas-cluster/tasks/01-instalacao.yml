@@ -1,5 +1,12 @@
 # ansible/12-ferramentas-cluster/tasks/01-instalacao.yml
 ---
+- name: Copiar yq para a VM em /usr/local/bin
+  ansible.builtin.copy:
+    src: "{{ pasta_temporarios }}/yq"
+    dest: "/usr/local/bin/yq"
+    mode: "0755"
+  become: true
+
 - name: Verificar se o executável do etcdctl já está instalado na VM
   ansible.builtin.stat:
     path: "/usr/local/bin/etcdctl"
