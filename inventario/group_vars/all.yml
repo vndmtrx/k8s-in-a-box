@@ -83,6 +83,10 @@ download_artefatos:
     url: "https://github.com/bensadeh/tailspin/releases/latest/download/tailspin-x86_64-unknown-linux-musl.tar.gz"
     arquivo: "tailspin.tar.gz"
 
+  yq-bin:
+    url: "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64"
+    arquivo: "yq"
+
   etcd-bin:
     url: "https://github.com/etcd-io/etcd/releases/download/{{ versao_etcd }}/etcd-{{ versao_etcd }}-linux-amd64.tar.gz"
     arquivo: "etcd-bin.tar.gz"
