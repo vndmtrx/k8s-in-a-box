@@ -96,7 +96,7 @@ A personalização do cluster é feita em dois arquivos principais:
   * **Parâmetros de HAProxy e Keepalived:** ajusta timeouts, portas e o IP virtual (VIP) usado para alta disponibilidade.
   * **Certificados e artefatos:** define estrutura de diretórios e se os certificados serão regenerados automaticamente.
 
-> 💡 Juntos, `hosts.yml` e `all.yml` formam o núcleo de personalização do projeto: o primeiro define onde o cluster será executado, e o segundo define como ele será configurado. Essa separação torna o ambiente previsível, reproduzível e fácil de adaptar a diferentes topologias, sem alterar as roles ou playbooks principais.
+> 💡 Juntos, `hosts.yml` e `all.yml` formam o núcleo de personalização do projeto: o primeiro define onde o cluster será executado, e o segundo define como ele será configurado.
 > O cluster pode ser expandido ou reduzido conforme a capacidade de memória e processamento disponível, bastando ajustar os parâmetros definidos nos arquivos de inventário.
 
 ### Topologia de rede
