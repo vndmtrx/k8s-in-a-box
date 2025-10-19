@@ -16,7 +16,6 @@ O objetivo é oferecer um laboratório de estudos que permita compreender os fun
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)
 ![etcd](https://img.shields.io/badge/etcd-419EDA?logo=etcd&logoColor=white)
 ![Containerd](https://img.shields.io/badge/containerd-575757?logo=containerd&logoColor=white)
-![Cilium](https://img.shields.io/badge/Cilium-6E4AFF?logo=cilium&logoColor=white)
 ![Nginx](https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white)
 ![Helm](https://img.shields.io/badge/Helm-277A9F?logo=helm&logoColor=white)
 
@@ -59,7 +58,7 @@ Algumas escolhas foram tomadas para simplificar o laboratório e maximizar o apr
 1. **Sistema Base AlmaLinux 10**: escolhido pela facilidade em relação à configuração de rede e pela disponibilidade de imagens atualizadas no Vagrant Cloud Images; outras distribuições podem exigir ajustes.
 1. **Certificados Gerenciados**: a geração de uma cadeia PKI completa (Root CA, CAs intermediárias e certificados de cliente e servidor) garante segurança entre todos os componentes, e também foi feita dessa forma para experimentações com rotação de certificados.
 1. **Runtime Containerd**: Escolhido pela simplicidade de instalação na distribuição atual e, apesar de terem sido feitos testes com o CRI-O, este runtime não está nas configurações do projeto.
-1. **Plugin de Rede**: Foi colocado o Cilium como padrão para uso completo dos recursos de rede, como Network Policies. O CNI Flannel também foi disponibilizado, um CNI mais simples e que usa menos memória que o Cilium.
+1. **Plugin de Rede**: Foi utilizado o Canal (Calico + Flannel) como padrão para uso completo dos recursos de rede, como Network Policies. O CNI Flannel simples também foi disponibilizado.
 
 # Arquitetura e Configurações de Instalação
 
@@ -107,7 +106,7 @@ Inclusive, é possível verificar o status do HAProxy em [http://172.24.0.21:900
 * **Balanceamento:** HAProxy faz o **failover** e o balanceamento do **kube-apiserver** e do **etcd**.
 * **PKI:** toda a comunicação entre componentes é protegida por certificados emitidos pela **cadeia PKI** do projeto (Root CA + CAs intermediários para cada componente core).
 * **Runtime:** `containerd` como padrão pela simplicidade e estabilidade.
-* **CNI:** **Cilium** como padrão (rede e políticas); **Flannel** disponível como opção mais leve.
+* **CNI:** **Canal (Calico + Flannel)** como padrão (rede e políticas); **Flannel** disponível como opção mais leve.
 * **Bastion (kubox):** host com `kubectl`, `etcdctl`, `helm` e utilitários para operar e inspecionar o cluster sem “poluir” os nós.
 
 ### Ordem de provisionamento (resumo)
@@ -129,12 +128,12 @@ Você pode executar tudo de ponta a ponta com `make k8s-in-a-box` ou chamar **ta
 As principais opções ficam em `inventario/group_vars/all.yml`:
 
 * **Rede dos hosts/pods/serviços:** `rede_cidr_hosts`, `rede_cidr_pods`, `rede_cidr_services`
-* **CNI:** `plugin_cni: "cilium"` (opções: `cilium` ou `flannel`)
+* **CNI:** `plugin_cni: "canal"` (opções: `canal` ou `flannel`)
 * **VIP/HAProxy/Keepalived:** `keepalived_vip_ip`, `vip_api_fqdn`, `vip_etcd_fqdn`, timeouts e credenciais do HAProxy
 * **MetalLB:** `metallb_ips_manuais` e `metallb_ips_loadbalacing`
 * **Versões:** `versao_kubernetes`, `versao_etcd`, `versao_cni`, `versao_helm`
 
-> 💡 Dica: ajuste primeiro CPU/RAM no `inventario/hosts.yml`. Em seguida, valide **rede** e **VIP**. Por fim, escolha o **CNI** conforme o objetivo: Cilium (recursos avançados) ou Flannel (menor consumo de memória).
+> 💡 Dica: ajuste primeiro CPU/RAM no `inventario/hosts.yml`. Em seguida, valide **rede** e **VIP**. Por fim, escolha o **CNI** conforme o objetivo: `canal` (recursos avançados) ou `flannel` (menor consumo de memória).
 
 ## Início Rápido
 
@@ -177,9 +176,7 @@ Para a operação do cluster (e melhor simulação de um ambiente real), as ferr
 
 ## Acesso ao Dashboard e Inspetor de Rede
 
-No cluster o Inspetor de Rede do Cilium e o Kubernetes Dashboard foram ativados, permitindo a verificação dos diversos componentes do cluster.
-
-Para acessar o Inspetor de rede, considerando que o Cilium foi instalado, é só acessar a URL [http://172.24.0.102](http://172.24.0.102/).
+No cluster o Kubernetes Dashboard foi ativado, permitindo a verificação dos diversos componentes do cluster.
 
 Para acessar o Kubernetes Dashboard, é só acessar a URL [https://172.24.0.101](https://172.24.0.101/), e quando for solicitado o token, é só usar o seguinte comando no bastion host:
 

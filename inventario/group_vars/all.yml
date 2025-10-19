@@ -11,7 +11,7 @@ pasta_temporarios: "{{ pasta_artefatos }}/tmp"
 #############################################################
 
 # Plugin de CNI
-plugin_cni: "cilium"  #Opções disponíveis: flannel e cilium
+plugin_cni: "canal"  #Opções disponíveis: flannel e canal (flannel+calico)
 
 # Redes do projeto
 rede_cidr_hosts: "172.24.0.0/24"
