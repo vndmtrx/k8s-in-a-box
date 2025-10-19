@@ -10,125 +10,119 @@ data:
     <!DOCTYPE html>
     <html lang="pt-BR">
     <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kubernetes in a Box</title>
-    <style>
-      body {
-        margin: 0;
-        font-family: "Segoe UI", Arial, sans-serif;
-        background: linear-gradient(135deg, #007bff, #00aaff);
-        color: #fff;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        text-align: center;
-        padding: 2rem;
-        box-sizing: border-box;
-      }
-
-      .icon {
-        font-size: clamp(3rem, 8vw, 5rem);
-        margin-bottom: 0.3em;
-      }
-
-      h1 {
-        font-size: clamp(1.8rem, 5vw, 3em);
-        margin-bottom: 0.6em;
-        line-height: 1.3;
-      }
-
-      p {
-        font-size: clamp(1rem, 2vw, 1.1em);
-        max-width: 700px;
-        margin: 0 auto 1.8rem auto;
-        line-height: 1.6;
-        text-align: center;
-        word-spacing: 0.05em;
-      }
-
-      .dashboard {
-        background-color: rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        padding: 1.5rem 2rem;
-        max-width: 700px;
-        margin: 2rem auto;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        font-size: 0.9em;
-        line-height: 1.6;
-      }
-
-      .dashboard a {
-        color: #fff;
-        text-decoration: none;
-      }
-
-      .dashboard pre {
-        background: rgba(0, 0, 0, 0.25);
-        color: #f1f1f1;
-        padding: 0.8rem 1rem;
-        border-radius: 8px;
-        text-align: left;
-        font-size: 0.9em;
-        overflow-x: auto;
-        margin-top: 0.8rem;
-        font-family: "Courier New", monospace;
-        box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
-      }
-
-      .dashboard code {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 0.2rem 0.4rem;
-        border-radius: 4px;
-        font-family: "Fira Code", monospace;
-        font-size: 0.9em;
-      }
-
-      .repo {
-        margin-top: 1rem;
-      }
-
-      .repo span {
-        display: block;
-        font-size: 0.95em;
-        margin-bottom: 0.3rem;
-        opacity: 0.9;
-      }
-
-      .repo a img {
-        height: 28px;
-        vertical-align: middle;
-      }
-
-      footer {
-        margin-top: 3rem;
-        font-size: 0.9em;
-        opacity: 0.9;
-      }
-
-      .badges {
-        margin-top: 1rem;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 6px;
-      }
-
-      .badges img {
-        height: 22px;
-      }
-
-      @media (max-width: 480px) {
-        .repo a img {
-          height: 26px;
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Kubernetes in a Box</title>
+      <style>
+        body {
+          margin: 0;
+          font-family: "Segoe UI", Arial, sans-serif;
+          background: linear-gradient(135deg, #007bff, #00aaff);
+          color: #fff;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          text-align: center;
+          padding: 2rem;
+          box-sizing: border-box;
         }
+
+        .icon {
+          font-size: clamp(3rem, 8vw, 5rem);
+          margin-bottom: 0.3em;
+        }
+
+        h1 {
+          font-size: clamp(1.8rem, 5vw, 3em);
+          margin-bottom: 0.6em;
+          line-height: 1.3;
+        }
+
+        p {
+          font-size: clamp(1rem, 2vw, 1.1em);
+          max-width: 700px;
+          margin: 0 auto 1rem auto;
+          line-height: 1.4;
+          text-align: center;
+          word-spacing: 0.05em;
+        }
+
+        /* blocos principais (dashboard / contador) */
+        .dashboard,
+        .contador {
+          background-color: rgba(255, 255, 255, 0.15);
+          border-radius: 12px;
+          padding: 1.5rem 2rem;
+          max-width: 700px;
+          margin: 2rem auto;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          font-size: 0.95em;
+          line-height: 1.6;
+        }
+
+        a {
+          color: #fff;
+          text-decoration: none;
+        }
+
+        pre {
+          background: rgba(0, 0, 0, 0.25);
+          color: #f1f1f1;
+          padding: 0.8rem 1rem;
+          border-radius: 8px;
+          text-align: left;
+          font-size: 0.9em;
+          overflow-x: auto;
+          margin-top: 0.8rem;
+          font-family: "Courier New", monospace;
+          box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+        }
+
+        code {
+          background: rgba(255, 255, 255, 0.1);
+          padding: 0.2rem 0.4rem;
+          border-radius: 4px;
+          font-family: "Fira Code", monospace;
+          font-size: 0.9em;
+        }
+
+        footer {
+          margin-top: 3rem;
+          font-size: 0.9em;
+          opacity: 0.9;
+        }
+
+        .repo,
+        .badges {
+          margin-top: 1rem;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 6px;
+        }
+
+        .repo span {
+          display: block;
+          font-size: 0.95em;
+          margin-bottom: 0.3rem;
+          opacity: 0.9;
+        }
+
+        .repo img,
         .badges img {
-          height: 20px;
+          height: 22px;
+          vertical-align: middle;
         }
-      }
-    </style>
+
+        @media (max-width: 480px) {
+          .repo img,
+          .badges img {
+            height: 20px;
+          }
+        }
+      </style>
     </head>
     <body>
       <div class="icon">&#x1F393;</div>
@@ -137,16 +131,14 @@ data:
       e pronto para laboratório ou desenvolvimento.</p>
 
       <div class="dashboard">
-        <p>Acesse os serviços de monitoramento implantados no projeto do Kubernetes in a Box<br/>
-        Monitor de Redes do Cilium:
-        <strong><a href="http://172.24.0.102/" target="_blank" rel="noopener noreferrer">Monitor</a></strong>; 
-        Dashboard do Kubernetes:
-        <strong><a href="https://172.24.0.101/" target="_blank" rel="noopener noreferrer">Dashboard</a></strong></p>
+        <p>O seu <strong>cluster Kubernetes</strong> est&aacute; ativo e pronto para uso!
+           Voc&ecirc; pode acompanhar o estado dos componentes, workloads e recursos acessando o <strong>Dashboard do Kubernetes</strong>:</p>
+        <p><strong>&#128279; <a href="https://172.24.0.101/" target="_blank" rel="noopener noreferrer">Abrir Dashboard</a></strong></p>
         <p>Para gerar o token de acesso, execute na vm kubox (acessível com <code>vagrant ssh kubox</code>):</p>
         <pre>kubectl -n dashboard create token dashboard-admin</pre>
         <br/>
-        <p>Veja também o Contador de Acessos do cluster, que implementa volumes dinâmicos:
-        <strong><a href="/contador" rel="noopener noreferrer">Contador</a></strong></p>
+        <p>Veja também o Contador de Acessos do cluster, um exemplo simples que demonstra o uso de volumes dinâmicos:</p>
+        <p><strong>&#128279; <a href="/contador" rel="noopener noreferrer">Abrir Contador</a></strong></p>
       </div>
 
       <div class="repo">
