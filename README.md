@@ -49,7 +49,7 @@ Com o Ansible como provedor de automação, cada componente do cluster é instal
 - Ferramentas de gerenciamento (etcdctl, kubectl, helm)
 - Exemplos de deploys no cluster
 
-> 💡 Para um acompanhamento detalhado do desenvolvimento, incluindo todos os componentes e suas dependências, consulte o [Mapa de Progresso](docs/PROGRESSO.md).
+> 💡 Para um acompanhamento detalhado do desenvolvimento, incluindo todos os componentes e suas dependências, consulte o [Mapa de Progresso](docs/progresso.md).
 
 ## Decisões de Design
 
