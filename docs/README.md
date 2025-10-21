@@ -5,6 +5,7 @@ Bem-vindo à documentação do projeto **k8s‑in‑a-box**. Nesta seção são 
 ## Índice
 
 1. **[Visão geral da estrutura do cluster](./estrutura.md)** – Descreve a topologia do cluster, funções de cada componente (balanceadores, servidor NFS, managers, workers e kubox) e os addons instalados.
+1. **[Estrutura de Chaves PKI](./estrutura-pki.md)** - Descreve o processo de organização da geração dos CAs e dos Certificados usados nos diferentes componentes do cluster.
 2. **[Balanceadores de carga](./balanceadores.md)** – Detalhes sobre a configuração do HAProxy e do Keepalived, incluindo VIPs e distribuição de requisições.
 3. **[Servidor NFS e armazenamento](./nfs.md)** – Explica o setup do servidor NFS e o provisionamento de volumes dinâmicos.
 4. **[Plano de controle e nós de trabalho](./nodos.md)** – Aborda a instalação do `etcd`, API Server, Controller Manager, Scheduler, `kubelet`, `containerd` e `kube‑proxy`.
