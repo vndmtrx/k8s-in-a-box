@@ -71,11 +71,11 @@ keepalived_senha: "SenhaSuperSecreta123"
 # - Kubernetes: https://kubernetes.io/releases/download/#binaries
 
 # Versões dos componentes
-versao_etcd: "v3.6.5"         # https://endoflife.date/etcd
-versao_kubernetes: "v1.34.1"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
+versao_etcd: "v3.6.6"         # https://endoflife.date/etcd
+versao_kubernetes: "v1.34.2"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
 versao_pause: "pause:3.10.1"  # https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd
 versao_cni: "v1.8.0"          # https://github.com/containernetworking/plugins/releases e https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/
-versao_helm: "v3.19.0"        # https://github.com/helm/helm/releases
+versao_helm: "v3.19.2"        # https://github.com/helm/helm/releases
 
 # Kubernetes: https://kubernetes.io/releases/download/
 download_artefatos:
@@ -90,37 +90,37 @@ download_artefatos:
   etcd-bin:
     url: "https://github.com/etcd-io/etcd/releases/download/{{ versao_etcd }}/etcd-{{ versao_etcd }}-linux-amd64.tar.gz"
     arquivo: "etcd-bin.tar.gz"
-    checksum: "sha256:66bad39ed920f6fc15fd74adcb8bfd38ba9a6412f8c7852d09eb11670e88cac3"
+    checksum: "sha256:887afaa4a99f22d802ccdfbe65730a5e79aa5c9ce2c8799c67e9d804c50ecedb"
 
   kube-apiserver-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-apiserver"
     arquivo: "kube-apiserver"
-    checksum: "sha256:a170577ea20f8c37a522114a259c36ec4ed397482d8f282c265248dedf2216c3"
+    checksum: "sha256:ca822082ec39e54a25836a4011ddb66e482e317a7a4f1a1f73882bbd2cf5a2a1"
 
   kubelet-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubelet"
     arquivo: "kubelet"
-    checksum: "sha256:5a72c596c253ea0b0e5bcc6f29903fd41d1d542a7cadf3700c165a2a041a8d82"
+    checksum: "sha256:9c5e717b774ee9b9285ce47e7d2150c29e84837eb19a7eaa24b60b1543c9d58f"
 
   kube-controller-manager-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-controller-manager"
     arquivo: "kube-controller-manager"
-    checksum: "sha256:91b7aa8c599f93515f347d3ee7fb12229a40db0ca02da3e7c5dc96fbca3ad2f3"
+    checksum: "sha256:4fbb6ac7a65300962ab2f716f9fb6aa8c829c9f00c231a5a978262a4cbf8517f"
 
   kube-scheduler-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-scheduler"
     arquivo: "kube-scheduler"
-    checksum: "sha256:460f5bc48ef176c82fea3592f66ba71ae5bda376f93d86f7fe44fc4759ac577b"
+    checksum: "sha256:97cbbca904601ffb2fd7e22ed3576f7c24b519abeb1c43f4dd136bfb200d223a"
 
   kube-proxy-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-proxy"
     arquivo: "kube-proxy"
-    checksum: "sha256:1b1e7d07f45825fc62888913f906bb519d7a08d0323dea94b959579a81d3e139"
+    checksum: "sha256:df7d993a7860868ef6b65bc11d8fc83d5f9d738cda1d9b916162798978d7a642"
 
   kubectl-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubectl"
     arquivo: "kubectl"
-    checksum: "sha256:7721f265e18709862655affba5343e85e1980639395d5754473dafaadcaa69e3"
+    checksum: "sha256:9591f3d75e1581f3f7392e6ad119aab2f28ae7d6c6e083dc5d22469667f27253"
 
   cni-plugins-bin:
     url: "https://github.com/containernetworking/plugins/releases/download/{{ versao_cni }}/cni-plugins-linux-amd64-{{ versao_cni }}.tgz"
@@ -130,7 +130,7 @@ download_artefatos:
   helm-bin:
     url: "https://get.helm.sh/helm-{{ versao_helm }}-linux-amd64.tar.gz"
     arquivo: "helm-bin.tar.gz"
-    checksum: "sha256:a7f81ce08007091b86d8bd696eb4d86b8d0f2e1b9f6c714be62f82f96a594496"
+    checksum: "sha256:2114c9dea2844dce6d0ee2d792a9aae846be8cf53d5b19dc2988b5a0e8fec26e"
 
 ########################################
 ### Configurações para a role 02-pki ###

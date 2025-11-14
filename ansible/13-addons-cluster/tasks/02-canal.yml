@@ -7,10 +7,12 @@
     mode: "0755"
 
 - name: Baixar manifesto do Canal (Flannel + Calico)
-  ansible.builtin.get_url:
-    url: "https://raw.githubusercontent.com/projectcalico/calico/refs/heads/master/manifests/canal.yaml"
-    dest: "/home/{{ ansible_user }}/charts/canal-manifest.yaml"
-    mode: "0644"
+  ansible.builtin.command: >
+    wget --quiet
+         -O /home/{{ ansible_user }}/charts/canal-manifest.yaml
+         https://raw.githubusercontent.com/projectcalico/calico/refs/heads/master/manifests/canal.yaml
+  register: canal_wget
+  changed_when: canal_wget.rc != 0
 
 - name: Ajustar faixa de rede dos pods no net-conf.json
   ansible.builtin.replace:
