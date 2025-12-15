@@ -1,0 +1,52 @@
+# ansible/10-kubelet/tasks/02-instalacao-crictl.yml
+---
+- name: Verificar se o executável do crictl já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/crictl"
+  register: crictl_bin
+
+- name: Instalar o crictl se não existir
+  when: not crictl_bin.stat.exists
+  block:
+    - name: Copiar crictl para a VM (em /tmp)
+      ansible.builtin.copy:
+        src: "{{ pasta_temporarios }}/crictl.tar.gz"
+        dest: "/tmp/crictl.tar.gz"
+        mode: "0644"
+
+    - name: Descompactar crictl em /tmp
+      ansible.builtin.unarchive:
+        src: "/tmp/crictl.tar.gz"
+        dest: "/tmp"
+        remote_src: true
+        mode: "0755"
+
+    - name: Instalar binários do crictl
+      ansible.builtin.copy:
+        src: "/tmp/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+        mode: "0755"
+        remote_src: true
+      loop:
+        - crictl
+
+    - name: Configurar crictl para usar runtime correto
+      ansible.builtin.copy:
+        dest: /etc/crictl.yaml
+        content: |
+          runtime-endpoint: {{ container_runtime_sockets[container_runtime] }}
+          image-endpoint: {{ container_runtime_sockets[container_runtime] }}
+          timeout: 0
+          debug: false
+        mode: "0644"
+
+  always:
+    - name: Remover arquivo temporário do crictl
+      ansible.builtin.file:
+        path: "/tmp/crictl"
+        state: absent
+
+    - name: Remover arquivo temporário do crictl.tar.gz
+      ansible.builtin.file:
+        path: "/tmp/crictl.tar.gz"
+        state: absent
