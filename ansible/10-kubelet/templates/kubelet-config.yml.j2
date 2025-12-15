@@ -27,7 +27,7 @@ clusterDNS:
 
 # Runtime
 cgroupDriver: systemd
-containerRuntimeEndpoint: unix:///var/run/containerd/containerd.sock
+containerRuntimeEndpoint: {{ container_runtime_sockets[container_runtime] }}
 
 # Recursos / agendamento
 cpuManagerReconcilePeriod: 0s
