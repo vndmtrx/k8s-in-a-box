@@ -2,6 +2,11 @@
 ---
 - name: Instalar dependências do containerd
   ansible.builtin.include_tasks: 01-instalacao-containerd.yml
+  when: container_runtime == "containerd"
+
+- name: Instalar dependências do cri-o
+  ansible.builtin.include_tasks: 01-instalacao-crio.yml
+  when: container_runtime == "crio"
 
 - name: Instalar dependências do kubelet
   ansible.builtin.include_tasks: 02-instalacao-kubelet.yml
@@ -14,6 +19,11 @@
 
 - name: Efetuar criação dos arquivos de configuração do containerd
   ansible.builtin.include_tasks: 05-configuracao-containerd.yml
+  when: container_runtime == "containerd"
+
+- name: Efetuar criação dos arquivos de configuração do cri-o
+  ansible.builtin.include_tasks: 05-configuracao-crio.yml
+  when: container_runtime == "crio"
 
 - name: Efetuar criação dos arquivos de configuração do kubelet
   ansible.builtin.include_tasks: 06-configuracao-kubelet.yml
