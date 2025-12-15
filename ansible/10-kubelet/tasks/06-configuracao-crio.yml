@@ -1,4 +1,4 @@
-# ansible/10-kubelet/tasks/05-configuracao-crio.yml
+# ansible/10-kubelet/tasks/06-configuracao-crio.yml
 ---
 - name: Configurar CRI-O para Kubernetes
   ansible.builtin.copy:

@@ -1,4 +1,4 @@
-# ansible/10-kubelet/tasks/05-configuracao-containerd.yml
+# ansible/10-kubelet/tasks/06-configuracao-containerd.yml
 ---
 - name: Gerar configuração padrão do containerd
   ansible.builtin.command: containerd config default

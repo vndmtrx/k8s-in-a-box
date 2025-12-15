@@ -1,4 +1,4 @@
-# ansible/10-kubelet/tasks/01-instalacao-containerd.yml
+# ansible/10-kubelet/tasks/02-instalacao-containerd.yml
 ---
 - name: Adicionar repositório Docker
   ansible.builtin.yum_repository:

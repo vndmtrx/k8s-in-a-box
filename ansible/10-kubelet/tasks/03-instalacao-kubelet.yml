@@ -1,4 +1,4 @@
-# ansible/10-kubelet/tasks/02-instalacao-kubelet.yml
+# ansible/10-kubelet/tasks/03-instalacao-kubelet.yml
 ---
 - name: Verificar se o executável do kubelet já está instalado na VM
   ansible.builtin.stat:

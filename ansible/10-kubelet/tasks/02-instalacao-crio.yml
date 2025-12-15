@@ -1,4 +1,4 @@
-# ansible/10-kubelet/tasks/01-instalacao-crio.yml
+# ansible/10-kubelet/tasks/02-instalacao-crio.yml
 ---
 - name: Extrair versão major.minor do Kubernetes para CRI-O
   ansible.builtin.set_fact:
