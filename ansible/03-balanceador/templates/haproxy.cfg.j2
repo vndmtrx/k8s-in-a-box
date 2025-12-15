@@ -34,7 +34,7 @@ frontend k8s_api
     option tcplog
     default_backend k8s_api_backend
 
-# Frontend para a porta HTTP do etcd
+# Frontend para a porta HTTPS do etcd
 frontend etcd_https
     bind *:{{ porta_etcd_https }}
     mode tcp
