@@ -1,0 +1,19 @@
+# ansible/10-kubelet/tasks/01-instalacao-crio.yml
+---
+- name: Extrair versão major.minor do Kubernetes para CRI-O
+  ansible.builtin.set_fact:
+    versao_crio: "{{ versao_kubernetes | regex_search('^v\\d+\\.\\d+') }}"
+
+- name: Adicionar repositório CRI-O
+  ansible.builtin.yum_repository:
+    name: cri-o
+    description: CRI-O
+    baseurl: "https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ versao_crio }}/rpm/"
+    enabled: true
+    gpgcheck: true
+    gpgkey: "https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ versao_crio }}/rpm/repodata/repomd.xml.key"
+
+- name: Instalar CRI-O
+  ansible.builtin.dnf:
+    name: cri-o
+    state: present
