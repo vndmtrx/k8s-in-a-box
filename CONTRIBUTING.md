@@ -46,9 +46,9 @@ Obrigado por seu interesse em contribuir com o projeto [K8s in a Box](https://gi
 
 1. **Teste suas alterações**:
    ```bash
-   vagrant destroy -f  # Destrua o ambiente atual
-   vagrant up         # Recrie do zero
-   ./provisionamento.sh
+   make clean         # Destrua o ambiente atual
+   make k8s-in-a-box  # Recrie do zero
+   vagrant ssh kubox  # Acesse as ferramentas do cluster
    ```
 
 2. **Envie um Pull Request**:

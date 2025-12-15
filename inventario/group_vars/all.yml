@@ -71,11 +71,11 @@ keepalived_senha: "SenhaSuperSecreta123"
 # - Kubernetes: https://kubernetes.io/releases/download/#binaries
 
 # Versões dos componentes
-versao_etcd: "v3.6.5"         # https://endoflife.date/etcd
-versao_kubernetes: "v1.34.1"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
+versao_etcd: "v3.6.6"         # https://endoflife.date/etcd
+versao_kubernetes: "v1.34.2"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
 versao_pause: "pause:3.10.1"  # https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd
 versao_cni: "v1.8.0"          # https://github.com/containernetworking/plugins/releases e https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/
-versao_helm: "v3.19.0"        # https://github.com/helm/helm/releases
+versao_helm: "v3.19.2"        # https://github.com/helm/helm/releases
 
 # Kubernetes: https://kubernetes.io/releases/download/
 download_artefatos:
