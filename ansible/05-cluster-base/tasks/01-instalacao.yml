@@ -11,7 +11,6 @@
     dest: /etc/modules-load.d/kubernetes.conf
     content: |
       overlay
-      br_netfilter
       ip_tables
       ip6_tables
       nf_nat
@@ -22,6 +21,7 @@
       ip_vs_wrr
       ip_vs_sh
       vxlan
+    #br_netfilter
     mode: "0644"
 
 - name: Recarregar módulos listados em /etc/modules-load.d
@@ -58,9 +58,9 @@
     state: present
     reload: true
   loop:
-    - { key: "net.bridge.bridge-nf-call-ip6tables", value: "1" }
-    - { key: "net.bridge.bridge-nf-call-iptables", value: "1" }
     - { key: "net.ipv4.ip_forward", value: "1" }
+    #- { key: "net.bridge.bridge-nf-call-ip6tables", value: "1" }
+    #- { key: "net.bridge.bridge-nf-call-iptables", value: "1" }
 
 - name: Criar usuário kubernetes
   ansible.builtin.user:

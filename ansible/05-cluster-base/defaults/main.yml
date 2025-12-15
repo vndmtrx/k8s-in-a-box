@@ -1,6 +1,7 @@
 # ansible/05-cluster-base/defaults/main.yml
 ---
 pacotes_kubernetes:
+  - kernel-modules-extra
   - iproute
   - iptables
   - iptables-nft
