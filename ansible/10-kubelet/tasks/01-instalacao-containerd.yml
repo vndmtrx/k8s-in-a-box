@@ -13,9 +13,3 @@
   ansible.builtin.dnf:
     name: containerd.io
     state: present
-
-- name: Garantir diretório /etc/containerd
-  ansible.builtin.file:
-    path: /etc/containerd
-    state: directory
-    mode: "0755"
