@@ -90,47 +90,38 @@ download_artefatos:
   etcd-bin:
     url: "https://github.com/etcd-io/etcd/releases/download/{{ versao_etcd }}/etcd-{{ versao_etcd }}-linux-amd64.tar.gz"
     arquivo: "etcd-bin.tar.gz"
-    checksum: "sha256:66bad39ed920f6fc15fd74adcb8bfd38ba9a6412f8c7852d09eb11670e88cac3"
 
   kube-apiserver-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-apiserver"
     arquivo: "kube-apiserver"
-    checksum: "sha256:a170577ea20f8c37a522114a259c36ec4ed397482d8f282c265248dedf2216c3"
 
   kubelet-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubelet"
     arquivo: "kubelet"
-    checksum: "sha256:5a72c596c253ea0b0e5bcc6f29903fd41d1d542a7cadf3700c165a2a041a8d82"
 
   kube-controller-manager-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-controller-manager"
     arquivo: "kube-controller-manager"
-    checksum: "sha256:91b7aa8c599f93515f347d3ee7fb12229a40db0ca02da3e7c5dc96fbca3ad2f3"
 
   kube-scheduler-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-scheduler"
     arquivo: "kube-scheduler"
-    checksum: "sha256:460f5bc48ef176c82fea3592f66ba71ae5bda376f93d86f7fe44fc4759ac577b"
 
   kube-proxy-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-proxy"
     arquivo: "kube-proxy"
-    checksum: "sha256:1b1e7d07f45825fc62888913f906bb519d7a08d0323dea94b959579a81d3e139"
 
   kubectl-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubectl"
     arquivo: "kubectl"
-    checksum: "sha256:7721f265e18709862655affba5343e85e1980639395d5754473dafaadcaa69e3"
 
   cni-plugins-bin:
     url: "https://github.com/containernetworking/plugins/releases/download/{{ versao_cni }}/cni-plugins-linux-amd64-{{ versao_cni }}.tgz"
     arquivo: "cni-plugins.tgz"
-    checksum: "sha256:ab3bda535f9d90766cccc90d3dddb5482003dd744d7f22bcf98186bf8eea8be6"
 
   helm-bin:
     url: "https://get.helm.sh/helm-{{ versao_helm }}-linux-amd64.tar.gz"
     arquivo: "helm-bin.tar.gz"
-    checksum: "sha256:a7f81ce08007091b86d8bd696eb4d86b8d0f2e1b9f6c714be62f82f96a594496"
 
 ########################################
 ### Configurações para a role 02-pki ###
