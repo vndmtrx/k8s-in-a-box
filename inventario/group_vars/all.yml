@@ -10,6 +10,13 @@ pasta_temporarios: "{{ pasta_artefatos }}/tmp"
 ### Configurações para as role relacionadas ao kubernetes ###
 #############################################################
 
+# Conteiner Runtime
+container_runtime: "crio" #Opções disponíveis: containerd e crio
+
+container_runtime_sockets:
+  containerd: unix:///var/run/containerd/containerd.sock
+  crio: unix:///var/run/crio/crio.sock
+
 # Plugin de CNI
 plugin_cni: "canal"  #Opções disponíveis: flannel e canal (flannel+calico)
 
@@ -73,6 +80,7 @@ keepalived_senha: "SenhaSuperSecreta123"
 # Versões dos componentes
 versao_etcd: "v3.6.6"         # https://endoflife.date/etcd
 versao_kubernetes: "v1.34.3"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
+versao_crictl: "v1.34.0"      # https://github.com/kubernetes-sigs/cri-tools/releases
 versao_pause: "pause:3.10.1"  # https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd
 versao_cni: "v1.9.0"          # https://github.com/containernetworking/plugins/releases e https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/
 versao_helm: "v3.19.4"        # https://github.com/helm/helm/releases
@@ -118,6 +126,10 @@ download_artefatos:
   cni-plugins-bin:
     url: "https://github.com/containernetworking/plugins/releases/download/{{ versao_cni }}/cni-plugins-linux-amd64-{{ versao_cni }}.tgz"
     arquivo: "cni-plugins.tgz"
+
+  crictl-bin:
+    url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ versao_crictl }}/crictl-{{ versao_crictl }}-linux-amd64.tar.gz"
+    arquivo: "crictl.tar.gz"
 
   helm-bin:
     url: "https://get.helm.sh/helm-{{ versao_helm }}-linux-amd64.tar.gz"
