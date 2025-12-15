@@ -116,31 +116,33 @@ Vagrant.configure("2") do |config|
       node.vm.provision "shell" do |net|
         net.inline = <<-SHELL
           (
-            # --- Ajustes padrões da conexão do Vagrant ---
-            nmcli con mod eth0 connection.autoconnect yes
-            nmcli con mod eth0 connection.autoconnect-priority -999
-            nmcli con mod eth0 ipv4.route-metric 500
-            nmcli con mod eth0 ipv4.ignore-auto-dns yes
-            nmcli con mod eth0 ipv4.never-default yes
-            nmcli con mod eth0 ipv6.method ignore
-            nmcli con down eth0 && nmcli con up eth0
+            # --- Ajustes de nomenclatura ---
+            nmcli con mod "Wired connection 1" connection.id net_vagrant ifname eth0
+            nmcli con mod "Wired connection 2" connection.id net_mgmt ifname eth1
+            nmcli con reload
 
-            # --- Remove conexões automáticas, se existirem ---
-            nmcli -t -f NAME con show | grep -qx "System eth1" && nmcli con delete "System eth1"
+            # --- Configurações net_vagrant ---
+            nmcli con mod net_vagrant \
+              connection.autoconnect yes \
+              connection.autoconnect-priority -999  \
+              ipv4.route-metric 500 \
+              ipv4.ignore-auto-dns yes \
+              ipv4.never-default yes \
+              ipv6.method ignore \
 
-            # --- Cria conexão persistente net_mgmt se não existir ---
-            nmcli -t -f NAME con show | grep -qx "net_mgmt" || \
-              nmcli con add type ethernet con-name net_mgmt ifname eth1 \
-                ipv4.method manual \
-                ipv4.addresses "#{specs["ip"]}/24" \
-                ipv4.gateway "172.24.0.1" \
-                ipv4.route-metric "50" \
-                ipv4.dns "1.1.1.1,8.8.8.8" \
-                ipv6.method ignore \
-                ipv4.dns-search "#{PROJETO}.local"
+            nmcli con reload && nmcli con up net_vagrant
+
+            # --- Configurações net_mgmt ---
+            nmcli con mod net_mgmt \
+              ipv4.method manual \
+              ipv4.addresses "#{specs["ip"]}/24" \
+              ipv4.gateway "172.24.0.1" \
+              ipv4.route-metric "50" \
+              ipv4.dns "1.1.1.1,8.8.8.8" \
+              ipv6.method ignore \
+              ipv4.dns-search "#{PROJETO}.local"
             
-            # --- Ativa a conexão ---
-            nmcli con up net_mgmt
+            nmcli con reload && nmcli con up net_mgmt
           ) > /dev/null
           echo "Provisionamento de rede concluído."
         SHELL
