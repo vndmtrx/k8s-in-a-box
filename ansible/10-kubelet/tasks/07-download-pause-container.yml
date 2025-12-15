@@ -2,12 +2,12 @@
 ---
 - name: Verificar se imagem pause já existe
   ansible.builtin.command:
-    cmd: "crictl images -q registry.k8s.io/{{ versao_pause }}"
+    cmd: "/usr/local/bin/crictl images -q registry.k8s.io/{{ versao_pause }}"
   register: runtime_imagens
   changed_when: false
 
 - name: Baixar imagem pause
   ansible.builtin.command:
-    cmd: "crictl pull registry.k8s.io/{{ versao_pause }}"
+    cmd: "/usr/local/bin/crictl pull registry.k8s.io/{{ versao_pause }}"
   when: "'registry.k8s.io/' ~ versao_pause not in runtime_imagens.stdout_lines"
   changed_when: true
