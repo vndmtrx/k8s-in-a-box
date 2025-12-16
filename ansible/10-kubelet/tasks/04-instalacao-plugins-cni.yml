@@ -1,4 +1,4 @@
-# ansible/10-kubelet/tasks/03-instalacao-plugins-cni.yml
+# ansible/10-kubelet/tasks/04-instalacao-plugins-cni.yml
 ---
 - name: Criar diretórios necessários para os plugins do CNI
   ansible.builtin.file:

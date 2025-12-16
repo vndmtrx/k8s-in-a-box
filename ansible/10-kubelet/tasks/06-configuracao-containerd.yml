@@ -1,4 +1,4 @@
-# ansible/10-kubelet/tasks/05-configuracao-containerd.yml
+# ansible/10-kubelet/tasks/06-configuracao-containerd.yml
 ---
 - name: Gerar configuração padrão do containerd
   ansible.builtin.command: containerd config default
@@ -23,12 +23,7 @@
     enabled: true
     state: restarted
 
-- name: Verificar se imagem pause já existe no containerd
-  ansible.builtin.command: ctr images ls -q
-  register: ctr_imagens
-  changed_when: false
-
-- name: Pré-puxar imagem pause
-  ansible.builtin.command: "ctr images pull registry.k8s.io/{{ versao_pause }}"
-  when: "'registry.k8s.io/' ~ versao_pause not in ctr_imagens.stdout_lines"
-  changed_when: true
+- name: Aguardar containerd estar pronto
+  ansible.builtin.wait_for:
+    path: /var/run/containerd/containerd.sock
+    timeout: 30

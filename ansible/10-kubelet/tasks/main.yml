@@ -1,19 +1,35 @@
 # ansible/10-kubelet/tasks/main.yml
 ---
+- name: Instalar o crictl
+  ansible.builtin.include_tasks: 01-instalacao-crictl.yml
+
 - name: Instalar dependências do containerd
-  ansible.builtin.include_tasks: 01-instalacao-containerd.yml
+  ansible.builtin.include_tasks: 02-instalacao-containerd.yml
+  when: container_runtime == "containerd"
+
+- name: Instalar dependências do cri-o
+  ansible.builtin.include_tasks: 02-instalacao-crio.yml
+  when: container_runtime == "crio"
 
 - name: Instalar dependências do kubelet
-  ansible.builtin.include_tasks: 02-instalacao-kubelet.yml
+  ansible.builtin.include_tasks: 03-instalacao-kubelet.yml
 
 - name: Instalar dependências dos plugins de CNI
-  ansible.builtin.include_tasks: 03-instalacao-plugins-cni.yml
+  ansible.builtin.include_tasks: 04-instalacao-plugins-cni.yml
 
 - name: Transferir os PKIs necessários
-  ansible.builtin.include_tasks: 04-pki.yml
+  ansible.builtin.include_tasks: 05-pki.yml
 
 - name: Efetuar criação dos arquivos de configuração do containerd
-  ansible.builtin.include_tasks: 05-configuracao-containerd.yml
+  ansible.builtin.include_tasks: 06-configuracao-containerd.yml
+  when: container_runtime == "containerd"
+
+- name: Efetuar criação dos arquivos de configuração do cri-o
+  ansible.builtin.include_tasks: 06-configuracao-crio.yml
+  when: container_runtime == "crio"
+
+- name: Pré-baixar a imagem do container pause
+  ansible.builtin.include_tasks: 07-download-pause-container.yml
 
 - name: Efetuar criação dos arquivos de configuração do kubelet
-  ansible.builtin.include_tasks: 06-configuracao-kubelet.yml
+  ansible.builtin.include_tasks: 08-configuracao-kubelet.yml

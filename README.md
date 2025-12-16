@@ -17,7 +17,6 @@ O objetivo é oferecer um laboratório de estudos que permita compreender os fun
 ![AlmaLinux](https://img.shields.io/badge/AlmaLinux-2D4F8C?logo=almalinux&logoColor=white)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)
 ![etcd](https://img.shields.io/badge/etcd-419EDA?logo=etcd&logoColor=white)
-![Containerd](https://img.shields.io/badge/containerd-575757?logo=containerd&logoColor=white)
 ![Nginx](https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white)
 ![Helm](https://img.shields.io/badge/Helm-277A9F?logo=helm&logoColor=white)
 
@@ -63,7 +62,7 @@ Algumas escolhas foram tomadas para simplificar o laboratório e maximizar o apr
 1. **Alta Disponibilidade**: HAProxy e Keepalived fornecem um VIP (`172.24.0.10`) e fazem balanceamento do etcd e do API Server, permitindo um failover transparente dos endpoints.
 1. **Sistema Base AlmaLinux 10**: escolhido pela facilidade em relação à configuração de rede e pela disponibilidade de imagens atualizadas no Vagrant Cloud Images; outras distribuições podem exigir ajustes.
 1. **Certificados Gerenciados**: a geração de uma cadeia PKI completa (Root CA, CAs intermediárias e certificados de cliente e servidor) garante segurança entre todos os componentes, e também foi feita dessa forma para experimentações com rotação de certificados.
-1. **Runtime Containerd**: Escolhido pela simplicidade de instalação na distribuição atual e, apesar de terem sido feitos testes com o CRI-O, este runtime não está nas configurações do projeto.
+1. **Runtime de Conteiners**: Foi utilizado o CRI-O pela simplicidade de instalação na distribuição atual. O containerd também foi disponibilizado caso haja preferência ou para estudo.
 1. **Plugin de Rede**: Foi utilizado o Canal (Calico + Flannel) como padrão para uso completo dos recursos de rede, como Network Policies. O CNI Flannel simples também foi disponibilizado.
 
 ## Arquitetura e Configurações de Instalação
@@ -93,6 +92,7 @@ A personalização do cluster é feita em dois arquivos principais:
 * `inventario/group_vars/all.yml` define as variáveis globais do projeto e centraliza as configurações que controlam o comportamento das *roles* do Ansible. É nele que se personaliza a instalação e o funcionamento do cluster.
   Algumas das principais opções que podem ser ajustadas:
 
+  * **Runtime de Conteiner** permite a escolha entre `crio` ou `containerd` para a parte de conteiners.
   * **Plugin de CNI:** permite escolher entre `flannel` ou `canal` (Flannel + Calico) para a rede dos pods.
   * **Versões dos componentes:** define quais versões do Kubernetes, etcd, Helm e CNI Plugins serão utilizadas.
   * **Redes do cluster:** configura os blocos de endereçamento das redes de *hosts*, *pods* e *services*.
@@ -122,8 +122,8 @@ Inclusive, é possível verificar o status do HAProxy em [http://172.24.0.21:900
 
 * **Balanceamento:** HAProxy faz o **failover** e o balanceamento do **kube-apiserver** e do **etcd**.
 * **PKI:** toda a comunicação entre componentes é protegida por certificados emitidos pela **cadeia PKI** do projeto (Root CA + CAs intermediários para cada componente core).
-* **Runtime:** `containerd` como padrão pela simplicidade e estabilidade.
-* **CNI:** **Canal (Calico + Flannel)** como padrão (rede e políticas); **Flannel** disponível como opção mais leve.
+* **Runtime:** `crio` como padrão pela simplicidade e estabilidade; `containerd` disponível.
+* **CNI:** `canal` (Calico + Flannel) como padrão (rede e políticas); `flannel` disponível como opção mais leve.
 * **Bastion (kubox):** host com `kubectl`, `etcdctl`, `helm` e utilitários para operar e inspecionar o cluster sem “poluir” os nós.
 
 ### Ordem de provisionamento (resumo)

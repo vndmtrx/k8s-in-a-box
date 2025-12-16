@@ -1,4 +1,4 @@
-# ansible/10-kubelet/tasks/01-instalacao-containerd.yml
+# ansible/10-kubelet/tasks/02-instalacao-containerd.yml
 ---
 - name: Adicionar repositório Docker
   ansible.builtin.yum_repository:
@@ -13,9 +13,3 @@
   ansible.builtin.dnf:
     name: containerd.io
     state: present
-
-- name: Garantir diretório /etc/containerd
-  ansible.builtin.file:
-    path: /etc/containerd
-    state: directory
-    mode: "0755"
