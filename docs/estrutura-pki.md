@@ -1,6 +1,6 @@
 # Estrutura de PKI
 
-Em um cluster Kubernetes construído manualmente, a segurança da comunicação entre componentes é fundamental. O **k8s‑in‑a‑box** implementa uma infraestrutura de chaves públicas (PKI) completa e hierárquica, onde todos os componentes críticos utilizam certificados digitais para autenticação mútua e criptografia via mTLS.
+Em um cluster Kubernetes, a segurança da comunicação entre componentes é fundamental. O **k8s‑in‑a‑box** implementa uma infraestrutura de chaves públicas (PKI) completa e hierárquica, onde todos os componentes críticos utilizam certificados digitais para autenticação mútua e criptografia via mTLS.
 
 Ao contrário de ferramentas como `kubeadm` que geram certificados de forma opaca, esta implementação expõe toda a estrutura de certificação, permitindo entender exatamente como cada certificado é criado, quem o assina, para que serve e onde é utilizado. Este documento detalha toda a arquitetura de certificados do cluster, desde a autoridade certificadora raiz até os certificados individuais de cada nó.
 
@@ -156,9 +156,9 @@ No **k8s‑in‑a‑box**, as validades curtas permitem:
 
 Este documento apresenta a estrutura de PKI, mas não cobre procedimentos operacionais detalhados. Em documentações futuras serão fornecidos guias completos sobre:
 
-* **Rotação de certificados finais:** processo mensal automatizado, incluindo scripts, validações e rollback
-* **Rotação de CAs intermediários:** procedimento anual com período de dupla confiança, permitindo transição gradual sem downtime
-* **Rotação da Root CA:** operação crítica quinquenal que envolve troca completa da cadeia de confiança, planejada para execução sem interrupção do cluster
+* **Rotação de certificados finais:** processo automatizado, incluindo scripts, validações e rollback
+* **Rotação de CAs intermediários:** procedimento com período de dupla confiança, permitindo transição gradual sem downtime
+* **Rotação da Root CA:** operação crítica que envolve troca completa da cadeia de confiança, planejada para execução sem interrupção do cluster
 
 ## Especificação de Certificados
 
