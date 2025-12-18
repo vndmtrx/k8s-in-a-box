@@ -411,9 +411,53 @@ openssl s_client -connect 172.24.0.31:2379 \
   -CAfile ca-chain.pem
 ```
 
-## Conformidade
+## Checklist de Segurança
 
-O **k8s‑in‑a‑box** passou pelo teste de conformidade **Sonobuoy** da CNCF, que valida entre outras coisas a correta configuração de certificados e mTLS no cluster. Este teste garante que a implementação PKI segue os padrões esperados pelo ecossistema Kubernetes.
+Esta seção consolida as decisões de segurança implementadas na PKI do **k8s‑in‑a‑box**, servindo como referência rápida para auditoria e validação.
+
+### Extensões X.509 Críticas
+
+| Extensão | Root CA | Intermediate CA | End-Entity | Status |
+|----------|---------|-----------------|------------|--------|
+| `basic_constraints_critical` | ✅ `CA:TRUE, pathlen:1` | ✅ `CA:TRUE` | ✅ `CA:FALSE` | Correto |
+| `key_usage_critical` | ✅ keyCertSign, cRLSign | ✅ keyCertSign, cRLSign | ✅ digitalSignature | Correto |
+| `extended_key_usage_critical` | N/A | N/A | ✅ serverAuth/clientAuth | Correto |
+
+**Nota sobre `keyEncipherment`**: Deliberadamente omitido. Com ECDSA e cipher suites modernos (ECDHE), chaves privadas são usadas apenas para assinatura, nunca para encriptação. Incluir `keyEncipherment` aumentaria a superfície de ataque sem benefício funcional em TLS 1.2+.
+
+### Subject Names para RBAC
+
+| Certificado | CN | O (Organization) | Propósito |
+|-------------|----|--------------------|-----------|
+| kubelet | `system:node:<hostname>` | `system:nodes` | Node Authorization |
+| kube-apiserver-kubelet-client | kube-apiserver-kubelet-client | `system:masters` | Permissões admin |
+| admin | admin | `system:masters` | ClusterRole cluster-admin |
+| kube-controller-manager | `system:kube-controller-manager` | - | Permissões RBAC |
+| kube-scheduler | `system:kube-scheduler` | - | Permissões RBAC |
+| kube-proxy | `system:kube-proxy` | - | Permissões RBAC |
+
+### Validação de Wildcards
+
+- ✅ Nenhum certificado usa wildcards em SANs (`*.k8sbox.local`)
+- ✅ Todos os nomes são explícitos e específicos
+- ✅ Reduz raio de impacto de certificado comprometido
+
+### Segurança Operacional
+
+| Prática | Status | Detalhes |
+|---------|--------|----------|
+| Chaves privadas na rede | ✅ Nunca | Geradas localmente no host Ansible |
+| Root CA offline | ✅ Possível | Pode ser removida após geração inicial |
+| Certificados compartilhados | ✅ Não | Um certificado por nó |
+| Permissões de arquivo | ✅ Corretas | Chaves `0600`, certs `0644` |
+| Idempotência | ✅ Sim | Playbooks não regeneram desnecessariamente |
+
+### Conformidade com Padrões
+
+- ✅ **Kubernetes PKI Best Practices**: [kubernetes.io/docs/setup/best-practices/certificates](https://kubernetes.io/docs/setup/best-practices/certificates/)
+- ✅ **RFC 5280**: X.509 PKI Certificate and CRL Profile
+- ✅ **NIST SP 800-57**: Key Management Recommendations
+- ✅ **Sonobuoy CNCF**: Teste de conformidade aprovado
 
 ## Conclusão
 
