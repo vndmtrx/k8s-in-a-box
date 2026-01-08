@@ -41,34 +41,6 @@ porta_etcd_peers: 2380
 porta_etcd_metricas: 2381
 porta_kubeapiserver: 6443
 
-############################################
-### Configurações para a role 03-haproxy ###
-############################################
-
-# Timeouts
-haproxy_timeout_connect: 5s
-haproxy_timeout_client: 1h
-haproxy_timeout_server: 1h
-haproxy_timeout_tunnel: 12h
-haproxy_timeout_check: 5s
-haproxy_retries: 3
-
-# Credenciais
-haproxy_stats_usr: "admin"
-haproxy_stats_senha: "senha_muito_segura!"
-
-# Portas
-porta_haproxy_stats: 9000
-
-# Configuração de hosts para os endpoints principais
-vip_api_fqdn: "api.k8sbox.local"
-vip_etcd_fqdn: "etcd.k8sbox.local"
-
-# Configuração do Keepalived
-keepalived_vip_ip: "172.24.0.10"
-keepalived_vip_cidr: "172.24.0.10/24"
-keepalived_senha: "SenhaSuperSecreta123"
-
 ##############################################
 ### Configurações para a role 00-artefatos ###
 ##############################################
@@ -78,10 +50,10 @@ keepalived_senha: "SenhaSuperSecreta123"
 # - Kubernetes: https://kubernetes.io/releases/download/#binaries
 
 # Versões dos componentes
-versao_etcd: "v3.6.6"         # https://endoflife.date/etcd
-versao_kubernetes: "v1.34.3"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
-versao_crictl: "v1.34.0"      # https://github.com/kubernetes-sigs/cri-tools/releases
-versao_pause: "pause:3.10.1"  # https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd
+versao_etcd: "v3.6.7"         # https://endoflife.date/etcd
+versao_kubernetes: "v1.35.0"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
+versao_crictl: "v1.35.0"      # https://github.com/kubernetes-sigs/cri-tools/releases
+versao_pause: "pause:3.10.1"  # https://github.com/kubernetes/kubernetes/blob/master/build/pause/CHANGELOG.md
 versao_cni: "v1.9.0"          # https://github.com/containernetworking/plugins/releases e https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/
 versao_helm: "v3.19.4"        # https://github.com/helm/helm/releases
 
@@ -239,3 +211,31 @@ pki_certs:
     path_chave: "{{ pki_pastas.k8s }}/admin-account-priv.pem"
     path_cert: "{{ pki_pastas.k8s }}/admin-account-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
+
+############################################
+### Configurações para a role 03-haproxy ###
+############################################
+
+# Timeouts
+haproxy_timeout_connect: 5s
+haproxy_timeout_client: 1h
+haproxy_timeout_server: 1h
+haproxy_timeout_tunnel: 12h
+haproxy_timeout_check: 5s
+haproxy_retries: 3
+
+# Credenciais
+haproxy_stats_usr: "admin"
+haproxy_stats_senha: "senha_muito_segura!"
+
+# Portas
+porta_haproxy_stats: 9000
+
+# Configuração de hosts para os endpoints principais
+vip_api_fqdn: "api.k8sbox.local"
+vip_etcd_fqdn: "etcd.k8sbox.local"
+
+# Configuração do Keepalived
+keepalived_vip_ip: "172.24.0.10"
+keepalived_vip_cidr: "172.24.0.10/24"
+keepalived_senha: "SenhaSuperSecreta123"
