@@ -4,6 +4,8 @@ Kubernetes in a Box – uma instalação manual de um cluster Kubernetes com alt
 
 ![Kubernetes Dashboard](docs/cluster.png)
 
+> 💡 Construído usando o Kubernetes v1.35.0 ([v1.35 Timbernetes - The World Tree Release](https://kubernetes.io/blog/2025/12/17/kubernetes-v1-35-release/))
+
 Este projeto nasceu como uma evolução natural de outro projeto de estudos ([vndmtrx/vagrant-k8s-cluster](https://github.com/vndmtrx/vagrant-k8s-cluster)), onde o cluster era criado utilizando o `kubeadm`. Durante aquele desenvolvimento, percebi que boa parte das etapas executadas pelo `kubeadm` (como a geração de certificados, configuração do etcd e bootstrap dos componentes do control plane) aconteciam de forma automática, sem que eu realmente compreendesse o que estava acontecendo nos bastidores.
 
 Com isso, o **k8s-in-a-box** surgiu como uma forma de reconstruir esse processo manualmente, etapa por etapa, para entender profundamente como o Kubernetes realmente se forma: dos certificados ao control plane e worker nodes.
