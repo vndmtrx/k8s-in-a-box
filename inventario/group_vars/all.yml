@@ -50,10 +50,10 @@ porta_kubeapiserver: 6443
 # - Kubernetes: https://kubernetes.io/releases/download/#binaries
 
 # Versões dos componentes
-versao_etcd: "v3.6.6"         # https://endoflife.date/etcd
-versao_kubernetes: "v1.34.3"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
-versao_crictl: "v1.34.0"      # https://github.com/kubernetes-sigs/cri-tools/releases
-versao_pause: "pause:3.10.1"  # https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd
+versao_etcd: "v3.6.7"         # https://endoflife.date/etcd
+versao_kubernetes: "v1.35.0"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
+versao_crictl: "v1.35.0"      # https://github.com/kubernetes-sigs/cri-tools/releases
+versao_pause: "pause:3.10.1"  # https://github.com/kubernetes/kubernetes/blob/master/build/pause/CHANGELOG.md
 versao_cni: "v1.9.0"          # https://github.com/containernetworking/plugins/releases e https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/
 versao_helm: "v3.19.4"        # https://github.com/helm/helm/releases
 
