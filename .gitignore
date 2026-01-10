@@ -7,3 +7,6 @@ artefatos/*
 # Chaves SSH
 id_ed25519
 id_ed25519.pub
+
+# Symlink de configuração ativa (gerenciado pelo Makefile)
+inventario/hosts.yml
