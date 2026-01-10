@@ -1,0 +1,62 @@
+# configs/hosts-nano.yml
+---
+all:
+  vars:
+    ansible_user: vagrant
+
+  children:
+    loadbalancers:
+      hosts:
+        loadbalancer1:
+          ansible_host: 172.24.0.21
+          fqdn: loadbalancer1.k8sbox.local
+          memory: 384
+          cpus: 1
+
+    nfs:
+      hosts:
+        nfs1:
+          ansible_host: 172.24.0.25
+          fqdn: nfs.k8sbox.local
+          memory: 384
+          cpus: 1
+
+    managers:
+      hosts:
+        manager1:
+          ansible_host: 172.24.0.31
+          fqdn: manager1.k8sbox.local
+          memory: 2048
+          cpus: 1
+
+    workers:
+      hosts:
+        worker1:
+          ansible_host: 172.24.0.41
+          fqdn: worker1.k8sbox.local
+          memory: 3072
+          cpus: 2
+
+    cluster:
+      children:
+        managers: {}
+        workers: {}
+
+    suporte:
+      children:
+        loadbalancers: {}
+        nfs: {}
+
+    todos:
+      children:
+        suporte: {}
+        cluster: {}
+
+    clientes:
+      hosts:
+        kubox:
+          ansible_host: 172.24.0.254
+          fqdn: kubox.k8sbox.local
+          memory: 384
+          cpus: 1
+          autostart: false
