@@ -55,7 +55,7 @@ Para orquestrar as máquinas virtuais e simplificar a execução dos playbooks, 
 
 ### Vagrantfile
 
-O `Vagrantfile` lê o inventário Ansible (`inventario/hosts.yml`) e cria as VMs conforme os grupos e hosts definidos. Cada VM recebe:
+O `Vagrantfile` lê o inventário Ansible ativo (`inventario/hosts.yml`, que é um symlink gerenciado pelo Makefile apontando para uma das configurações em `configs/hosts-*.yml`) e cria as VMs conforme os grupos e hosts definidos. Cada VM recebe:
 
 * **Nome, IP, memória e CPUs** a partir das variáveis `ansible_host`, `memory` e `cpus` do inventário.
 * **Chave SSH** gerada automaticamente, adicionada ao `authorized_keys` dos usuários vagrant.
@@ -67,10 +67,22 @@ O `Vagrantfile` lê o inventário Ansible (`inventario/hosts.yml`) e cria as VMs
 
 Assim, o cluster opera em uma faixa de IPs **172.24.0.0/24**, definida em `inventario/group_vars/all.yml` como `rede_cidr_hosts`.
 
+### Configurações de Cluster
+
+O projeto oferece três configurações pré-definidas para diferentes cenários:
+
+- **`configs/hosts-nano.yml`**: configuração mínima (1 LB, 1 Manager, 1 Worker) para ambientes com recursos limitados
+- **`configs/hosts-mini.yml`**: configuração padrão balanceada (1 LB, 1 Manager, 2 Workers)
+- **`configs/hosts-completo.yml`**: configuração completa (2 LBs, 3 Managers, 2 Workers) para alta disponibilidade
+
+A configuração ativa é controlada via symlink `inventario/hosts.yml` usando os comandos `make init` e `make status`. Consulte o [README principal](../README.md#gerenciamento-de-configurações) para mais detalhes.
+
 ### Makefile
 
 O `Makefile` agiliza tarefas recorrentes:
 
+* `make init`: ativa uma configuração específica de cluster (ex: `CLUSTER=nano make init`)
+* `make status`: mostra qual configuração está atualmente ativa
 * `make k8s-in-a-box`: sobe todo o cluster (executa os dois playbooks completos).
 * `make cluster-up`: sobe todas as VMs via Vagrant.
 * `make cluster`: executa o playbook `cluster.yml` com a tag `cluster`, automatizando a instalação completa.
