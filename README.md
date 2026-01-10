@@ -72,24 +72,14 @@ Algumas escolhas foram tomadas para simplificar o laboratório e maximizar o apr
 Aqui está a base do laboratório: uma topologia mínima funcional e uma topologia de referência. A mínima existe para quem tem menos memória disponível; a de referência é a em uso atualmente e serve de guia para as configurações abaixo.
 
 A personalização do cluster é feita em dois arquivos principais:
-- `inventario/hosts.yml` que define as VMs que compõem o cluster. Cada host contém endereço IP, FQDN, memória e CPU. Máquinas adicionais podem ser habilitadas descomentando blocos adicionais para managers ou workers. Exemplos de definições padrão:
-  - **Configuração mínima para rodar:**
-    - 1x `LoadBalancer`: *vCPUs: 1; RAM: 384MB*
-    - 1x `Servidor NFS`: *vCPUs: 1; RAM: 384MB*
-    - 1x `Manager`:      *vCPUs: 1; RAM: 2048MB*
-    - 1x `Worker`:       *vCPUs: 1; RAM: 2048MB*
-    - 1x `Bastion Host`: *vCPUs: 1; RAM: 384MB*
-    
-    *Totalizando 5,2GB de RAM e 5 vCPUs;*
-  
-  - **Configuração de Referência do projeto:**
-    - 2x `LoadBalancer`: *vCPUs: 2; RAM: 512MB*
-    - 1x `Servidor NFS`: *vCPUs: 2; RAM: 384MB*
-    - 3x `Manager`:      *vCPUs: 3; RAM: 3072MB*
-    - 2x `Worker`:       *vCPUs: 3; RAM: 3072MB*
-    - 1x `Bastion Host`: *vCPUs: 1; RAM: 384MB*
 
-    *Totalizando 16,2GB de RAM e 11 vCPUs;*
+- **Configurações de cluster pré-definidas** (`configs/hosts-*.yml`): o projeto oferece três configurações prontas para diferentes cenários:
+  - `configs/hosts-nano.yml` - configuração mínima para ambientes com recursos limitados
+  - `configs/hosts-mini.yml` - configuração padrão balanceada (padrão do projeto)
+  - `configs/hosts-completo.yml` - configuração completa para estudos avançados e testes de alta disponibilidade
+  
+  A configuração ativa é controlada via symlink em `inventario/hosts.yml`, controlado pelo `Makefile`. Cada arquivo define as VMs que compõem o cluster, contendo endereço IP, FQDN, memória e CPU para cada host.
+
 
 * `inventario/group_vars/all.yml` define as variáveis globais do projeto e centraliza as configurações que controlam o comportamento das *roles* do Ansible. É nele que se personaliza a instalação e o funcionamento do cluster.
   Algumas das principais opções que podem ser ajustadas:
@@ -162,10 +152,51 @@ git clone https://github.com/vndmtrx/k8s-in-a-box.git
 cd k8s-in-a-box
 ```
 
-2. Faça o provisionamento da estrutura completa
+2. (Opcional) Escolha uma configuração de cluster:
+```bash
+# Para configuração mínima (econômica em recursos)
+CLUSTER=nano make init
+
+# Para configuração padrão (padrão, não é necessário executar se quiser)
+CLUSTER=mini make init
+
+# Para configuração completa (cluster completo com alta disponibilidade)
+CLUSTER=completo make init
+```
+
+3. Verifique a configuração ativa:
+```bash
+make status
+```
+
+4. Faça o provisionamento da estrutura completa:
 ```bash
 make k8s-in-a-box
 ```
+
+> 💡 Se você não executar `make init`, o projeto usará automaticamente a configuração `mini` como padrão.
+
+## Gerenciamento de Configurações
+
+O projeto utiliza um sistema de configurações baseado em symlinks para facilitar a alternância entre diferentes topologias de cluster.
+
+### Comandos disponíveis
+
+- **Ativar uma configuração:** `CLUSTER=<tipo> make init` (tipos: `nano`, `mini`, `completo`)
+- **Ver configuração ativa:** `make status`
+- **Ajuda completa:** `make help`
+
+### Configurações disponíveis
+
+| Configuração | Load Balancers | Manager Nodes | Worker Nodes | Total | Recursos |
+|--------------|----------------|---------------|--------------|---------------|----------|
+| `nano` | 1 | 1 | 1 | 2 nós | ~6GB RAM, 6 vCPUs |
+| `mini` | 1 | 1 | 2 | 3 nós | ~10GB RAM, 9 vCPUs |
+| `completo` | 2 | 3 | 2 | 5 nós | ~19GB RAM, 18 vCPUs |
+
+> 📝 **Nota:** O total de nós considera apenas managers + workers. Já os recursos incluem todas as VMs (LBs, NFS, cluster e kubox).
+
+> 💡 As configurações específicas de cada topologia estão em `configs/hosts-*.yml`. Você pode criar suas próprias configurações personalizadas seguindo o mesmo padrão.
 
 ## Acessando as VMs
 
