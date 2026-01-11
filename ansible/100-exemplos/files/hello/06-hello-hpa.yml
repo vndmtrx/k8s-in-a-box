@@ -1,0 +1,33 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hello-ingress-hpa
+  namespace: exemplos
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hello-ingress
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 10  # 10% CPU médio
+  behavior:
+    scaleUp:
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 15
+      selectPolicy: Max
+      stabilizationWindowSeconds: 30
+    scaleDown:
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 30
+      stabilizationWindowSeconds: 60
