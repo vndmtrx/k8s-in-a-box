@@ -4,9 +4,7 @@ kind: KubeProxyConfiguration
 bindAddress: 0.0.0.0
 clusterCIDR: "{{ rede_cidr_pods }}"
 
-mode: ipvs
-ipvs:
-  strictARP: true
+mode: nftables
 
 nodePortAddresses:
   - "{{ rede_cidr_hosts }}"

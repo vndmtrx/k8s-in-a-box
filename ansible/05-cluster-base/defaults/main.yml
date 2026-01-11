@@ -3,13 +3,11 @@
 pacotes_kubernetes:
   - kernel-modules-extra
   - iproute
+  - nftables
   - iptables
   - iptables-nft
   - ethtool
   - socat
   - conntrack-tools
-  - ipvsadm
-  - ipset
   - tar
   - xz
-

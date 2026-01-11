@@ -11,23 +11,28 @@
     dest: /etc/modules-load.d/kubernetes.conf
     content: |
       overlay
+      br_netfilter
+      vxlan
+      nf_tables
+      nft_chain_nat
+      nft_chain_filter
       ip_tables
       ip6_tables
       nf_nat
       nf_conntrack
       xt_conntrack
-      ip_vs
-      ip_vs_rr
-      ip_vs_wrr
-      ip_vs_sh
-      vxlan
-    #br_netfilter
     mode: "0644"
 
 - name: Recarregar módulos listados em /etc/modules-load.d
   ansible.builtin.systemd:
     name: systemd-modules-load
     state: restarted
+
+- name: Habilitar serviço nftables
+  systemd:
+    name: nftables
+    enabled: true
+    state: started
 
 - name: Desabilitar swap
   ansible.builtin.command:
@@ -59,8 +64,9 @@
     reload: true
   loop:
     - { key: "net.ipv4.ip_forward", value: "1" }
-    #- { key: "net.bridge.bridge-nf-call-ip6tables", value: "1" }
-    #- { key: "net.bridge.bridge-nf-call-iptables", value: "1" }
+    - { key: "net.bridge.bridge-nf-call-nftables", value: "1" }
+    - { key: "net.bridge.bridge-nf-call-iptables", value: "1" }
+    - { key: "net.bridge.bridge-nf-call-ip6tables", value: "1" }
 
 - name: Criar usuário kubernetes
   ansible.builtin.user:
