@@ -5,6 +5,7 @@
     url: "{{ item.value.url }}"
     dest: "{{ pasta_temporarios }}/{{ item.value.arquivo }}"
     mode: "0644"
+    force: no
     checksum: "{{ item.value.get('checksum', '') | ternary(item.value.get('checksum', ''), omit) }}"
   loop: "{{ download_artefatos | dict2items }}"
   loop_control:
