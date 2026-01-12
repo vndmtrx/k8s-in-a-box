@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello-hpa-teste-stress
+  namespace: exemplos
+spec:
+  schedule: "*/10 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 1800
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: fortio
+            image: fortio/fortio:latest
+            args:
+            - load
+            - -n  # Ignora com -t, roda até timeout
+            - "0"
+            - -c
+            - "250"      # +150 concurrent
+            - -qps       # Rate máximo
+            - "2000"     # 2k req/s (pesado!)
+            - -t
+            - "120s"     # 2min full blast
+            - http://hello-ingress
+            resources:
+              limits:
+                cpu: "1500m"
+                memory: "256Mi"
+              requests:
+                cpu: "100m"
+                memory: "64Mi"
