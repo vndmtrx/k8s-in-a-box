@@ -27,7 +27,7 @@ spec:
         value: 4
         periodSeconds: 15
       selectPolicy: Max # Escolhe a que cria mais pods
-      stabilizationWindowSeconds: 0
+      stabilizationWindowSeconds: 30
     scaleDown:
       policies:
       - type: Percent
