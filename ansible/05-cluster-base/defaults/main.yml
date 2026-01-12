@@ -6,8 +6,19 @@ pacotes_kubernetes:
   - nftables
   - iptables
   - iptables-nft
+  - conntrack-tools
   - ethtool
   - socat
-  - conntrack-tools
   - tar
   - xz
+
+modulos_kernel_kubernetes:
+  - overlay
+  - br_netfilter
+  - vxlan
+  - ip_tables
+  - ip6_tables
+  - nf_tables
+  - nf_nat
+  - nf_conntrack
+  - xt_conntrack

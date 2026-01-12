@@ -9,24 +9,20 @@
 - name: Garantir configuração de módulos necessários
   ansible.builtin.copy:
     dest: /etc/modules-load.d/kubernetes.conf
-    content: |
-      overlay
-      br_netfilter
-      vxlan
-      nf_tables
-      nft_chain_nat
-      nft_chain_filter
-      ip_tables
-      ip6_tables
-      nf_nat
-      nf_conntrack
-      xt_conntrack
+    content: "{{ modulos_kernel_kubernetes | join('\n') }}\n"
     mode: "0644"
 
 - name: Recarregar módulos listados em /etc/modules-load.d
   ansible.builtin.systemd:
     name: systemd-modules-load
     state: restarted
+
+- name: Carregar módulos explicitamente
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+    persistent: present
+  loop: "{{ modulos_kernel_kubernetes }}"
 
 - name: Habilitar serviço nftables
   systemd:
@@ -64,7 +60,6 @@
     reload: true
   loop:
     - { key: "net.ipv4.ip_forward", value: "1" }
-    - { key: "net.bridge.bridge-nf-call-nftables", value: "1" }
     - { key: "net.bridge.bridge-nf-call-iptables", value: "1" }
     - { key: "net.bridge.bridge-nf-call-ip6tables", value: "1" }
 
