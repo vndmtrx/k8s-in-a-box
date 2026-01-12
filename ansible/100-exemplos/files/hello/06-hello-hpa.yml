@@ -20,14 +20,21 @@ spec:
   behavior:
     scaleUp:
       policies:
-      - type: Pods
-        value: 1
+      - type: Percent
+        value: 100
         periodSeconds: 15
-      selectPolicy: Max
-      stabilizationWindowSeconds: 30
+      - type: Pods
+        value: 4
+        periodSeconds: 15
+      selectPolicy: Max # Escolhe a que cria mais pods
+      stabilizationWindowSeconds: 0
     scaleDown:
       policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
       - type: Pods
-        value: 1
-        periodSeconds: 30
+        value: 4
+        periodSeconds: 15
+      selectPolicy: Min # Escolhe a que destrói menos pods
       stabilizationWindowSeconds: 60
