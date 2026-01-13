@@ -1,0 +1,41 @@
+# ansible/13-configuracoes-cluster/tasks/05-traefik-gateway-api.yml
+---
+- name: Adicionar os CRDs do Gateway API do Kubernetes:
+  ansible.builtin.command: 
+    cmd: "kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ versao_gateway_api }}/standard-install.yaml"
+  register: resultado_crd_add
+  changed_when: "'serverside-applied' in resultado_crd_add.stdout"
+
+- name: Adicionar repositório helm do Traefik
+  ansible.builtin.command:
+    cmd: "helm repo add traefik https://traefik.github.io/charts"
+  register: resultado_repo_add
+  changed_when: "'already exists' not in resultado_repo_add.stdout"
+
+- name: Atualizar repositórios helm
+  ansible.builtin.command:
+    cmd: "helm repo update"
+  changed_when: false
+
+- name: Garantir diretório charts na home do usuário do ansible
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/charts"
+    state: directory
+    mode: "0755"
+
+- name: Criar arquivo de configuração Helm para o Traefik
+  ansible.builtin.template:
+    src: traefik-helm-config.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/ingress-helm-config.yml"
+    mode: "0644"
+
+- name: Instalar chart do Nginx Ingress Controller
+  ansible.builtin.command:
+    cmd: >
+      helm upgrade --install traefik traefik/traefik
+      --namespace traefik
+      --create-namespace
+      --values /home/{{ ansible_user }}/charts/traefik-helm-config.yml
+      --atomic --wait --timeout 120s
+  register: resultado_helm_upgrade
+  changed_when: "'installed' in resultado_helm_upgrade.stdout or 'upgraded' in resultado_helm_upgrade.stdout"
