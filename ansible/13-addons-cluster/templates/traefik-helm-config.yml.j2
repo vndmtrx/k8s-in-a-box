@@ -9,3 +9,13 @@ service:
 providers:
   kubernetesGateway:
     enabled: true
+
+gatewayClass:
+  enabled: true
+
+gateway:
+  enabled: false
+
+autoscaling:
+  minReplicas: 1
+  maxReplicas: 3
