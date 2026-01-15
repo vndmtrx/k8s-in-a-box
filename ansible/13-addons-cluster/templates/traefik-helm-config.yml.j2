@@ -1,0 +1,32 @@
+service:
+  enabled: true
+  type: LoadBalancer
+  annotations:
+    metallb.universe.tf/address-pool: pool-fixo
+  spec:
+    loadBalancerIP: "172.24.0.110"
+
+providers:
+  kubernetesGateway:
+    enabled: true
+
+gatewayClass:
+  enabled: true
+
+gateway:
+  enabled: false
+
+autoscaling:
+  minReplicas: 1
+  maxReplicas: 3
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 100Mi
+
+tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    effect: "NoSchedule"
+  - key: "node-role.kubernetes.io/master"
+    effect: "NoSchedule"
