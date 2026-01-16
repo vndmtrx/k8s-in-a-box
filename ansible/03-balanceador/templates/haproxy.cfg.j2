@@ -71,32 +71,3 @@ frontend stats
     stats refresh 10s
     stats admin if TRUE
     stats auth {{ haproxy_stats_usr }}:{{ haproxy_stats_senha }}
-
-######################## Ingress Controller ########################
-frontend ingress_http
-    bind *:80
-    mode tcp
-    option tcplog
-    default_backend ingress_http_backend
-
-frontend ingress_https
-    bind *:443
-    mode tcp
-    option tcplog
-    default_backend ingress_https_backend
-
-backend ingress_http_backend
-    mode tcp
-    balance roundrobin
-    option tcp-check
-{% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host].fqdn }}:30080 check inter 5s rise 2 fall 3
-{% endfor %}
-
-backend ingress_https_backend
-    mode tcp
-    balance roundrobin
-    option tcp-check
-{% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host].fqdn }}:30443 check inter 5s rise 2 fall 3
-{% endfor %}
