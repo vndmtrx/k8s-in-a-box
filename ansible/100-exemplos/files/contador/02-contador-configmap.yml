@@ -4,7 +4,7 @@ metadata:
   name: contador-pagina
   namespace: exemplos
   labels:
-    app: contador-pvc
+    app: contador-app
 data:
   index.php: |
     <?php

@@ -4,7 +4,7 @@ metadata:
   name: contador-cronjob
   namespace: exemplos
   labels:
-    app: contador-pvc
+    app: contador-app
 spec:
   schedule: "*/10 * * * *"
   successfulJobsHistoryLimit: 1

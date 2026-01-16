@@ -4,7 +4,7 @@ metadata:
   name: contador-svc
   namespace: exemplos
   labels:
-    app: contador-pvc
+    app: contador-app
 spec:
   selector:
     app: contador-app
