@@ -1,13 +1,15 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: hello-ingress-hpa
+  name: hello-app-hpa
   namespace: exemplos
+  labels:
+    app: hello-app
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: hello-ingress
+    name: hello-app
   minReplicas: 1
   maxReplicas: 10
   metrics:

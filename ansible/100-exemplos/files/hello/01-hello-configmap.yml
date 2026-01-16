@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: hello-ingress
+  name: hello-app
   namespace: exemplos
   labels:
-    app: hello-ingress
+    app: hello-app
 data:
   index.html: |
     <!DOCTYPE html>
@@ -155,7 +155,6 @@ data:
           <img src="https://img.shields.io/badge/AlmaLinux-0076C0?logo=almalinux&logoColor=white&style=flat" alt="AlmaLinux">
           <img src="https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white&style=flat" alt="Kubernetes">
           <img src="https://img.shields.io/badge/Helm-0F1689?logo=helm&logoColor=white&style=flat" alt="Helm">
-          <img src="https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white&style=flat" alt="Nginx">
         </div>
         <div style="margin-top: 0.8rem;">
           &#169; Kubernetes in a Box — MIT License

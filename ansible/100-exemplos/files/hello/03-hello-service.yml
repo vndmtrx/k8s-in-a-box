@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: hello-ingress
+  name: hello-svc
   namespace: exemplos
   labels:
-    app: hello-ingress
+    app: hello-app
 spec:
   selector:
-    app: hello-ingress
+    app: hello-app
   ports:
     - port: 80
       targetPort: 80

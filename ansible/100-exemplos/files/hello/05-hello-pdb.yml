@@ -1,10 +1,12 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: hello-ingress-pdb
+  name: hello-app-pdb
   namespace: exemplos
+  labels:
+    app: hello-app
 spec:
   minAvailable: 1
   selector:
     matchLabels:
-      app: hello-ingress
+      app: hello-app

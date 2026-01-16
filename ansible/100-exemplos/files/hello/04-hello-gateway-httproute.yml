@@ -3,6 +3,8 @@ kind: HTTPRoute
 metadata:
   name: hello-httproute
   namespace: exemplos
+  labels:
+    app: hello-app
 spec:
   parentRefs:
   - name: traefik-gateway-publico
@@ -14,5 +16,5 @@ spec:
         type: PathPrefix
         value: /
     backendRefs:
-    - name: hello-ingress
+    - name: hello-app
       port: 80

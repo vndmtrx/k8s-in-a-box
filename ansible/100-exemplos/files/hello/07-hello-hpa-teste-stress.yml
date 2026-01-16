@@ -3,6 +3,8 @@ kind: CronJob
 metadata:
   name: hello-hpa-teste-stress
   namespace: exemplos
+  labels:
+    app: hello-app
 spec:
   schedule: "*/10 * * * *"
   successfulJobsHistoryLimit: 1
@@ -27,7 +29,7 @@ spec:
             - "2000"     # 2k req/s (pesado!)
             - -t
             - "120s"     # 2min full blast
-            - http://hello-ingress
+            - http://hello-app
             resources:
               limits:
                 cpu: "1500m"
