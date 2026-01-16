@@ -29,7 +29,7 @@ spec:
             - "2000"     # 2k req/s (pesado!)
             - -t
             - "120s"     # 2min full blast
-            - http://hello-app
+            - http://hello-svc
             resources:
               limits:
                 cpu: "1500m"
