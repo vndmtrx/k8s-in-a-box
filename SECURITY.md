@@ -82,7 +82,7 @@ Implementação didática dos componentes principais:
 O projeto inclui exemplos de:
 - Aplicações sem estado
 - Aplicações com estado
-- Configurações de entrada (Ingress)
+- Configurações de entrada (Gateway e HTTPRoute)
 - Gerenciamento de segredos
 - Mapas de configuração
 - Volumes persistentes

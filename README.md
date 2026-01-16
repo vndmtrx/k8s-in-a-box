@@ -19,7 +19,6 @@ O objetivo é oferecer um laboratório de estudos que permita compreender os fun
 ![AlmaLinux](https://img.shields.io/badge/AlmaLinux-2D4F8C?logo=almalinux&logoColor=white)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)
 ![etcd](https://img.shields.io/badge/etcd-419EDA?logo=etcd&logoColor=white)
-![Nginx](https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white)
 ![Helm](https://img.shields.io/badge/Helm-277A9F?logo=helm&logoColor=white)
 
 ## Estado Atual do Projeto
@@ -50,7 +49,7 @@ Com o Ansible como provedor de automação, cada componente do cluster é instal
 - Manager nodes (Control Plane)
 - Worker Nodes
 - Arquivos de Configuração
-- Addons de Cluster (CNI, CoreDNS, Métricas, Ingress Controller, Dashboard, MetalLB)
+- Addons de Cluster (CNI, CoreDNS, Métricas, Gateway API, Dashboard, MetalLB)
 - Ferramentas de gerenciamento (etcdctl, kubectl, helm)
 - Exemplos de deploys no cluster
 
@@ -128,7 +127,7 @@ O `Makefile` e os playbooks do Ansible conduzem a instalação em etapas, respei
 4. **etcd** (cluster e mTLS)
 5. **Control Plane** (API Server, Controller Manager, Scheduler)
 6. **Workers** (containerd, kubelet, kube-proxy)
-7. **Addons** (CNI, CoreDNS, métricas, dashboard, ingress, MetalLB, etc.)
+7. **Addons** (CNI, CoreDNS, métricas, dashboard, Gateway API, MetalLB, etc.)
 
 Você pode executar tudo de ponta a ponta com `make k8s-in-a-box` ou chamar **targets**/tags individuais para depurar etapas específicas.
 

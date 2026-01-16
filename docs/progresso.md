@@ -57,6 +57,7 @@
   - [x] Configuração da rede dos serviços
 - [x] Instalação do CoreDNS
 - [x] Configuração do MetalLB
+- [x] Configuração do Gateway API
 - [x] Validação da rede
 
 ### 📚 Documentação
