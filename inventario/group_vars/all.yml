@@ -55,8 +55,10 @@ versao_kubernetes: "v1.35.0"  # https://endoflife.date/kubernetes e https://dl.k
 versao_crictl: "v1.35.0"      # https://github.com/kubernetes-sigs/cri-tools/releases
 versao_pause: "pause:3.10.1"  # https://github.com/kubernetes/kubernetes/blob/master/build/pause/CHANGELOG.md
 versao_cni: "v1.9.0"          # https://github.com/containernetworking/plugins/releases e https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/
-versao_helm: "v3.19.4"        # https://github.com/helm/helm/releases
 versao_gateway_api: "v1.4.1"  # https://github.com/kubernetes-sigs/gateway-api/releases/
+versao_helm: "v3.19.4"        # https://github.com/helm/helm/releases
+versao_k9s: "v0.50.18"        # https://github.com/derailed/k9s/releases
+
 
 # Kubernetes: https://kubernetes.io/releases/download/
 download_artefatos:
@@ -107,6 +109,10 @@ download_artefatos:
   helm-bin:
     url: "https://get.helm.sh/helm-{{ versao_helm }}-linux-amd64.tar.gz"
     arquivo: "helm-bin.tar.gz"
+
+  k9s-bin:
+    url: "https://github.com/derailed/k9s/releases/download/{{ versao_k9s }}/k9s_Linux_amd64.tar.gz"
+    arquivo: "k9s-bin.tar.gz"
 
 ########################################
 ### Configurações para a role 02-pki ###
