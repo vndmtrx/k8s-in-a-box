@@ -58,7 +58,7 @@ versao_cni: "v1.9.0"          # https://github.com/containernetworking/plugins/r
 versao_gateway_api: "v1.4.1"  # https://github.com/kubernetes-sigs/gateway-api/releases/
 versao_helm: "v3.19.4"        # https://github.com/helm/helm/releases
 versao_k9s: "v0.50.18"        # https://github.com/derailed/k9s/releases
-
+versao_popeye: "v0.22.1"      # https://github.com/derailed/popeye/releases
 
 # Kubernetes: https://kubernetes.io/releases/download/
 download_artefatos:
@@ -113,6 +113,10 @@ download_artefatos:
   k9s-bin:
     url: "https://github.com/derailed/k9s/releases/download/{{ versao_k9s }}/k9s_Linux_amd64.tar.gz"
     arquivo: "k9s-bin.tar.gz"
+  
+  popeye-bin:
+    url: "https://github.com/derailed/popeye/releases/download/{{ versao_popeye }}/popeye_linux_amd64.tar.gz"
+    arquivo: "popeye-bin.tar.gz"
 
 ########################################
 ### Configurações para a role 02-pki ###
