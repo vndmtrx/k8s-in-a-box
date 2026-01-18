@@ -172,3 +172,44 @@
       ansible.builtin.file:
         path: "/tmp/k9s-bin.tar.gz"
         state: absent
+
+- name: Instalar o popeye se não existir
+  when: not helm_bin.stat.exists
+  block:
+    - name: Garantir que a pasta de destino do popeye existe
+      ansible.builtin.file:
+        path: /tmp/popeye
+        state: directory
+        mode: "0755"
+
+    - name: Copiar popeye para a VM (em /tmp)
+      ansible.builtin.copy:
+        src: "{{ pasta_temporarios }}/popeye-bin.tar.gz"
+        dest: "/tmp/popeye-bin.tar.gz"
+        mode: "0644"
+
+    - name: Descompactar popeye
+      ansible.builtin.unarchive:
+        src: "/tmp/popeye-bin.tar.gz"
+        dest: "/tmp/popeye"
+        remote_src: true
+        mode: "0755"
+
+    - name: Instalar binário do popeye em /usr/local/bin
+      ansible.builtin.copy:
+        src: "/tmp/popeye/popeye"
+        dest: "/usr/local/bin/popeye"
+        mode: "0755"
+        remote_src: true
+      become: true
+
+  always:
+    - name: Remover diretório temporário do popeye
+      ansible.builtin.file:
+        path: "/tmp/popeye"
+        state: absent
+
+    - name: Remover arquivo temporário do popeye
+      ansible.builtin.file:
+        path: "/tmp/popeye-bin.tar.gz"
+        state: absent
