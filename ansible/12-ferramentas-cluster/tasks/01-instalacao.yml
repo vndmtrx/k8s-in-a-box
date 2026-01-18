@@ -131,3 +131,44 @@
       ansible.builtin.file:
         path: "/tmp/helm-bin.tar.gz"
         state: absent
+
+- name: Instalar o k9s se não existir
+  when: not helm_bin.stat.exists
+  block:
+    - name: Garantir que a pasta de destino do k9s existe
+      ansible.builtin.file:
+        path: /tmp/k9s
+        state: directory
+        mode: "0755"
+
+    - name: Copiar k9s para a VM (em /tmp)
+      ansible.builtin.copy:
+        src: "{{ pasta_temporarios }}/k9s-bin.tar.gz"
+        dest: "/tmp/k9s-bin.tar.gz"
+        mode: "0644"
+
+    - name: Descompactar k9s
+      ansible.builtin.unarchive:
+        src: "/tmp/k9s-bin.tar.gz"
+        dest: "/tmp/k9s"
+        remote_src: true
+        mode: "0755"
+
+    - name: Instalar binário do k9s em /usr/local/bin
+      ansible.builtin.copy:
+        src: "/tmp/k9s/k9s"
+        dest: "/usr/local/bin/k9s"
+        mode: "0755"
+        remote_src: true
+      become: true
+
+  always:
+    - name: Remover diretório temporário do k9s
+      ansible.builtin.file:
+        path: "/tmp/k9s"
+        state: absent
+
+    - name: Remover arquivo temporário do k9s
+      ansible.builtin.file:
+        path: "/tmp/k9s-bin.tar.gz"
+        state: absent
