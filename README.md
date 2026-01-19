@@ -222,6 +222,15 @@ Para a operação do cluster (e melhor simulação de um ambiente real), as ferr
   - Listar todos os nós: `kubectl get nodes -o wide`
   - Listar todos os pods: `kubectl get pods -A -o wide`
   - Últimos eventos do cluster: `kubectl get events -A --sort-by=.metadata.creationTimestamp`
+- `k9s`
+  - Interface interativa completa: `k9s`
+  - Visualizar pods de um namespace específico: `k9s -n exemplos`
+  - Modo readonly (somente leitura): `k9s --readonly`
+- `popeye`
+  - Análise completa do cluster: `popeye -S`
+  - Análise de namespace específico: `popeye -n exemplos`
+  - Relatório em formato JSON: `popeye -o json`
+
 
 ## Acesso ao Dashboard do Headlamp e do Traefik
 

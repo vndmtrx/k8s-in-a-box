@@ -47,7 +47,7 @@ A estrutura do cluster é enriquecida com diversos addons, instalados superficia
 * **NFS Subdir External Provisioner:** cria volumes persistentes dinâmicos a partir do servidor NFS.
 * **MetalLB:** implementa balanceamento de serviços em camada 2, atribuindo IPs externos para serviços tipo LoadBalancer.
 * **Gateway API (Traefik):** permite exposição de aplicações HTTP/HTTPS via objetos Gateway/HTTPRoute.
-* **Kubernetes Dashboard:** oferece uma interface web de administração, instalada com service account apropriada.
+* **Headlamp Dashboard:** oferece uma interface web de administração, instalada com service account apropriada.
 
 ## Automação com Vagrant, Makefile e definições de rede
 
