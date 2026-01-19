@@ -1,0 +1,25 @@
+replicaCount: 1
+
+service:
+  type: LoadBalancer
+  loadBalancerIP: 172.24.0.102
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+serviceAccount:
+  create: true
+  name: "headlamp-admin"
+
+clusterRoleBinding:
+  create: true
+  clusterRoleName: cluster-admin
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
