@@ -28,3 +28,6 @@
 
 - name: Instalação e configuração do Kubernetes Dashboard
   ansible.builtin.import_tasks: 08-dashboard.yml
+
+- name: Instalação e configuração do Headlamp Dashboard
+  ansible.builtin.import_tasks: 08-headlamp.yml
