@@ -35,6 +35,12 @@
     dest: "/home/{{ ansible_user }}/charts/traefik-gateway.yml"
     mode: "0644"
 
+- name: Criar arquivo de configuração do LoadBalancer para o Dashboard
+  ansible.builtin.template:
+    src: traefik-dashboard-lb.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/traefik-dashboard-lb.yml"
+    mode: "0644"
+
 - name: Instalar chart do Traefik Gateway API
   ansible.builtin.command:
     cmd: >
@@ -49,5 +55,11 @@
 - name: Aplicar manifesto do Gateway
   ansible.builtin.command:
     cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/traefik-gateway.yml"
+  register: resultado_aplicacao
+  changed_when: "'unchanged' not in resultado_aplicacao.stdout"
+
+- name: Aplicar manifesto do LoadBalancer para o Dashboard
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/traefik-dashboard-lb.yml"
   register: resultado_aplicacao
   changed_when: "'unchanged' not in resultado_aplicacao.stdout"
