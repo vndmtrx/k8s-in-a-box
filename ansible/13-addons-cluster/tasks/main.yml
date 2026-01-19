@@ -26,5 +26,5 @@
 - name: Instalação e configuração do Traefik Gateway API
   ansible.builtin.import_tasks: 07-traefik-gateway-api.yml
 
-- name: Instalação e configuração do Kubernetes Dashboard
-  ansible.builtin.import_tasks: 08-dashboard.yml
+- name: Instalação e configuração do Headlamp Dashboard
+  ansible.builtin.import_tasks: 08-headlamp.yml

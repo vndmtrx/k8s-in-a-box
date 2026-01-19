@@ -18,7 +18,7 @@ O objetivo é oferecer um laboratório de estudos que permita compreender os fun
 ![Ansible](https://img.shields.io/badge/Ansible-EE0000?logo=ansible&logoColor=white)
 ![AlmaLinux](https://img.shields.io/badge/AlmaLinux-2D4F8C?logo=almalinux&logoColor=white)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)
-![etcd](https://img.shields.io/badge/etcd-419EDA?logo=etcd&logoColor=white)
+![etcd](https://img.shields.io/badge/Etcd-419EDA?logo=etcd&logoColor=white)
 ![Helm](https://img.shields.io/badge/Helm-277A9F?logo=helm&logoColor=white)
 
 ## Estado Atual do Projeto

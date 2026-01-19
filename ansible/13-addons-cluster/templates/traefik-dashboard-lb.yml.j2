@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-dashboard-lb
+  namespace: traefik
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 172.24.0.102
+  ports:
+  - name: web
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: traefik

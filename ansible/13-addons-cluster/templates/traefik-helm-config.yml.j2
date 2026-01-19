@@ -30,3 +30,9 @@ tolerations:
     effect: "NoSchedule"
   - key: "node-role.kubernetes.io/master"
     effect: "NoSchedule"
+
+api:
+  dashboard: true
+
+additionalArguments:
+  - "--api.insecure=true"
