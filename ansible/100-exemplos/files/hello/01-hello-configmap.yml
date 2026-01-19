@@ -132,10 +132,13 @@ data:
 
       <div class="dashboard">
         <p>O seu <strong>cluster Kubernetes</strong> est&aacute; ativo e pronto para uso!
-           Voc&ecirc; pode acompanhar o estado dos componentes, workloads e recursos acessando o <strong>Dashboard do Kubernetes</strong>:</p>
-        <p><strong>&#128279; <a href="https://172.24.0.101/" target="_blank" rel="noopener noreferrer">Abrir Dashboard</a></strong></p>
-        <p>Para gerar o token de acesso, execute na vm kubox (acessível com <code>vagrant ssh kubox</code>):</p>
-        <pre>kubectl -n dashboard create token dashboard-admin</pre>
+           Voc&ecirc; pode acompanhar o estado dos componentes, workloads e recursos acessando o <strong>Headlamp Dashboard</strong>:</p>
+        <p><strong>&#128279; <a href="http://172.24.0.101/" target="_blank" rel="noopener noreferrer">Abrir Headlamp Dashboard</a></strong></p>
+        <p>Para gerar o token de acesso do Headlamp, execute na vm kubox (acessível com <code>vagrant ssh kubox</code>):</p>
+        <pre>kubectl -n headlamp create token headlamp-admin</pre>
+        <br/>
+        <p>Também est&aacute; dispon&iacute;vel o <strong>Traefik Dashboard</strong> para acompanhamento do Gateway API:</p>
+        <p><strong>&#128279; <a href="http://172.24.0.102/" target="_blank" rel="noopener noreferrer">Abrir Traefik Dashboard</a></strong></p>
         <br/>
         <p>Veja também o Contador de Acessos do cluster, um exemplo simples que demonstra o uso de volumes dinâmicos:</p>
         <p><strong>&#128279; <a href="/contador" rel="noopener noreferrer">Abrir Contador</a></strong></p>
@@ -154,6 +157,7 @@ data:
           <img src="https://img.shields.io/badge/Ansible-EE0000?logo=ansible&logoColor=white&style=flat" alt="Ansible">
           <img src="https://img.shields.io/badge/AlmaLinux-0076C0?logo=almalinux&logoColor=white&style=flat" alt="AlmaLinux">
           <img src="https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white&style=flat" alt="Kubernetes">
+          <img src="https://img.shields.io/badge/Etcd-419EDA?logo=etcd&logoColor=white&style=flat" alt="Etcd">
           <img src="https://img.shields.io/badge/Helm-0F1689?logo=helm&logoColor=white&style=flat" alt="Helm">
         </div>
         <div style="margin-top: 0.8rem;">
