@@ -7,7 +7,7 @@ nfs:
   mountOptions:
     - vers=4.2
     - noatime
-  volumeName: nfs-subdir-external-provisioner-root
+  volumeName: nfs-subdir-vol
   reclaimPolicy: Retain
 
 storageClass:
@@ -30,3 +30,7 @@ resources:
   requests:
    cpu: 100m
    memory: 128Mi
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
