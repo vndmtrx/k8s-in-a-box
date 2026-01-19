@@ -223,15 +223,22 @@ Para a operação do cluster (e melhor simulação de um ambiente real), as ferr
   - Listar todos os pods: `kubectl get pods -A -o wide`
   - Últimos eventos do cluster: `kubectl get events -A --sort-by=.metadata.creationTimestamp`
 
-## Acesso ao Dashboard e Inspetor de Rede
+## Acesso ao Dashboard do Headlamp e do Traefik
 
-No cluster o Kubernetes Dashboard foi ativado, permitindo a verificação dos diversos componentes do cluster.
+No cluster o Headlamp Dashboard foi ativado, permitindo a verificação dos diversos componentes do cluster.
 
-Para acessar o Kubernetes Dashboard, é só acessar a URL [https://172.24.0.101](https://172.24.0.101/), e quando for solicitado o token, é só usar o seguinte comando no bastion host:
+Para acessar o Headlamp Dashboard, é só acessar a URL [http://172.24.0.101](http://172.24.0.101/), e quando for solicitado o token, é só usar o seguinte comando na kubox:
 
 ```bash
-kubectl -n dashboard create token dashboard-admin
+kubectl -n headlamp create token headlamp-admin
 ```
+
+Adicionalmente, foi dado acesso ao Dashboard do Traefik também, permitindo a verificação dos endpoints expostos via Gateway API.
+
+Para acessar o Traefik Dashboard, é só acessar a URL [http://172.24.0.102](http://172.24.0.102/), sem necessidade de informar senha.
+
+> [!CAUTION]
+> ⚠️ É extremamente importante esclarecer que esses dashboards estão sendo expostos através de um Service do tipo LoadBalancer exclusivamente para fins de estudo e avaliação do cluster. Em produção, jamais deve-se expor esses componentes à rede pública; caso seja necessário acesso, utilize os mecanismos seguros que o Kubernetes oferece, como o `kubectl proxy` ou `kubectl port-forward`, garantindo que o tráfego permaneça interno ao cluster e protegido por autenticação e controle de permissões.
 
 ## Destruindo o ambiente
 
