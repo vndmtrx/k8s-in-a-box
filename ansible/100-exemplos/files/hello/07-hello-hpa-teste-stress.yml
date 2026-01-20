@@ -5,20 +5,29 @@ metadata:
   namespace: exemplos
   labels:
     app: hello-app
+    componente: cronjob
 spec:
   schedule: "*/10 * * * *"
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   concurrencyPolicy: Forbid
   jobTemplate:
+    metadata:
+      labels:
+        app: hello-app
+        componente: cronjob
     spec:
       ttlSecondsAfterFinished: 1800
       template:
+        metadata:
+          labels:
+            app: hello-app
+            componente: cronjob
         spec:
           restartPolicy: Never
           containers:
           - name: fortio
-            image: fortio/fortio:latest
+            image: fortio/fortio:1.73.2
             args:
             - load
             - -n  # Ignora com -t, roda até timeout
@@ -31,9 +40,9 @@ spec:
             - "120s"     # 2min full blast
             - http://hello-svc
             resources:
-              limits:
-                cpu: "1500m"
-                memory: "256Mi"
               requests:
                 cpu: "100m"
                 memory: "64Mi"
+              limits:
+                cpu: "1500m"
+                memory: "256Mi"
