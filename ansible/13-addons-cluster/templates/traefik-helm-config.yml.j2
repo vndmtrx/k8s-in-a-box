@@ -6,6 +6,13 @@ service:
   spec:
     loadBalancerIP: "172.24.0.110"
 
+deployment:
+  enabled: true
+  replicas: 2
+
+podDisruptionBudget:
+  minAvailable: 1
+
 providers:
   kubernetesGateway:
     enabled: true
@@ -17,11 +24,14 @@ gateway:
   enabled: false
 
 autoscaling:
-  minReplicas: 1
-  maxReplicas: 3
+  minReplicas: 2
+  maxReplicas: 4
 
 resources:
   requests:
+    cpu: 100m
+    memory: 100Mi
+  limits:
     cpu: 100m
     memory: 100Mi
 

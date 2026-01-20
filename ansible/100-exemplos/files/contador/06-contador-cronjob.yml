@@ -5,18 +5,34 @@ metadata:
   namespace: exemplos
   labels:
     app: contador-app
+    componente: cronjob
 spec:
   schedule: "*/10 * * * *"
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
+    metadata:
+      labels:
+        app: contador-app
+        componente: cronjob
     spec:
       template:
+        metadata:
+          labels:
+            app: contador-app
+            componente: cronjob
         spec:
           containers:
             - name: cronjob-escrita-pvc
               image: debian:stable
               command: ["/bin/sh", "-c", "TZ='America/Sao_Paulo' date '+%d/%m/%Y %H:%M:%S' > /dados/cron.txt"]
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "64Mi"
+                limits:
+                  cpu: "100m"
+                  memory: "64Mi"
               volumeMounts:
                 - name: dados
                   mountPath: /dados

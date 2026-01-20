@@ -227,7 +227,7 @@ Para a operação do cluster (e melhor simulação de um ambiente real), as ferr
   - Visualizar pods de um namespace específico: `k9s -n exemplos`
   - Modo readonly (somente leitura): `k9s --readonly`
 - `popeye`
-  - Análise completa do cluster: `popeye -S`
+  - Análise completa do cluster: `popeye -A`
   - Análise de namespace específico: `popeye -n exemplos`
   - Relatório em formato JSON: `popeye -o json`
 
