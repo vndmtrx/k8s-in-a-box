@@ -5,3 +5,21 @@ metadata:
   labels:
     purpose: exemplos
     managed-by: k8s-in-a-box
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: exemplos-sa
+  namespace: exemplos
+automountServiceAccountToken: false
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: exemplos
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
