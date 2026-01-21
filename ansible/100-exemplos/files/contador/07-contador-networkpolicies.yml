@@ -10,27 +10,27 @@ spec:
       app: contador-app
       componente: web
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: traefik
-    ports:
-    - protocol: TCP
-      port: 80
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+      ports:
+        - protocol: TCP
+          port: 80
   egress:
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-      podSelector:
-        matchLabels:
-          k8s-app: coredns
-    ports:
-    - protocol: UDP
-      port: 53
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: coredns
+      ports:
+        - protocol: UDP
+          port: 53
 
 ---
 # CronJob contador: sem rede (só PVC)
@@ -45,5 +45,5 @@ spec:
       app: contador-app
       componente: cronjob
   policyTypes:
-  - Egress
+    - Egress
   egress: []  # Bloqueia toda rede, mas PVC funciona normalmente

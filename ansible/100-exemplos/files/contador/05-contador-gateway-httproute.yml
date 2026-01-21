@@ -7,21 +7,21 @@ metadata:
     app: contador-app
 spec:
   parentRefs:
-  - name: traefik-gateway-publico
-    namespace: traefik
-    sectionName: web
+    - name: traefik-gateway-publico
+      namespace: traefik
+      sectionName: web
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /contador
-    filters:
-    - type: URLRewrite
-      urlRewrite:
-        path:
-          type: ReplacePrefixMatch
-          replacePrefixMatch: /
-    backendRefs:
-    - name: contador-svc
-      port: 80
-      kind: Service
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /contador
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: contador-svc
+          port: 80
+          kind: Service
