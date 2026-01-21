@@ -1,7 +1,7 @@
 # ansible/13-configuracoes-cluster/tasks/05-traefik-gateway-api.yml
 ---
 - name: Adicionar os CRDs do Gateway API do Kubernetes
-  ansible.builtin.command: 
+  ansible.builtin.command:
     cmd: "kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ versao_gateway_api }}/standard-install.yaml"
   register: resultado_crd_add
   changed_when: "'serverside-applied' in resultado_crd_add.stdout"

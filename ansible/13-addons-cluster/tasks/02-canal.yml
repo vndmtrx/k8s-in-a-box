@@ -6,7 +6,7 @@
     state: directory
     mode: "0755"
 
-- name: Baixar manifesto do Canal (Flannel + Calico)
+- name: Baixar manifesto do Canal (Flannel + Calico) # noqa command-instead-of-module
   ansible.builtin.command: >
     wget --quiet
          -O /home/{{ ansible_user }}/charts/canal-manifest.yaml

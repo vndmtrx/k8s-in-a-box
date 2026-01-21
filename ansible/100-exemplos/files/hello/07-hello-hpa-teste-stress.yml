@@ -26,23 +26,23 @@ spec:
         spec:
           restartPolicy: Never
           containers:
-          - name: fortio
-            image: fortio/fortio:1.73.2
-            args:
-            - load
-            - -n  # Ignora com -t, roda até timeout
-            - "0"
-            - -c
-            - "250"      # +150 concurrent
-            - -qps       # Rate máximo
-            - "2000"     # 2k req/s (pesado!)
-            - -t
-            - "120s"     # 2min full blast
-            - http://hello-svc
-            resources:
-              requests:
-                cpu: "100m"
-                memory: "64Mi"
-              limits:
-                cpu: "1500m"
-                memory: "256Mi"
+            - name: fortio
+              image: fortio/fortio:1.73.2
+              args:
+                - load
+                - -n  # Ignora com -t, roda até timeout
+                - "0"
+                - -c
+                - "250"      # +150 concurrent
+                - -qps       # Rate máximo
+                - "2000"     # 2k req/s (pesado!)
+                - -t
+                - "120s"     # 2min full blast
+                - http://hello-svc
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "64Mi"
+                limits:
+                  cpu: "1500m"
+                  memory: "256Mi"
