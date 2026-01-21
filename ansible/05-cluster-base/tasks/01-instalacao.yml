@@ -25,7 +25,7 @@
   loop: "{{ modulos_kernel_kubernetes }}"
 
 - name: Habilitar serviço nftables
-  systemd:
+  ansible.builtin.systemd:
     name: nftables
     enabled: true
     state: started
