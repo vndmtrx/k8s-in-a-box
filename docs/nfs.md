@@ -37,7 +37,7 @@ O consumo acontece no cluster através do addon **NFS Subdir External Provisione
 2. **PersistentVolumeClaims (PVCs):** Quando você realiza o deploy de uma aplicação (como um banco de dados) que solicita um disco (PVC), ela utiliza a StorageClass `nfs-client`.
 3. **Provisionamento Dinâmico:**
    * Em vez de você ter que entrar no nó NFS e criar uma pasta manualmente, o Provisioner intercepta o pedido do PVC.
-   * Ele se conecta ao servidor NFS (`172.24.0.51`) utilizando o path exportado (`/srv/nfs/k8s`).
+   * Ele se conecta ao servidor NFS (`172.24.0.25`) utilizando o path exportado (`/srv/nfs/k8s`).
    * Cria subdiretórios automaticamente (com o nome no formato `namespace-pvcName-pvName`) dentro de `/srv/nfs/k8s`.
    * Monta esse subdiretório diretamente no Pod requisitante.
 
