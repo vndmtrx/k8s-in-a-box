@@ -10,7 +10,7 @@
   ansible.builtin.command: >
     wget --quiet
          -O /home/{{ ansible_user }}/charts/canal-manifest.yaml
-         https://raw.githubusercontent.com/projectcalico/calico/refs/heads/master/manifests/canal.yaml
+         https://raw.githubusercontent.com/projectcalico/calico/{{ versao_canal }}/manifests/canal.yaml
   register: canal_wget
   changed_when: canal_wget.rc != 0
 

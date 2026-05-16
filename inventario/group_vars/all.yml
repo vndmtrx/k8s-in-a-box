@@ -60,6 +60,10 @@ versao_helm: "v3.19.4"        # https://github.com/helm/helm/releases
 versao_k9s: "v0.50.18"        # https://github.com/derailed/k9s/releases
 versao_popeye: "v0.22.1"      # https://github.com/derailed/popeye/releases
 
+# Versões dos plugins de rede (CNI)
+versao_canal: "v3.31.3"       # https://github.com/projectcalico/calico/releases (Flannel + Calico)
+versao_flannel: "v0.28.0"     # https://github.com/flannel-io/flannel/releases
+
 # Kubernetes: https://kubernetes.io/releases/download/
 download_artefatos:
   tailspin-bin:
