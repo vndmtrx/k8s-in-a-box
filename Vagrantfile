@@ -116,9 +116,20 @@ Vagrant.configure("2") do |config|
       node.vm.provision "shell" do |net|
         net.inline = <<-SHELL
           (
-            # --- Ajustes de nomenclatura ---
-            nmcli con mod "Wired connection 1" connection.id net_vagrant ifname eth0
-            nmcli con mod "Wired connection 2" connection.id net_mgmt ifname eth1
+            # --- Configura o SELinux como Permissive ---
+            setenforce 0
+            sed -i 's/^SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
+
+            # --- Ajustes de nomenclatura dinâmicos ---
+            CON_VAGRANT=$(nmcli -t -f NAME,DEVICE connection show | grep ':eth0$' | cut -d: -f1 | head -n1)
+            CON_MGMT=$(nmcli -t -f NAME,DEVICE connection show | grep ':eth1$' | cut -d: -f1 | head -n1)
+
+            if [ -n "$CON_VAGRANT" ]; then
+              nmcli con mod "$CON_VAGRANT" connection.id net_vagrant ifname eth0
+            fi
+            if [ -n "$CON_MGMT" ]; then
+              nmcli con mod "$CON_MGMT" connection.id net_mgmt ifname eth1
+            fi
             nmcli con reload
 
             # --- Configurações net_vagrant ---
