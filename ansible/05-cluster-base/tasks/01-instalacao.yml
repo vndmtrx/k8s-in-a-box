@@ -6,6 +6,17 @@
     name: "{{ pacotes_kubernetes }}"
     state: present
 
+- name: Verificar se precisa reiniciar pós-instalação de pacotes
+  ansible.builtin.command: needs-restarting -r
+  register: reboot_check_k8s
+  ignore_errors: true
+  changed_when: reboot_check_k8s.rc == 1
+  failed_when: reboot_check_k8s.rc not in [0, 1]
+  notify: Reiniciar VM
+
+- name: Executar reboot imediato se necessário
+  ansible.builtin.meta: flush_handlers
+
 - name: Garantir configuração de módulos necessários
   ansible.builtin.copy:
     dest: /etc/modules-load.d/kubernetes.conf
@@ -40,17 +51,6 @@
     path: /etc/fstab
     regexp: '^([^#].*?\sswap\s.*)'
     replace: '# \1'
-
-- name: Verificar se precisa reiniciar
-  ansible.builtin.command: needs-restarting -r
-  register: reboot_check_k8s
-  ignore_errors: true
-  changed_when: reboot_check_k8s.rc == 1
-  failed_when: reboot_check_k8s.rc not in [0, 1]
-  notify: Reiniciar VM
-
-- name: Executar handlers pendentes
-  ansible.builtin.meta: flush_handlers
 
 - name: Configurar parâmetros de rede para Kubernetes
   ansible.posix.sysctl:
