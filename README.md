@@ -246,6 +246,36 @@ Adicionalmente, foi dado acesso ao Dashboard do Traefik também, permitindo a ve
 
 Para acessar o Traefik Dashboard, é só acessar a URL [http://172.24.0.102](http://172.24.0.102/), sem necessidade de informar senha.
 
+### Acesso Remoto (Túnel SSH / Port Forwarding)
+
+Se o seu ambiente `k8s-in-a-box` estiver sendo executado em uma máquina ou servidor remoto (onde você se conecta apenas via SSH), as IPs de LoadBalancer da rede privada (`172.24.0.101` e `172.24.0.102`) não estarão acessíveis diretamente pelo seu navegador físico local. 
+
+Para resolver isso de forma elegante, você pode criar túneis SSH (**Local Port Forwarding**) para mapear as portas locais do seu computador físico para as IPs virtuais internas do servidor:
+
+#### Método 1: Via Linha de Comando (Linux, macOS ou Windows Terminal)
+Execute o comando abaixo no terminal da sua máquina física local para iniciar uma sessão SSH contendo os túneis:
+```bash
+ssh -L 8080:172.24.0.101:80 -L 8081:172.24.0.102:80 seu_usuario@ip_do_servidor_remoto
+```
+
+#### Método 2: Via PuTTY (Windows GUI)
+Se você utiliza o PuTTY para gerenciar suas conexões:
+1. Abra o PuTTY e selecione sua sessão salva.
+2. No menu lateral esquerdo, vá em: **Connection** ➔ **SSH** ➔ **Tunnels**.
+3. Adicione o túnel do **Headlamp**:
+   * **Source port:** `8080`
+   * **Destination:** `172.24.0.101:80`
+   * Clique em **Add**.
+4. Adicione o túnel do **Traefik**:
+   * **Source port:** `8081`
+   * **Destination:** `172.24.0.102:80`
+   * Clique em **Add**.
+5. Volte para a categoria **Session** no topo esquerdo, clique em **Save** para fixar a configuração e clique em **Open** para iniciar a conexão.
+
+Após conectar-se por qualquer um dos métodos, as interfaces estarão acessíveis no seu navegador local nos seguintes endereços:
+* 🌐 **Headlamp Dashboard:** [http://localhost:8080](http://localhost:8080)
+* 🌐 **Traefik Dashboard:** [http://localhost:8081/dashboard/](http://localhost:8081/dashboard/)
+
 > ⚠️ **ALERTA: É extremamente importante esclarecer que esses dashboards estão sendo expostos através de um Service do tipo LoadBalancer única e exclusivamente para fins de estudo e avaliação do cluster. Em produção, jamais deve-se expor esses componentes à rede pública; caso seja necessário acesso, utilize os mecanismos seguros que o Kubernetes oferece, como o `kubectl proxy` ou `kubectl port-forward`, garantindo que o tráfego permaneça interno ao cluster e protegido por autenticação e controle de permissões.**
 
 ## Destruindo o ambiente
