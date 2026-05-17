@@ -50,19 +50,19 @@ porta_kubeapiserver: 6443
 # - Kubernetes: https://kubernetes.io/releases/download/#binaries
 
 # Versões dos componentes
-versao_etcd: "v3.6.7"         # https://endoflife.date/etcd
-versao_kubernetes: "v1.35.0"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
-versao_crictl: "v1.35.0"      # https://github.com/kubernetes-sigs/cri-tools/releases
-versao_pause: "pause:3.10.1"  # https://github.com/kubernetes/kubernetes/blob/master/build/pause/CHANGELOG.md
-versao_cni: "v1.9.0"          # https://github.com/containernetworking/plugins/releases e https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/
-versao_gateway_api: "v1.4.1"  # https://github.com/kubernetes-sigs/gateway-api/releases/
-versao_helm: "v3.19.4"        # https://github.com/helm/helm/releases
+versao_etcd: "v3.6.11"        # https://endoflife.date/etcd e 
+versao_kubernetes: "v1.36.1"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
+versao_crictl: "v1.36.0"      # https://github.com/kubernetes-sigs/cri-tools/releases
+versao_pause: "pause:3.10.2"  # https://github.com/kubernetes/kubernetes/blob/master/build/pause/CHANGELOG.md
+versao_cni: "v1.9.1"          # https://github.com/containernetworking/plugins/releases e https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/
+versao_gateway_api: "v1.5.1"  # https://github.com/kubernetes-sigs/gateway-api/releases/
+versao_helm: "v3.21.0"        # https://github.com/helm/helm/releases
 versao_k9s: "v0.50.18"        # https://github.com/derailed/k9s/releases
 versao_popeye: "v0.22.1"      # https://github.com/derailed/popeye/releases
 
 # Versões dos plugins de rede (CNI)
-versao_canal: "v3.31.3"       # https://github.com/projectcalico/calico/releases (Flannel + Calico)
-versao_flannel: "v0.28.0"     # https://github.com/flannel-io/flannel/releases
+versao_canal: "v3.32.0"       # https://github.com/projectcalico/calico/releases (Flannel + Calico)
+versao_flannel: "v0.28.4"     # https://github.com/flannel-io/flannel/releases
 
 # Kubernetes: https://kubernetes.io/releases/download/
 download_artefatos:
@@ -117,7 +117,7 @@ download_artefatos:
   k9s-bin:
     url: "https://github.com/derailed/k9s/releases/download/{{ versao_k9s }}/k9s_Linux_amd64.tar.gz"
     arquivo: "k9s-bin.tar.gz"
-  
+
   popeye-bin:
     url: "https://github.com/derailed/popeye/releases/download/{{ versao_popeye }}/popeye_linux_amd64.tar.gz"
     arquivo: "popeye-bin.tar.gz"
@@ -149,7 +149,7 @@ pki_cas:
     path_chave: "{{ pki_pastas.ca }}/ca-etcd-priv.pem"
     path_cert: "{{ pki_pastas.ca }}/ca-etcd-cert.pem"
     ca_pai: "{{ pki_root_ca }}"
-  
+
   kubernetes:
     path_chave: "{{ pki_pastas.ca }}/ca-k8s-priv.pem"
     path_cert: "{{ pki_pastas.ca }}/ca-k8s-cert.pem"
@@ -166,7 +166,7 @@ pki_certs:
     path_chave: "{{ pki_pastas.etcd }}/%s-etcd-node-server-priv.pem"
     path_cert: "{{ pki_pastas.etcd }}/%s-etcd-node-server-cert.pem"
     ca_pai: "{{ pki_cas['etcd'] }}"
-  
+
   etcd_peer:
     path_chave: "{{ pki_pastas.etcd }}/%s-etcd-node-peer-priv.pem"
     path_cert: "{{ pki_pastas.etcd }}/%s-etcd-node-peer-cert.pem"
