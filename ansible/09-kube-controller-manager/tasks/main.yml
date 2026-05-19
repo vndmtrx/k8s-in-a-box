@@ -1,4 +1,4 @@
-# ansible/08-kube-controller-manager/tasks/main.yml
+# ansible/09-kube-controller-manager/tasks/main.yml
 ---
 - name: Instalar dependências do kube-controller-manager
   ansible.builtin.include_tasks: 01-instalacao.yml

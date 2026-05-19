@@ -1,4 +1,4 @@
-# ansible/08-kube-controller-manager/tasks/02-pki.yml
+# ansible/09-kube-controller-manager/tasks/02-pki.yml
 ---
 - name: Criar estrutura de diretórios para certificados
   ansible.builtin.file:

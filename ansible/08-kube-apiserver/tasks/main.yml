@@ -1,4 +1,4 @@
-# ansible/07-kube-apiserver/tasks/main.yml
+# ansible/08-kube-apiserver/tasks/main.yml
 ---
 - name: Instalar dependências do kube-apiserver
   ansible.builtin.include_tasks: 01-instalacao.yml

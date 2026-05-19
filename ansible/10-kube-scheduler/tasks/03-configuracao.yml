@@ -1,4 +1,4 @@
-# ansible/09-kube-scheduler/tasks/03-configuracao.yml
+# ansible/10-kube-scheduler/tasks/03-configuracao.yml
 ---
 - name: Configurar serviço do kube-scheduler
   ansible.builtin.template:

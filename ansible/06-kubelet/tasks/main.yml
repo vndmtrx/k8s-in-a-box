@@ -1,4 +1,4 @@
-# ansible/10-kubelet/tasks/main.yml
+# ansible/06-kubelet/tasks/main.yml
 ---
 - name: Instalar o crictl
   ansible.builtin.include_tasks: 01-instalacao-crictl.yml
@@ -28,8 +28,8 @@
   ansible.builtin.include_tasks: 06-configuracao-crio.yml
   when: container_runtime == "crio"
 
-- name: Pré-baixar a imagem do container pause
-  ansible.builtin.include_tasks: 07-download-pause-container.yml
+- name: Pré-baixar as imagens de sistema (pause e kube-proxy)
+  ansible.builtin.include_tasks: 07-download-imagens-sistema.yml
 
 - name: Efetuar criação dos arquivos de configuração do kubelet
   ansible.builtin.include_tasks: 08-configuracao-kubelet.yml
