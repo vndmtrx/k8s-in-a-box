@@ -261,7 +261,7 @@ ssh -L 8080:172.24.0.101:80 -L 8081:172.24.0.102:80 seu_usuario@ip_do_servidor_r
 #### Método 2: Via PuTTY (Windows GUI)
 Se você utiliza o PuTTY para gerenciar suas conexões:
 1. Abra o PuTTY e selecione sua sessão salva.
-2. No menu lateral esquerdo, vá em: **Connection** ➔ **SSH** ➔ **Tunnels**.
+2. No menu lateral esquerdo, vá em: **Connection** -> **SSH** -> **Tunnels**.
 3. Adicione o túnel do **Headlamp**:
    * **Source port:** `8080`
    * **Destination:** `172.24.0.101:80`
