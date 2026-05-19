@@ -81,6 +81,8 @@ lint: ## Checagem da estrutura do Ansible
 	@ansible-lint -q ansible/ || true
 
 k8s-in-a-box: cluster ops exemplos ## Executa todo o projeto
+	@echo "Cluster k8s-in-a-box provisionado com sucesso!"
+	@(xdg-open http://172.24.0.110 || open http://172.24.0.110 || echo "Acesse http://172.24.0.110 no seu navegador.") 2>/dev/null
 
 ##########################################################################################
 ################################### Criação do Cluster ###################################
@@ -134,10 +136,6 @@ cluster-kubelet: garante-config ## Executa apenas a role kubelet
 	@echo "Executando role kubelet..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kubelet
 
-cluster-kube-proxy: garante-config ## Executa apenas a role kube-proxy
-	@echo "Executando role kube-proxy..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kube-proxy
-
 cluster: cluster-up ## Executa toda a construção do cluster kubernetes
 	@echo "Executando todas as roles de cluster..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster
@@ -155,6 +153,10 @@ ops-sistema: garante-config ## Executa apenas a role ferramentas-ops
 ops-ferramentas: garante-config ## Executa apenas a role ferramentas-ops
 	@echo "Executando role ops-ferramentas..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-ferramentas
+
+ops-kube-proxy-pod: garante-config ## Executa apenas a role kube-proxy (Pod)
+	@echo "Executando role ops-kube-proxy..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-kube-proxy-pod
 
 ops-addons: garante-config ## Executa apenas a role configuracoes-ops
 	@echo "Executando role ops-addons..."
