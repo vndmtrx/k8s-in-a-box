@@ -94,9 +94,6 @@ download_artefatos:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-scheduler"
     arquivo: "kube-scheduler"
 
-  kube-proxy-bin:
-    url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-proxy"
-    arquivo: "kube-proxy"
 
   kubectl-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubectl"
@@ -210,11 +207,6 @@ pki_certs:
   kubelet:
     path_chave: "{{ pki_pastas.k8s }}/%s-kubelet-priv.pem"
     path_cert: "{{ pki_pastas.k8s }}/%s-kubelet-cert.pem"
-    ca_pai: "{{ pki_cas['kubernetes'] }}"
-
-  kube_proxy:
-    path_chave: "{{ pki_pastas.k8s }}/%s-kube-proxy-priv.pem"
-    path_cert: "{{ pki_pastas.k8s }}/%s-kube-proxy-cert.pem"
     ca_pai: "{{ pki_cas['kubernetes'] }}"
 
   service_account:

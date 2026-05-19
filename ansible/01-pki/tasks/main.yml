@@ -60,12 +60,6 @@
   loop_control:
     loop_var: node_host
 
-- name: Geração do certificado do kube-proxy
-  ansible.builtin.include_tasks: 222-cert-kube-proxy.yml
-  loop: "{{ groups['cluster'] }}"
-  loop_control:
-    loop_var: node_host
-
 - name: Geração do certificado para o Service Account
   ansible.builtin.include_tasks: 223-cert-service-account.yml
 
