@@ -1,0 +1,19 @@
+# ansible/06-kubelet/tasks/07-download-imagens-sistema.yml
+---
+- name: Verificar se as imagens de sistema já existem localmente
+  ansible.builtin.command:
+    cmd: "/usr/local/bin/crictl images -q {{ item }}"
+  register: crictl_image_check
+  changed_when: false
+  loop:
+    - "registry.k8s.io/{{ versao_pause }}"
+    - "registry.k8s.io/kube-proxy:{{ versao_kubernetes }}"
+
+- name: Baixar imagens de sistema ausentes
+  ansible.builtin.command:
+    cmd: "/usr/local/bin/crictl pull {{ item.item }}"
+  when: item.stdout == ""
+  loop: "{{ crictl_image_check.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  changed_when: true
