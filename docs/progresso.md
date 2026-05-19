@@ -41,14 +41,14 @@
   - [x] kubeconfig do controller-manager
   - [x] kubeconfig do scheduler
   - [x] kubeconfig do kubelet (para cada nó)
-  - [x] kubeconfig do kube-proxy
+  - [x] ~kubeconfig do kube-proxy~ (Substituído por ServiceAccount nativo do Pod)
 
 ### 👷 Workers
 - [x] Configuração do Container Runtime
   - [x] Escolha do runtime (containerd/CRI-O)
   - [x] Instalação e configuração
 - [x] Instalação do kubelet
-- [x] Configuração do kube-proxy
+- [x] Configuração do kube-proxy (Migrado para DaemonSet em ops.yml)
 
 ### 🌐 Rede do Cluster
 - [x] Escolha do CNI Plugin
