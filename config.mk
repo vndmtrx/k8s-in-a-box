@@ -1,0 +1,2 @@
+CLUSTER = mini
+INSTALACAO = bin

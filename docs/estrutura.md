@@ -81,7 +81,7 @@ A configuração ativa é controlada via symlink `inventario/hosts.yml` usando o
 
 O `Makefile` agiliza tarefas recorrentes:
 
-* `make init`: ativa uma configuração específica de cluster (ex: `CLUSTER=nano make init`)
+* `make init`: ativa a configuração de cluster definida em `config.mk` (ex: `CLUSTER = nano`)
 * `make status`: mostra qual configuração está atualmente ativa
 * `make k8s-in-a-box`: sobe todo o cluster (executa os dois playbooks completos).
 * `make cluster-up`: sobe todas as VMs via Vagrant.

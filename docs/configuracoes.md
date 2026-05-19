@@ -82,22 +82,14 @@ O Makefile fornece comandos específicos para gerenciar configurações:
 
 #### Ativar uma Configuração
 
-```bash
-CLUSTER=<tipo> make init
+Edite o arquivo `config.mk` na raiz do projeto (crie-o se não existir) e configure a variável `CLUSTER`:
+```makefile
+CLUSTER = mini # Opções: nano, mini, completo
 ```
 
-Onde `<tipo>` pode ser: `nano`, `mini` ou `completo`.
-
-**Exemplos:**
+E então ative-a rodando:
 ```bash
-# Ativar configuração mínima
-CLUSTER=nano make init
-
-# Ativar configuração padrão
-CLUSTER=mini make init
-
-# Ativar configuração completa
-CLUSTER=completo make init
+make init
 ```
 
 #### Verificar Configuração Ativa
@@ -119,8 +111,9 @@ Exibe todos os comandos disponíveis e uma breve explicação do sistema de conf
 ### Fluxo de Trabalho Típico
 
 1. **Escolher a configuração apropriada:**
+   Configure `CLUSTER = mini` no `config.mk` e rode:
    ```bash
-   CLUSTER=mini make init
+   make init
    ```
 
 2. **Verificar a configuração ativa:**
@@ -138,8 +131,8 @@ Exibe todos os comandos disponíveis e uma breve explicação do sistema de conf
    # Primeiro destruir o cluster atual
    make destroy
    
-   # Ativar nova configuração
-   CLUSTER=completo make init
+   # Configurar CLUSTER = completo no config.mk e rodar make init
+   make init
    
    # Provisionar com a nova configuração
    make k8s-in-a-box
@@ -164,8 +157,9 @@ Você pode criar suas próprias configurações seguindo o padrão dos arquivos 
    - Modificar FQDNs
 
 3. **Ativar a configuração personalizada:**
+   Configure `CLUSTER = minha-config` no `config.mk` e rode:
    ```bash
-   CLUSTER=minha-config make init
+   make init
    ```
 
 ### Estrutura do Arquivo de Configuração
@@ -234,7 +228,7 @@ Todas as configurações utilizam a mesma faixa de rede (`172.24.0.0/24`). Se vo
 
 1. Fazer backup dos dados importantes (se houver)
 2. Destruir o cluster atual (`make destroy`)
-3. Ativar a nova configuração (`CLUSTER=nova make init`)
+3. Configurar `CLUSTER = nova` no `config.mk` e ativar a configuração (`make init`)
 4. Provisionar novamente (`make k8s-in-a-box`)
 
 ### Versionamento
@@ -261,15 +255,16 @@ make status
 ```
 
 Para mudar:
+Altere `CLUSTER = nova-config` no `config.mk` e rode:
 ```bash
-CLUSTER=nova-config make init
+make init
 ```
 
 ## Resumo de Comandos
 
 | Comando | Descrição |
 |---------|-----------|
-| `CLUSTER=<tipo> make init` | Ativa uma configuração específica |
+| `make init` | Ativa a configuração configurada no `config.mk` |
 | `make status` | Mostra a configuração ativa |
 | `make help` | Exibe ajuda completa do Makefile |
 | `make k8s-in-a-box` | Provisiona o cluster com a configuração ativa |

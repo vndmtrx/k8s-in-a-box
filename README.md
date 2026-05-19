@@ -151,16 +151,13 @@ git clone https://github.com/vndmtrx/k8s-in-a-box.git
 cd k8s-in-a-box
 ```
 
-2. (Opcional) Escolha uma configuração de cluster:
+2. (Opcional) Defina a configuração do cluster no arquivo `config.mk` na raiz do projeto (crie o arquivo se não existir):
+```makefile
+CLUSTER = mini # Opções: nano, mini, completo
+```
+E então ative-a rodando:
 ```bash
-# Para configuração mínima (econômica em recursos)
-CLUSTER=nano make init
-
-# Para configuração padrão (padrão, não é necessário executar se quiser)
-CLUSTER=mini make init
-
-# Para configuração completa (cluster completo com alta disponibilidade)
-CLUSTER=completo make init
+make init
 ```
 
 3. Verifique a configuração ativa:
@@ -181,7 +178,7 @@ O projeto utiliza um sistema de configurações baseado em symlinks para facilit
 
 ### Comandos disponíveis
 
-- **Ativar uma configuração:** `CLUSTER=<tipo> make init` (tipos: `nano`, `mini`, `completo`)
+- **Ativar uma configuração:** `make init` (carrega e ativa o tipo configurado em `config.mk`)
 - **Ver configuração ativa:** `make status`
 - **Ajuda completa:** `make help`
 

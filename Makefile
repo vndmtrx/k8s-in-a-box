@@ -24,7 +24,7 @@ help: ## Mostra esta ajuda
 	@echo "════════════════════════════════════════════════════════════"
 	@echo ""
 	@echo "Uso:"
-	@echo "  CLUSTER=alvo make init    # Ativa configuração alvo (disponíveis: completo, mini e nano / padrão: mini)"
+	@echo "  make init                 # Ativa a configuração definida no config.mk (disponíveis: completo, mini, nano)"
 	@echo "  make k8s-in-a-box         # Usa alvo ativo (ou padrão: mini)"
 	@echo "  make status               # Mostra alvo ativo"
 	@echo ""
