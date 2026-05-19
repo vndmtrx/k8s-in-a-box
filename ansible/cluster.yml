@@ -113,12 +113,12 @@
         - cluster-kube-scheduler
         - cluster
 
-- name: Configuração do kube-proxy
-  hosts: cluster
-  become: true
-  gather_facts: false
-  roles:
-    - role: 11-kube-proxy
-      tags:
-        - cluster-kube-proxy
-        - cluster
+# - name: Configuração do kube-proxy
+#   hosts: cluster
+#   become: true
+#   gather_facts: false
+#   roles:
+#     - role: 11-kube-proxy
+#       tags:
+#         - cluster-kube-proxy
+#         - cluster
