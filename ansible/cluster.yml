@@ -63,12 +63,22 @@
         - cluster-kubernetes-base
         - cluster
 
+- name: Configuração do kubelet
+  hosts: cluster
+  become: true
+  gather_facts: false
+  roles:
+    - role: 06-kubelet
+      tags:
+        - cluster-kubelet
+        - cluster
+
 - name: Configurações do cluster Etcd
   hosts: managers
   become: true
   gather_facts: false
   roles:
-    - role: 06-etcd
+    - role: 07-etcd
       tags:
         - cluster-etcd
         - cluster
@@ -78,7 +88,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 07-kube-apiserver
+    - role: 08-kube-apiserver
       tags:
         - cluster-kube-apiserver
         - cluster
@@ -88,7 +98,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 08-kube-controller-manager
+    - role: 09-kube-controller-manager
       tags:
         - cluster-kube-controller-manager
         - cluster
@@ -98,19 +108,9 @@
   become: true
   gather_facts: false
   roles:
-    - role: 09-kube-scheduler
+    - role: 10-kube-scheduler
       tags:
         - cluster-kube-scheduler
-        - cluster
-
-- name: Configuração do kubelet
-  hosts: cluster
-  become: true
-  gather_facts: false
-  roles:
-    - role: 10-kubelet
-      tags:
-        - cluster-kubelet
         - cluster
 
 - name: Configuração do kube-proxy
