@@ -1,10 +1,10 @@
 # 🧩 k8s-in-a-box
 
-Kubernetes in a Box – uma instalação manual de um cluster Kubernetes com alta disponibilidade, provisionado via Ansible e orquestrado com Vagrant usando LibVirt.
+Kubernetes in a Box, uma instalação manual de um cluster Kubernetes com alta disponibilidade, provisionado via Ansible e orquestrado com Vagrant usando LibVirt.
 
 ![Kubernetes Dashboard](docs/cluster.png)
 
-> 💡 Construído usando o Kubernetes v1.35.0 ([v1.35 Timbernetes - The World Tree Release](https://kubernetes.io/blog/2025/12/17/kubernetes-v1-35-release/))
+> 💡 Construído usando o Kubernetes v1.36.1 ([Kubernetes v1.36 - Haru Release Notes](https://kubernetes.io/blog/2026/04/22/kubernetes-v1-36-release/))
 
 Este projeto nasceu como uma evolução natural de outro projeto de estudos ([vndmtrx/vagrant-k8s-cluster](https://github.com/vndmtrx/vagrant-k8s-cluster)), onde o cluster era criado utilizando o `kubeadm`. Durante aquele desenvolvimento, percebi que boa parte das etapas executadas pelo `kubeadm` (como a geração de certificados, configuração do etcd e bootstrap dos componentes do control plane) aconteciam de forma automática, sem que eu realmente compreendesse o que estava acontecendo nos bastidores.
 
@@ -37,7 +37,7 @@ Todo o material de referência e guias de instalação encontra‑se no diretór
 
 O repositório automatiza a criação de várias máquinas virtuais em uma rede privada para as VMs, onde o cluster e as ferramentas anexas são instaladas, não criando nada na máquina host.
 
-Com o Ansible como provedor de automação, cada componente do cluster é instalado e configurado explicitamente: geração de certificados, criação do cluster `etcd`, deployment dos binários `kube‑apiserver`, `controller‑manager`, `scheduler`, `containerd`, `kubelet` e `kube‑proxy`, além da instalação dos vários plugins de suporte do cluster.
+Com o Ansible como provedor de automação, cada componente do cluster é instalado e configurado explicitamente: geração de certificados, criação do cluster `etcd`, deployment dos binários `kube‑apiserver`, `controller‑manager`, `scheduler`, `containerd` e `kubelet`, além da instalação dos vários plugins de suporte do cluster. O `kube‑proxy` é provisionado posteriormente como um **DaemonSet** dentro do próprio cluster.
 
 ### Componentes Concluídos
 - Infraestrutura com Vagrant/LibVirt
@@ -65,6 +65,7 @@ Algumas escolhas foram tomadas para simplificar o laboratório e maximizar o apr
 1. **Certificados Gerenciados**: a geração de uma cadeia PKI completa (Root CA, CAs intermediárias e certificados de cliente e servidor) garante segurança entre todos os componentes, e também foi feita dessa forma para experimentações com rotação de certificados.
 1. **Runtime de Conteiners**: Foi utilizado o CRI-O pela simplicidade de instalação na distribuição atual. O containerd também foi disponibilizado caso haja preferência ou para estudo.
 1. **Plugin de Rede**: Foi utilizado o Canal (Calico + Flannel) como padrão para uso completo dos recursos de rede, como Network Policies. O CNI Flannel simples também foi disponibilizado.
+1. **kube-proxy como DaemonSet**: em vez de rodar como serviço systemd estático, o `kube-proxy` é provisionado como um DaemonSet dentro do cluster. Isso simplifica o bootstrap inicial e dispensa a necessidade de certificados de cliente dedicados (autentica via `ServiceAccount`).
 
 ## Arquitetura e Configurações de Instalação
 
@@ -115,6 +116,7 @@ Inclusive, é possível verificar o status do HAProxy em [http://172.24.0.21:900
 * **PKI:** toda a comunicação entre componentes é protegida por certificados emitidos pela **cadeia PKI** do projeto (Root CA + CAs intermediários para cada componente core).
 * **Runtime:** `crio` como padrão pela simplicidade e estabilidade; `containerd` disponível.
 * **CNI:** `canal` (Calico + Flannel) como padrão (rede e políticas); `flannel` disponível como opção mais leve.
+* **kube-proxy:** provisionado como DaemonSet dentro do cluster, autenticando-se via `ServiceAccount`; sem certificados de cliente próprios.
 * **Bastion (kubox):** host com `kubectl`, `etcdctl`, `helm` e utilitários para operar e inspecionar o cluster sem “poluir” os nós.
 
 ### Ordem de provisionamento (resumo)
@@ -124,10 +126,11 @@ O `Makefile` e os playbooks do Ansible conduzem a instalação em etapas, respei
 1. **Artefatos e PKI** (binários, CAs e certificados)
 2. **Sistema Base** (pré-requisitos de SO, tunáveis de rede)
 3. **Balanceador** (HAProxy/Keepalived)
-4. **etcd** (cluster e mTLS)
-5. **Control Plane** (API Server, Controller Manager, Scheduler)
-6. **Workers** (containerd, kubelet, kube-proxy)
+4. **kubelet** (instalado antes do etcd para poder gerenciar static pods do control plane)
+5. **etcd** (cluster e mTLS)
+6. **Control Plane** (API Server, Controller Manager, Scheduler)
 7. **Addons** (CNI, CoreDNS, métricas, dashboard, Gateway API, MetalLB, etc.)
+8. **kube-proxy** (DaemonSet aplicado via `kubox` após o cluster estar funcional)
 
 Você pode executar tudo de ponta a ponta com `make k8s-in-a-box` ou chamar **targets**/tags individuais para depurar etapas específicas.
 

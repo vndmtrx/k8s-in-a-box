@@ -24,12 +24,14 @@ O **k8s‑in‑a‑box** é um ambiente Kubernetes completo, construído de form
 
   * **Etcd**: banco de dados distribuído, com certificados configurados para mTLS.
   * **Componentes do Control Node:** `kube‑apiserver`, `kube‑controller‑manager` e `kube‑scheduler`, instalados como serviços systemd com seus respectivos certificados e kubeconfigs.
-  * **Componentes extras instalados:** `kubelet`, `containerd` e `kube‑proxy`, permitindo que managers também executem workloads se necessário.
+  * **Componentes extras instalados:** `kubelet` e `containerd`, permitindo que managers também executem workloads se necessário.
 
 ### Workers (2 nós)
 
 * **Função:** executar os pods e workloads do usuário.
-* **Componentes instalados:** `kubelet`, `containerd` e `kube‑proxy`, com configuração de CNI e plugins instalados, mas sem os serviços de controle (`etcd` e API Server).
+* **Componentes instalados:** `kubelet` e `containerd`, com configuração de CNI e plugins instalados, mas sem os serviços de controle (`etcd` e API Server).
+
+> 💡 O `kube-proxy` não é instalado como serviço de sistema nos nós. Ele é provisionado como um **DaemonSet** dentro do próprio cluster (via `kubox`), após o cluster estar ativo.
 
 ### Bastion Host (Kubox)
 
@@ -85,7 +87,7 @@ O `Makefile` agiliza tarefas recorrentes:
 * `make status`: mostra qual configuração está atualmente ativa
 * `make k8s-in-a-box`: sobe todo o cluster (executa os dois playbooks completos).
 * `make cluster-up`: sobe todas as VMs via Vagrant.
-* `make cluster`: executa o playbook `cluster.yml` com a tag `cluster`, automatizando a instalação completa.
+* `make cluster`: executa o playbook do cluster (ex.: `cluster-bin.yml` conforme configurado no `config.mk`) com a tag `cluster`, automatizando a instalação completa.
 * `make cluster-<role>`: executa apenas uma role específica (ex.: `cluster-etcd`, `cluster-kubelet`, etc.).
 * `make ops`: sobe a VM `kubox` e aplica `ops.yml` com suas roles (`ops-sistema`, `ops-ferramentas`, `ops-addons`).
 * `make exemplos`: aplica o playbook para exemplos de aplicações.
@@ -96,9 +98,9 @@ O `Makefile` agiliza tarefas recorrentes:
 
 As redes do cluster são declaradas em `inventario/group_vars/all.yml`:
 
-* **rede_cidr_hosts:** `172.24.0.0/24` – alocada para as VMs (load balancers, managers, workers, NFS e kubox).
-* **rede_cidr_pods:** `172.25.0.0/17` – destinada aos pods.
-* **rede_cidr_services:** `172.25.128.0/17` – destinada aos serviços ClusterIP.
+* **rede_cidr_hosts:** `172.24.0.0/24`, alocada para as VMs (load balancers, managers, workers, NFS e kubox).
+* **rede_cidr_pods:** `172.25.0.0/17`, destinada aos pods.
+* **rede_cidr_services:** `172.25.128.0/17`, destinada aos serviços ClusterIP.
 * **VIPs e MetalLB:** o VIP do Keepalived é `172.24.0.10`; há duas faixas de IPs para o MetalLB (`172.24.0.101-172.24.0.150` e `172.24.0.201-172.24.0.250`).
 
 Essas redes, combinadas com a configuração de CNI (Flannel ou Canal) e com o load balancer HAProxy, permitem que o cluster opere de forma isolada, com endereços internos previsíveis para hosts, pods e serviços.
