@@ -6,11 +6,17 @@ ARTEFATOS := artefatos
 SNAP := makefile_snapshot
 CFG = ./ansible/.ansible.cfg
 
-# Variáveis para controlar o tipo dos clusters
-#Opções: (nano, mini, completo)
+-include config.mk
+
+# Variáveis para controlar o tipo dos clusters e o método de instalação
+# Opções de CLUSTER: (nano, mini, completo)
+# Opções de INSTALACAO: (bin, pod)
 CLUSTER ?= mini
+INSTALACAO ?= bin
+
 CLUSTER_SOURCE := configs/hosts-$(CLUSTER).yml
 CLUSTER_LINK := inventario/hosts.yml
+PLAYBOOK := ./ansible/cluster-$(INSTALACAO).yml
 
 # Variável para controlar verbosidade (VERBOSE=v, VERBOSE=vv, VERBOSE=vvv)
 VERBOSE ?=
@@ -94,51 +100,51 @@ cluster-up: garante-config ## Sobe as VMs e recria a pasta artefatos/
 # Tasks independentes, para executar individualmente (para evitar executar toda a pipeline, ou após um restore de snapshot)
 cluster-artefatos: garante-config ## Executa apenas a role artefatos
 	@echo "Executando role artefatos..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-artefatos
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-artefatos
 
 cluster-pki: garante-config ## Executa apenas a role pki
 	@echo "Executando role pki..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-pki
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-pki
 
 cluster-sistema: garante-config ## Executa apenas a role sistema
 	@echo "Executando role sistema..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-sistema
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-sistema
 
 cluster-balanceador: garante-config ## Executa apenas a role balanceador
 	@echo "Executando role balanceador..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-balanceador
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-balanceador
 
 cluster-nfs: garante-config ## Executa apenas a role balanceador
 	@echo "Executando role nfs..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-nfs
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-nfs
 
 cluster-kubernetes-base: garante-config ## Executa apenas a role kubernetes-base
 	@echo "Executando role kubernetes-base..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kubernetes-base
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-kubernetes-base
 
 cluster-etcd: garante-config ## Executa apenas a role etcd
 	@echo "Executando role etcd..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-etcd
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-etcd
 
 cluster-kube-apiserver: garante-config ## Executa apenas a role kube-apiserver
 	@echo "Executando role kube-apiserver..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kube-apiserver
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-kube-apiserver
 
 cluster-kube-controller-manager: garante-config ## Executa apenas a role kube-controller-manager
 	@echo "Executando role kube-controller-manager..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kube-controller-manager
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-kube-controller-manager
 
 cluster-kube-scheduler: garante-config ## Executa apenas a role kube-scheduler
 	@echo "Executando role kube-controller-manager..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kube-scheduler
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-kube-scheduler
 
 cluster-kubelet: garante-config ## Executa apenas a role kubelet
 	@echo "Executando role kubelet..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kubelet
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-kubelet
 
 cluster: cluster-up ## Executa toda a construção do cluster kubernetes
 	@echo "Executando todas as roles de cluster..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster
 
 ############################################################################################
 ################################### Operações no Cluster ###################################
