@@ -264,6 +264,7 @@ make init
 
 | Comando | Descrição |
 |---------|-----------|
+| `make check-deps` | Valida se todas as dependências locais estão instaladas |
 | `make init` | Ativa a configuração configurada no `config.mk` |
 | `make status` | Mostra a configuração ativa |
 | `make help` | Exibe ajuda completa do Makefile |

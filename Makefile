@@ -35,9 +35,30 @@ help: ## Mostra esta ajuda
 	@echo "  make status               # Mostra alvo ativo"
 	@echo ""
 	@echo "Lista de targets:"
-	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | \
+	@grep -h -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-32s %s\n", $$1, $$2}'
 	@echo ""
+
+check-deps: ## Verifica se todas as dependências locais estão instaladas e configuradas
+	@echo "Verificando dependências do host..."
+	@FAILED=0; \
+	echo -n "  - Ansible: "; \
+	if command -v ansible >/dev/null 2>&1; then echo "OK"; else echo "NÃO ENCONTRADO"; FAILED=1; fi; \
+	echo -n "  - Vagrant: "; \
+	if command -v vagrant >/dev/null 2>&1; then echo "OK"; else echo "NÃO ENCONTRADO"; FAILED=1; fi; \
+	echo -n "  - KVM (/dev/kvm): "; \
+	if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then echo "OK"; else echo "SEM PERMISSÃO OU NÃO EXISTE (adicione seu usuário ao grupo kvm)"; FAILED=1; fi; \
+	echo -n "  - Conexão Libvirt (virsh): "; \
+	if virsh uri >/dev/null 2>&1; then echo "OK"; else echo "FALHA (verifique se o serviço libvirtd está rodando e se seu usuário está no grupo libvirt)"; FAILED=1; fi; \
+	echo -n "  - Vagrant Libvirt Plugin: "; \
+	if vagrant plugin list 2>/dev/null | grep -q vagrant-libvirt; then echo "OK"; else echo "NÃO ENCONTRADO (execute: vagrant plugin install vagrant-libvirt)"; FAILED=1; fi; \
+	if [ $$FAILED -ne 0 ]; then \
+		echo ""; \
+		echo "Erro: Algumas dependências locais estão ausentes ou incorretamente configuradas."; \
+		exit 1; \
+	else \
+		echo "Tudo OK! Pronto para iniciar o provisionamento."; \
+	fi
 
 init: ## Ativa uma configuração de cluster
 	@if [ ! -f "$(CLUSTER_SOURCE)" ]; then \

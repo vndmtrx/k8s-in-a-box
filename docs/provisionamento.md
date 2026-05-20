@@ -29,6 +29,8 @@ Onde o Vagrant cria o hardware genérico, o **Ansible** injeta a "alma" no siste
 
 Digitar comandos longos de Ansible e Vagrant repetidamente gera atrito e abre espaço para erros de digitação. O **Makefile** age como um "encapsulador de interfaces de comando" fácil.
 
+* **Verificação de dependências (`make check-deps`):**
+  * Garante que o host local possua os componentes essenciais (`ansible`, `vagrant`, `libvirt`/`kvm` e o plugin `vagrant-libvirt`) instalados com as permissões corretas antes de iniciar a construção.
 * **O Comando `make init`:**
   * Como o sistema de topologias (nano, mini, completo) baseia-se em symlinks, o `make init` apaga links antigos e cria um link fresco apontando para a pasta `/configs`.
 * **A Construção Completa (`make k8s-in-a-box`):**

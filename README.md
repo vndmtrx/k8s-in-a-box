@@ -181,6 +181,7 @@ O projeto utiliza um sistema de configurações baseado em symlinks para facilit
 
 ### Comandos disponíveis
 
+- **Verificar dependências locais:** `make check-deps` (valida se o host possui Ansible, Vagrant, Libvirt, KVM e plugins configurados)
 - **Ativar uma configuração:** `make init` (carrega e ativa o tipo configurado em `config.mk`)
 - **Ver configuração ativa:** `make status`
 - **Ajuda completa:** `make help`
