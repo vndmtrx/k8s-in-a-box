@@ -161,7 +161,7 @@ data:
           <img src="https://img.shields.io/badge/Helm-0F1689?logo=helm&logoColor=white&style=flat" alt="Helm">
         </div>
         <div style="margin-top: 0.8rem;">
-          &#169; Kubernetes in a Box — MIT License
+          &#169; Kubernetes in a Box, MIT License
         </div>
       </footer>
     </body>
