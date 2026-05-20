@@ -1,4 +1,4 @@
-# ansible/cluster.yml
+# ansible/cluster-bin.yml
 ---
 - name: Tarefas a serem executadas no host
   hosts: localhost
@@ -112,13 +112,3 @@
       tags:
         - cluster-kube-scheduler
         - cluster
-
-# - name: Configuração do kube-proxy
-#   hosts: cluster
-#   become: true
-#   gather_facts: false
-#   roles:
-#     - role: 11-kube-proxy
-#       tags:
-#         - cluster-kube-proxy
-#         - cluster
