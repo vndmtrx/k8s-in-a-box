@@ -80,6 +80,7 @@
   roles:
     - role: 07-etcd
       tags:
+        - cluster-etcd-bin
         - cluster-etcd
         - cluster
 
