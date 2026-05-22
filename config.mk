@@ -32,4 +32,4 @@ CLUSTER = mini
 #   - pod : Executa os componentes do Control Plane como Static Pods dentro do
 #           Kubernetes (gerenciados pelo Kubelet).
 #
-INSTALACAO = bin
+INSTALACAO = pod
