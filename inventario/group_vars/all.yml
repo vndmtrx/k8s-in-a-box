@@ -60,6 +60,14 @@ versao_helm: "v3.21.0"        # https://github.com/helm/helm/releases
 versao_k9s: "v0.50.18"        # https://github.com/derailed/k9s/releases
 versao_popeye: "v0.22.1"      # https://github.com/derailed/popeye/releases
 
+# Imagens oficiais utilizadas no modo de provisionamento via Static Pods
+control_plane_images:
+  etcd: "registry.k8s.io/etcd:3.5.16-0"
+  apiserver: "registry.k8s.io/kube-apiserver:{{ versao_kubernetes }}"
+  controller_manager: "registry.k8s.io/kube-controller-manager:{{ versao_kubernetes }}"
+  scheduler: "registry.k8s.io/kube-scheduler:{{ versao_kubernetes }}"
+  proxy: "registry.k8s.io/kube-proxy:{{ versao_kubernetes }}"
+
 # Versões dos plugins de rede (CNI)
 versao_canal: "v3.32.0"       # https://github.com/projectcalico/calico/releases (Flannel + Calico)
 versao_flannel: "v0.28.4"     # https://github.com/flannel-io/flannel/releases
