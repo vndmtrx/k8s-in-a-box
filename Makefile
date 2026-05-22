@@ -72,9 +72,11 @@ init: ## Ativa uma configuração de cluster
 	@ln -sf ../$(CLUSTER_SOURCE) "$(CLUSTER_LINK)"
 	@echo "Configuração $(CLUSTER) ativada"
 
-garante-config: ## Garante que existe uma configuração ativa
-	@if [ ! -e "$(CLUSTER_LINK)" ]; then \
-		echo "Nenhuma configuração ativa. Usando $(CLUSTER)..."; \
+garante-config: ## Garante que a configuração ativa está sincronizada com o config.mk
+	@CURRENT_LINK=$$(readlink "$(CLUSTER_LINK)" 2>/dev/null || echo ""); \
+	EXPECTED_LINK="../$(CLUSTER_SOURCE)"; \
+	if [ "$$CURRENT_LINK" != "$$EXPECTED_LINK" ]; then \
+		echo "Sincronizando configuração do inventário para $(CLUSTER)..."; \
 		$(MAKE) init; \
 	fi
 
