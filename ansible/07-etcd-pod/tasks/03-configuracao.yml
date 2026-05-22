@@ -1,0 +1,41 @@
+# ansible/06-etcd-pod/tasks/03-configuracao.yml
+---
+- name: Garantir diretório de manifestos do Kubernetes
+  ansible.builtin.file:
+    path: /etc/kubernetes/manifests
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Criar arquivo de configuração do Etcd
+  ansible.builtin.template:
+    src: etcd.conf.yml.j2
+    dest: /etc/kubernetes/conf/etcd/etcd.conf.yml
+    owner: root
+    group: root
+    mode: "0640"
+
+- name: Criar Static Pod do Etcd
+  ansible.builtin.template:
+    src: etcd-pod.yaml.j2
+    dest: /etc/kubernetes/manifests/etcd.yaml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Forçar sincronização imediata do relógio com NTP (chrony)
+  ansible.builtin.command: chronyc -a makestep
+  changed_when: true
+
+- name: Aguardar o Etcd responder saudável (via API de prontidão HTTP)
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ porta_etcd_metricas }}/readyz"
+    method: GET
+    status_code: 200
+  register: etcd_api_health
+  until: etcd_api_health.status == 200
+  retries: 30
+  delay: 3
+
+
