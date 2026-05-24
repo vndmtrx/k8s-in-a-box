@@ -1,0 +1,48 @@
+# ansible/06-kubelet/tasks/08-selinux.yml
+---
+- name: Instalar checkpolicy para compilação do SELinux
+  become: true
+  ansible.builtin.dnf:
+    name: checkpolicy
+    state: present
+
+- name: Garantir que o diretório temporário para SELinux existe
+  become: true
+  ansible.builtin.file:
+    path: /etc/selinux/local
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Enviar template da política do SELinux
+  become: true
+  ansible.builtin.template:
+    src: k8s-custom-selinux.te.j2
+    dest: /etc/selinux/local/k8s-custom-selinux.te
+    owner: root
+    group: root
+    mode: '0644'
+  register: selinux_policy_template
+
+- name: Verificar se o arquivo da política compilada existe
+  become: true
+  ansible.builtin.stat:
+    path: /etc/selinux/local/k8s-custom-selinux.pp
+  register: selinux_pp_file
+
+- name: Compilar e instalar a política personalizada do SELinux
+  become: true
+  when: selinux_policy_template.changed or not selinux_pp_file.stat.exists
+  block:
+    - name: Compilar módulo do SELinux (.mod)
+      ansible.builtin.command: checkmodule -M -m -o /etc/selinux/local/k8s-custom-selinux.mod /etc/selinux/local/k8s-custom-selinux.te
+      changed_when: true
+
+    - name: Empacotar módulo do SELinux (.pp)
+      ansible.builtin.command: semodule_package -o /etc/selinux/local/k8s-custom-selinux.pp -m /etc/selinux/local/k8s-custom-selinux.mod
+      changed_when: true
+
+    - name: Carregar política personalizada do SELinux
+      ansible.builtin.command: semodule -i /etc/selinux/local/k8s-custom-selinux.pp
+      changed_when: true
