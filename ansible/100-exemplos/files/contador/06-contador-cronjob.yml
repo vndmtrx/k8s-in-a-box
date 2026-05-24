@@ -22,9 +22,20 @@ spec:
             app: contador-app
             componente: cronjob
         spec:
+          serviceAccountName: exemplos-sa
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
           containers:
             - name: cronjob-escrita-pvc
               image: debian:stable
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
               command: ["/bin/sh", "-c", "TZ='America/Sao_Paulo' date '+%d/%m/%Y %H:%M:%S' > /dados/cron.txt"]
               resources:
                 requests:
