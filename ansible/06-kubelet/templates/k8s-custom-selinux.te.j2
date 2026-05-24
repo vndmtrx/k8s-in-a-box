@@ -35,6 +35,7 @@ require {
     class tcp_socket { name_bind name_connect node_bind create connect accept listen write read getattr setattr getopt setopt bind shutdown };
     class udp_socket { name_bind node_bind create connect accept listen write read getattr setattr getopt setopt bind shutdown };
     class netlink_route_socket { create bind read write getattr nlmsg_read nlmsg_write };
+    class sock_file { setattr };
 
     # === Classes de Permissão de Processos, Kernel e BPF ===
     class process { transition dyntransition };
@@ -109,3 +110,14 @@ allow unconfined_service_t container_t:process2 { nnp_transition };
 # Permite que o systemd (init_t) execute programas eBPF criados em serviços não confinados
 # (como o runtime de containers), resolvendo alertas de restrição de rede/IP do systemd.
 allow init_t unconfined_service_t:bpf { prog_run };
+
+# Permite que o systemd (init_t) ajuste permissões/propriedades (setattr) de sockets Unix
+# em diretórios sob rótulo var_lib_t ou container_file_t (ex: kubelet.sock sob /var/lib/kubelet)
+# durante a inicialização/validação dos diretórios de estado (StateDirectory).
+allow init_t container_file_t:sock_file { setattr };
+allow init_t var_lib_t:sock_file { setattr };
+
+# Permite que o systemd (init_t) tente ajustar permissões em volumes NFS montados 
+# dentro do diretório do Kubelet (/var/lib/kubelet) para evitar falhas de inicialização.
+allow init_t nfs_t:file { setattr };
+allow init_t nfs_t:dir { setattr };
