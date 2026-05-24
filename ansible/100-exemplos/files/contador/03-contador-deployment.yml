@@ -19,6 +19,20 @@ spec:
         componente: web
     spec:
       serviceAccountName: exemplos-sa
+      initContainers:
+        - name: init-volume
+          image: debian:stable
+          command: ["sh", "-c", "chmod -R 777 /dados"]
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
+          volumeMounts:
+            - name: dados
+              mountPath: /dados
       containers:
         - name: php
           image: php:8.5-apache
