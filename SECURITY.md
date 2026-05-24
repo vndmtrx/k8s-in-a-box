@@ -76,6 +76,15 @@ Implementação didática dos componentes principais:
 - Arquivo de configuração (kubeconfig) gerado automaticamente
 - Controle de acesso básico demonstrativo (RBAC)
 
+### SELinux
+O projeto mantém o SELinux ativo em modo permissivo e implementa uma política customizada de Type Enforcement (`k8s-custom-selinux`):
+- Política compilada e carregada automaticamente via Ansible em cada nó do cluster
+- Confinamento de containers de aplicação (container_t) com acesso Read-Only a recursos criticos do host (cgroups e `/var/lib`)
+- Componentes de sistema (Etcd, kube-proxy) rodam como containers privilegiados (spc_t) com acesso completo quando necessário
+- Kubelet executa sob o contexto `unconfined_service_t` com binário rotulado como `bin_t`
+- Plugins de CNI recebem restauração de contexto SELinux (`restorecon`) após instalação
+- Documentação completa disponível em [`docs/selinux.md`](docs/selinux.md)
+
 ## Exemplos Práticos
 
 ### Implantações Demonstrativas
