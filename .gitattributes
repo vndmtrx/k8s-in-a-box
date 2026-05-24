@@ -1,2 +1,4 @@
+* text=auto eol=lf
+
 *.yml linguist-language=YAML
 *.yml linguist-detectable=true
