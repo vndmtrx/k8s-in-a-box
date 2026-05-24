@@ -10,6 +10,7 @@ Type=notify
 WorkingDirectory=/var/lib/kubelet
 EnvironmentFile=-/var/lib/kubelet/kubelet.env
 ExecStart=/usr/local/bin/kubelet $KUBELET_OPTS
+SELinuxContext=system_u:system_r:unconfined_service_t:s0
 
 Restart=always
 RestartSec=10

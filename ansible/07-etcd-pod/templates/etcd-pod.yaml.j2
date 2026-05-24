@@ -56,6 +56,8 @@ spec:
       name: etcd-data
     - mountPath: /etc/etcd
       name: etcd-conf
+    securityContext:
+      privileged: true
   hostNetwork: true
   priority: 2000001000
   priorityClassName: system-node-critical
