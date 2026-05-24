@@ -30,6 +30,11 @@
         remote_src: true
         mode: "0755"
 
+    - name: Restaurar contexto do SELinux nos plugins de CNI
+      become: true
+      ansible.builtin.command: restorecon -R /opt/cni/bin
+      changed_when: true
+
   always:
     - name: Remover arquivo compactado dos plugins
       ansible.builtin.file:

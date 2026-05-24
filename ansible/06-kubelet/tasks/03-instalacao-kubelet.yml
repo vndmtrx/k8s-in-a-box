@@ -10,6 +10,7 @@
     src: "{{ pasta_temporarios }}/kubelet"
     dest: "/usr/local/bin/kubelet"
     mode: "0755"
+    setype: bin_t
   when: not kubelet_bin.stat.exists
 
 - name: Criar diretórios necessários para o kubelet
