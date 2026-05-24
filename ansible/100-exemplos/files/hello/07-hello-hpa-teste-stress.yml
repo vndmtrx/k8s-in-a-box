@@ -24,10 +24,20 @@ spec:
             app: hello-app
             componente: cronjob
         spec:
+          serviceAccountName: exemplos-sa
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
           restartPolicy: Never
           containers:
             - name: fortio
               image: fortio/fortio:1.73.2
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
               args:
                 - load
                 - -n  # Ignora com -t, roda até timeout
