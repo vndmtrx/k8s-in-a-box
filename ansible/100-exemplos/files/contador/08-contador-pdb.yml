@@ -1,0 +1,12 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: contador-pdb
+  namespace: exemplos
+  labels:
+    app: contador-app
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: contador-app
