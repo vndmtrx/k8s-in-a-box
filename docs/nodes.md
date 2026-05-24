@@ -45,6 +45,7 @@ Após ter o cérebro rodando, é hora de instanciar os "músculos". Embora os Ma
 1. **kubelet (role `06-kubelet`):**
    * O "agente" do Kubernetes. Ele lê os manifestos assinalados pelo scheduler e garante que os contêineres definidos neles estejam executando corretamente e de forma saudável.
    * **Runtime:** A variável global `runtime_conteiner` define quem fará o peso pesado. Por padrão, o projeto instala e configura o **CRI-O**. Alternativamente, o **containerd** também está disponível para testes. Ambos implementam a interface CRI do Kubernetes.
+   * **SELinux:** A role do kubelet também é responsável por compilar e carregar a política customizada de SELinux (`k8s-custom-selinux`) em cada nó do cluster. O binário do kubelet é instalado com o rótulo `bin_t` e executa sob o contexto `unconfined_service_t` do SELinux. Para detalhes completos, consulte a página [SELinux e Kubernetes](./selinux.md).
    * O Kubelet também usa certificados para se autenticar no API Server. Na inicialização do nó, se a PKI já estiver distribuída, ele sobe; em ambientes onde os certificados não foram pré-gerados (que o k8s-in-a-box simula), ele usa uma técnica de autorização para requisitar um certificado dinamicamente (`kubelet-bootstrap`).
 
 2. **kube-proxy (role `11-kube-proxy-pod`):**

@@ -49,6 +49,7 @@ Com o Ansible como provedor de automação, cada componente do cluster é instal
 - Manager nodes (Control Plane)
 - Worker Nodes
 - Arquivos de Configuração
+- Hardening SELinux (política customizada de Type Enforcement)
 - Addons de Cluster (CNI, CoreDNS, Métricas, Gateway API, Dashboard, MetalLB)
 - Ferramentas de gerenciamento (etcdctl, kubectl, helm)
 - Exemplos de deploys no cluster
@@ -66,6 +67,7 @@ Algumas escolhas foram tomadas para simplificar o laboratório e maximizar o apr
 1. **Runtime de Conteiners**: Foi utilizado o CRI-O pela simplicidade de instalação na distribuição atual. O containerd também foi disponibilizado caso haja preferência ou para estudo.
 1. **Plugin de Rede**: Foi utilizado o Canal (Calico + Flannel) como padrão para uso completo dos recursos de rede, como Network Policies. O CNI Flannel simples também foi disponibilizado.
 1. **kube-proxy como DaemonSet**: em vez de rodar como serviço systemd estático, o `kube-proxy` é provisionado como um DaemonSet dentro do cluster. Isso simplifica o bootstrap inicial e dispensa a necessidade de certificados de cliente dedicados (autentica via `ServiceAccount`).
+1. **SELinux ativo com política customizada**: em vez de desabilitar o SELinux como a maioria dos tutoriais orienta, o projeto mantém o SELinux ativo e compila uma política de Type Enforcement customizada (`k8s-custom-selinux`) que resolve os alertas de segurança mantendo o confinamento dos containers. Para detalhes, consulte a [documentação de SELinux](docs/selinux.md).
 
 ## Arquitetura e Configurações de Instalação
 
@@ -126,7 +128,7 @@ O `Makefile` e os playbooks do Ansible conduzem a instalação em etapas, respei
 1. **Artefatos e PKI** (binários, CAs e certificados)
 2. **Sistema Base** (pré-requisitos de SO, tunáveis de rede)
 3. **Balanceador** (HAProxy/Keepalived)
-4. **kubelet** (instalado antes do etcd para poder gerenciar static pods do control plane)
+4. **kubelet + SELinux** (runtime de container, plugins CNI, política customizada de SELinux e configuração do kubelet)
 5. **etcd** (cluster e mTLS)
 6. **Control Plane** (API Server, Controller Manager, Scheduler)
 7. **Addons** (CNI, CoreDNS, métricas, dashboard, Gateway API, MetalLB, etc.)

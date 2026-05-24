@@ -25,11 +25,12 @@ O **k8s‑in‑a‑box** é um ambiente Kubernetes completo, construído de form
   * **Etcd**: banco de dados distribuído, com certificados configurados para mTLS.
   * **Componentes do Control Node:** `kube‑apiserver`, `kube‑controller‑manager` e `kube‑scheduler`, instalados como serviços systemd com seus respectivos certificados e kubeconfigs.
   * **Componentes extras instalados:** `kubelet` e `containerd`, permitindo que managers também executem workloads se necessário.
+  * **SELinux:** política customizada de Type Enforcement (`k8s-custom-selinux`) compilada e carregada em cada nó. Para detalhes, consulte a página [SELinux e Kubernetes](./selinux.md).
 
 ### Workers (2 nós)
 
 * **Função:** executar os pods e workloads do usuário.
-* **Componentes instalados:** `kubelet` e `containerd`, com configuração de CNI e plugins instalados, mas sem os serviços de controle (`etcd` e API Server).
+* **Componentes instalados:** `kubelet` e `containerd`, com configuração de CNI, plugins instalados e política customizada de SELinux, mas sem os serviços de controle (`etcd` e API Server).
 
 > 💡 O `kube-proxy` não é instalado como serviço de sistema nos nós. Ele é provisionado como um **DaemonSet** dentro do próprio cluster (via `kubox`), após o cluster estar ativo.
 

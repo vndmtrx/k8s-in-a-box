@@ -48,6 +48,7 @@
   - [x] Escolha do runtime (containerd/CRI-O)
   - [x] Instalação e configuração
 - [x] Instalação do kubelet
+- [x] Política customizada de SELinux (Type Enforcement)
 - [x] Configuração do kube-proxy (Migrado para DaemonSet em ops.yml)
 
 ### 🌐 Rede do Cluster
