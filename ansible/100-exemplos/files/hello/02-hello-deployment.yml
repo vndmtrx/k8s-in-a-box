@@ -19,15 +19,26 @@ spec:
         componente: web
     spec:
       serviceAccountName: exemplos-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
       containers:
         - name: nginx
           image: nginx:1.29-alpine
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               name: http
           volumeMounts:
             - name: html
               mountPath: /usr/share/nginx/html
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+            - name: var-run
+              mountPath: /var/run
+            - name: var-cache
+              mountPath: /var/cache/nginx
           resources:
             requests:
               cpu: "20m"
@@ -51,3 +62,10 @@ spec:
         - name: html
           configMap:
             name: hello-app
+        - name: nginx-config
+          configMap:
+            name: hello-nginx-config
+        - name: var-run
+          emptyDir: {}
+        - name: var-cache
+          emptyDir: {}

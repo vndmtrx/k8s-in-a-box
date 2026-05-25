@@ -19,31 +19,32 @@ spec:
         componente: web
     spec:
       serviceAccountName: exemplos-sa
-      initContainers:
-        - name: init-volume
-          image: debian:stable
-          command: ["sh", "-c", "chmod -R 777 /dados"]
-          resources:
-            requests:
-              cpu: "10m"
-              memory: "32Mi"
-            limits:
-              cpu: "100m"
-              memory: "64Mi"
-          volumeMounts:
-            - name: dados
-              mountPath: /dados
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       containers:
         - name: php
           image: php:8.5-apache
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               name: http
           volumeMounts:
             - name: pagina
               mountPath: /var/www/html
             - name: dados
               mountPath: /dados
+            - name: apache-config
+              mountPath: /etc/apache2/ports.conf
+              subPath: ports.conf
+            - name: apache-config
+              mountPath: /etc/apache2/sites-enabled/000-default.conf
+              subPath: 000-default.conf
+            - name: var-run
+              mountPath: /var/run/apache2
+            - name: var-lock
+              mountPath: /var/lock/apache2
           resources:
             requests:
               cpu: "50m"
@@ -70,3 +71,10 @@ spec:
         - name: dados
           persistentVolumeClaim:
             claimName: contador-pvc
+        - name: apache-config
+          configMap:
+            name: contador-apache-config
+        - name: var-run
+          emptyDir: {}
+        - name: var-lock
+          emptyDir: {}
