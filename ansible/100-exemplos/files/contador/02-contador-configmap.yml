@@ -178,3 +178,33 @@ data:
       </footer>
     </body>
     </html>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: contador-apache-config
+  namespace: exemplos
+  labels:
+    app: contador-app
+data:
+  ports.conf: |
+    # Mapeado para 8080 (rootless)
+    Listen 8080
+
+    <IfModule ssl_module>
+            Listen 8443
+    </IfModule>
+
+    <IfModule mod_gnutls.c>
+            Listen 8443
+    </IfModule>
+
+  000-default.conf: |
+    <VirtualHost *:8080>
+            ServerAdmin webmaster@localhost
+            DocumentRoot /var/www/html
+
+            # Envia os logs para as saídas padrão do container
+            ErrorLog /dev/stderr
+            CustomLog /dev/stdout combined
+    </VirtualHost>
