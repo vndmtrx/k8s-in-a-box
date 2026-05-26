@@ -5,9 +5,7 @@
     cmd: "/usr/local/bin/crictl images -q {{ item }}"
   register: crictl_image_check
   changed_when: false
-  loop:
-    - "registry.k8s.io/{{ versao_pause }}"
-    - "registry.k8s.io/kube-proxy:{{ versao_kubernetes }}"
+  loop: "{{ control_plane_images.values() | list }}"
 
 - name: Baixar imagens de sistema ausentes
   ansible.builtin.command:
