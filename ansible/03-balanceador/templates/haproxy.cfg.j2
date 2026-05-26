@@ -54,9 +54,10 @@ backend k8s_api_backend
 backend etcd_https_backend
     mode tcp
     balance roundrobin
-    option tcp-check
+    option httpchk GET /readyz
+    http-check expect status 200
 {% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host].fqdn }}:{{ porta_etcd_https }} check port {{ porta_etcd_metricas }} observe layer4 error-limit 50 on-error mark-down inter 5s rise 2 fall 3
+    server {{ host }} {{ hostvars[host].fqdn }}:{{ porta_etcd_https }} check port {{ porta_etcd_metricas }} inter 5s rise 2 fall 3
 {% endfor %}
 
 # Frontend para estatísticas e administração
