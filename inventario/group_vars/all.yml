@@ -40,6 +40,7 @@ porta_etcd_https: 2379
 porta_etcd_peers: 2380
 porta_etcd_metricas: 2381
 porta_kubeapiserver: 6443
+porta_kube_controller_manager: 10257
 
 ##############################################
 ### Configurações para a role 00-artefatos ###
