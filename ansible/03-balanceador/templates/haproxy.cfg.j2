@@ -45,9 +45,11 @@ frontend etcd_https
 backend k8s_api_backend
     mode tcp
     balance roundrobin
-    option tcp-check
+    option httpchk GET /readyz
+    http-check expect status 200
+    default-server inter 5s rise 2 fall 3 ssl verify none
 {% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host].fqdn }}:{{ porta_kubeapiserver }} check inter 5s rise 2 fall 3
+    server {{ host }} {{ hostvars[host].fqdn }}:{{ porta_kubeapiserver }} check
 {% endfor %}
 
 # Backend para a porta HTTPS do etcd
@@ -56,8 +58,9 @@ backend etcd_https_backend
     balance roundrobin
     option httpchk GET /readyz
     http-check expect status 200
+    default-server inter 5s rise 2 fall 3 port {{ porta_etcd_metricas }}
 {% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host].fqdn }}:{{ porta_etcd_https }} check port {{ porta_etcd_metricas }} inter 5s rise 2 fall 3
+    server {{ host }} {{ hostvars[host].fqdn }}:{{ porta_etcd_https }} check
 {% endfor %}
 
 # Frontend para estatísticas e administração
