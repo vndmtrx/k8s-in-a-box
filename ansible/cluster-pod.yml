@@ -84,13 +84,14 @@
         - cluster-etcd
         - cluster
 
-- name: Configuração do kube-apiserver
+- name: Configuração do kube-apiserver (Static Pod)
   hosts: managers
   become: true
   gather_facts: false
   roles:
-    - role: 08-kube-apiserver
+    - role: 08-kube-apiserver-pod
       tags:
+        - cluster-kube-apiserver-pod
         - cluster-kube-apiserver
         - cluster
 
