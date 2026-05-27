@@ -1,0 +1,3 @@
+# ansible/09-kube-controller-manager-pod/defaults/main.yml
+---
+porta_kube_controller_manager: 10257
