@@ -1,0 +1,127 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint: {{ ansible_host }}:{{ porta_kubeapiserver }}
+  labels:
+    component: kube-apiserver
+    tier: control-plane
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  containers:
+  - name: kube-apiserver
+    image: {{ control_plane_images.apiserver }}
+    imagePullPolicy: IfNotPresent
+    command:
+    - kube-apiserver
+    - --advertise-address={{ ansible_host }}
+    - --allow-privileged=true
+    - --authorization-mode=Node,RBAC
+    - --bind-address=0.0.0.0
+    - --client-ca-file=/etc/apiserver/pki/ca/{{ pki_cas.kubernetes.path_cert | basename }}
+    - --enable-admission-plugins=NodeRestriction
+    - --enable-bootstrap-token-auth=true
+    - --etcd-cafile=/etc/apiserver/pki/etcd/{{ pki_cas.etcd.path_cert | basename }}
+    - --etcd-certfile=/etc/apiserver/pki/etcd/{{ pki_certs.kube_apiserver_etcd_cli.path_cert | basename }}
+    - --etcd-keyfile=/etc/apiserver/pki/etcd/{{ pki_certs.kube_apiserver_etcd_cli.path_chave | basename }}
+    - --etcd-servers=https://{{ vip_etcd_fqdn }}:{{ porta_etcd_https }}
+    - --kubelet-certificate-authority=/etc/apiserver/pki/ca/{{ pki_cas.kubernetes.path_cert | basename }}
+    - --kubelet-client-certificate=/etc/apiserver/pki/kubelet/{{ pki_certs.kube_apiserver_kubelet_cli.path_cert | basename }}
+    - --kubelet-client-key=/etc/apiserver/pki/kubelet/{{ pki_certs.kube_apiserver_kubelet_cli.path_chave | basename }}
+    - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+    - --proxy-client-cert-file=/etc/apiserver/pki/front-proxy/{{ pki_certs.kube_front_proxy_cli.path_cert | basename }}
+    - --proxy-client-key-file=/etc/apiserver/pki/front-proxy/{{ pki_certs.kube_front_proxy_cli.path_chave | basename }}
+    - --requestheader-allowed-names=front-proxy-client
+    - --requestheader-client-ca-file=/etc/apiserver/pki/front-proxy/{{ pki_cas.front_proxy.path_cert | basename }}
+    - --requestheader-extra-headers-prefix=X-Remote-Extra-
+    - --requestheader-group-headers=X-Remote-Group
+    - --requestheader-username-headers=X-Remote-User
+    - --secure-port={{ porta_kubeapiserver }}
+    - --service-account-issuer=https://kubernetes.default.svc.cluster.local
+    - --service-account-key-file=/etc/apiserver/pki/sa/{{ pki_certs.service_account.path_cert | basename }}
+    - --service-account-signing-key-file=/etc/apiserver/pki/sa/{{ pki_certs.service_account.path_chave | basename }}
+    - --service-cluster-ip-range={{ rede_cidr_services }}
+    - --service-node-port-range=30000-32767
+    - --tls-cert-file=/etc/apiserver/pki/apiserver/{{ pki_certs.kube_apiserver.path_cert | format(inventory_hostname) | basename }}
+    - --tls-private-key-file=/etc/apiserver/pki/apiserver/{{ pki_certs.kube_apiserver.path_chave | format(inventory_hostname) | basename }}
+    - --v=1
+    ports:
+    - containerPort: {{ porta_kubeapiserver }}
+      name: probe-port
+      protocol: TCP
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: {{ ansible_host }}
+        path: /livez
+        port: probe-port
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        host: {{ ansible_host }}
+        path: /readyz
+        port: probe-port
+        scheme: HTTPS
+      periodSeconds: 1
+      timeoutSeconds: 15
+    startupProbe:
+      failureThreshold: 24
+      httpGet:
+        host: {{ ansible_host }}
+        path: /livez
+        port: probe-port
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+    resources:
+      requests:
+        cpu: 250m
+    volumeMounts:
+    - mountPath: /etc/apiserver
+      name: kube-apiserver-conf
+      readOnly: true
+    - mountPath: /etc/ssl/certs
+      name: ca-certs
+      readOnly: true
+    - mountPath: /etc/ca-certificates
+      name: etc-ca-certificates
+      readOnly: true
+    - mountPath: /usr/local/share/ca-certificates
+      name: usr-local-share-ca-certificates
+      readOnly: true
+    - mountPath: /usr/share/ca-certificates
+      name: usr-share-ca-certificates
+      readOnly: true
+  hostNetwork: true
+  priority: 2000001000
+  priorityClassName: system-node-critical
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/conf/kube-apiserver
+      type: DirectoryOrCreate
+    name: kube-apiserver-conf
+  - hostPath:
+      path: /etc/ssl/certs
+      type: DirectoryOrCreate
+    name: ca-certs
+  - hostPath:
+      path: /etc/ca-certificates
+      type: DirectoryOrCreate
+    name: etc-ca-certificates
+  - hostPath:
+      path: /usr/local/share/ca-certificates
+      type: DirectoryOrCreate
+    name: usr-local-share-ca-certificates
+  - hostPath:
+      path: /usr/share/ca-certificates
+      type: DirectoryOrCreate
+    name: usr-share-ca-certificates
