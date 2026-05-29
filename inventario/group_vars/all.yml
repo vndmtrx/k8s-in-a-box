@@ -39,8 +39,9 @@ metallb_ips_loadbalacing: "172.24.0.201-172.24.0.250"
 porta_etcd_https: 2379
 porta_etcd_peers: 2380
 porta_etcd_metricas: 2381
-porta_kubeapiserver: 6443
+porta_kube_apiserver: 6443
 porta_kube_controller_manager: 10257
+porta_kube_scheduler: 10259
 
 ##############################################
 ### Configurações para a role 00-artefatos ###
@@ -61,14 +62,17 @@ versao_helm: "v3.21.0"        # https://github.com/helm/helm/releases
 versao_k9s: "v0.50.18"        # https://github.com/derailed/k9s/releases
 versao_popeye: "v0.22.1"      # https://github.com/derailed/popeye/releases
 
-# Imagens oficiais utilizadas no modo de provisionamento via Static Pods
+# Imagens necessárias em todos os nós do cluster (managers e workers)
+node_images:
+  pause: "registry.k8s.io/{{ versao_pause }}"
+  proxy: "registry.k8s.io/kube-proxy:{{ versao_kubernetes }}"
+
+# Imagens dos componentes do control plane (apenas managers, modo pod)
 control_plane_images:
   etcd: "registry.k8s.io/etcd:3.5.16-0"
-  pause: "registry.k8s.io/{{ versao_pause }}"
   apiserver: "registry.k8s.io/kube-apiserver:{{ versao_kubernetes }}"
   controller_manager: "registry.k8s.io/kube-controller-manager:{{ versao_kubernetes }}"
   scheduler: "registry.k8s.io/kube-scheduler:{{ versao_kubernetes }}"
-  proxy: "registry.k8s.io/kube-proxy:{{ versao_kubernetes }}"
 
 # Versões dos plugins de rede (CNI)
 versao_canal: "v3.32.0"       # https://github.com/projectcalico/calico/releases (Flannel + Calico)
