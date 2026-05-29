@@ -1,12 +1,10 @@
-# ansible/cluster-bin.yml
+# ansible/cluster.yml
 ---
 - name: Tarefas a serem executadas no host
   hosts: localhost
   connection: local
   become: false
   gather_facts: false
-  vars:
-    metodo_instalacao: bin
   roles:
     - role: 00-artefatos
       tags:
@@ -80,38 +78,41 @@
   become: true
   gather_facts: false
   roles:
-    - role: 07-etcd
+    - role: 07-etcd-pod
       tags:
-        - cluster-etcd-bin
+        - cluster-etcd-pod
         - cluster-etcd
         - cluster
 
-- name: Configuração do kube-apiserver
+- name: Configuração do kube-apiserver (Static Pod)
   hosts: managers
   become: true
   gather_facts: false
   roles:
-    - role: 08-kube-apiserver
+    - role: 08-kube-apiserver-pod
       tags:
+        - cluster-kube-apiserver-pod
         - cluster-kube-apiserver
         - cluster
 
-- name: Configuração do kube-controller-manager
+- name: Configuração do kube-controller-manager (Static Pod)
   hosts: managers
   become: true
   gather_facts: false
   roles:
-    - role: 09-kube-controller-manager
+    - role: 09-kube-controller-manager-pod
       tags:
+        - cluster-kube-controller-manager-pod
         - cluster-kube-controller-manager
         - cluster
 
-- name: Configuração do kube-scheduler
+- name: Configuração do kube-scheduler (Static Pod)
   hosts: managers
   become: true
   gather_facts: false
   roles:
-    - role: 10-kube-scheduler
+    - role: 10-kube-scheduler-pod
       tags:
+        - cluster-kube-scheduler-pod
         - cluster-kube-scheduler
         - cluster
