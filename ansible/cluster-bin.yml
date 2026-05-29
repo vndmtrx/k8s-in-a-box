@@ -5,6 +5,8 @@
   connection: local
   become: false
   gather_facts: false
+  vars:
+    metodo_instalacao: bin
   roles:
     - role: 00-artefatos
       tags:

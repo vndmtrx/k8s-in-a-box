@@ -5,6 +5,8 @@
   connection: local
   become: false
   gather_facts: false
+  vars:
+    metodo_instalacao: pod
   roles:
     - role: 00-artefatos
       tags:
@@ -106,12 +108,13 @@
         - cluster-kube-controller-manager
         - cluster
 
-- name: Configuração do kube-scheduler
+- name: Configuração do kube-scheduler (Static Pod)
   hosts: managers
   become: true
   gather_facts: false
   roles:
-    - role: 10-kube-scheduler
+    - role: 10-kube-scheduler-pod
       tags:
+        - cluster-kube-scheduler-pod
         - cluster-kube-scheduler
         - cluster
