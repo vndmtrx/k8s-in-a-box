@@ -1,4 +1,4 @@
-# ansible/13-configuracoes-cluster/tasks/02-canal.yml
+# ansible/13-addons-cluster/tasks/02-canal.yml
 ---
 - name: Garantir diretório charts na home do usuário do ansible
   ansible.builtin.file:

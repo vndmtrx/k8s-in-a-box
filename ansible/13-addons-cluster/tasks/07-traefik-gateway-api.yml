@@ -1,4 +1,4 @@
-# ansible/13-configuracoes-cluster/tasks/05-traefik-gateway-api.yml
+# ansible/13-addons-cluster/tasks/07-traefik-gateway-api.yml
 ---
 - name: Adicionar os CRDs do Gateway API do Kubernetes
   ansible.builtin.command:

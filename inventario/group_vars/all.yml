@@ -92,22 +92,9 @@ download_artefatos:
     url: "https://github.com/etcd-io/etcd/releases/download/{{ versao_etcd }}/etcd-{{ versao_etcd }}-linux-amd64.tar.gz"
     arquivo: "etcd-bin.tar.gz"
 
-  kube-apiserver-bin:
-    url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-apiserver"
-    arquivo: "kube-apiserver"
-
   kubelet-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubelet"
     arquivo: "kubelet"
-
-  kube-controller-manager-bin:
-    url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-controller-manager"
-    arquivo: "kube-controller-manager"
-
-  kube-scheduler-bin:
-    url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kube-scheduler"
-    arquivo: "kube-scheduler"
-
 
   kubectl-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubectl"

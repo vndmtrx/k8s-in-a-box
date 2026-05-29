@@ -1,4 +1,4 @@
-# ansible/13-configuracoes-cluster/tasks/04-metrics.yml
+# ansible/13-addons-cluster/tasks/04-metrics.yml
 ---
 - name: Adicionar repositório helm do Metrics Server
   ansible.builtin.command:

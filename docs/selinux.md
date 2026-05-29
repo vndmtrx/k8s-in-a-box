@@ -95,7 +95,7 @@ Os plugins de rede (CNI) são binários instalados em `/opt/cni/bin`. Após a in
 
 ## Componentes do Control Plane em Modo Pod
 
-Quando o cluster é provisionado usando o modo Static Pods (`INSTALACAO = pod`), os componentes do Control Plane são executados como contêineres gerenciados pelo Kubelet:
+Os componentes do Control Plane do cluster são executados como contêineres (Static Pods) gerenciados pelo Kubelet:
 
 * **Etcd (Static Pod privilegiado - `spc_t`)**: Como o etcd precisa gravar diretamente no diretório do host `/var/lib/etcd` (que possui o rótulo genérico `var_lib_t`), seu manifesto é configurado com `privileged: true`. Isso faz com que o runtime de contêiner execute o etcd sob o domínio `spc_t` (Super Privileged Container), que não possui restrições de escrita no host.
 * **kube-apiserver, kube-controller-manager e kube-scheduler (Static Pods - `container_t`)**: Esses componentes rodam como contêineres normais, mas com privilégios específicos e privilégio de rede do host (`hostNetwork: true`). Eles montam diretórios de configuração do host em `/etc/kubernetes/conf/<componente>`, os quais são montados como `readOnly: true` (ou `readWrite` no caso de caminhos de PKI específicos) e contam com o confinamento padrão do SELinux.
