@@ -5,9 +5,8 @@
     imagens_kubernetes: "{{ node_images.values() | list + control_plane_images.values() | list }}"
   when:
     - inventory_hostname in groups['managers']
-    - (metodo_instalacao | default('bin')) == 'pod'
 
-- name: Definir lista de imagens para os workers ou managers
+- name: Definir lista de imagens para os workers
   ansible.builtin.set_fact:
     imagens_kubernetes: "{{ node_images.values() | list }}"
   when: imagens_kubernetes is not defined
