@@ -6,11 +6,17 @@ ARTEFATOS := artefatos
 SNAP := makefile_snapshot
 CFG = ./ansible/.ansible.cfg
 
-# Variáveis para controlar o tipo dos clusters
-#Opções: (nano, mini, completo)
+-include config.mk
+
+# Variáveis para controlar o tipo dos clusters e o método de instalação
+# Opções de CLUSTER: (nano, mini, completo)
+# Opções de INSTALACAO: (bin, pod)
 CLUSTER ?= mini
+INSTALACAO ?= bin
+
 CLUSTER_SOURCE := configs/hosts-$(CLUSTER).yml
 CLUSTER_LINK := inventario/hosts.yml
+PLAYBOOK := ./ansible/cluster-$(INSTALACAO).yml
 
 # Variável para controlar verbosidade (VERBOSE=v, VERBOSE=vv, VERBOSE=vvv)
 VERBOSE ?=
@@ -24,14 +30,35 @@ help: ## Mostra esta ajuda
 	@echo "════════════════════════════════════════════════════════════"
 	@echo ""
 	@echo "Uso:"
-	@echo "  CLUSTER=alvo make init    # Ativa configuração alvo (disponíveis: completo, mini e nano / padrão: mini)"
+	@echo "  make init                 # Ativa a configuração definida no config.mk (disponíveis: completo, mini, nano)"
 	@echo "  make k8s-in-a-box         # Usa alvo ativo (ou padrão: mini)"
 	@echo "  make status               # Mostra alvo ativo"
 	@echo ""
 	@echo "Lista de targets:"
-	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | \
+	@grep -h -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-32s %s\n", $$1, $$2}'
 	@echo ""
+
+check-deps: ## Verifica se todas as dependências locais estão instaladas e configuradas
+	@echo "Verificando dependências do host..."
+	@FAILED=0; \
+	echo -n "  - Ansible: "; \
+	if command -v ansible >/dev/null 2>&1; then echo "OK"; else echo "NÃO ENCONTRADO"; FAILED=1; fi; \
+	echo -n "  - Vagrant: "; \
+	if command -v vagrant >/dev/null 2>&1; then echo "OK"; else echo "NÃO ENCONTRADO"; FAILED=1; fi; \
+	echo -n "  - KVM (/dev/kvm): "; \
+	if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then echo "OK"; else echo "SEM PERMISSÃO OU NÃO EXISTE (adicione seu usuário ao grupo kvm)"; FAILED=1; fi; \
+	echo -n "  - Conexão Libvirt (virsh): "; \
+	if virsh uri >/dev/null 2>&1; then echo "OK"; else echo "FALHA (verifique se o serviço libvirtd está rodando e se seu usuário está no grupo libvirt)"; FAILED=1; fi; \
+	echo -n "  - Vagrant Libvirt Plugin: "; \
+	if vagrant plugin list 2>/dev/null | grep -q vagrant-libvirt; then echo "OK"; else echo "NÃO ENCONTRADO (execute: vagrant plugin install vagrant-libvirt)"; FAILED=1; fi; \
+	if [ $$FAILED -ne 0 ]; then \
+		echo ""; \
+		echo "Erro: Algumas dependências locais estão ausentes ou incorretamente configuradas."; \
+		exit 1; \
+	else \
+		echo "Tudo OK! Pronto para iniciar o provisionamento."; \
+	fi
 
 init: ## Ativa uma configuração de cluster
 	@if [ ! -f "$(CLUSTER_SOURCE)" ]; then \
@@ -45,9 +72,11 @@ init: ## Ativa uma configuração de cluster
 	@ln -sf ../$(CLUSTER_SOURCE) "$(CLUSTER_LINK)"
 	@echo "Configuração $(CLUSTER) ativada"
 
-garante-config: ## Garante que existe uma configuração ativa
-	@if [ ! -e "$(CLUSTER_LINK)" ]; then \
-		echo "Nenhuma configuração ativa. Usando $(CLUSTER)..."; \
+garante-config: ## Garante que a configuração ativa está sincronizada com o config.mk
+	@CURRENT_LINK=$$(readlink "$(CLUSTER_LINK)" 2>/dev/null || echo ""); \
+	EXPECTED_LINK="../$(CLUSTER_SOURCE)"; \
+	if [ "$$CURRENT_LINK" != "$$EXPECTED_LINK" ]; then \
+		echo "Sincronizando configuração do inventário para $(CLUSTER)..."; \
 		$(MAKE) init; \
 	fi
 
@@ -81,6 +110,8 @@ lint: ## Checagem da estrutura do Ansible
 	@ansible-lint -q ansible/ || true
 
 k8s-in-a-box: cluster ops exemplos ## Executa todo o projeto
+	@echo "Cluster k8s-in-a-box provisionado com sucesso!"
+	@(xdg-open http://172.24.0.110 || open http://172.24.0.110 || echo "Acesse http://172.24.0.110 no seu navegador.") 2>/dev/null
 
 ##########################################################################################
 ################################### Criação do Cluster ###################################
@@ -92,55 +123,51 @@ cluster-up: garante-config ## Sobe as VMs e recria a pasta artefatos/
 # Tasks independentes, para executar individualmente (para evitar executar toda a pipeline, ou após um restore de snapshot)
 cluster-artefatos: garante-config ## Executa apenas a role artefatos
 	@echo "Executando role artefatos..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-artefatos
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-artefatos
 
 cluster-pki: garante-config ## Executa apenas a role pki
 	@echo "Executando role pki..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-pki
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-pki
 
 cluster-sistema: garante-config ## Executa apenas a role sistema
 	@echo "Executando role sistema..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-sistema
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-sistema
 
 cluster-balanceador: garante-config ## Executa apenas a role balanceador
 	@echo "Executando role balanceador..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-balanceador
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-balanceador
 
 cluster-nfs: garante-config ## Executa apenas a role balanceador
 	@echo "Executando role nfs..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-nfs
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-nfs
 
 cluster-kubernetes-base: garante-config ## Executa apenas a role kubernetes-base
 	@echo "Executando role kubernetes-base..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kubernetes-base
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-kubernetes-base
 
 cluster-etcd: garante-config ## Executa apenas a role etcd
 	@echo "Executando role etcd..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-etcd
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-etcd
 
 cluster-kube-apiserver: garante-config ## Executa apenas a role kube-apiserver
 	@echo "Executando role kube-apiserver..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kube-apiserver
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-kube-apiserver
 
 cluster-kube-controller-manager: garante-config ## Executa apenas a role kube-controller-manager
 	@echo "Executando role kube-controller-manager..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kube-controller-manager
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-kube-controller-manager
 
 cluster-kube-scheduler: garante-config ## Executa apenas a role kube-scheduler
 	@echo "Executando role kube-controller-manager..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kube-scheduler
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-kube-scheduler
 
 cluster-kubelet: garante-config ## Executa apenas a role kubelet
 	@echo "Executando role kubelet..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kubelet
-
-cluster-kube-proxy: garante-config ## Executa apenas a role kube-proxy
-	@echo "Executando role kube-proxy..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster-kube-proxy
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-kubelet
 
 cluster: cluster-up ## Executa toda a construção do cluster kubernetes
 	@echo "Executando todas as roles de cluster..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/cluster.yml" $(ANSIBLE_VERBOSE) --tags cluster
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster
 
 ############################################################################################
 ################################### Operações no Cluster ###################################
@@ -155,6 +182,10 @@ ops-sistema: garante-config ## Executa apenas a role ferramentas-ops
 ops-ferramentas: garante-config ## Executa apenas a role ferramentas-ops
 	@echo "Executando role ops-ferramentas..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-ferramentas
+
+ops-kube-proxy-pod: garante-config ## Executa apenas a role kube-proxy (Pod)
+	@echo "Executando role ops-kube-proxy..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-kube-proxy-pod
 
 ops-addons: garante-config ## Executa apenas a role configuracoes-ops
 	@echo "Executando role ops-addons..."

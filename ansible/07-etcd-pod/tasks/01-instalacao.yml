@@ -1,0 +1,17 @@
+# ansible/06-etcd-pod/tasks/01-instalacao.yml
+---
+- name: Garantir pasta de trabalho (dados) do Etcd
+  ansible.builtin.file:
+    path: /var/lib/etcd
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Garantir diretório de configuração do Etcd
+  ansible.builtin.file:
+    path: /etc/kubernetes/conf/etcd
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"

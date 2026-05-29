@@ -120,6 +120,9 @@ Vagrant.configure("2") do |config|
             setenforce 0
             sed -i 's/^SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
 
+            # --- Corrige rotulos de SELinux dos arquivos criados pelo Vagrant ---
+            restorecon -R /etc/NetworkManager/system-connections/
+
             # --- Ajustes de nomenclatura dinâmicos ---
             CON_VAGRANT=$(nmcli -t -f NAME,DEVICE connection show | grep ':eth0$' | cut -d: -f1 | head -n1)
             CON_MGMT=$(nmcli -t -f NAME,DEVICE connection show | grep ':eth1$' | cut -d: -f1 | head -n1)

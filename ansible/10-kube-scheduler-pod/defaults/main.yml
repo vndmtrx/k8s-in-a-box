@@ -1,0 +1,3 @@
+# ansible/10-kube-scheduler-pod/defaults/main.yml
+---
+porta_kube_scheduler: 10259

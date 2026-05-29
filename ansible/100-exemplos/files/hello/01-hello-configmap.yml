@@ -16,87 +16,151 @@ data:
       <style>
         body {
           margin: 0;
-          font-family: "Segoe UI", Arial, sans-serif;
-          background: linear-gradient(135deg, #007bff, #00aaff);
-          color: #fff;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+          color: #f1f5f9;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           min-height: 100vh;
           text-align: center;
-          padding: 2rem;
+          padding: 1.25rem 1rem;
           box-sizing: border-box;
         }
 
         .icon {
-          font-size: clamp(3rem, 8vw, 5rem);
-          margin-bottom: 0.3em;
+          font-size: 3rem;
+          margin-bottom: 0.2rem;
         }
 
         h1 {
-          font-size: clamp(1.8rem, 5vw, 3em);
-          margin-bottom: 0.6em;
-          line-height: 1.3;
+          font-size: 2.2rem;
+          margin-top: 0.5rem;
+          margin-bottom: 0.4rem;
+          line-height: 1.2;
         }
 
         p {
-          font-size: clamp(1rem, 2vw, 1.1em);
+          font-size: 0.95rem;
           max-width: 700px;
-          margin: 0 auto 1rem auto;
+          margin: 0 auto 0.75rem auto;
           line-height: 1.4;
           text-align: center;
           word-spacing: 0.05em;
         }
 
-        /* blocos principais (dashboard / contador) */
-        .dashboard,
-        .contador {
-          background-color: rgba(255, 255, 255, 0.15);
+        .dashboard {
+          background-color: rgba(30, 41, 59, 0.65);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 12px;
           padding: 1.5rem 2rem;
-          max-width: 700px;
-          margin: 2rem auto;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-          font-size: 0.95em;
-          line-height: 1.6;
+          max-width: 1100px;
+          width: 100%;
+          margin: 1.25rem auto;
+          box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+          box-sizing: border-box;
+        }
+
+        .dashboard p.intro {
+          font-size: 0.95rem;
+          margin-bottom: 1.25rem;
+          color: #cbd5e1;
+        }
+
+        .services-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1.25rem;
+          margin-top: 1rem;
+          text-align: left;
+        }
+
+        .service-card {
+          background: rgba(15, 23, 42, 0.4);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
+          padding: 1.25rem;
+          display: flex;
+          flex-direction: column;
+          box-sizing: border-box;
+        }
+
+        .service-card h3 {
+          margin-top: 0;
+          margin-bottom: 0.5rem;
+          font-size: 1.05rem;
+          color: #f1f5f9;
+        }
+
+        .service-card p {
+          font-size: 0.82rem;
+          color: #94a3b8;
+          margin: 0 0 1.25rem 0;
+          text-align: left;
+        }
+
+        .service-card .btn {
+          margin-top: auto;
+          display: block;
+          text-align: center;
+          background: #0284c7;
+          color: #fff;
+          padding: 0.5rem 1rem;
+          border-radius: 6px;
+          font-size: 0.82rem;
+          font-weight: 600;
+          transition: background 0.2s ease, transform 0.1s ease;
+          box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+        }
+
+        .service-card .btn:hover {
+          background: #0369a1;
+          color: #fff;
+          text-shadow: none;
+        }
+
+        .service-card .token-help {
+          margin-top: 0.8rem;
+          margin-bottom: 0.25rem;
+          font-size: 0.72rem;
+          color: #64748b;
+        }
+
+        .service-card pre {
+          margin: 0 0 1.25rem 0;
+          font-size: 0.72rem;
+          padding: 0.4rem 0.6rem;
+          background: #020617;
+          color: #e2e8f0;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 6px;
+          overflow-x: auto;
+          font-family: "Fira Code", "Courier New", monospace;
         }
 
         a {
-          color: #fff;
+          color: #38bdf8;
           text-decoration: none;
+          font-weight: 600;
+          transition: color 0.2s ease, text-shadow 0.2s ease;
         }
 
-        pre {
-          background: rgba(0, 0, 0, 0.25);
-          color: #f1f1f1;
-          padding: 0.8rem 1rem;
-          border-radius: 8px;
-          text-align: left;
-          font-size: 0.9em;
-          overflow-x: auto;
-          margin-top: 0.8rem;
-          font-family: "Courier New", monospace;
-          box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
-        }
-
-        code {
-          background: rgba(255, 255, 255, 0.1);
-          padding: 0.2rem 0.4rem;
-          border-radius: 4px;
-          font-family: "Fira Code", monospace;
-          font-size: 0.9em;
+        a:hover {
+          color: #7dd3fc;
+          text-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
         }
 
         footer {
-          margin-top: 3rem;
-          font-size: 0.9em;
+          margin-top: 1.5rem;
+          font-size: 0.85rem;
           opacity: 0.9;
         }
 
         .repo,
         .badges {
-          margin-top: 1rem;
+          margin-top: 0.8rem;
           display: flex;
           flex-wrap: wrap;
           justify-content: center;
@@ -105,21 +169,33 @@ data:
 
         .repo span {
           display: block;
-          font-size: 0.95em;
-          margin-bottom: 0.3rem;
+          font-size: 0.85rem;
+          margin-bottom: 0.2rem;
           opacity: 0.9;
         }
 
         .repo img,
         .badges img {
-          height: 22px;
+          height: 20px;
           vertical-align: middle;
         }
 
-        @media (max-width: 480px) {
-          .repo img,
-          .badges img {
-            height: 20px;
+        @media (max-width: 992px) {
+          .services-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          body {
+            padding: 1.5rem 1rem;
+            min-height: auto;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .services-grid {
+            grid-template-columns: 1fr;
+          }
+          .dashboard {
+            padding: 1.25rem 1.5rem;
           }
         }
       </style>
@@ -127,21 +203,40 @@ data:
     <body>
       <div class="icon">&#x1F393;</div>
       <h1>Bem-vindo ao Cluster Kubernetes in a Box</h1>
-      <p>Este ambiente foi criado para demonstrar um cluster Kubernetes totalmente automatizado, simples de gerenciar
-      e pronto para laboratório ou desenvolvimento.</p>
+      <p>Este ambiente foi criado para demonstrar um cluster Kubernetes totalmente automatizado, simples de gerenciar e pronto para laboratório ou desenvolvimento.</p>
 
       <div class="dashboard">
-        <p>O seu <strong>cluster Kubernetes</strong> est&aacute; ativo e pronto para uso!
-           Voc&ecirc; pode acompanhar o estado dos componentes, workloads e recursos acessando o <strong>Headlamp Dashboard</strong>:</p>
-        <p><strong>&#128279; <a href="http://172.24.0.101/" target="_blank" rel="noopener noreferrer">Abrir Headlamp Dashboard</a></strong></p>
-        <p>Para gerar o token de acesso do Headlamp, execute na vm kubox (acessível com <code>vagrant ssh kubox</code>):</p>
-        <pre>kubectl -n headlamp create token headlamp-admin</pre>
-        <br/>
-        <p>Também est&aacute; dispon&iacute;vel o <strong>Traefik Dashboard</strong> para acompanhamento do Gateway API:</p>
-        <p><strong>&#128279; <a href="http://172.24.0.102/" target="_blank" rel="noopener noreferrer">Abrir Traefik Dashboard</a></strong></p>
-        <br/>
-        <p>Veja também o Contador de Acessos do cluster, um exemplo simples que demonstra o uso de volumes dinâmicos:</p>
-        <p><strong>&#128279; <a href="/contador" rel="noopener noreferrer">Abrir Contador</a></strong></p>
+        <p class="intro">O seu <strong>cluster Kubernetes</strong> est&aacute; ativo e pronto para uso! Acompanhe o estado dos componentes, workloads e recursos pelos pain&eacute;is de controle:</p>
+        
+        <div class="services-grid">
+          <div class="service-card">
+            <h3>Headlamp Dashboard</h3>
+            <p>Gerencie componentes, nós, serviços, deployments e outros recursos do cluster de forma visual.</p>
+            <p class="token-help">Gerar token na VM kubox:</p>
+            <pre>kubectl -n headlamp create \<br/>token headlamp-admin</pre>
+            <a class="btn" href="http://172.24.0.101/" target="_blank" rel="noopener noreferrer">Acessar</a>
+          </div>
+
+          <div class="service-card">
+            <h3>HAProxy Stats</h3>
+            <p>Monitore balanceamento de carga e o estado do painel de controle do cluster.</p>
+            <p class="token-help">Credenciais padrão:</p>
+            <pre>Usuário: admin<br/>Senha:   senha_muito_segura!</pre>
+            <a class="btn" href="http://172.24.0.10:9000/stats" target="_blank" rel="noopener noreferrer">Acessar</a>
+          </div>
+
+          <div class="service-card">
+            <h3>Traefik Dashboard</h3>
+            <p>Monitore o roteamento de tr&aacute;fego e o Gateway API do cluster.</p>
+            <a class="btn" href="http://172.24.0.102/" target="_blank" rel="noopener noreferrer">Acessar</a>
+          </div>
+
+          <div class="service-card">
+            <h3>Contador de Acessos</h3>
+            <p>Exemplo simples em PHP que demonstra o provisionamento e uso de volumes persistentes.</p>
+            <a class="btn" href="/contador" rel="noopener noreferrer">Acessar</a>
+          </div>
+        </div>
       </div>
 
       <div class="repo">
@@ -160,9 +255,35 @@ data:
           <img src="https://img.shields.io/badge/Etcd-419EDA?logo=etcd&logoColor=white&style=flat" alt="Etcd">
           <img src="https://img.shields.io/badge/Helm-0F1689?logo=helm&logoColor=white&style=flat" alt="Helm">
         </div>
-        <div style="margin-top: 0.8rem;">
-          &#169; Kubernetes in a Box — MIT License
+        <div style="margin-top: 0.6rem;">
+          &#169; Kubernetes in a Box, MIT License
         </div>
       </footer>
     </body>
     </html>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hello-nginx-config
+  namespace: exemplos
+  labels:
+    app: hello-app
+data:
+  default.conf: |
+    server {
+        listen       8080;
+        listen  [::]:8080;
+        server_name  localhost;
+
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+    }
+

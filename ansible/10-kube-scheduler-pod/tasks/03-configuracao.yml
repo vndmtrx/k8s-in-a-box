@@ -1,0 +1,36 @@
+# ansible/10-kube-scheduler-pod/tasks/03-configuracao.yml
+---
+- name: Criar kubeconfig com configuração para o kube-scheduler
+  ansible.builtin.template:
+    src: kube-scheduler.kubeconfig.j2
+    dest: /etc/kubernetes/conf/kube-scheduler/kube-scheduler.kubeconfig
+    owner: root
+    group: root
+    mode: "0640"
+
+- name: Criar arquivo KubeSchedulerConfiguration
+  ansible.builtin.template:
+    src: kube-scheduler-config.yaml.j2
+    dest: /etc/kubernetes/conf/kube-scheduler/kube-scheduler-config.yaml
+    owner: root
+    group: root
+    mode: "0640"
+
+- name: Criar Static Pod do kube-scheduler
+  ansible.builtin.template:
+    src: kube-scheduler-pod.yaml.j2
+    dest: /etc/kubernetes/manifests/kube-scheduler.yaml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Aguardar o kube-scheduler responder saudável (via HTTPS /healthz)
+  ansible.builtin.uri:
+    url: "https://127.0.0.1:{{ porta_kube_scheduler }}/healthz"
+    method: GET
+    status_code: 200
+    validate_certs: false
+  register: scheduler_health
+  until: scheduler_health.status == 200
+  retries: 40
+  delay: 5

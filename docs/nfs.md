@@ -42,3 +42,13 @@ O consumo acontece no cluster através do addon **NFS Subdir External Provisione
    * Monta esse subdiretório diretamente no Pod requisitante.
 
 Graças a esta abstração, o cluster comporta-se de forma semelhante a provedores de nuvem pública (AWS, GCP), onde volumes persistentes são dinamicamente alocados sob demanda.
+
+### NFS e Execução Rootless: O Papel do `fsGroup`
+
+Ao rodar workloads de forma **rootless** (onde o `securityContext` do Pod define `runAsNonRoot: true`), a interação com volumes NFS requer atenção à propriedade e permissões de arquivos.
+
+1. **Criação de Subdiretórios**: O *NFS Subdir External Provisioner* roda com permissões de superusuário e, graças ao `no_root_squash` do servidor NFS, consegue criar os subdiretórios de cada PVC no compartilhamento de rede com permissões amplas (geralmente `0777`).
+2. **Propriedade e Compartilhamento de Arquivos**: Quando containers não-root (como o Apache e o Nginx) gravam arquivos no volume NFS, esses arquivos são criados com a UID do processo do container. 
+3. **A Importância do `fsGroup`**: Para evitar que diferentes pods (ou um pod e um cronjob) encontrem problemas de permissão ao acessar a mesma área compartilhada, utiliza-se a diretiva `fsGroup` no `securityContext` do Pod. 
+   
+   O `fsGroup` instrui o Kubernetes a associar um GID específico (ex: `10001`) aos processos do Pod. Assim, todo arquivo gravado no NFS pertencerá a esse grupo compartilhado, permitindo que diferentes workloads rootless leiam e modifiquem os mesmos arquivos sem barreiras de permissão e sem a necessidade de recorrer a containers de inicialização privilegiados (que falhariam sob políticas restritivas de não-root).

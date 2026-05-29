@@ -1,0 +1,68 @@
+# ansible/09-kube-controller-manager-pod/tasks/02-pki.yml
+---
+- name: Criar estrutura de subdiretórios de PKI do kube-controller-manager
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  loop:
+    - /etc/kubernetes/conf/kube-controller-manager/pki/ca
+    - /etc/kubernetes/conf/kube-controller-manager/pki/front-proxy
+    - /etc/kubernetes/conf/kube-controller-manager/pki/sa
+    - /etc/kubernetes/conf/kube-controller-manager/pki/kubeconfig
+
+- name: Copiar CAs necessárias
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - src: "{{ pki_cas.kubernetes.path_cert }}"
+      dest: "/etc/kubernetes/conf/kube-controller-manager/pki/ca/{{ pki_cas.kubernetes.path_cert | basename }}"
+      mode: "0644"
+    - src: "{{ pki_cas.kubernetes.path_chave }}"
+      dest: "/etc/kubernetes/conf/kube-controller-manager/pki/ca/{{ pki_cas.kubernetes.path_chave | basename }}"
+      mode: "0640"
+    - src: "{{ pki_cas.front_proxy.path_cert }}"
+      dest: "/etc/kubernetes/conf/kube-controller-manager/pki/front-proxy/{{ pki_cas.front_proxy.path_cert | basename }}"
+      mode: "0644"
+  loop_control:
+    label: "{{ item.dest }}"
+
+- name: Copiar certificados de Service Account
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - src: "{{ pki_certs.service_account.path_cert }}"
+      dest: "/etc/kubernetes/conf/kube-controller-manager/pki/sa/{{ pki_certs.service_account.path_cert | basename }}"
+      mode: "0644"
+    - src: "{{ pki_certs.service_account.path_chave }}"
+      dest: "/etc/kubernetes/conf/kube-controller-manager/pki/sa/{{ pki_certs.service_account.path_chave | basename }}"
+      mode: "0640"
+  loop_control:
+    label: "{{ item.dest }}"
+
+- name: Copiar certificados do kube-controller-manager (específico do nó)
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - src: "{{ pki_certs.kube_controller_manager.path_cert | format(inventory_hostname) }}"
+      dest: "/etc/kubernetes/conf/kube-controller-manager/pki/kubeconfig/{{ pki_certs.kube_controller_manager.path_cert | format(inventory_hostname) | basename }}"
+      mode: "0644"
+    - src: "{{ pki_certs.kube_controller_manager.path_chave | format(inventory_hostname) }}"
+      dest: "/etc/kubernetes/conf/kube-controller-manager/pki/kubeconfig/{{ pki_certs.kube_controller_manager.path_chave | format(inventory_hostname) | basename }}"
+      mode: "0640"
+  loop_control:
+    label: "{{ item.dest }}"

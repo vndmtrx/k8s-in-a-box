@@ -1,0 +1,123 @@
+module k8s-custom-selinux 1.0;
+
+# O bloco 'require' declara todos os tipos, atributos e classes de permissões
+# que já existem na política base do sistema (targeted) e que serão referenciados
+# nas nossas regras de liberação (allow) abaixo. Ele diz ao compilador do SELinux
+# (checkmodule) que esses símbolos existem e serão resolvidos no carregamento.
+require {
+    # === Tipos e Domínios do Sistema Operacional (Host) ===
+    type init_t;                  # Domínio de execução do systemd (init do host)
+    type unconfined_service_t;    # Domínio genérico de daemons do host sem confinamento (ex: containerd)
+    type sysfs_t;                 # Tipo do sistema de arquivos sysfs (/sys)
+    type cgroup_t;                # Tipo do sistema de arquivos cgroupfs (/sys/fs/cgroup)
+    type proc_t;                  # Tipo do sistema de arquivos procfs (/proc)
+    type proc_net_t;              # Tipo específico da pilha de rede do procfs (/proc/net)
+    type nsfs_t;                  # Tipo dos arquivos de namespace do Linux (/proc/<pid>/ns/*)
+    type nfs_t;                   # Tipo de sistemas de arquivos montados via rede (NFS)
+    type var_lib_t;               # Tipo geral de arquivos localizados sob /var/lib
+    
+    # === Tipos e Rótulos do Confinamento de Containers ===
+    type container_t;             # Domínio atribuído aos processos rodando dentro dos containers
+    type container_file_t;        # Tipo genérico de arquivos pertencentes ao rootfs do container
+
+    # === Atributos e Tipos de Rede ===
+    type node_t;                  # Tipo de endereços de rede / interfaces do host (ex: loopback)
+    attribute port_type;          # Atributo que engloba todos os tipos de portas TCP/UDP do SELinux
+
+    # === Classes de Permissão de Arquivos e Sistemas de Arquivos ===
+    class chr_file { read write open lock ioctl };
+    class file { read write open getattr ioctl lock map create unlink rename setattr };
+    class dir { read write open getattr ioctl lock add_name remove_name search create rmdir setattr };
+    class lnk_file { read getattr };
+    class filesystem { associate };
+
+    # === Classes de Permissão de Sockets e Rede ===
+    class tcp_socket { name_bind name_connect node_bind create connect accept listen write read getattr setattr getopt setopt bind shutdown };
+    class udp_socket { name_bind node_bind create connect accept listen write read getattr setattr getopt setopt bind shutdown };
+    class netlink_route_socket { create bind read write getattr nlmsg_read nlmsg_write };
+    class sock_file { setattr };
+
+    # === Classes de Permissão de Processos, Kernel e BPF ===
+    class process { transition dyntransition };
+    class process2 { nnp_transition };
+    class capability { net_bind_service dac_override chown setgid setuid kill };
+    class bpf { prog_run };
+}
+
+#============= container_t ==============
+# Permite que os processos executados dentro do container (com rótulo container_t)
+# leiam e escrevam no /dev/null virtualizado que é mapeado dentro do rootfs do container.
+allow container_t container_file_t:chr_file { read write open lock ioctl };
+
+# Permite que runtimes de linguagens modernas (como Go, usada no Kubernetes) leiam o status
+# do Transparent Huge Pages (THP) no sysfs (/sys/kernel/mm/transparent_hugepage/hpage_pmd_size).
+allow container_t sysfs_t:file { read open getattr };
+
+# Permite que os containers leiam limites de recursos do cgroupfs (/sys/fs/cgroup) no host
+# (necessário para runtimes Go/Java definirem threads/memória). A escrita foi removida por segurança.
+allow container_t cgroup_t:file { read open getattr map };
+allow container_t cgroup_t:dir { read search getattr open };
+
+# Permissões completas de rede para conexões TCP/UDP. Isso permite que os pods façam bind
+# em portas não padronizadas (ex: 9094, 9100, 8080) e fechem conexões TCP de forma limpa (shutdown).
+# Substitui e expande o comportamento dos booleanos 'container_use_ports' e 'container_manage_cgroup'.
+allow container_t port_type:tcp_socket { name_bind name_connect };
+allow container_t port_type:udp_socket { name_bind };
+allow container_t node_t:tcp_socket { node_bind };
+allow container_t node_t:udp_socket { node_bind };
+allow container_t self:tcp_socket { create connect accept listen write read getattr setattr getopt setopt bind shutdown };
+allow container_t self:udp_socket { create connect accept listen write read getattr setattr getopt setopt bind shutdown };
+
+# Permite que componentes de rede (como CNI CoreDNS e Kube-proxy) consultem a tabela de roteamento
+# e interfaces de rede da VM a partir do netlink do Kernel.
+allow container_t self:netlink_route_socket { create bind read write getattr nlmsg_read nlmsg_write };
+
+# Permite que o provisionador NFS de volumes persistentes crie diretórios e arquivos
+# nas pastas montadas da rede (com rótulo nfs_t).
+allow container_t nfs_t:dir { read write open getattr ioctl lock add_name remove_name search create rmdir setattr };
+allow container_t nfs_t:file { read write open getattr ioctl lock map create unlink rename setattr };
+
+# Permite que os containers inspecionem e leiam arquivos de namespaces (nsfs) e a pilha
+# de rede do procfs (/proc/net).
+allow container_t nsfs_t:file { read getattr open };
+allow container_t proc_net_t:lnk_file { read getattr };
+allow container_t proc_net_t:dir { read write open getattr add_name remove_name search };
+allow container_t proc_t:filesystem { associate };
+
+# Permite que os processos dentro do container leiam arquivos de suas próprias imagens em /var/lib/containerd (var_lib_t)
+# caso o runtime (overlayfs) não reetiquete as camadas. A escrita foi removida por segurança.
+allow container_t var_lib_t:file { read getattr open };
+allow container_t var_lib_t:dir { read search getattr open };
+
+# Permite que servidores web gerenciem e gravem dados em seus próprios descritores
+# de arquivo dentro do procfs (/proc/<pid>/fd).
+allow container_t self:dir { read write open getattr add_name remove_name search };
+
+# Concede capacidades administrativas controladas e seguras dentro do container.
+# net_bind_service: bind em portas privilegiadas (< 1024, ex: 80/53 para Nginx/CoreDNS)
+# dac_override/chown/setuid/setgid: gerenciar permissões e donos de arquivos de serviço
+# kill: permitir que processos master (ex: Apache/CoreDNS) sinalizem e gerenciem seus workers.
+allow container_t self:capability { net_bind_service dac_override chown setgid setuid kill };
+
+#============= unconfined_service_t ==============
+# Permite que o runtime de containers (containerd/cri-o, rodando como serviço não confinado)
+# inicialize processos e faça a transição segura para o contexto isolado do container (container_t)
+# utilizando a flag 'No New Privileges' (nnp_transition).
+allow unconfined_service_t container_t:process { transition dyntransition };
+allow unconfined_service_t container_t:process2 { nnp_transition };
+
+#============= init_t ==============
+# Permite que o systemd (init_t) execute programas eBPF criados em serviços não confinados
+# (como o runtime de containers), resolvendo alertas de restrição de rede/IP do systemd.
+allow init_t unconfined_service_t:bpf { prog_run };
+
+# Permite que o systemd (init_t) ajuste permissões/propriedades (setattr) de sockets Unix
+# em diretórios sob rótulo var_lib_t ou container_file_t (ex: kubelet.sock sob /var/lib/kubelet)
+# durante a inicialização/validação dos diretórios de estado (StateDirectory).
+allow init_t container_file_t:sock_file { setattr };
+allow init_t var_lib_t:sock_file { setattr };
+
+# Permite que o systemd (init_t) tente ajustar permissões em volumes NFS montados 
+# dentro do diretório do Kubelet (/var/lib/kubelet) para evitar falhas de inicialização.
+allow init_t nfs_t:file { setattr };
+allow init_t nfs_t:dir { setattr };

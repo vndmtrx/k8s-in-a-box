@@ -18,10 +18,10 @@ O **Vagrant** é o motor que traduz as intenções do usuário em máquinas virt
 
 Onde o Vagrant cria o hardware genérico, o **Ansible** injeta a "alma" no sistema. O provisionamento é puramente declarativo.
 
-* **O Playbook Mestre (`ansible/cluster.yml`):**
-  A espinha dorsal que comanda a execução metódica de todas as roles (1 a 13) na ordem exata de dependências, desde a geração de certificados (`01-pki`) até os complementos (`13-addons-cluster`).
+* **O Playbook Mestre (`ansible/cluster-$(INSTALACAO).yml`):**
+  A espinha dorsal que comanda a execução metódica de todas as roles na ordem exata de dependências (carregando `cluster-bin.yml` para instalação binária ou `cluster-pod.yml` no futuro). Ele executa: geração de certificados (`01-pki`), base de SO, balanceador, kubelet (iniciado antes do etcd para gerenciar os static pods do control plane), etcd, control plane e, por fim, os complementos. O `kube-proxy` é aplicado separadamente, via `ansible/ops.yml`, a partir da máquina `kubox`, após o cluster estar ativo e pronto para receber workloads.
 * **Injeção de Variáveis:**
-  Todo o comportamento dos playbooks deriva do arquivo universal `inventario/group_vars/all.yml`. Esse padrão permite que o usuário mude versões (ex: de Kubernetes v1.34 para v1.35) e plugins apenas manipulando esse arquivo, não precisando nunca tocar nos códigos subjacentes da pasta `ansible/`.
+  Todo o comportamento dos playbooks deriva do arquivo universal `inventario/group_vars/all.yml`. Esse padrão permite que o usuário mude versões (ex: de Kubernetes v1.35 para v1.36) e plugins apenas manipulando esse arquivo, não precisando nunca tocar nos códigos subjacentes da pasta `ansible/`.
 * **Configuração Personalizada (`.ansible.cfg`):**
   Um arquivo de configuração focado no contexto do projeto. Entre os ajustes vitais, desativa verificações host-key (`host_key_checking = False`) o que é indispensável quando se recria VMs que repetem o mesmo IP estático frequentemente num ambiente temporário.
 
@@ -29,6 +29,8 @@ Onde o Vagrant cria o hardware genérico, o **Ansible** injeta a "alma" no siste
 
 Digitar comandos longos de Ansible e Vagrant repetidamente gera atrito e abre espaço para erros de digitação. O **Makefile** age como um "encapsulador de interfaces de comando" fácil.
 
+* **Verificação de dependências (`make check-deps`):**
+  * Garante que o host local possua os componentes essenciais (`ansible`, `vagrant`, `libvirt`/`kvm` e o plugin `vagrant-libvirt`) instalados com as permissões corretas antes de iniciar a construção.
 * **O Comando `make init`:**
   * Como o sistema de topologias (nano, mini, completo) baseia-se em symlinks, o `make init` apaga links antigos e cria um link fresco apontando para a pasta `/configs`.
 * **A Construção Completa (`make k8s-in-a-box`):**

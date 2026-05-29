@@ -1,0 +1,20 @@
+# ansible/08-kube-apiserver-pod/tasks/03-configuracao.yml
+---
+- name: Criar Static Pod do kube-apiserver
+  ansible.builtin.template:
+    src: kube-apiserver-pod.yaml.j2
+    dest: /etc/kubernetes/manifests/kube-apiserver.yaml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Aguardar o kube-apiserver responder saudável (via API de prontidão HTTPS)
+  ansible.builtin.uri:
+    url: "https://{{ ansible_host }}:{{ porta_kube_apiserver }}/livez"
+    method: GET
+    status_code: 200
+    validate_certs: false
+  register: apiserver_health
+  until: apiserver_health.status == 200
+  retries: 40
+  delay: 5

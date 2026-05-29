@@ -32,23 +32,30 @@
 - [x] Configuração do cluster etcd
 
 ### 🎮 Control Plane
-- [x] Configuração do etcd como backend
+- [x] Configuração do etcd como backend (Modo Binário e Modo Pod)
 - [x] Instalação do kube-apiserver
+  - [x] Modo tradicional (serviço systemd) via role `08-kube-apiserver`
+  - [x] Modo moderno (Static Pod) via role `08-kube-apiserver-pod`
 - [x] Configuração do kube-controller-manager
+  - [x] Modo tradicional (serviço systemd) via role `09-kube-controller-manager`
+  - [x] Modo moderno (Static Pod) via role `09-kube-controller-manager-pod`
 - [x] Configuração do kube-scheduler
+  - [x] Modo tradicional (serviço systemd) via role `10-kube-scheduler`
+  - [x] Modo moderno (Static Pod) via role `10-kube-scheduler-pod`
 - [x] Geração dos arquivos kubeconfig
   - [x] kubeconfig do admin
   - [x] kubeconfig do controller-manager
   - [x] kubeconfig do scheduler
   - [x] kubeconfig do kubelet (para cada nó)
-  - [x] kubeconfig do kube-proxy
+  - [x] ~kubeconfig do kube-proxy~ (Substituído por ServiceAccount nativo do Pod)
 
 ### 👷 Workers
 - [x] Configuração do Container Runtime
   - [x] Escolha do runtime (containerd/CRI-O)
   - [x] Instalação e configuração
 - [x] Instalação do kubelet
-- [x] Configuração do kube-proxy
+- [x] Política customizada de SELinux (Type Enforcement)
+- [x] Configuração do kube-proxy (Migrado para DaemonSet em ops.yml)
 
 ### 🌐 Rede do Cluster
 - [x] Escolha do CNI Plugin

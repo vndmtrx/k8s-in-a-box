@@ -34,7 +34,6 @@ Root CA (k8sbox-root-ca)
 │   ├── Certificados de cliente kube-controller-manager
 │   ├── Certificados de cliente kube-scheduler
 │   ├── Certificados de servidor/cliente kubelet (um por nó)
-│   ├── Certificados de cliente kube-proxy
 │   ├── Certificados de cliente admin
 │   └── Certificados de service account
 └── Intermediate CA: front-proxy
@@ -185,7 +184,6 @@ A tabela abaixo lista todos os certificados gerados para o cluster, seguindo as 
 | `kube-apiserver-kubelet-client` | kubernetes-ca | system:masters | client | | 30 dias |
 | `system:kube-controller-manager` | kubernetes-ca | | client | | 30 dias |
 | `system:kube-scheduler` | kubernetes-ca | | client | | 30 dias |
-| `system:kube-proxy` | kubernetes-ca | | client | | 30 dias |
 | `system:node:<nodeName>` | kubernetes-ca | system:nodes | server, client | `<hostname>`, `<Host_IP>`, `localhost`, `127.0.0.1` | 30 dias |
 | `admin` | kubernetes-ca | system:masters | client | | 30 dias |
 | `front-proxy-client` | front-proxy-ca | | client | | 30 dias |
@@ -310,14 +308,6 @@ O controller-manager gerencia recursos do cluster e precisa de permissões ampla
 
 O scheduler decide onde executar pods e precisa de acesso de leitura a recursos de nós e pods, concedido via RBAC.
 
-#### kube-proxy
-
-* **Finalidade:** autenticar o kube-proxy junto ao API Server
-* **Extended Key Usage:** `clientAuth`
-* **CN:** system:kube-proxy
-
-O kube-proxy gerencia regras de iptables/ipvs para roteamento de serviços e precisa de acesso de leitura a endpoints e serviços.
-
 ### Certificados do Kubelet
 
 #### kubelet (servidor/cliente)
@@ -434,7 +424,6 @@ Esta seção consolida as decisões de segurança implementadas na PKI do **k8s�
 | admin | admin | `system:masters` | ClusterRole cluster-admin |
 | kube-controller-manager | `system:kube-controller-manager` | - | Permissões RBAC |
 | kube-scheduler | `system:kube-scheduler` | - | Permissões RBAC |
-| kube-proxy | `system:kube-proxy` | - | Permissões RBAC |
 
 ### Validação de Wildcards
 

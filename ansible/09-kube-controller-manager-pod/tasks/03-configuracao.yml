@@ -1,0 +1,28 @@
+# ansible/09-kube-controller-manager-pod/tasks/03-configuracao.yml
+---
+- name: Criar kubeconfig com configuração para o kube-controller-manager
+  ansible.builtin.template:
+    src: kube-controller-manager.kubeconfig.j2
+    dest: /etc/kubernetes/conf/kube-controller-manager/kube-controller-manager.kubeconfig
+    owner: root
+    group: root
+    mode: "0640"
+
+- name: Criar Static Pod do kube-controller-manager
+  ansible.builtin.template:
+    src: kube-controller-manager-pod.yaml.j2
+    dest: /etc/kubernetes/manifests/kube-controller-manager.yaml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Aguardar o kube-controller-manager responder saudável (via HTTPS /healthz)
+  ansible.builtin.uri:
+    url: "https://{{ ansible_host }}:{{ porta_kube_controller_manager }}/healthz"
+    method: GET
+    status_code: 200
+    validate_certs: false
+  register: controller_manager_health
+  until: controller_manager_health.status == 200
+  retries: 40
+  delay: 5

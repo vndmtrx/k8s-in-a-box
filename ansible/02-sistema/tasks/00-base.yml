@@ -1,6 +1,6 @@
 # ansible/02-sistema/tasks/00-base.yml
 ---
-- name: Colocar SELinux em modo permissivo (iremos tratar do SELinux no futuro)
+- name: Colocar SELinux em modo permissivo (a politica customizada e aplicada na role 06-kubelet)
   become: true
   ansible.posix.selinux:
     policy: targeted

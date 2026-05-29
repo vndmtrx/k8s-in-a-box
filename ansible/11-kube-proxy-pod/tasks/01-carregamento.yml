@@ -1,0 +1,30 @@
+# ansible/11-kube-proxy-pod/tasks/01-carregamento.yml
+---
+- name: Garantir diretório de manifestos do kube-proxy
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/manifests/kube-proxy"
+    state: directory
+    mode: "0755"
+
+- name: Criar manifestos do kube-proxy
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "/home/{{ ansible_user }}/manifests/kube-proxy/{{ item | replace('.j2', '') }}"
+    mode: "0644"
+  loop:
+    - 01-serviceaccount.yml.j2
+    - 02-clusterrolebinding.yml.j2
+    - 03-configmap.yml.j2
+    - 04-daemonset.yml.j2
+
+- name: Aplicar manifestos do kube-proxy no cluster
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/manifests/kube-proxy/"
+  register: resultado_kubectl
+  changed_when: "'configured' in resultado_kubectl.stdout or 'created' in resultado_kubectl.stdout"
+
+- name: Esperar rollout do DaemonSet do kube-proxy
+  ansible.builtin.command:
+    cmd: "kubectl -n kube-system rollout status daemonset/kube-proxy --timeout=180s"
+  register: resultado_rollout
+  changed_when: false

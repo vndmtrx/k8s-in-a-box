@@ -19,7 +19,7 @@ spec:
               kubernetes.io/metadata.name: traefik
       ports:
         - protocol: TCP
-          port: 80
+          port: 8080
     - from:
         - podSelector:
             matchLabels:
@@ -27,7 +27,7 @@ spec:
               componente: cronjob
       ports:
         - protocol: TCP
-          port: 80
+          port: 8080
   egress:
     - to:
         - namespaceSelector:
@@ -62,7 +62,7 @@ spec:
               componente: web
       ports:
         - protocol: TCP
-          port: 80
+          port: 8080
     - to:
         - namespaceSelector:
             matchLabels:

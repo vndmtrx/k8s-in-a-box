@@ -22,6 +22,17 @@
         - ops-ferramentas
         - ops
 
+- name: Carregamento do kube-proxy como Pod (DaemonSet)
+  hosts:
+    - clientes
+  become: false
+  gather_facts: false
+  roles:
+    - role: 11-kube-proxy-pod
+      tags:
+        - ops-kube-proxy-pod
+        - ops
+
 - name: Aplicação de addons no cluster
   hosts:
     - clientes
