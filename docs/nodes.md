@@ -1,9 +1,6 @@
 # Plano de Controle e Nós de Trabalho
 
-A verdadeira essência do **k8s-in-a-box** reside na instalação artesanal do plano de controle (Control Plane / Managers) e dos nós de trabalho (Worker Nodes). O projeto permite provisionar os componentes centrais do control plane de duas formas distintas, controladas pela variável `INSTALACAO` no `config.mk`:
-
-1. **Modo Binário (`bin`)**: Instalação artesanal tradicional, onde cada componente roda como um serviço gerenciado do Linux (`systemd`).
-2. **Modo Static Pods (`pod`)**: Instalação moderna, onde os componentes são declarados como Static Pods gerenciados pelo `kubelet` a partir de manifestos em `/etc/kubernetes/manifests`, simulando de forma artesanal o fluxo executado pelo `kubeadm`.
+A verdadeira essência do **k8s-in-a-box** reside na instalação artesanal do plano de controle (Control Plane / Managers) e dos nós de trabalho (Worker Nodes). O projeto provisiona os componentes centrais do control plane no modo de **Static Pods** gerenciados pelo `kubelet` a partir de manifestos em `/etc/kubernetes/manifests`, simulando de forma artesanal o fluxo de inicialização moderno executado pelo `kubeadm`.
 
 ---
 
@@ -22,26 +19,24 @@ Antes de receberem componentes Kubernetes, todos os nós do cluster (Managers e 
 O **etcd** é o banco de dados chave-valor distribuído que armazena todo o estado do cluster Kubernetes.
 * **Certificados (mTLS):** A comunicação do etcd é fortemente protegida. Foram criados certificados específicos para ele no passo de PKI (`01-pki`), validando a identidade de cada nó e encriptando a comunicação do cluster e das respostas aos clientes (API Server).
 * **Quorum:** Na configuração `completo`, 3 instâncias do etcd sobem em máquinas diferentes (os managers). O Ansible configura dinamicamente a flag `--initial-cluster` com os IPs de todos os nós para que eles se descubram e formem um quorum válido.
-* **Execução:**
-  * **Modo `bin` (role `07-etcd`)**: O binário do etcd é baixado, instalado em `/usr/local/bin` e gerenciado por um arquivo unitário do systemd criado pelo Ansible.
-  * **Modo `pod` (role `07-etcd-pod`)**: É configurado como um pod estático privilegiado que grava dados em `/var/lib/etcd` montado a partir do host.
+* **Execução (role `07-etcd-pod`):** O etcd é configurado como um pod estático privilegiado gerenciado pelo Kubelet, gravando os seus dados persistentes no diretório `/var/lib/etcd` montado a partir do host.
 
 ---
 
 ## O Plano de Controle (Managers)
 
-O "cérebro" do cluster é composto por três serviços instalados nos nós Managers. Eles operam de forma interdependente e podem ser implantados via **systemd** (roles tradicionais) ou como **Static Pods** (roles `-pod` correspondentes):
+O "cérebro" do cluster é composto por três serviços instalados nos nós Managers. Eles operam de forma interdependente e são implantados como **Static Pods** gerenciados pelo Kubelet (roles `-pod` correspondentes):
 
-1. **kube-apiserver (roles `08-kube-apiserver` e `08-kube-apiserver-pod`):**
+1. **kube-apiserver (role `08-kube-apiserver-pod`):**
    * É o único componente que conversa diretamente com o `etcd`.
    * Recebe requisições HTTP (porta 6443), autentica e autoriza o acesso baseando-se nos certificados PKI e tokens, e expõe a API do Kubernetes.
    * Suas flags de configuração são extensas, definindo o IP no qual ele escuta as requisições (no caso, o endereço local do Manager na rede do cluster) e apontando para toda a cascata de certificados de segurança.
 
-2. **kube-controller-manager (roles `09-kube-controller-manager` e `09-kube-controller-manager-pod`):**
+2. **kube-controller-manager (role `09-kube-controller-manager-pod`):**
    * Roda em segundo plano avaliando o "estado atual" vs "estado desejado" dos objetos (ReplicaSets, Deployments, Nodes, etc.).
    * Ele utiliza um arquivo `kubeconfig` gerado anteriormente para se autenticar contra o `kube-apiserver`.
 
-3. **kube-scheduler (roles `10-kube-scheduler` e `10-kube-scheduler-pod`):**
+3. **kube-scheduler (role `10-kube-scheduler-pod`):**
    * Observa os Pods que acabaram de ser criados e que não têm um nó assinalado.
    * Baseado nas restrições de recursos e labels, ele determina o melhor Worker Node para alocar o Pod.
    * Também consome seu próprio `kubeconfig` para se autenticar.

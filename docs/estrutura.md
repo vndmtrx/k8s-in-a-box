@@ -22,10 +22,8 @@ O **k8s‑in‑a‑box** é um ambiente Kubernetes completo, construído de form
 * **Função:** compõem o control plane do Kubernetes e mantêm o banco de dados do cluster.
 * **Componentes instalados:**
 
-  * **Etcd**: banco de dados distribuído, com certificados configurados para mTLS. Pode rodar como serviço do sistema operacional (`systemd`) ou como Static Pod gerenciado pelo kubelet.
-  * **Componentes do Control Node**: `kube‑apiserver`, `kube‑controller‑manager` e `kube‑scheduler`. O método de instalação é flexível e controlado pela variável `INSTALACAO` no `config.mk`:
-    * **Modo Binário (`bin`)**: Instalados diretamente no host como serviços gerenciados pelo `systemd`.
-    * **Modo Pod (`pod`)**: Executados como **Static Pods** declarados no diretório `/etc/kubernetes/manifests` e gerenciados diretamente pelo Kubelet local (método padrão e recomendado).
+  * **Etcd**: banco de dados distribuído com certificados configurados para mTLS, executando como Static Pod gerenciado pelo kubelet.
+  * **Componentes do Control Node**: `kube‑apiserver`, `kube‑controller‑manager` e `kube‑scheduler`. São executados como **Static Pods** declarados no diretório `/etc/kubernetes/manifests` e gerenciados diretamente pelo Kubelet local (método padrão e único do cluster).
   * **Componentes extras instalados:** `kubelet` e `containerd` / `CRI-O`, permitindo que os managers gerenciem os Static Pods locais e executem workloads se necessário.
   * **SELinux:** política customizada de Type Enforcement (`k8s-custom-selinux`) compilada e carregada em cada nó. Para detalhes, consulte a página [SELinux e Kubernetes](./selinux.md).
 
@@ -90,7 +88,7 @@ O `Makefile` agiliza tarefas recorrentes:
 * `make status`: mostra qual configuração está atualmente ativa
 * `make k8s-in-a-box`: sobe todo o cluster (executa os dois playbooks completos).
 * `make cluster-up`: sobe todas as VMs via Vagrant.
-* `make cluster`: executa o playbook do cluster (ex.: `cluster-bin.yml` conforme configurado no `config.mk`) com a tag `cluster`, automatizando a instalação completa.
+* `make cluster`: executa o playbook do cluster (`cluster.yml`) com a tag `cluster`, automatizando a instalação completa.
 * `make cluster-<role>`: executa apenas uma role específica (ex.: `cluster-etcd`, `cluster-kubelet`, etc.).
 * `make ops`: sobe a VM `kubox` e aplica `ops.yml` com suas roles (`ops-sistema`, `ops-ferramentas`, `ops-addons`).
 * `make exemplos`: aplica o playbook para exemplos de aplicações.
