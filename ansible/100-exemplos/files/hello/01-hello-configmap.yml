@@ -203,11 +203,17 @@ data:
     <body>
       <div class="icon">&#x1F393;</div>
       <h1>Bem-vindo ao Cluster Kubernetes in a Box</h1>
-      <p>Este ambiente foi criado para demonstrar um cluster Kubernetes totalmente automatizado, simples de gerenciar e pronto para laboratório ou desenvolvimento.</p>
+      <p>
+        Este ambiente foi criado para demonstrar um cluster Kubernetes
+        totalmente automatizado, simples de gerenciar e pronto para laboratório ou desenvolvimento.
+      </p>
 
       <div class="dashboard">
-        <p class="intro">O seu <strong>cluster Kubernetes</strong> est&aacute; ativo e pronto para uso! Acompanhe o estado dos componentes, workloads e recursos pelos pain&eacute;is de controle:</p>
-        
+        <p class="intro">
+          O seu <strong>cluster Kubernetes</strong> est&aacute; ativo e pronto para uso!
+          Acompanhe o estado dos componentes, workloads e recursos pelos pain&eacute;is de controle:
+        </p>
+
         <div class="services-grid">
           <div class="service-card">
             <h3>Headlamp Dashboard</h3>
@@ -286,4 +292,3 @@ data:
             root   /usr/share/nginx/html;
         }
     }
-

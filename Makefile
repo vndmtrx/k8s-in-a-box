@@ -135,7 +135,7 @@ cluster-balanceador: garante-config ## Executa apenas a role balanceador
 	@echo "Executando role balanceador..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-balanceador
 
-cluster-nfs: garante-config ## Executa apenas a role balanceador
+cluster-nfs: garante-config ## Executa apenas a role nfs
 	@echo "Executando role nfs..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-nfs
 
@@ -156,7 +156,7 @@ cluster-kube-controller-manager: garante-config ## Executa apenas a role kube-co
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-kube-controller-manager
 
 cluster-kube-scheduler: garante-config ## Executa apenas a role kube-scheduler
-	@echo "Executando role kube-controller-manager..."
+	@echo "Executando role kube-scheduler..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "$(PLAYBOOK)" $(ANSIBLE_VERBOSE) --tags cluster-kube-scheduler
 
 cluster-kubelet: garante-config ## Executa apenas a role kubelet

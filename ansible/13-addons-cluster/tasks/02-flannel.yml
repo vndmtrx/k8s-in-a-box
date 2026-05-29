@@ -1,4 +1,4 @@
-# ansible/13-configuracoes-cluster/tasks/02-flannel.yml
+# ansible/13-addons-cluster/tasks/02-flannel.yml
 ---
 - name: Adicionar repositório helm do Flannel
   ansible.builtin.command:

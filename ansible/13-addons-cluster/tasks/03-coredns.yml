@@ -1,4 +1,4 @@
-# ansible/13-configuracoes-cluster/tasks/03-coredns.yml
+# ansible/13-addons-cluster/tasks/03-coredns.yml
 ---
 - name: Adicionar repositório helm do CoreDNS
   ansible.builtin.command:

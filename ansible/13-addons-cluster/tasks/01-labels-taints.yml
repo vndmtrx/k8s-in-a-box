@@ -1,4 +1,4 @@
-# ansible/13-configuracoes-cluster/tasks/01-labels-taints.yml
+# ansible/13-addons-cluster/tasks/01-labels-taints.yml
 ---
 - name: Verificar taints atuais dos managers
   ansible.builtin.command:

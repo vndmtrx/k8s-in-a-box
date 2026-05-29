@@ -1,4 +1,4 @@
-# ansible/13-configuracoes-cluster/tasks/08-headlamp.yml
+# ansible/13-addons-cluster/tasks/08-headlamp.yml
 ---
 - name: Adicionar repositório helm do Headlamp
   ansible.builtin.command:

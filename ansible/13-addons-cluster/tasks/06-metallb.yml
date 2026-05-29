@@ -1,4 +1,4 @@
-# ansible/13-configuracoes-cluster/tasks/07-metallb.yml
+# ansible/13-addons-cluster/tasks/06-metallb.yml
 ---
 - name: Adicionar repositório helm do MetalLB
   ansible.builtin.command:

@@ -1,4 +1,4 @@
-# ansible/04-etcd/tasks/main.yml
+# ansible/07-etcd-pod/tasks/main.yml
 ---
 - name: Instalar as dependências do Etcd
   ansible.builtin.include_tasks: 01-instalacao.yml
