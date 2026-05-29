@@ -29,7 +29,7 @@ defaults
 
 # Frontend para o Kubernetes API Server
 frontend k8s_api
-    bind *:{{ porta_kubeapiserver }}
+    bind *:{{ porta_kube_apiserver }}
     mode tcp
     option tcplog
     default_backend k8s_api_backend
@@ -49,7 +49,7 @@ backend k8s_api_backend
     http-check expect status 200
     default-server inter 5s rise 2 fall 3
 {% for host in groups['managers'] %}
-    server {{ host }} {{ hostvars[host].fqdn }}:{{ porta_kubeapiserver }} check check-ssl verify none
+    server {{ host }} {{ hostvars[host].fqdn }}:{{ porta_kube_apiserver }} check check-ssl verify none
 {% endfor %}
 
 # Backend para a porta HTTPS do etcd
@@ -71,6 +71,16 @@ backend kube_controller_manager_backend
     default-server inter 5s rise 2 fall 3
 {% for host in groups['managers'] %}
     server {{ host }} {{ hostvars[host].fqdn }}:{{ porta_kube_controller_manager }} check check-ssl verify none
+{% endfor %}
+
+# Backend para monitoramento do kube-scheduler (sem frontend associado)
+backend kube_scheduler_backend
+    mode tcp
+    option httpchk GET /healthz
+    http-check expect status 200
+    default-server inter 5s rise 2 fall 3
+{% for host in groups['managers'] %}
+    server {{ host }} {{ hostvars[host].fqdn }}:{{ porta_kube_scheduler }} check check-ssl verify none
 {% endfor %}
 
 # Frontend para estatísticas e administração
