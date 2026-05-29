@@ -1,7 +1,7 @@
 # ==============================================================================
 # K8s in a Box - Configurações Locais
 # ==============================================================================
-# Este arquivo define o tipo de cluster e o método de instalação.
+# Este arquivo define o tipo de cluster.
 # Após alterar os valores abaixo, execute `make init` para aplicar a configuração.
 # ==============================================================================
 
@@ -20,16 +20,3 @@
 #                Recomendado ~19GB RAM / 18 vCPUs)
 #
 CLUSTER = mini
-
-# ------------------------------------------------------------------------------
-# 2. INSTALACAO: Define o método de provisionamento do Control Plane
-# ------------------------------------------------------------------------------
-# Opções disponíveis:
-#   - bin : Instala e gerencia os componentes do Control Plane (API server,
-#           controller-manager, scheduler, etcd) diretamente como binários rodando
-#           via systemd (modo tradicional).
-#
-#   - pod : Executa os componentes do Control Plane como Static Pods dentro do
-#           Kubernetes (gerenciados pelo Kubelet).
-#
-INSTALACAO = pod
