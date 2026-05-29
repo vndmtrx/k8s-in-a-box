@@ -1,13 +1,25 @@
 # ansible/06-kubelet/tasks/07-download-imagens-sistema.yml
 ---
-- name: Verificar se as imagens de sistema já existem localmente
+- name: Definir lista de imagens para os managers
+  ansible.builtin.set_fact:
+    imagens_kubernetes: "{{ node_images.values() | list + control_plane_images.values() | list }}"
+  when:
+    - inventory_hostname in groups['managers']
+    - (metodo_instalacao | default('bin')) == 'pod'
+
+- name: Definir lista de imagens para os workers ou managers
+  ansible.builtin.set_fact:
+    imagens_kubernetes: "{{ node_images.values() | list }}"
+  when: imagens_kubernetes is not defined
+
+- name: Verificar se as imagens do Kubernetes já existem localmente
   ansible.builtin.command:
     cmd: "/usr/local/bin/crictl images -q {{ item }}"
   register: crictl_image_check
   changed_when: false
-  loop: "{{ control_plane_images.values() | list }}"
+  loop: "{{ imagens_kubernetes }}"
 
-- name: Baixar imagens de sistema ausentes
+- name: Baixar imagens do Kubernetes ausentes
   ansible.builtin.command:
     cmd: "/usr/local/bin/crictl pull {{ item.item }}"
   when: item.stdout == ""
