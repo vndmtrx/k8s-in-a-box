@@ -8,5 +8,8 @@
     force: false
     checksum: "{{ item.value.get('checksum', '') | ternary(item.value.get('checksum', ''), omit) }}"
   loop: "{{ download_artefatos | dict2items }}"
+  when: >
+    (metodo_instalacao | default('bin')) == 'bin' or
+    item.key not in ['kube-apiserver-bin', 'kube-controller-manager-bin', 'kube-scheduler-bin']
   loop_control:
     label: "{{ item.key }}"
