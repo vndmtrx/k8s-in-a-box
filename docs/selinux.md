@@ -93,14 +93,13 @@ O kubelet é um caso especial. Ele não roda como container, mas como um serviç
 
 Os plugins de rede (CNI) são binários instalados em `/opt/cni/bin`. Após a instalação, o Ansible executa `restorecon -R /opt/cni/bin` para restaurar os rótulos de SELinux corretos nos binários, garantindo que o kubelet consiga executá-los sem alertas.
 
-## Componentes privilegiados (spc_t)
+## Componentes do Control Plane em Modo Pod
 
-Alguns componentes do cluster rodam com `privileged: true` em seus manifestos e, por consequência, executam no domínio `spc_t` do SELinux:
+Quando o cluster é provisionado usando o modo Static Pods (`INSTALACAO = pod`), os componentes do Control Plane são executados como contêineres gerenciados pelo Kubelet:
 
-* **Etcd** (pod estático): precisa gravar dados no diretório `/var/lib/etcd` do host, que está rotulado como `var_lib_t`.
-* **kube-proxy** (DaemonSet): precisa manipular regras de iptables/IPVS e acessar cgroups de rede no host.
-
-Essa abordagem é a mesma usada em clusters de produção gerenciados, como os provisionados pelo `kubeadm`, onde componentes de sistema do control plane são executados como containers privilegiados.
+* **Etcd (Static Pod privilegiado - `spc_t`)**: Como o etcd precisa gravar diretamente no diretório do host `/var/lib/etcd` (que possui o rótulo genérico `var_lib_t`), seu manifesto é configurado com `privileged: true`. Isso faz com que o runtime de contêiner execute o etcd sob o domínio `spc_t` (Super Privileged Container), que não possui restrições de escrita no host.
+* **kube-apiserver, kube-controller-manager e kube-scheduler (Static Pods - `container_t`)**: Esses componentes rodam como contêineres normais, mas com privilégios específicos e privilégio de rede do host (`hostNetwork: true`). Eles montam diretórios de configuração do host em `/etc/kubernetes/conf/<componente>`, os quais são montados como `readOnly: true` (ou `readWrite` no caso de caminhos de PKI específicos) e contam com o confinamento padrão do SELinux.
+* **kube-proxy (DaemonSet - `spc_t`)**: Executa em todos os nós com `privileged: true` para poder manipular as tabelas de roteamento, iptables/IPVS e namespaces de rede do host.
 
 ## Verificação e troubleshooting
 

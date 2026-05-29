@@ -76,18 +76,34 @@ O projeto fornece três configurações prontas para uso:
 
 ## Gerenciamento de Configurações
 
+As configurações do projeto são centralizadas no arquivo `config.mk` na raiz do projeto (que deve ser criado caso não exista). Ele aceita duas variáveis principais:
+
+### 1. `CLUSTER` (Topologia)
+Define o número de nós e a distribuição do laboratório:
+- `nano`: Cluster mínimo (1 Manager, 1 Worker, 1 LB, 1 NFS).
+- `mini`: Topologia padrão balanceada (1 Manager, 2 Workers, 1 LB, 1 NFS).
+- `completo`: Alta Disponibilidade (3 Managers com quorum etcd, 2 Workers, 2 LBs com Keepalived, 1 NFS).
+
+### 2. `INSTALACAO` (Método de Provisionamento)
+Define como os componentes do Control Plane (etcd, apiserver, controller-manager e scheduler) serão instalados nos nós Managers:
+- `bin`: **Modo Binário (Tradicional)**. Baixa os binários compilados oficiais e configura cada componente para rodar como um serviço nativo do sistema operacional gerenciado pelo `systemd`.
+- `pod`: **Modo Static Pods (Moderno - Padrão)**. Configura o Kubelet para gerenciar os manifestos dos componentes no diretório `/etc/kubernetes/manifests`. Os componentes executam como contêineres gerenciados localmente (semelhante ao comportamento do `kubeadm`).
+
+---
+
 ### Comandos Disponíveis
 
-O Makefile fornece comandos específicos para gerenciar configurações:
+O Makefile fornece comandos específicos para aplicar e gerenciar as configurações:
 
 #### Ativar uma Configuração
 
-Edite o arquivo `config.mk` na raiz do projeto (crie-o se não existir) e configure a variável `CLUSTER`:
+Edite o arquivo `config.mk` na raiz do projeto e configure suas variáveis:
 ```makefile
-CLUSTER = mini # Opções: nano, mini, completo
+CLUSTER = mini
+INSTALACAO = pod
 ```
 
-E então ative-a rodando:
+E então ative a configuração rodando:
 ```bash
 make init
 ```

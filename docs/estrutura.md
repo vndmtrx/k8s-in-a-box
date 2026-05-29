@@ -22,9 +22,11 @@ O **k8s‑in‑a‑box** é um ambiente Kubernetes completo, construído de form
 * **Função:** compõem o control plane do Kubernetes e mantêm o banco de dados do cluster.
 * **Componentes instalados:**
 
-  * **Etcd**: banco de dados distribuído, com certificados configurados para mTLS.
-  * **Componentes do Control Node:** `kube‑apiserver`, `kube‑controller‑manager` e `kube‑scheduler`, instalados como serviços systemd com seus respectivos certificados e kubeconfigs.
-  * **Componentes extras instalados:** `kubelet` e `containerd`, permitindo que managers também executem workloads se necessário.
+  * **Etcd**: banco de dados distribuído, com certificados configurados para mTLS. Pode rodar como serviço do sistema operacional (`systemd`) ou como Static Pod gerenciado pelo kubelet.
+  * **Componentes do Control Node**: `kube‑apiserver`, `kube‑controller‑manager` e `kube‑scheduler`. O método de instalação é flexível e controlado pela variável `INSTALACAO` no `config.mk`:
+    * **Modo Binário (`bin`)**: Instalados diretamente no host como serviços gerenciados pelo `systemd`.
+    * **Modo Pod (`pod`)**: Executados como **Static Pods** declarados no diretório `/etc/kubernetes/manifests` e gerenciados diretamente pelo Kubelet local (método padrão e recomendado).
+  * **Componentes extras instalados:** `kubelet` e `containerd` / `CRI-O`, permitindo que os managers gerenciem os Static Pods locais e executem workloads se necessário.
   * **SELinux:** política customizada de Type Enforcement (`k8s-custom-selinux`) compilada e carregada em cada nó. Para detalhes, consulte a página [SELinux e Kubernetes](./selinux.md).
 
 ### Workers (2 nós)

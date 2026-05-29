@@ -37,7 +37,7 @@ Todo o material de referência e guias de instalação encontra‑se no diretór
 
 O repositório automatiza a criação de várias máquinas virtuais em uma rede privada para as VMs, onde o cluster e as ferramentas anexas são instaladas, não criando nada na máquina host.
 
-Com o Ansible como provedor de automação, cada componente do cluster é instalado e configurado explicitamente: geração de certificados, criação do cluster `etcd`, deployment dos binários `kube‑apiserver`, `controller‑manager`, `scheduler`, `containerd` e `kubelet`, além da instalação dos vários plugins de suporte do cluster. O `kube‑proxy` é provisionado posteriormente como um **DaemonSet** dentro do próprio cluster.
+Com o Ansible como provedor de automação, cada componente do cluster é instalado e configurado explicitamente: geração de certificados, criação do cluster `etcd`, deployment do plano de controle (seja como binários via `systemd` ou como **Static Pods** gerenciados pelo `kubelet`), instalação do runtime de contêiner e do `kubelet`, além da instalação dos vários plugins de suporte do cluster. O `kube‑proxy` é provisionado posteriormente como um **DaemonSet** dentro do próprio cluster.
 
 ### Componentes Concluídos
 - Infraestrutura com Vagrant/LibVirt

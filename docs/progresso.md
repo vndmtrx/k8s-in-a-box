@@ -32,10 +32,16 @@
 - [x] Configuração do cluster etcd
 
 ### 🎮 Control Plane
-- [x] Configuração do etcd como backend
+- [x] Configuração do etcd como backend (Modo Binário e Modo Pod)
 - [x] Instalação do kube-apiserver
+  - [x] Modo tradicional (serviço systemd) via role `08-kube-apiserver`
+  - [x] Modo moderno (Static Pod) via role `08-kube-apiserver-pod`
 - [x] Configuração do kube-controller-manager
+  - [x] Modo tradicional (serviço systemd) via role `09-kube-controller-manager`
+  - [x] Modo moderno (Static Pod) via role `09-kube-controller-manager-pod`
 - [x] Configuração do kube-scheduler
+  - [x] Modo tradicional (serviço systemd) via role `10-kube-scheduler`
+  - [x] Modo moderno (Static Pod) via role `10-kube-scheduler-pod`
 - [x] Geração dos arquivos kubeconfig
   - [x] kubeconfig do admin
   - [x] kubeconfig do controller-manager
