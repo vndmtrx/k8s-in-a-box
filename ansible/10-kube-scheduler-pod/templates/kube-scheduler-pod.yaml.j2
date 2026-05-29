@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    component: kube-scheduler
+    tier: control-plane
+  name: kube-scheduler
+  namespace: kube-system
+spec:
+  containers:
+  - name: kube-scheduler
+    image: {{ control_plane_images.scheduler }}
+    imagePullPolicy: IfNotPresent
+    command:
+    - kube-scheduler
+    - --authentication-kubeconfig=/etc/scheduler/kube-scheduler.kubeconfig
+    - --authorization-kubeconfig=/etc/scheduler/kube-scheduler.kubeconfig
+    - --bind-address=0.0.0.0
+    - --config=/etc/scheduler/kube-scheduler-config.yaml
+    - --v=1
+    ports:
+    - containerPort: {{ porta_kube_scheduler }}
+      name: probe-port
+      protocol: TCP
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 127.0.0.1
+        path: /livez
+        port: probe-port
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        host: 127.0.0.1
+        path: /readyz
+        port: probe-port
+        scheme: HTTPS
+      periodSeconds: 1
+      timeoutSeconds: 15
+    startupProbe:
+      failureThreshold: 24
+      httpGet:
+        host: 127.0.0.1
+        path: /livez
+        port: probe-port
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+    resources:
+      requests:
+        cpu: 100m
+    volumeMounts:
+    - mountPath: /etc/scheduler
+      name: kube-scheduler-conf
+      readOnly: true
+  hostNetwork: true
+  priority: 2000001000
+  priorityClassName: system-node-critical
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/conf/kube-scheduler
+      type: DirectoryOrCreate
+    name: kube-scheduler-conf

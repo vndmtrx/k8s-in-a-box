@@ -1,0 +1,17 @@
+# ansible/10-kube-scheduler-pod/tasks/01-instalacao.yml
+---
+- name: Garantir diretório de configuração isolado do kube-scheduler
+  ansible.builtin.file:
+    path: /etc/kubernetes/conf/kube-scheduler
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Garantir diretório de manifestos do Kubernetes
+  ansible.builtin.file:
+    path: /etc/kubernetes/manifests
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
