@@ -10,7 +10,7 @@
 
 - name: Aguardar o kube-apiserver responder saudável (via API de prontidão HTTPS)
   ansible.builtin.uri:
-    url: "https://{{ ansible_host }}:{{ porta_kubeapiserver }}/livez"
+    url: "https://{{ ansible_host }}:{{ porta_kube_apiserver }}/livez"
     method: GET
     status_code: 200
     validate_certs: false

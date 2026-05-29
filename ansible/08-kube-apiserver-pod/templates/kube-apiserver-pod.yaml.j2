@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   annotations:
-    kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint: {{ ansible_host }}:{{ porta_kubeapiserver }}
+    kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint: {{ ansible_host }}:{{ porta_kube_apiserver }}
   labels:
     component: kube-apiserver
     tier: control-plane
@@ -37,7 +37,7 @@ spec:
     - --requestheader-extra-headers-prefix=X-Remote-Extra-
     - --requestheader-group-headers=X-Remote-Group
     - --requestheader-username-headers=X-Remote-User
-    - --secure-port={{ porta_kubeapiserver }}
+    - --secure-port={{ porta_kube_apiserver }}
     - --service-account-issuer=https://kubernetes.default.svc.cluster.local
     - --service-account-key-file=/etc/apiserver/pki/sa/{{ pki_certs.service_account.path_cert | basename }}
     - --service-account-signing-key-file=/etc/apiserver/pki/sa/{{ pki_certs.service_account.path_chave | basename }}
@@ -47,7 +47,7 @@ spec:
     - --tls-private-key-file=/etc/apiserver/pki/apiserver/{{ pki_certs.kube_apiserver.path_chave | format(inventory_hostname) | basename }}
     - --v=1
     ports:
-    - containerPort: {{ porta_kubeapiserver }}
+    - containerPort: {{ porta_kube_apiserver }}
       name: probe-port
       protocol: TCP
     livenessProbe:
