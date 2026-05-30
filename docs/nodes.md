@@ -20,6 +20,7 @@ O **etcd** é o banco de dados chave-valor distribuído que armazena todo o esta
 * **Certificados (mTLS):** A comunicação do etcd é fortemente protegida. Foram criados certificados específicos para ele no passo de PKI (`01-pki`), validando a identidade de cada nó e encriptando a comunicação do cluster e das respostas aos clientes (API Server).
 * **Quorum:** Na configuração `completo`, 3 instâncias do etcd sobem em máquinas diferentes (os managers). O Ansible configura dinamicamente a flag `--initial-cluster` com os IPs de todos os nós para que eles se descubram e formem um quorum válido.
 * **Execução (role `07-etcd-pod`):** O etcd é configurado como um pod estático privilegiado gerenciado pelo Kubelet, gravando os seus dados persistentes no diretório `/var/lib/etcd` montado a partir do host.
+* **Ferramenta `etcdctl`:** Para evitar downloads adicionais da internet, o utilitário `etcdctl` é extraído dinamicamente direto do OverlayFS do container do etcd em execução no manager principal e disponibilizado na máquina `kubox`.
 
 ---
 

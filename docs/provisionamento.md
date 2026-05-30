@@ -25,6 +25,26 @@ Onde o Vagrant cria o hardware genérico, o **Ansible** injeta a "alma" no siste
 * **Configuração Personalizada (`.ansible.cfg`):**
   Um arquivo de configuração focado no contexto do projeto. Entre os ajustes vitais, desativa verificações host-key (`host_key_checking = False`) o que é indispensável quando se recria VMs que repetem o mesmo IP estático frequentemente num ambiente temporário.
 
+## Otimizações de Provisionamento
+
+Para otimizar o tempo de provisionamento e mitigar o uso desnecessário de banda de internet, o projeto implementa duas estratégias avançadas:
+
+### 1. Cache Local de Imagens de Containers
+As imagens do sistema (Kubernetes, pause, etcd, etc.) são pesadas e seu download repetido a cada nova criação de cluster consome banda e tempo significativos. O projeto resolve isso via cache no host de desenvolvimento:
+* **Detecção:** A role `06-kubelet` (`tasks/07-download-imagens-sistema.yml`) verifica se os tarballs das imagens necessárias já existem localmente no host na pasta `imagens/` (definida pelas variáveis do projeto).
+* **Download Centralizado:** Se ausente, o primeiro manager (`manager1`) faz o download da imagem via `skopeo copy` direto do registro de container para um tarball local e envia o arquivo de volta para o host de desenvolvimento (via `ansible.builtin.fetch`).
+* **Distribuição e Carga:** Para cada nó no cluster, o Ansible copia o tarball do host local para a VM e o importa diretamente no runtime de container configurado:
+  * No **CRI-O**: A importação ocorre via `skopeo copy` para o `containers-storage`.
+  * No **Containerd**: A importação ocorre via `ctr -n k8s.io images import`.
+* **Benefício:** Permite um provisionamento rápido ("offline-ready") após o primeiro download.
+
+### 2. Extração Dinâmica do `etcdctl` via OverlayFS
+Tradicionalmente, a instalação da ferramenta de gerenciamento do `etcd` (`etcdctl`) exigiria o download do arquivo compactado completo de lançamento do etcd na internet para descompactar apenas um binário. No projeto:
+* O Ansible identifica o container ID do etcd em execução no `manager1` usando `crictl ps`.
+* Consulta os metadados do container via `crictl inspect` e extrai o caminho do diretório mesclado no OverlayFS (`merged layer`) que contém o sistema de arquivos em tempo de execução do container.
+* Copia o executável `etcdctl` diretamente desse caminho do OverlayFS do manager para o host local e depois o instala no bastion host `kubox`.
+* **Benefício:** Remove o download do tarball de distribuição do etcd, reduzindo a dependência de APIs externas e acelerando o provisionamento das ferramentas.
+
 ## Makefile
 
 Digitar comandos longos de Ansible e Vagrant repetidamente gera atrito e abre espaço para erros de digitação. O **Makefile** age como um "encapsulador de interfaces de comando" fácil.
