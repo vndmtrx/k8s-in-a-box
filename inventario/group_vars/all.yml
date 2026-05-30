@@ -52,7 +52,7 @@ porta_kube_scheduler: 10259
 # - Kubernetes: https://kubernetes.io/releases/download/#binaries
 
 # Versões dos componentes
-versao_etcd: "v3.6.11"        # https://endoflife.date/etcd e 
+versao_etcd: "v3.6.8"         # https://endoflife.date/etcd e tag da versão corrente em https://github.com/kubernetes/kubernetes/blob/master/build/dependencies.yaml
 versao_kubernetes: "v1.36.1"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
 versao_crictl: "v1.36.0"      # https://github.com/kubernetes-sigs/cri-tools/releases
 versao_pause: "pause:3.10.2"  # https://github.com/kubernetes/kubernetes/blob/master/build/pause/CHANGELOG.md
@@ -67,9 +67,9 @@ node_images:
   pause: "registry.k8s.io/{{ versao_pause }}"
   proxy: "registry.k8s.io/kube-proxy:{{ versao_kubernetes }}"
 
-# Imagens dos componentes do control plane (apenas managers, modo pod)
+# Imagens dos componentes do control plane (apenas managers)
 control_plane_images:
-  etcd: "registry.k8s.io/etcd:3.5.16-0"
+  etcd: "registry.k8s.io/{{ versao_etcd }}"
   apiserver: "registry.k8s.io/kube-apiserver:{{ versao_kubernetes }}"
   controller_manager: "registry.k8s.io/kube-controller-manager:{{ versao_kubernetes }}"
   scheduler: "registry.k8s.io/kube-scheduler:{{ versao_kubernetes }}"
@@ -87,10 +87,6 @@ download_artefatos:
   yq-bin:
     url: "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64"
     arquivo: "yq"
-
-  etcd-bin:
-    url: "https://github.com/etcd-io/etcd/releases/download/{{ versao_etcd }}/etcd-{{ versao_etcd }}-linux-amd64.tar.gz"
-    arquivo: "etcd-bin.tar.gz"
 
   kubelet-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubelet"
