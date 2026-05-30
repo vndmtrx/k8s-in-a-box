@@ -70,10 +70,10 @@ node_images:
 
 # Imagens dos componentes do control plane (apenas managers)
 control_plane_images:
-  etcd: "registry.k8s.io/etcd:{{ versao_etcd }}"
-  apiserver: "registry.k8s.io/kube-apiserver:{{ versao_kubernetes }}"
+  etcd:               "registry.k8s.io/etcd:{{ versao_etcd }}"
+  apiserver:          "registry.k8s.io/kube-apiserver:{{ versao_kubernetes }}"
   controller_manager: "registry.k8s.io/kube-controller-manager:{{ versao_kubernetes }}"
-  scheduler: "registry.k8s.io/kube-scheduler:{{ versao_kubernetes }}"
+  scheduler:          "registry.k8s.io/kube-scheduler:{{ versao_kubernetes }}"
 
 # Versões dos plugins de rede (CNI)
 versao_canal: "v3.32.0"       # https://github.com/projectcalico/calico/releases (Flannel + Calico)
