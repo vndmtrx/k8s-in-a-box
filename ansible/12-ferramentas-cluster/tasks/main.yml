@@ -8,3 +8,6 @@
 
 - name: Configuração das ferramentas
   ansible.builtin.import_tasks: 03-configuracao.yml
+
+- name: Extrair etcdctl do cluster
+  ansible.builtin.import_tasks: 04-etcdctl.yml
