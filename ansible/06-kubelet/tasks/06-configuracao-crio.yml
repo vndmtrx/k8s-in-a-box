@@ -11,7 +11,7 @@
       conmon = "/usr/libexec/crio/conmon"
 
       [crio.image]
-      pause_image = "registry.k8s.io/{{ versao_pause }}"
+      pause_image = "{{ node_images.pause }}"
 
       [crio.network]
       network_dir = "/etc/cni/net.d/"

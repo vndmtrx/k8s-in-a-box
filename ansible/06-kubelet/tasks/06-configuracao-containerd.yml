@@ -13,7 +13,7 @@
         containerd_config.stdout
         | regex_replace('SystemdCgroup = false', 'SystemdCgroup = true')
         | regex_replace('sandbox_image = "registry.k8s.io/pause:[0-9.]+"',
-                        'sandbox_image = "registry.k8s.io/%s"' % versao_pause)
+                        'sandbox_image = "%s"' % node_images.pause)
       }}
     mode: "0644"
 
