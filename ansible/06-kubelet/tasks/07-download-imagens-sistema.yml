@@ -1,28 +1,123 @@
 # ansible/06-kubelet/tasks/07-download-imagens-sistema.yml
 ---
-- name: Definir lista de imagens para os managers
+- name: Garantir que a pasta temporária de imagens existe no Host
+  ansible.builtin.file:
+    path: "{{ pasta_temporarios }}/imagens"
+    state: directory
+    mode: "0755"
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: Verificar no Host se as imagens em formato Tarball já existem
+  ansible.builtin.stat:
+    path: "{{ pasta_temporarios }}/imagens/{{ item.key }}-{{ item.value | split(':') | last }}.tar"
+  register: imagens_tar_stat
+  delegate_to: localhost
+  become: false
+  run_once: true
+  loop: "{{ (node_images | combine(control_plane_images)) | dict2items }}"
+  loop_control:
+    label: "{{ item.value }}"
+
+- name: Baixar imagem usando skopeo no manager1 se ausente no Host
+  ansible.builtin.command: >
+    skopeo copy
+    docker://{{ item.item.value }}
+    docker-archive:/tmp/{{ item.item.key }}-{{ item.item.value | split(':') | last }}.tar:{{ item.item.value }}
+  delegate_to: "{{ groups['managers'][0] }}"
+  run_once: true
+  loop: "{{ imagens_tar_stat.results }}"
+  loop_control:
+    label: "{{ item.item.value }}"
+  when: not item.stat.exists
+  changed_when: true
+
+- name: Copiar tarball do manager1 de volta para a pasta de temporários no Host
+  ansible.builtin.fetch:
+    src: "/tmp/{{ item.item.key }}-{{ item.item.value | split(':') | last }}.tar"
+    dest: "{{ pasta_temporarios }}/imagens/{{ item.item.key }}-{{ item.item.value | split(':') | last }}.tar"
+    flat: true
+  delegate_to: "{{ groups['managers'][0] }}"
+  run_once: true
+  loop: "{{ imagens_tar_stat.results }}"
+  loop_control:
+    label: "{{ item.item.value }}"
+  when: not item.stat.exists
+
+- name: Remover tarball temporário da pasta /tmp do manager1
+  ansible.builtin.file:
+    path: "/tmp/{{ item.item.key }}-{{ item.item.value | split(':') | last }}.tar"
+    state: absent
+  delegate_to: "{{ groups['managers'][0] }}"
+  run_once: true
+  loop: "{{ imagens_tar_stat.results }}"
+  loop_control:
+    label: "{{ item.item.value }}"
+  when: not item.stat.exists
+
+# --- Fim da fase de download. Agora cada nó carrega suas respectivas imagens ---
+
+- name: Definir lista de imagens a carregar (para managers)
   ansible.builtin.set_fact:
-    imagens_kubernetes: "{{ node_images.values() | list + control_plane_images.values() | list }}"
+    imagens_kubernetes: "{{ (node_images | combine(control_plane_images)) | dict2items }}"
   when:
     - inventory_hostname in groups['managers']
 
-- name: Definir lista de imagens para os workers
+- name: Definir lista de imagens a carregar (para workers)
   ansible.builtin.set_fact:
-    imagens_kubernetes: "{{ node_images.values() | list }}"
+    imagens_kubernetes: "{{ node_images | dict2items }}"
   when: imagens_kubernetes is not defined
 
-- name: Verificar se as imagens do Kubernetes já existem localmente
+- name: Verificar se as imagens do Kubernetes já existem localmente no runtime
   ansible.builtin.command:
-    cmd: "/usr/local/bin/crictl images -q {{ item }}"
+    cmd: "/usr/local/bin/crictl images -q {{ item.value }}"
   register: crictl_image_check
   changed_when: false
   loop: "{{ imagens_kubernetes }}"
+  loop_control:
+    label: "{{ item.value }}"
 
-- name: Baixar imagens do Kubernetes ausentes
-  ansible.builtin.command:
-    cmd: "/usr/local/bin/crictl pull {{ item.item }}"
-  when: item.stdout == ""
+- name: Copiar tarball da imagem do Host para a VM
+  ansible.builtin.copy:
+    src: "{{ pasta_temporarios }}/imagens/{{ item.item.key }}-{{ item.item.value | split(':') | last }}.tar"
+    dest: "/tmp/{{ item.item.key }}.tar"
+    mode: "0644"
   loop: "{{ crictl_image_check.results }}"
   loop_control:
-    label: "{{ item.item }}"
+    label: "{{ item.item.value }}"
+  when: item.stdout == ""
+
+- name: Importar imagem no CRI-O usando skopeo
+  ansible.builtin.command: >
+    skopeo copy
+    docker-archive:/tmp/{{ item.item.key }}.tar
+    containers-storage:{{ item.item.value }}
+  loop: "{{ crictl_image_check.results }}"
+  loop_control:
+    label: "{{ item.item.value }}"
+  when:
+    - container_runtime == "crio"
+    - item.stdout == ""
   changed_when: true
+
+- name: Importar imagem no Containerd usando ctr
+  ansible.builtin.command: >
+    ctr -n k8s.io images import /tmp/{{ item.item.key }}.tar
+  loop: "{{ crictl_image_check.results }}"
+  loop_control:
+    label: "{{ item.item.value }}"
+  when:
+    - container_runtime == "containerd"
+    - item.stdout == ""
+  changed_when: true
+
+- name: Remover tarball temporário da pasta /tmp da VM
+  ansible.builtin.file:
+    path: "/tmp/{{ item.item.key }}.tar"
+    state: absent
+  loop: "{{ crictl_image_check.results }}"
+  loop_control:
+    label: "{{ item.item.value }}"
+  when: item.stdout == ""
+
