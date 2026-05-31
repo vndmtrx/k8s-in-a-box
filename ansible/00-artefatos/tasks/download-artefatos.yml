@@ -1,12 +1,20 @@
 # ansible/00-artefatos/tasks/download-artefatos.yml
 ---
-- name: Baixar artefatos necessários no host
-  ansible.builtin.get_url:
-    url: "{{ item.value.url }}"
-    dest: "{{ pasta_temporarios }}/{{ item.value.arquivo }}"
-    mode: "0644"
-    force: false
-    checksum: "{{ item.value.get('checksum', '') | ternary(item.value.get('checksum', ''), omit) }}"
+- name: Verificar se os arquivos já foram baixados no host
+  ansible.builtin.stat:
+    path: "{{ pasta_temporarios }}/{{ item.value.arquivo }}"
   loop: "{{ download_artefatos | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
+  register: arquivos_locais
+
+- name: Baixar artefatos necessários no host
+  ansible.builtin.get_url:
+    url: "{{ item.item.value.url }}"
+    dest: "{{ pasta_temporarios }}/{{ item.item.value.arquivo }}"
+    mode: "0644"
+    checksum: "{{ item.item.value.checksum | default(omit) }}"
+  loop: "{{ arquivos_locais.results }}"
+  loop_control:
+    label: "{{ item.item.key }}"
+  when: not item.stat.exists
