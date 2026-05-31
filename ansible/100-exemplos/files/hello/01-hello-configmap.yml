@@ -71,7 +71,7 @@ data:
 
         .services-grid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
           gap: 1.25rem;
           margin-top: 1rem;
           text-align: left;
@@ -122,7 +122,7 @@ data:
         }
 
         .service-card .token-help {
-          margin-top: 0.8rem;
+          margin-top: auto;
           margin-bottom: 0.25rem;
           font-size: 0.72rem;
           color: #64748b;
@@ -138,6 +138,15 @@ data:
           border-radius: 6px;
           overflow-x: auto;
           font-family: "Fira Code", "Courier New", monospace;
+          white-space: pre-wrap;
+          word-break: break-all;
+        }
+
+        .service-card pre.copiavel,
+        .service-card pre .copiavel {
+          user-select: all;
+          -webkit-user-select: all;
+          cursor: pointer;
         }
 
         a {
@@ -217,9 +226,9 @@ data:
         <div class="services-grid">
           <div class="service-card">
             <h3>Headlamp Dashboard</h3>
-            <p>Gerencie componentes, nós, serviços, deployments e outros recursos do cluster de forma visual.</p>
+            <p>Gerencie nós, serviços, configs, deployments e outros recursos do cluster de forma visual.</p>
             <p class="token-help">Gerar token na VM kubox:</p>
-            <pre>kubectl -n headlamp create \<br/>token headlamp-admin</pre>
+            <pre class="copiavel">kubectl -n headlamp create token headlamp-admin</pre>
             <a class="btn" href="http://172.24.0.101/" target="_blank" rel="noopener noreferrer">Acessar</a>
           </div>
 
@@ -227,7 +236,7 @@ data:
             <h3>HAProxy Stats</h3>
             <p>Monitore balanceamento de carga e o estado do painel de controle do cluster.</p>
             <p class="token-help">Credenciais padrão:</p>
-            <pre>Usuário: admin<br/>Senha:   senha_muito_segura!</pre>
+            <pre>Usuário: <span class="copiavel">admin</span><br/>Senha: <span class="copiavel">senha_muito_segura!</span></pre>
             <a class="btn" href="http://172.24.0.10:9000/stats" target="_blank" rel="noopener noreferrer">Acessar</a>
           </div>
 
