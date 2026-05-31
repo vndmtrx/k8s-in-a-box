@@ -92,30 +92,37 @@ download_artefatos:
   kubelet-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubelet"
     arquivo: "kubelet"
+    checksum: "sha256:https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubelet.sha256"
 
   kubectl-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubectl"
     arquivo: "kubectl"
+    checksum: "sha256:https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubectl.sha256"
 
   cni-plugins-bin:
     url: "https://github.com/containernetworking/plugins/releases/download/{{ versao_cni }}/cni-plugins-linux-amd64-{{ versao_cni }}.tgz"
     arquivo: "cni-plugins.tgz"
+    checksum: "sha256:https://github.com/containernetworking/plugins/releases/download/{{ versao_cni }}/cni-plugins-linux-amd64-{{ versao_cni }}.tgz.sha256"
 
   crictl-bin:
     url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ versao_crictl }}/crictl-{{ versao_crictl }}-linux-amd64.tar.gz"
     arquivo: "crictl.tar.gz"
+    checksum: "sha256:https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ versao_crictl }}/crictl-{{ versao_crictl }}-linux-amd64.tar.gz.sha256"
 
   helm-bin:
     url: "https://get.helm.sh/helm-{{ versao_helm }}-linux-amd64.tar.gz"
     arquivo: "helm-bin.tar.gz"
+    checksum: "sha256:https://get.helm.sh/helm-{{ versao_helm }}-linux-amd64.tar.gz.sha256"
 
   k9s-bin:
     url: "https://github.com/derailed/k9s/releases/download/{{ versao_k9s }}/k9s_Linux_amd64.tar.gz"
     arquivo: "k9s-bin.tar.gz"
+    checksum: "sha256:https://github.com/derailed/k9s/releases/download/{{ versao_k9s }}/checksums.sha256"
 
   popeye-bin:
     url: "https://github.com/derailed/popeye/releases/download/{{ versao_popeye }}/popeye_linux_amd64.tar.gz"
     arquivo: "popeye-bin.tar.gz"
+    checksum: "sha256:https://github.com/derailed/popeye/releases/download/{{ versao_popeye }}/checksums.sha256"
 
 ########################################
 ### Configurações para a role 02-pki ###
