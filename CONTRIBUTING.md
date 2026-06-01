@@ -47,7 +47,7 @@ Obrigado por seu interesse em contribuir com o projeto [K8s in a Box](https://gi
 1. **Teste suas alterações**:
    ```bash
    make clean         # Destrua o ambiente atual
-   make k8s-in-a-box  # Recrie do zero
+   make kiabo         # Recrie do zero
    vagrant ssh kubox  # Acesse as ferramentas do cluster
    ```
 
