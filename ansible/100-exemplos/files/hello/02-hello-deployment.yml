@@ -31,7 +31,11 @@ spec:
               name: http
           volumeMounts:
             - name: html
-              mountPath: /usr/share/nginx/html
+              mountPath: /usr/share/nginx/html/index.html
+              subPath: index.html
+            - name: css
+              mountPath: /usr/share/nginx/html/base.css
+              subPath: base.css
             - name: nginx-config
               mountPath: /etc/nginx/conf.d/default.conf
               subPath: default.conf
@@ -62,6 +66,9 @@ spec:
         - name: html
           configMap:
             name: hello-app
+        - name: css
+          configMap:
+            name: exemplos-css
         - name: nginx-config
           configMap:
             name: hello-nginx-config
