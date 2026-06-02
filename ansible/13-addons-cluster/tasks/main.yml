@@ -28,3 +28,7 @@
 
 - name: Instalação e configuração do Headlamp Dashboard
   ansible.builtin.import_tasks: 08-headlamp.yml
+
+- name: Instalação e configuração do Vertical Pod Autoscaler (VPA)
+  ansible.builtin.import_tasks: 09-vpa.yml
+

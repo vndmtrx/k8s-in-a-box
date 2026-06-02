@@ -32,7 +32,11 @@ spec:
               name: http
           volumeMounts:
             - name: pagina
-              mountPath: /var/www/html
+              mountPath: /var/www/html/index.php
+              subPath: index.php
+            - name: css
+              mountPath: /var/www/html/base.css
+              subPath: base.css
             - name: dados
               mountPath: /dados
             - name: apache-config
@@ -68,6 +72,9 @@ spec:
         - name: pagina
           configMap:
             name: contador-pagina
+        - name: css
+          configMap:
+            name: exemplos-css
         - name: dados
           persistentVolumeClaim:
             claimName: contador-pvc

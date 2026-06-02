@@ -56,125 +56,41 @@ data:
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Contador de Acessos - Kubernetes in a Box</title>
-    <style>
-        body {
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-          background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
-          color: #f1f5f9;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          min-height: 100vh;
-          text-align: center;
-          padding: 1.25rem 1rem;
-          box-sizing: border-box;
-        }
-
-        .icon {
-          font-size: 3rem;
-          margin-bottom: 0.2rem;
-        }
-
-        h1 {
-          font-size: 2.2rem;
-          margin-top: 0.5rem;
-          margin-bottom: 0.4rem;
-          line-height: 1.2;
-        }
-
-        p {
-          font-size: 0.95rem;
-          max-width: 700px;
-          margin: 0 auto 0.75rem auto;
-          line-height: 1.4;
-          text-align: center;
-          word-spacing: 0.05em;
-        }
-
-        /* blocos principais (dashboard / contador) */
-        .contador {
-          background-color: rgba(30, 41, 59, 0.65);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 12px;
-          padding: 1.5rem 2rem;
-          max-width: 600px;
-          width: 100%;
-          margin: 1.25rem auto;
-          box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-          box-sizing: border-box;
-        }
-
-        .contador p {
-          margin-bottom: 0.8rem;
-        }
-
-        a {
-          color: #38bdf8;
-          text-decoration: none;
-          font-weight: 600;
-          transition: color 0.2s ease, text-shadow 0.2s ease;
-        }
-
-        a:hover {
-          color: #7dd3fc;
-          text-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
-        }
-
-        footer {
-          margin-top: 1.5rem;
-          font-size: 0.85rem;
-          opacity: 0.9;
-        }
-
-        .repo,
-        .badges {
-          margin-top: 0.8rem;
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 6px;
-        }
-
-        .repo span {
-          display: block;
-          font-size: 0.85rem;
-          margin-bottom: 0.2rem;
-          opacity: 0.9;
-        }
-
-        .repo img,
-        .badges img {
-          height: 20px;
-          vertical-align: middle;
-        }
-
-        @media (max-width: 768px) {
-          body {
-            padding: 1rem;
-            min-height: auto;
-          }
-          .contador {
-            padding: 1.25rem 1.5rem;
-          }
-        }
-      </style>
+      <link rel="stylesheet" href="base.css">
     </head>
     <body>
       <div class="icon">📈</div>
       <h1>Contador de Acessos</h1>
+      <p>Estatísticas de utilização e persistência de dados no cluster.</p>
 
-      <div class="contador">
-        <p><strong>Total de acessos:</strong> <?= $contador ?></p>
-        <p><strong>&Uacute;ltimo acesso:</strong> <?= htmlspecialchars($dataHora) ?></p>
-        <p><strong>&Uacute;ltimo CronJob:</strong> <?= htmlspecialchars($cronData) ?></p>
-        <p><strong><a href="/">Voltar &agrave; p&aacute;gina inicial</a></strong></a>
+      <div class="dashboard">
+        <div class="services-grid">
+          <div class="service-card">
+            <h3>Total de Acessos</h3>
+            <p>Quantidade acumulada de visitas nesta página.</p>
+            <pre><?= $contador ?></pre>
+          </div>
+
+          <div class="service-card">
+            <h3>Último Acesso</h3>
+            <p>Data e hora do último acesso registrado no volume.</p>
+            <pre><?= htmlspecialchars($dataHora) ?></pre>
+          </div>
+
+          <div class="service-card">
+            <h3>Último CronJob</h3>
+            <p>Data e hora da última execução do Job agendado.</p>
+            <pre><?= htmlspecialchars($cronData) ?></pre>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; text-align: center;">
+          <a href="/" class="btn" style="padding: 0.6rem 1.5rem; font-size: 0.9rem;">Voltar à Página Inicial</a>
+        </div>
       </div>
 
       <footer>
-        <p>Dados persistidos em Volume Din&acirc;mico</p>
+        <p>Dados persistidos em Volume Dinâmico (NFS Provisioner)</p>
       </footer>
     </body>
     </html>

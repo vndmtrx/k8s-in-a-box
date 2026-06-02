@@ -13,201 +13,7 @@ data:
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Kubernetes in a Box</title>
-      <style>
-        body {
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-          background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
-          color: #f1f5f9;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          min-height: 100vh;
-          text-align: center;
-          padding: 1.25rem 1rem;
-          box-sizing: border-box;
-        }
-
-        .icon {
-          font-size: 3rem;
-          margin-bottom: 0.2rem;
-        }
-
-        h1 {
-          font-size: 2.2rem;
-          margin-top: 0.5rem;
-          margin-bottom: 0.4rem;
-          line-height: 1.2;
-        }
-
-        p {
-          font-size: 0.95rem;
-          max-width: 700px;
-          margin: 0 auto 0.75rem auto;
-          line-height: 1.4;
-          text-align: center;
-          word-spacing: 0.05em;
-        }
-
-        .dashboard {
-          background-color: rgba(30, 41, 59, 0.65);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 12px;
-          padding: 1.5rem 2rem;
-          max-width: 1100px;
-          width: 100%;
-          margin: 1.25rem auto;
-          box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-          box-sizing: border-box;
-        }
-
-        .dashboard p.intro {
-          font-size: 0.95rem;
-          margin-bottom: 1.25rem;
-          color: #cbd5e1;
-        }
-
-        .services-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 1.25rem;
-          margin-top: 1rem;
-          text-align: left;
-        }
-
-        .service-card {
-          background: rgba(15, 23, 42, 0.4);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
-          padding: 1.25rem;
-          display: flex;
-          flex-direction: column;
-          box-sizing: border-box;
-        }
-
-        .service-card h3 {
-          margin-top: 0;
-          margin-bottom: 0.5rem;
-          font-size: 1.05rem;
-          color: #f1f5f9;
-        }
-
-        .service-card p {
-          font-size: 0.82rem;
-          color: #94a3b8;
-          margin: 0 0 1.25rem 0;
-          text-align: left;
-        }
-
-        .service-card .btn {
-          margin-top: auto;
-          display: block;
-          text-align: center;
-          background: #0284c7;
-          color: #fff;
-          padding: 0.5rem 1rem;
-          border-radius: 6px;
-          font-size: 0.82rem;
-          font-weight: 600;
-          transition: background 0.2s ease, transform 0.1s ease;
-          box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
-        }
-
-        .service-card .btn:hover {
-          background: #0369a1;
-          color: #fff;
-          text-shadow: none;
-        }
-
-        .service-card .token-help {
-          margin-top: auto;
-          margin-bottom: 0.25rem;
-          font-size: 0.72rem;
-          color: #64748b;
-        }
-
-        .service-card pre {
-          margin: 0 0 1.25rem 0;
-          font-size: 0.72rem;
-          padding: 0.4rem 0.6rem;
-          background: #020617;
-          color: #e2e8f0;
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 6px;
-          overflow-x: auto;
-          font-family: "Fira Code", "Courier New", monospace;
-          white-space: pre-wrap;
-          word-break: break-all;
-        }
-
-        .service-card pre.copiavel,
-        .service-card pre .copiavel {
-          user-select: all;
-          -webkit-user-select: all;
-          cursor: pointer;
-        }
-
-        a {
-          color: #38bdf8;
-          text-decoration: none;
-          font-weight: 600;
-          transition: color 0.2s ease, text-shadow 0.2s ease;
-        }
-
-        a:hover {
-          color: #7dd3fc;
-          text-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
-        }
-
-        footer {
-          margin-top: 1.5rem;
-          font-size: 0.85rem;
-          opacity: 0.9;
-        }
-
-        .repo,
-        .badges {
-          margin-top: 0.8rem;
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 6px;
-        }
-
-        .repo span {
-          display: block;
-          font-size: 0.85rem;
-          margin-bottom: 0.2rem;
-          opacity: 0.9;
-        }
-
-        .repo img,
-        .badges img {
-          height: 20px;
-          vertical-align: middle;
-        }
-
-        @media (max-width: 992px) {
-          .services-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-          body {
-            padding: 1.5rem 1rem;
-            min-height: auto;
-          }
-        }
-
-        @media (max-width: 576px) {
-          .services-grid {
-            grid-template-columns: 1fr;
-          }
-          .dashboard {
-            padding: 1.25rem 1.5rem;
-          }
-        }
-      </style>
+      <link rel="stylesheet" href="base.css">
     </head>
     <body>
       <div class="icon">&#x1F393;</div>
@@ -226,30 +32,30 @@ data:
         <div class="services-grid">
           <div class="service-card">
             <h3>Headlamp Dashboard</h3>
+            <a class="btn" href="http://172.24.0.101/" target="_blank" rel="noopener noreferrer">Acessar</a>
             <p>Gerencie nós, serviços, configs, deployments e outros recursos do cluster de forma visual.</p>
             <p class="token-help">Gerar token na VM kubox:</p>
             <pre class="copiavel">kubectl -n headlamp create token headlamp-admin</pre>
-            <a class="btn" href="http://172.24.0.101/" target="_blank" rel="noopener noreferrer">Acessar</a>
           </div>
 
           <div class="service-card">
             <h3>HAProxy Stats</h3>
+            <a class="btn" href="http://172.24.0.10:9000/stats" target="_blank" rel="noopener noreferrer">Acessar</a>
             <p>Monitore balanceamento de carga e o estado do painel de controle do cluster.</p>
             <p class="token-help">Credenciais padrão:</p>
             <pre>Usuário: <span class="copiavel">admin</span><br/>Senha: <span class="copiavel">senha_muito_segura!</span></pre>
-            <a class="btn" href="http://172.24.0.10:9000/stats" target="_blank" rel="noopener noreferrer">Acessar</a>
           </div>
 
           <div class="service-card">
             <h3>Traefik Dashboard</h3>
-            <p>Monitore o roteamento de tr&aacute;fego e o Gateway API do cluster.</p>
             <a class="btn" href="http://172.24.0.102/" target="_blank" rel="noopener noreferrer">Acessar</a>
+            <p>Monitore o roteamento de tr&aacute;fego e o Gateway API do cluster.</p>
           </div>
 
           <div class="service-card">
             <h3>Contador de Acessos</h3>
-            <p>Exemplo simples em PHP que demonstra o provisionamento e uso de volumes persistentes.</p>
             <a class="btn" href="/contador" rel="noopener noreferrer">Acessar</a>
+            <p>Exemplo simples em PHP que demonstra o provisionamento e uso de volumes persistentes.</p>
           </div>
         </div>
       </div>
