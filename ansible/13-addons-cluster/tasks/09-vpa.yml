@@ -1,0 +1,22 @@
+# ansible/13-addons-cluster/tasks/09-vpa.yml
+---
+- name: Adicionar repositório helm do VPA
+  ansible.builtin.command:
+    cmd: "helm repo add autoscalers https://kubernetes.github.io/autoscaler"
+  register: resultado_repo_add
+  changed_when: "'already exists' not in resultado_repo_add.stdout"
+
+- name: Atualizar repositórios helm
+  ansible.builtin.command:
+    cmd: "helm repo update"
+  changed_when: false
+
+- name: Instalar chart do VPA
+  ansible.builtin.command:
+    cmd: >
+      helm upgrade --install vertical-pod-autoscaler autoscalers/vertical-pod-autoscaler
+      --namespace vpa
+      --create-namespace
+      --atomic --wait --timeout 120s
+  register: resultado_helm_upgrade
+  changed_when: "'installed' in resultado_helm_upgrade.stdout or 'upgraded' in resultado_helm_upgrade.stdout"
