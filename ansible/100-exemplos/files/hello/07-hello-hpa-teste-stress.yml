@@ -45,14 +45,14 @@ spec:
                 - -c
                 - "250"      # +150 concurrent
                 - -qps       # Rate máximo
-                - "2000"     # 2k req/s (pesado!)
+                - "2000"    # 2k req/s
                 - -t
-                - "120s"     # 2min full blast
+                - "180s"     # 3min full blast
                 - http://hello-svc
               resources:
                 requests:
-                  cpu: "100m"
-                  memory: "64Mi"
+                  cpu: "10m"
+                  memory: "32Mi"
                 limits:
-                  cpu: "1500m"
+                  cpu: "1000m"
                   memory: "256Mi"
