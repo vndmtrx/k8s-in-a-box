@@ -2,7 +2,8 @@ replicaCount: 2
 
 service:
   type: LoadBalancer
-  loadBalancerIP: 172.24.0.101
+  annotations:
+    kube-vip.io/loadbalancerIPs: "172.24.0.101"
 
 resources:
   limits:
