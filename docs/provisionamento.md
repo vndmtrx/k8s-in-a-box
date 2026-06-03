@@ -53,7 +53,7 @@ Digitar comandos longos de Ansible e Vagrant repetidamente gera atrito e abre es
   * Garante que o host local possua os componentes essenciais (`ansible`, `vagrant`, `libvirt`/`kvm` e o plugin `vagrant-libvirt`) instalados com as permissões corretas antes de iniciar a construção.
 * **O Comando `make init`:**
   * Como o sistema de topologias (nano, mini, completo) baseia-se em symlinks, o `make init` apaga links antigos e cria um link fresco apontando para a pasta `/configs`.
-* **A Construção Completa (`make kiabo`):**
+* **A Construção Completa (`make k8s-in-a-box`):**
   * Este é um comando meta. Ele roda primeiro a subida de todo o hardware (`make cluster-up` -> invoca vagrant up), em seguida dispara o playbook principal do Ansible com tags de filtro adequadas e, por fim, aplica configurações adicionais no bastião `kubox`.
 * **Execuções Focadas (`make cluster-etcd`, `make cluster-kubelet`):**
   * Durante testes locais focados na configuração de apenas um subsistema, essas tags executam apenas as tarefas correspondentes na role designada, poupando a meia hora que a execução completa levaria e viabilizando o "ciclo de estudo rápido".

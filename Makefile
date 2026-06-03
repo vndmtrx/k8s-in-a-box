@@ -24,12 +24,12 @@ ANSIBLE_VERBOSE := $(if $(VERBOSE),-$(VERBOSE),)
 
 help: ## Mostra esta ajuda
 	@echo "════════════════════════════════════════════════════════════"
-	@echo "  K8s in a Box (KIABO) - Makefile"
+	@echo "  K8s in a Box - Makefile"
 	@echo "════════════════════════════════════════════════════════════"
 	@echo ""
 	@echo "Uso:"
 	@echo "  make init                 # Ativa a configuração definida no config.mk (disponíveis: completo, mini, nano)"
-	@echo "  make kiabo                # Usa alvo ativo (ou padrão: mini)"
+	@echo "  make k8s-in-a-box         # Usa alvo ativo (ou padrão: mini)"
 	@echo "  make status               # Mostra alvo ativo"
 	@echo ""
 	@echo "Lista de targets:"
@@ -107,8 +107,8 @@ lint: ## Checagem da estrutura do Ansible
 	@command -v ansible-lint >/dev/null 2>&1 || { echo "ansible-lint não está instalado."; exit 1; }
 	@ansible-lint -q ansible/ || true
 
-kiabo: cluster ops exemplos ## Executa todo o projeto
-	@echo "Cluster k8s-in-a-box (KIABO) provisionado com sucesso!"
+k8s-in-a-box: cluster ops exemplos ## Executa todo o projeto
+	@echo "Cluster k8s-in-a-box provisionado com sucesso!"
 	@(xdg-open http://172.24.0.110 || open http://172.24.0.110 || echo "Acesse http://172.24.0.110 no seu navegador.") 2>/dev/null
 
 ##########################################################################################

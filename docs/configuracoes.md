@@ -135,7 +135,7 @@ Exibe todos os comandos disponíveis e uma breve explicação do sistema de conf
 
 3. **Provisionar o cluster:**
    ```bash
-   make kiabo
+   make k8s-in-a-box
    ```
 
 4. **Alternar para outra configuração (se necessário):**
@@ -147,7 +147,7 @@ Exibe todos os comandos disponíveis e uma breve explicação do sistema de conf
    make init
    
    # Provisionar com a nova configuração
-   make kiabo
+   make k8s-in-a-box
    ```
 
 ## Configuração Padrão
@@ -241,7 +241,7 @@ Todas as configurações utilizam a mesma faixa de rede (`172.24.0.0/24`). Se vo
 1. Fazer backup dos dados importantes (se houver)
 2. Destruir o cluster atual (`make destroy`)
 3. Configurar `CLUSTER = nova` no `config.mk` e ativar a configuração (`make init`)
-4. Provisionar novamente (`make kiabo`)
+4. Provisionar novamente (`make k8s-in-a-box`)
 
 ### Versionamento
 
@@ -257,7 +257,7 @@ Se você executar comandos do Makefile sem ter ativado uma configuração, verá
 
 ### Symlink Não Existe
 
-Se o symlink `inventario/hosts.yml` não existir, ele será criado automaticamente na primeira execução de `make kiabo` ou qualquer outro target que use `garante-config`.
+Se o symlink `inventario/hosts.yml` não existir, ele será criado automaticamente na primeira execução de `make k8s-in-a-box` ou qualquer outro target que use `garante-config`.
 
 ### Configuração Errada Ativa
 
@@ -280,7 +280,7 @@ make init
 | `make init` | Ativa a configuração configurada no `config.mk` |
 | `make status` | Mostra a configuração ativa |
 | `make help` | Exibe ajuda completa do Makefile |
-| `make kiabo` | Provisiona o cluster com a configuração ativa |
+| `make k8s-in-a-box` | Provisiona o cluster com a configuração ativa |
 | `make destroy` | Destroi o cluster atual |
 
 ---

@@ -1,4 +1,4 @@
-# 🧩 KIABO: k8s-in-a-box
+# 🧩 k8s-in-a-box
 
 Kubernetes in a Box, uma instalação manual de um cluster Kubernetes com alta disponibilidade, provisionado via Ansible e orquestrado com Vagrant usando LibVirt.
 
@@ -9,8 +9,6 @@ Kubernetes in a Box, uma instalação manual de um cluster Kubernetes com alta d
 Este projeto nasceu como uma evolução natural de outro projeto de estudos ([vndmtrx/vagrant-k8s-cluster](https://github.com/vndmtrx/vagrant-k8s-cluster)), onde o cluster era criado utilizando o `kubeadm`. Durante aquele desenvolvimento, percebi que boa parte das etapas executadas pelo `kubeadm` (como a geração de certificados, configuração do etcd e bootstrap dos componentes do control plane) aconteciam de forma automática, sem que eu realmente compreendesse o que estava acontecendo nos bastidores.
 
 Com isso, o **k8s-in-a-box** surgiu como uma forma de reconstruir esse processo manualmente, etapa por etapa, para entender profundamente como o Kubernetes realmente se forma: dos certificados ao control plane e worker nodes.
-
-> Por que da sigla KIABO? Assim como preparar quiabo exige o segredo de saber fazer ele para não ficar "babento", montar um cluster Kubernetes *The Hard Way* exige a ordem correta para que tudo funcione. O projeto não esconde essa complexidade; ele a expõe e organiza passo a passo para que você entenda exatamente como controlá-la!
 
 Este projeto segue a filosofia *"Kubernetes The Hard Way"* ([kelseyhightower/kubernetes-the-hard-way](https://github.com/kelseyhightower/kubernetes-the-hard-way)), demonstrando cada fase de instalação dos componentes essenciais (`PKI`, `etcd`, `Control Plane` e `Worker Nodes`) sem recorrer a ferramentas de conveniência como `kubeadm` ou `k3s`.
 
@@ -145,7 +143,7 @@ O `Makefile` e os playbooks do Ansible conduzem a instalação em etapas, respei
 7. **Addons** (CNI, CoreDNS, métricas, dashboard, Gateway API, Kube-vip, etc.)
 8. **kube-proxy** (DaemonSet aplicado via `kubox` após o cluster estar funcional)
 
-Você pode executar tudo de ponta a ponta com `make kiabo` ou chamar **targets**/tags individuais para depurar etapas específicas.
+Você pode executar tudo de ponta a ponta com `make k8s-in-a-box` ou chamar **targets**/tags individuais para depurar etapas específicas.
 
 ### Customizações rápidas
 
@@ -183,7 +181,7 @@ make status
 
 4. Faça o provisionamento da estrutura completa:
 ```bash
-make kiabo
+make k8s-in-a-box
 ```
 
 > 💡 Se você não executar `make init`, o projeto usará automaticamente a configuração `mini` como padrão.
