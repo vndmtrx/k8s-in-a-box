@@ -31,9 +31,9 @@ primeiro_ip_pods: "{{ rede_cidr_pods | ansible.utils.ipaddr('1') | ansible.utils
 primeiro_ip_services: "{{ rede_cidr_services | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
 coredns_ip: "{{ rede_cidr_services | ansible.utils.ipaddr('10') | ansible.utils.ipaddr('address') }}"
 
-# Range de IPs para o MetalLB fazer LoadBalancing
-metallb_ips_manuais: "172.24.0.101-172.24.0.150"
-metallb_ips_loadbalacing: "172.24.0.201-172.24.0.250"
+# Range de IPs para o Kube-vip fazer LoadBalancing
+kubevip_ips_manuais: "172.24.0.101-172.24.0.150"
+kubevip_ips_loadbalacing: "172.24.0.201-172.24.0.250"
 
 # Portas usadas no projeto
 porta_etcd_https: 2379
@@ -61,6 +61,8 @@ versao_gateway_api: "v1.5.1"  # https://github.com/kubernetes-sigs/gateway-api/r
 versao_helm: "v3.21.0"        # https://github.com/helm/helm/releases
 versao_k9s: "v0.50.18"        # https://github.com/derailed/k9s/releases
 versao_popeye: "v0.22.1"      # https://github.com/derailed/popeye/releases
+versao_kubevip: "v0.8.9"      # https://github.com/kube-vip/kube-vip/releases
+versao_kubevip_cloud_provider: "v0.0.12" # https://github.com/kube-vip/kube-vip-cloud-provider/releases
 
 # Imagens necessárias em todos os nós do cluster (managers e workers)
 # Checar tags das imagens disponíveis em https://explore.ggcr.dev/?repo=registry.k8s.io

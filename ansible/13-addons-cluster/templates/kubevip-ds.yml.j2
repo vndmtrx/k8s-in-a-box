@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kube-vip-ds
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: kube-vip-ds
+  template:
+    metadata:
+      labels:
+        name: kube-vip-ds
+    spec:
+      hostNetwork: true
+      serviceAccountName: kube-vip
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+      containers:
+        - name: kube-vip
+          image: ghcr.io/kube-vip/kube-vip:{{ versao_kubevip }}
+          imagePullPolicy: IfNotPresent
+          args:
+            - "manager"
+          env:
+            - name: vip_arp
+              value: "true"
+            - name: vip_interface
+              value: "eth1"
+            - name: port
+              value: "10000"
+            - name: svc_enable
+              value: "true"
+            - name: svc_election
+              value: "true"
+            - name: egress_cleantables
+              value: "true"
+            - name: egress_podcidr
+              value: "{{ rede_cidr_pods }}"
+            - name: egress_servicecidr
+              value: "{{ rede_cidr_services }}"
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+                - SYS_ADMIN

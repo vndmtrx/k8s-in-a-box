@@ -57,7 +57,7 @@
   - [x] Configuração da rede dos pods
   - [x] Configuração da rede dos serviços
 - [x] Instalação do CoreDNS
-- [x] Configuração do MetalLB
+- [x] Configuração do Kube-vip (L2 & Egress Gateway)
 - [x] Configuração do Gateway API
 - [x] Validação da rede
 

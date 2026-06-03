@@ -20,8 +20,8 @@
 - name: Instalação e configuração do NFS Subdir External Provisioner
   ansible.builtin.import_tasks: 05-nfs-storage.yml
 
-- name: Instalação e configuração do MetalLB
-  ansible.builtin.import_tasks: 06-metallb.yml
+- name: Instalação e configuração do Kube-vip
+  ansible.builtin.import_tasks: 06-kubevip.yml
 
 - name: Instalação e configuração do Traefik Gateway API
   ansible.builtin.import_tasks: 07-traefik-gateway-api.yml

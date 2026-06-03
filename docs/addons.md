@@ -41,9 +41,13 @@ Conforme detalhado no arquivo [nfs.md](./nfs.md), este provisionador converte re
 
 Para interagir com o mundo exterior e testar aplicações, o laboratório usa:
 
-1. **MetalLB:**
-   * Kubernetes puro não sabe lidar com serviços do tipo `LoadBalancer` em infraestrutura bare-metal. O MetalLB preenche essa lacuna.
-   * Utilizando o modo L2 (Layer 2), ele assume pools de IPs previamente declarados no Ansible (como `172.24.0.101-172.24.0.150`), respondendo a requisições ARP no lugar dos roteadores e repassando para os nós corretos.
+1. **Kube-vip & Kube-vip Cloud Provider:**
+   * Kubernetes puro não sabe lidar com serviços do tipo `LoadBalancer` em infraestrutura bare-metal. O Kube-vip resolve esse problema de forma elegante.
+   * Utilizando o modo L2 (Layer 2), ele responde a requisições ARP no lugar dos roteadores e propaga os IPs virtuais (VIPs) diretamente nos nós do cluster.
+   * O `kube-vip-cloud-provider` atua como um controlador IPAM local, distribuindo automaticamente IPs do pool configurado (`kubevip_ips_loadbalacing`) ou atribuindo IPs fixos (`kubevip_ips_manuais`) especificados nas anotações dos serviços.
+   * **Egress Gateway:** Permite que o tráfego originado em pods específicos saia do cluster utilizando um IP estático dedicado (para acessar serviços externos). Para utilizá-lo, basta criar um serviço do tipo `LoadBalancer` configurando a anotação `kube-vip.io/egress: "true"` (com o IP em `kube-vip.io/loadbalancerIPs`) e a especificação `externalTrafficPolicy: Local`.
+     > 💡 **Nota de CNI**: O projeto configura automaticamente o Calico com `chainInsertMode: Append` para evitar que as regras de NAT do Kube-vip conflitem com o tráfego interno do cluster.
+
 2. **Traefik Gateway API:**
    * A evolução moderna do antigo conceito de Ingress Controllers. O Gateway API lida com roteamento HTTP avançado e o Traefik atua como essa "porta de entrada inteligente", escutando portas 80/443 do mundo exterior e direcionando o fluxo aos pods do cluster.
 

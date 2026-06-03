@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubevip
+  namespace: kube-system
+data:
+  # Usar 'range-global' para faixas no formato Inicio-Fim (ex: 172.24.0.201-172.24.0.250)
+  # Usar 'cidr-global' para faixas no formato CIDR (ex: 172.24.0.192/27)
+  range-global: "{{ kubevip_ips_loadbalacing }}"
