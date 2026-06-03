@@ -129,6 +129,7 @@ Inclusive, é possível verificar o status do HAProxy em [http://172.24.0.21:900
 * **Runtime:** `crio` como padrão pela simplicidade e estabilidade; `containerd` disponível.
 * **CNI:** `canal` (Calico + Flannel) como padrão (rede e políticas); `flannel` disponível como opção mais leve.
 * **kube-proxy:** provisionado como DaemonSet dentro do cluster, autenticando-se via `ServiceAccount`; sem certificados de cliente próprios.
+* **LoadBalancer & Egress (Kube-vip):** gerencia as solicitações de LoadBalancer e IPs virtuais no modo L2 (ARP), além de suportar a funcionalidade de Egress Gateway para que as conexões de saída das aplicações utilizem IPs fixos previamente definidos.
 * **Bastion (kubox):** host com `kubectl`, `etcdctl`, `helm` e utilitários para operar e inspecionar o cluster sem “poluir” os nós.
 
 ### Ordem de provisionamento (resumo)
