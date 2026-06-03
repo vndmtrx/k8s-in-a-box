@@ -1,0 +1,65 @@
+# ansible/13-addons-cluster/tasks/06-kubevip.yml
+---
+- name: Garantir diretório charts na home do usuário do ansible
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/charts"
+    state: directory
+    mode: "0755"
+
+- name: Baixar manifesto RBAC do Kube-vip # noqa command-instead-of-module
+  ansible.builtin.command: >
+    wget --quiet
+         -O /home/{{ ansible_user }}/charts/kubevip-rbac.yaml
+         https://kube-vip.io/manifests/rbac.yaml
+  register: kubevip_rbac_wget
+  changed_when: kubevip_rbac_wget.rc != 0
+
+- name: Aplicar manifesto RBAC do Kube-vip
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/kubevip-rbac.yaml"
+  register: resultado_rbac
+  changed_when: "'created' in resultado_rbac.stdout or 'configured' in resultado_rbac.stdout"
+
+- name: Criar manifesto do ConfigMap do Kube-vip
+  ansible.builtin.template:
+    src: kubevip-configmap.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/kubevip-configmap.yml"
+    mode: "0644"
+
+- name: Aplicar manifesto do ConfigMap do Kube-vip
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/kubevip-configmap.yml"
+  register: resultado_cm
+  changed_when: "'created' in resultado_cm.stdout or 'configured' in resultado_cm.stdout"
+
+- name: Criar manifesto do DaemonSet do Kube-vip
+  ansible.builtin.template:
+    src: kubevip-ds.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/kubevip-ds.yml"
+    mode: "0644"
+
+- name: Aplicar manifesto do DaemonSet do Kube-vip
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/kubevip-ds.yml"
+  register: resultado_ds
+  changed_when: "'created' in resultado_ds.stdout or 'configured' in resultado_ds.stdout"
+
+- name: Baixar manifesto do Cloud Provider do Kube-vip # noqa command-instead-of-module
+  ansible.builtin.command: >
+    wget --quiet
+         -O /home/{{ ansible_user }}/charts/kubevip-cloud-controller.yaml
+         https://raw.githubusercontent.com/kube-vip/kube-vip-cloud-provider/{{ versao_kubevip_cloud_provider }}/manifest/kube-vip-cloud-controller.yaml
+  register: kubevip_cc_wget
+  changed_when: kubevip_cc_wget.rc != 0
+
+- name: Aplicar manifesto do Cloud Provider do Kube-vip
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/kubevip-cloud-controller.yaml"
+  register: resultado_cc
+  changed_when: "'created' in resultado_cc.stdout or 'configured' in resultado_cc.stdout"
+
+- name: Ajustar FelixConfiguration do Calico para chainInsertMode=Append (Egress Gateway)
+  ansible.builtin.command:
+    cmd: "kubectl patch felixconfiguration default --type merge -p '{\"spec\": {\"chainInsertMode\": \"Append\"}}'"
+  register: resultado_calico_patch
+  changed_when: "'patched' in resultado_calico_patch.stdout"
