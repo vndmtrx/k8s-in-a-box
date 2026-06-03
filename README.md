@@ -56,7 +56,7 @@ Com o Ansible como provedor de automação, cada componente do cluster é instal
 - Worker Nodes
 - Arquivos de Configuração
 - Hardening SELinux (política customizada de Type Enforcement)
-- Addons de Cluster (CNI, CoreDNS, Métricas, Gateway API, Dashboard, MetalLB)
+- Addons de Cluster (CNI, CoreDNS, Métricas, Gateway API, Dashboard, Kube-vip)
 - Ferramentas de gerenciamento (etcdctl, kubectl, helm)
 - Exemplos de deploys no cluster
 
@@ -100,7 +100,7 @@ A personalização do cluster é feita em dois arquivos principais:
   * **Plugin de CNI:** permite escolher entre `flannel` ou `canal` (Flannel + Calico) para a rede dos pods.
   * **Versões dos componentes:** define quais versões do Kubernetes, etcd, Helm e CNI Plugins serão utilizadas.
   * **Redes do cluster:** configura os blocos de endereçamento das redes de *hosts*, *pods* e *services*.
-  * **Faixas de IPs do MetalLB:** controla os intervalos disponíveis para LoadBalancers e IPs fixos.
+  * **Faixas de IPs do Kube-vip:** controla os intervalos disponíveis para LoadBalancers e IPs fixos.
   * **Parâmetros de HAProxy e Keepalived:** ajusta timeouts, portas e o IP virtual (VIP) usado para alta disponibilidade.
   * **Certificados e artefatos:** define estrutura de diretórios e se os certificados serão regenerados automaticamente.
 
@@ -116,7 +116,7 @@ As VMs ficam em uma **rede privada** (`172.24.0.0/24`) e os **pods/serviços** u
 * **Serviços:** `172.25.128.0/17`
 
 O ambiente expõe um **VIP** para alta disponibilidade do plano de controle via Keepalived e HAProxy (`172.24.0.10`), mapeado por FQDNs como `api.k8sbox.local` e `etcd.k8sbox.local`.
-Se desejar expor serviços via LoadBalancer, há faixas pré-definidas para o MetalLB (pool “manuais” e pool “L2”), que podem ser ajustadas conforme sua rede local.
+Se desejar expor serviços via LoadBalancer, há faixas pré-definidas para o Kube-vip (pool “manuais” e pool “L2”), que podem ser ajustadas conforme sua rede local.
 
 Inclusive, é possível verificar o status do HAProxy em [http://172.24.0.21:9000/stats](http://172.24.0.21:9000/stats) (usuário/senha: `admin` / `senha_muito_segura!`).
 
@@ -141,7 +141,7 @@ O `Makefile` e os playbooks do Ansible conduzem a instalação em etapas, respei
 4. **kubelet + SELinux** (runtime de container, plugins CNI, política customizada de SELinux e configuração do kubelet)
 5. **etcd** (cluster e mTLS)
 6. **Control Plane** (API Server, Controller Manager, Scheduler)
-7. **Addons** (CNI, CoreDNS, métricas, dashboard, Gateway API, MetalLB, etc.)
+7. **Addons** (CNI, CoreDNS, métricas, dashboard, Gateway API, Kube-vip, etc.)
 8. **kube-proxy** (DaemonSet aplicado via `kubox` após o cluster estar funcional)
 
 Você pode executar tudo de ponta a ponta com `make kiabo` ou chamar **targets**/tags individuais para depurar etapas específicas.
@@ -153,7 +153,7 @@ As principais opções ficam em `inventario/group_vars/all.yml`:
 * **Rede dos hosts/pods/serviços:** `rede_cidr_hosts`, `rede_cidr_pods`, `rede_cidr_services`
 * **CNI:** `plugin_cni: "canal"` (opções: `canal` ou `flannel`)
 * **VIP/HAProxy/Keepalived:** `keepalived_vip_ip`, `vip_api_fqdn`, `vip_etcd_fqdn`, timeouts e credenciais do HAProxy
-* **MetalLB:** `metallb_ips_manuais` e `metallb_ips_loadbalacing`
+* **Kube-vip:** `kubevip_ips_manuais` e `kubevip_ips_loadbalacing`
 * **Versões:** `versao_kubernetes`, `versao_etcd`, `versao_cni`, `versao_helm`
 
 > 💡 Dica: ajuste primeiro CPU/RAM no `inventario/hosts.yml`. Em seguida, valide **rede** e **VIP**. Por fim, escolha o **CNI** conforme o objetivo: `canal` (recursos avançados) ou `flannel` (menor consumo de memória).

@@ -29,7 +29,7 @@ Este projeto serve como:
   - Balanceador de carga frontal (HAProxy)
   - Plano de Controle com 3 nós
   - Nós de trabalho para execução de cargas
-  - MetalLB para serviços de balanceamento de carga
+  - Kube-vip para serviços de balanceamento de carga e Egress Gateway
 
 ### Controle de Acesso
 - Demonstração de boas práticas:
@@ -45,9 +45,9 @@ Este projeto serve como:
   - Terminação TLS
   - Distribuição de carga do Plano de Controle
   - Monitoramento de integridade dos pontos de acesso
-- MetalLB:
-  - Modo camada 2 para ambiente local
-  - Integração com serviços Kubernetes
+- Kube-vip:
+  - Modo camada 2 (ARP) para ambiente local e controle de Egress (SNAT)
+  - Integração com serviços Kubernetes através do Kube-vip Cloud Provider (IPAM local)
   - Faixa de endereços IP configurável
 
 ### Rede
@@ -107,7 +107,7 @@ Exemplos de controle de tráfego:
 Demonstrações de:
 - IP interno do cluster (ClusterIP)
 - Porta do nó (NodePort)
-- Balanceador de carga via MetalLB
+- Balanceador de carga via Kube-vip
 - Entrada com TLS
 
 ## Guia de Contribuição
@@ -150,7 +150,7 @@ Para reportar problemas de segurança:
 - [Modelo de Segurança do etcd](https://etcd.io/docs/latest/op-guide/security/)
 - [Boas Práticas de PKI](https://kubernetes.io/docs/setup/best-practices/certificates/)
 - [Flannel CNI](https://github.com/flannel-io/flannel)
-- [MetalLB](https://metallb.universe.tf/)
+- [Kube-vip](https://kube-vip.io/)
 - [Boas Práticas do HAProxy](https://www.haproxy.com/blog/the-four-essential-sections-of-an-haproxy-configuration/)
 
 ## Licença
