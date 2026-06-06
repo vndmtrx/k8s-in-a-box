@@ -42,7 +42,7 @@ O **k8s‑in‑a‑box** é um ambiente Kubernetes completo, construído de form
 
 ## Addons e Serviços Complementares
 
-A estrutura do cluster é enriquecida com diversos addons, instalados superficialmente via Ansible e que serão detalhados em páginas futuras:
+A estrutura do cluster é enriquecida com diversos addons, instalados via Ansible e detalhados na documentação específica ([Addons e Serviços Complementares](./addons.md)):
 
 * **Plugins de rede (CNI):** escolha entre `flannel` via Helm ou `canal` (Calico + Flannel), cujo manifesto é baixado e ajustado para a faixa de pods.
 * **CoreDNS:** fornece resolução de nomes interna no cluster, instalado como chart Helm.
@@ -51,6 +51,8 @@ A estrutura do cluster é enriquecida com diversos addons, instalados superficia
 * **Kube-vip:** implementa balanceamento de serviços em camada 2 (ARP), distribuindo IPs externos para serviços do tipo LoadBalancer e fornecendo suporte a Egress Gateway.
 * **Gateway API (Traefik):** permite exposição de aplicações HTTP/HTTPS via objetos Gateway/HTTPRoute.
 * **Headlamp Dashboard:** oferece uma interface web de administração, instalada com service account apropriada.
+* **Vertical Pod Autoscaler (VPA):** analisa o uso de recursos e sugere/ajusta limites de recursos verticalmente para os contêineres dos Pods de forma dinâmica.
+* **Stack de Observabilidade (kube-prometheus-stack + Grafana):** coleta e armazena métricas detalhadas dos componentes do cluster (nós, pods, kube-proxy, CoreDNS e control plane) no Prometheus e as visualiza em dashboards ricos pré-configurados no Grafana.
 
 ## Automação com Vagrant, Makefile e definições de rede
 
@@ -110,4 +112,4 @@ Essas redes, combinadas com a configuração de CNI (Flannel ou Canal) e com o l
 
 Este documento apresentou uma visão geral da arquitetura do `k8s‑in‑a‑box`, descrevendo os componentes principais do cluster, os addons instalados e a infraestrutura de provisionamento com Vagrant, Makefile e as configurações de rede. O objetivo foi mostrar como cada elemento contribui para formar um ambiente Kubernetes completo, replicável e de fácil gestão.
 
-Nos próximos textos desta wiki serão explorados em detalhes o funcionamento de cada serviço e addon, incluindo a configuração do HAProxy/Keepalived, o provisionamento NFS, a criação dos nós managers e workers, a função do bastion host e a instalação dos principais addons do cluster.
+Nas demais páginas desta documentação, são explorados em detalhes o funcionamento e a configuração de cada serviço e addon, incluindo o balanceamento com HAProxy/Keepalived, o provisionamento persistente via NFS, a criação dos nós managers e workers (com seu runtime CRI-O/containerd e política customizada de SELinux) e a instalação completa dos addons de cluster.
