@@ -23,8 +23,14 @@
   register: resultado_kubectl
   changed_when: "'configured' in resultado_kubectl.stdout or 'created' in resultado_kubectl.stdout"
 
+- name: Reiniciar DaemonSet do kube-proxy se houver alterações
+  ansible.builtin.command:
+    cmd: "kubectl rollout restart daemonset/kube-proxy -n kube-system"
+  when: resultado_kubectl.changed
+
 - name: Esperar rollout do DaemonSet do kube-proxy
   ansible.builtin.command:
     cmd: "kubectl -n kube-system rollout status daemonset/kube-proxy --timeout=180s"
   register: resultado_rollout
   changed_when: false
+
