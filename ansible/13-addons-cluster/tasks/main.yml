@@ -32,3 +32,6 @@
 - name: Instalação e configuração do Vertical Pod Autoscaler (VPA)
   ansible.builtin.import_tasks: 09-vpa.yml
 
+- name: Instalação e configuração do Prometheus Operator e Grafana (Prometheus Stack)
+  ansible.builtin.import_tasks: 10-prometheus-stack.yml
+
