@@ -31,6 +31,14 @@ data:
 
         <div class="services-grid">
           <div class="service-card">
+            <h3>HAProxy Stats</h3>
+            <a class="btn" href="http://172.24.0.10:9000/stats" target="_blank" rel="noopener noreferrer">Acessar</a>
+            <p>Monitore balanceamento de carga e o estado do painel de controle do cluster.</p>
+            <p class="token-help">Credenciais padrão:</p>
+            <pre>Usuário: <span class="copiavel">admin</span><br/>Senha: <span class="copiavel">senha_muito_segura!</span></pre>
+          </div>
+
+          <div class="service-card">
             <h3>Headlamp Dashboard</h3>
             <a class="btn" href="http://172.24.0.101/" target="_blank" rel="noopener noreferrer">Acessar</a>
             <p>Gerencie nós, serviços, configs, deployments e outros recursos do cluster de forma visual.</p>
@@ -39,13 +47,12 @@ data:
           </div>
 
           <div class="service-card">
-            <h3>HAProxy Stats</h3>
-            <a class="btn" href="http://172.24.0.10:9000/stats" target="_blank" rel="noopener noreferrer">Acessar</a>
-            <p>Monitore balanceamento de carga e o estado do painel de controle do cluster.</p>
-            <p class="token-help">Credenciais padrão:</p>
-            <pre>Usuário: <span class="copiavel">admin</span><br/>Senha: <span class="copiavel">senha_muito_segura!</span></pre>
+            <h3>Grafana Dashboard</h3>
+            <a class="btn" href="http://172.24.0.103/" target="_blank" rel="noopener noreferrer">Acessar</a>
+            <p>Monitore m&eacute;tricas detalhadas de infraestrutura, pods, nodes e recursos do cluster.</p>
+            <p class="token-help">Obter senha do admin na VM kubox:</p>
+            <pre class="copiavel">kubectl get secret -n monitoring prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo</pre>
           </div>
-
           <div class="service-card">
             <h3>Traefik Dashboard</h3>
             <a class="btn" href="http://172.24.0.102/" target="_blank" rel="noopener noreferrer">Acessar</a>

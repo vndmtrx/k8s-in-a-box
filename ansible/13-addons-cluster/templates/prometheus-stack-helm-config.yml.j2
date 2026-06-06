@@ -1,0 +1,91 @@
+# ansible/13-addons-cluster/templates/prometheus-stack-helm-config.yml.j2
+---
+alertmanager:
+  enabled: false
+
+defaultRules:
+  create: true
+
+grafana:
+  enabled: true
+
+  # Exposição do Grafana via Kube-vip LoadBalancer
+  service:
+    type: LoadBalancer
+    annotations:
+      kube-vip.io/loadbalancerIPs: "172.24.0.103"
+
+  # Configurações de inicialização do Grafana para fixar o dashboard Global
+  grafana.ini:
+    dashboards:
+      default_home_dashboard_path: /var/lib/grafana/dashboards/grafana-dashboards-kubernetes/k8s-views-global.json
+
+  # Provisionamento de provedores de dashboard
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'grafana-dashboards-kubernetes'
+          orgId: 1
+          folder: 'Kubernetes'
+          type: file
+          disableDeletion: true
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/grafana-dashboards-kubernetes
+
+  # Definição e download dos dashboards da coleção dotdc/grafana-dashboards-kubernetes via URL
+  dashboards:
+    grafana-dashboards-kubernetes:
+      k8s-system-api-server:
+        url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
+        token: ''
+      k8s-system-coredns:
+        url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-coredns.json
+        token: ''
+      k8s-views-global:
+        url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-global.json
+        token: ''
+      k8s-views-namespaces:
+        url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-namespaces.json
+        token: ''
+      k8s-views-nodes:
+        url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-nodes.json
+        token: ''
+      k8s-views-pods:
+        url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-pods.json
+        token: ''
+
+# Monitoramento dos Static Pods do Control Plane
+kubeControllerManager:
+  enabled: true
+  endpoints: {{ groups['managers'] | map('extract', hostvars, 'ansible_host') | list | to_json }}
+  serviceMonitor:
+    insecureSkipVerify: true
+
+kubeScheduler:
+  enabled: true
+  endpoints: {{ groups['managers'] | map('extract', hostvars, 'ansible_host') | list | to_json }}
+  serviceMonitor:
+    insecureSkipVerify: true
+
+kubeEtcd:
+  enabled: true
+  endpoints: {{ groups['managers'] | map('extract', hostvars, 'ansible_host') | list | to_json }}
+  serviceMonitor:
+    scheme: http
+
+
+# Configurações do Prometheus
+prometheus:
+  prometheusSpec:
+    retention: 3d
+    resources:
+      requests:
+        cpu: 100m
+        memory: 400Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+
+
