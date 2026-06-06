@@ -54,7 +54,7 @@ Com o Ansible como provedor de automação, cada componente do cluster é instal
 - Worker Nodes
 - Arquivos de Configuração
 - Hardening SELinux (política customizada de Type Enforcement)
-- Addons de Cluster (CNI, CoreDNS, Métricas, Gateway API, Dashboard, Kube-vip)
+- Addons de Cluster (CNI, CoreDNS, Métricas, Gateway API, Dashboard, Kube-vip, VPA, Prometheus Stack + Grafana)
 - Ferramentas de gerenciamento (etcdctl, kubectl, helm)
 - Exemplos de deploys no cluster
 
@@ -244,30 +244,37 @@ Para a operação do cluster (e melhor simulação de um ambiente real), as ferr
   - Relatório em formato JSON: `popeye -o json`
 
 
-## Acesso ao Dashboard do Headlamp e do Traefik
+## Acesso aos Dashboards (Headlamp, Traefik e Grafana)
 
-No cluster o Headlamp Dashboard foi ativado, permitindo a verificação dos diversos componentes do cluster.
+No cluster, vários painéis visuais foram ativados para facilitar a administração, monitoramento e visualização dos componentes do cluster.
 
-Para acessar o Headlamp Dashboard, é só acessar a URL [http://172.24.0.101](http://172.24.0.101/), e quando for solicitado o token, é só usar o seguinte comando na kubox:
-
+### 1. Headlamp Dashboard
+Para acessar o Headlamp Dashboard, acesse a URL [http://172.24.0.101](http://172.24.0.101/). Quando for solicitado o token de autenticação, gere-o executando o seguinte comando no host `kubox`:
 ```bash
 kubectl -n headlamp create token headlamp-admin
 ```
 
-Adicionalmente, foi dado acesso ao Dashboard do Traefik também, permitindo a verificação dos endpoints expostos via Gateway API.
+### 2. Traefik Dashboard
+Para verificar os endpoints expostos via Gateway API, acesse o painel do Traefik na URL [http://172.24.0.102](http://172.24.0.102/), sem necessidade de autenticação.
 
-Para acessar o Traefik Dashboard, é só acessar a URL [http://172.24.0.102](http://172.24.0.102/), sem necessidade de informar senha.
+### 3. Grafana (Stack de Observabilidade)
+Para visualizar métricas detalhadas do cluster (nós, pods, plano de controle e CoreDNS), acesse o Grafana na URL [http://172.24.0.103](http://172.24.0.103/).
+* **Usuário padrão:** `admin`
+* **Comando para obter a senha:** Execute o comando abaixo no host `kubox` para obter a senha gerada aleatoriamente:
+  ```bash
+  kubectl get secret -n monitoring prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+  ```
 
 ### Acesso Remoto (Túnel SSH / Port Forwarding)
 
-Se o seu ambiente `k8s-in-a-box` estiver sendo executado em uma máquina ou servidor remoto (onde você se conecta apenas via SSH), as IPs de LoadBalancer da rede privada (`172.24.0.101` e `172.24.0.102`) não estarão acessíveis diretamente pelo seu navegador físico local. 
+Se o seu ambiente `k8s-in-a-box` estiver sendo executado em uma máquina ou servidor remoto (onde você se conecta apenas via SSH), os IPs de LoadBalancer da rede privada (`172.24.0.101`, `172.24.0.102` e `172.24.0.103`) não estarão acessíveis diretamente pelo seu navegador físico local. 
 
 Para resolver isso de forma elegante, você pode criar túneis SSH (**Local Port Forwarding**) para mapear as portas locais do seu computador físico para as IPs virtuais internas do servidor:
 
 #### Método 1: Via Linha de Comando (Linux, macOS ou Windows Terminal)
 Execute o comando abaixo no terminal da sua máquina física local para iniciar uma sessão SSH contendo os túneis:
 ```bash
-ssh -L 8080:172.24.0.101:80 -L 8081:172.24.0.102:80 seu_usuario@ip_do_servidor_remoto
+ssh -L 8080:172.24.0.101:80 -L 8081:172.24.0.102:80 -L 8082:172.24.0.103:80 seu_usuario@ip_do_servidor_remoto
 ```
 
 #### Método 2: Via PuTTY (Windows GUI)
@@ -282,11 +289,16 @@ Se você utiliza o PuTTY para gerenciar suas conexões:
    * **Source port:** `8081`
    * **Destination:** `172.24.0.102:80`
    * Clique em **Add**.
-5. Volte para a categoria **Session** no topo esquerdo, clique em **Save** para fixar a configuração e clique em **Open** para iniciar a conexão.
+5. Adicione o túnel do **Grafana**:
+   * **Source port:** `8082`
+   * **Destination:** `172.24.0.103:80`
+   * Clique em **Add**.
+6. Volte para a categoria **Session** no topo esquerdo, clique em **Save** para fixar a configuração e clique em **Open** para iniciar a conexão.
 
 Após conectar-se por qualquer um dos métodos, as interfaces estarão acessíveis no seu navegador local nos seguintes endereços:
 * 🌐 **Headlamp Dashboard:** [http://localhost:8080](http://localhost:8080)
 * 🌐 **Traefik Dashboard:** [http://localhost:8081/dashboard/](http://localhost:8081/dashboard/)
+* 🌐 **Grafana Dashboard:** [http://localhost:8082](http://localhost:8082)
 
 > ⚠️ **ALERTA: É extremamente importante esclarecer que esses dashboards estão sendo expostos através de um Service do tipo LoadBalancer única e exclusivamente para fins de estudo e avaliação do cluster. Em produção, jamais deve-se expor esses componentes à rede pública; caso seja necessário acesso, utilize os mecanismos seguros que o Kubernetes oferece, como o `kubectl proxy` ou `kubectl port-forward`, garantindo que o tráfego permaneça interno ao cluster e protegido por autenticação e controle de permissões.**
 
