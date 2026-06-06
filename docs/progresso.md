@@ -61,6 +61,12 @@
 - [x] Configuração do Gateway API
 - [x] Validação da rede
 
+### 📊 Addons e Observabilidade
+- [x] Vertical Pod Autoscaler (VPA)
+- [x] Stack de Observabilidade (kube-prometheus-stack + Grafana)
+- [x] ServiceMonitor do CoreDNS integrado ao Prometheus
+- [x] Métricas do kube-proxy expostas para o Prometheus
+
 ### 📚 Documentação
 - [x] README do Projeto
 - [ ] Guia de Instalação
