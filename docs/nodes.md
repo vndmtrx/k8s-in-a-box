@@ -60,5 +60,7 @@ Após ter o cérebro rodando, é hora de instanciar os "músculos". Embora os Ma
 2. **kube-proxy (role `11-kube-proxy-pod`):**
    * Agora roda em cada nó do cluster como um DaemonSet (Pod) em cima do cluster (e não mais como um serviço de sistema systemd local), mantendo regras de rede (através do iptables ou IPVS).
    * É ele quem permite as abstrações de **Services** funcionarem, redirecionando o tráfego do IP do cluster (VIP do Service) para os IPs reais dos Pods executando o contêiner por trás dele.
+   * **Exposição de Métricas:** Configurado com `metricsBindAddress: 0.0.0.0:10249`, permitindo que o Prometheus raspe suas métricas de rede em todos os nós através da porta `10249`.
+   * **Atualização Automática (Rollout):** A automação do Ansible monitora o ConfigMap do `kube-proxy` e executa um restart automático do DaemonSet (`kubectl rollout restart daemonset/kube-proxy`) caso alguma alteração de configuração ocorra.
 
 Concluída a instalação e ativação do `kubelet`, os nós informam seu status para o API Server e passam a constar no comando `kubectl get nodes` como estado `NotReady`. Eles só transitarão para `Ready` na próxima etapa: a instalação dos Addons de Rede (CNI). Somente após o cluster estar ativo é que o `kube-proxy` é provisionado (como DaemonSet) junto com os demais addons, a partir do bastion host `kubox`.
