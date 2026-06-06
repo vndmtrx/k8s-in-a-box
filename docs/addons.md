@@ -23,9 +23,10 @@ O Ansible baixa os manifestos YAML de acordo com a variável `plugin_cni` e inje
 
 ## CoreDNS
 
-Assim que a rede sobe, o **CoreDNS** é instalado (frequentemente com a ajuda do Helm, gerenciado localmente pelo bastion host ou scripts diretos).
+Assim que a rede sobe, o **CoreDNS** é instalado (gerenciado via Helm e implantado no namespace `kube-system`).
 * Ele sobe como um Pod no cluster e é responsável por ler os objetos de Serviço (`Service`) e atribuir nomes legíveis a eles.
 * Permite que aplicações conversem entre si na rede do cluster usando FQDNs internos como `meu-servico.meu-namespace.svc.cluster.local`.
+* **Integração com Prometheus:** Possui a exposição de métricas habilitada e um objeto `ServiceMonitor` criado com o label `release: prometheus-stack` para coleta automática de dados pelo Prometheus.
 
 ## Metrics Server
 
@@ -55,3 +56,44 @@ Para interagir com o mundo exterior e testar aplicações, o laboratório usa:
 
 Uma interface visual elegante, robusta e leve, instalada no cluster como forma fácil de visualizar todos os recursos (pods, logs, métricas, roles).
 O painel é acessado através do serviço Traefik criado por padrão e protegido com um ServiceAccount token (exemplo contido no `README.md` da raiz).
+
+## Vertical Pod Autoscaler (VPA)
+
+O **Vertical Pod Autoscaler (VPA)** é um addon essencial para otimização de recursos do cluster. Enquanto o HPA (Horizontal Pod Autoscaler) redimensiona a quantidade de réplicas de uma aplicação de acordo com a carga, o VPA atua ajustando os recursos (solicitações e limites de CPU e memória) solicitados pelos contêineres dos Pods de forma vertical.
+
+* **Namespace de Instalação:** `vpa`
+* **Chart Helm:** `autoscalers/vertical-pod-autoscaler` (repositório `https://kubernetes.github.io/autoscaler`)
+* **Modos de Funcionamento (`updateMode`):**
+  * **`Off`:** O VPA apenas gera recomendações estáticas sobre os recursos que o Pod deveria estar consumindo (visualizáveis via `kubectl describe vpa`). É o modo ideal e obrigatório quando se deseja utilizar o VPA em conjunto com o HPA (para evitar conflitos em que ambos tentam escalar as réplicas/recursos concorrentemente).
+  * **`Initial`:** O VPA atribui recursos recomendados no momento da criação do Pod, mas não altera um Pod que já esteja em execução. Muito útil para CronJobs ou tarefas que rodam periodicamente.
+  * **`Auto` / `Recreate`:** O VPA despeja (evict) os pods ativos para recriá-los com as novas configurações de CPU/memória ideais (não recomendado em cenários com HPA).
+
+## Stack de Observabilidade (Prometheus Stack + Grafana)
+
+Para monitoramento completo de infraestrutura e aplicações, o projeto instala a stack de observabilidade nativa baseada no Prometheus Operator.
+
+* **Namespace de Instalação:** `monitoring`
+* **Chart Helm:** `prometheus-community/kube-prometheus-stack`
+* **Componentes Principais:**
+  * **Prometheus:** Servidor de monitoramento principal com limite de retenção configurado para 3 dias (`retention: 3d`). Configurado com solicitações de recursos de `100m` CPU e `400Mi` RAM (limites de `500m` CPU e `1Gi` RAM).
+  * **Grafana:** Painel de visualização rico. Exposto via `LoadBalancer` Kube-vip com o IP fixo configurado `172.24.0.103`.
+  * **Alertmanager:** Desabilitado por padrão (`alertmanager.enabled: false`) para economia de recursos no ambiente local.
+* **Dashboards Pré-carregados:**
+  O Grafana vem integrado de fábrica com dashboards da comunidade (`dotdc/grafana-dashboards-kubernetes`):
+  * `k8s-views-global` (dashboard padrão inicial / home)
+  * `k8s-system-api-server`
+  * `k8s-system-coredns`
+  * `k8s-views-namespaces`
+  * `k8s-views-nodes`
+  * `k8s-views-pods`
+* **Monitoramento do Control Plane (Static Pods):**
+  Ao contrário de clusters gerenciados tradicionais, monitoramos os componentes nativos que rodam como Static Pods nos nós Managers. A stack está configurada para mapear endpoints estáticos dos managers e raspar métricas diretamente deles:
+  * `kubeControllerManager` e `kubeScheduler` usam `insecureSkipVerify: true`.
+  * `kubeEtcd` usa esquema `http`.
+* **Monitoramento do kube-proxy:**
+  As métricas do `kube-proxy` são raspadas via porta `10249`, configurada para responder na interface `0.0.0.0`.
+* **Como obter a senha de administrador do Grafana:**
+  O usuário padrão é `admin`. A senha gerada aleatoriamente durante a instalação pode ser obtida executando o seguinte comando no terminal do cluster:
+  ```bash
+  kubectl get secret -n monitoring prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+  ```
