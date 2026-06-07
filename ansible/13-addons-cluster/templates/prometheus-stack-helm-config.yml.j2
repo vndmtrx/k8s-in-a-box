@@ -75,6 +75,14 @@ kubeEtcd:
   serviceMonitor:
     scheme: http
 
+coreDns:
+  enabled: true
+  service:
+    enabled: true
+    port: 9153
+    targetPort: 9153
+    selector:
+      k8s-app: coredns
 
 # Configurações do Prometheus
 prometheus:

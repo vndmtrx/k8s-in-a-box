@@ -27,15 +27,13 @@ affinity:
             - key: k8s-app
               operator: In
               values:
-                - kube-dns
+                - coredns
         topologyKey: "kubernetes.io/hostname"
 
-# Habilitar exposição de métricas e ServiceMonitor para integração com o Prometheus Stack
+# Habilitar exposição de métricas para integração com o Prometheus Stack
 prometheus:
   service:
     enabled: true
   monitor:
-    enabled: true
-    additionalLabels:
-      release: prometheus-stack
+    enabled: false
 
