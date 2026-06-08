@@ -22,6 +22,7 @@ Para garantir que o laboratório simule práticas recomendadas de segurança de 
   * [09-hello-vpa.yml](../ansible/100-exemplos/files/hello/09-hello-vpa.yml) (Vertical Pod Autoscaler para otimização de CPU/memória)
 
 ### 2. Contador de Acessos (`contador`)
+
 * **Tecnologia**: PHP/Apache (`php:8.5-apache`) + CronJob de apoio (`debian:stable`).
 * **Propósito**: Demonstrar a persistência em volumes compartilhados (gravação/leitura no arquivo `contador.txt` e `ultimo.txt` a cada acesso e no arquivo `cron.txt` a cada execução do CronJob).
 * **Manifestos**:
@@ -29,6 +30,13 @@ Para garantir que o laboratório simule práticas recomendadas de segurança de 
   * [03-contador-deployment.yml](../ansible/100-exemplos/files/contador/03-contador-deployment.yml)
   * [06-contador-cronjob.yml](../ansible/100-exemplos/files/contador/06-contador-cronjob.yml)
   * [07-contador-networkpolicies.yml](../ansible/100-exemplos/files/contador/07-contador-networkpolicies.yml)
+
+### 3. Exemplos dedicados de VPA (`vpa`)
+* **Propósito**: Demonstrar de forma isolada e sem concorrência com o HPA o funcionamento do Vertical Pod Autoscaler nos modos `Initial` (para CronJobs) e `Auto` (para Deployments contínuos com suporte a alta disponibilidade).
+* **Manifestos**:
+  * [01-vpa-initial-cronjob.yml](../ansible/100-exemplos/files/vpa/01-vpa-initial-cronjob.yml) (CronJob de estresse periódico e VPA com `updateMode: "Initial"`)
+  * [02-vpa-auto-deployment.yml](../ansible/100-exemplos/files/vpa/02-vpa-auto-deployment.yml) (Deployment de 2 réplicas com PDB e VPA com `updateMode: "Auto"`)
+
 
 ## 🔒 Arquitetura de Execução Rootless (Não-Root)
 
@@ -125,3 +133,19 @@ Para demonstrar os recursos de escalabilidade automática do Kubernetes, o labor
   kubectl describe vpa hello-app-vpa -n exemplos
   ```
 * **updateMode: "Initial" (no hello-hpa-teste-stress):** Para o CronJob de teste de estresse, a política do VPA é definida como `Initial`. Como não há HPA atuando sobre o CronJob, o VPA calcula e altera os limites de recursos do Pod no momento em que ele é iniciado pela execução periódica, otimizando o contêiner de carga dinamicamente sem reiniciá-lo enquanto executa.
+
+### 3. Testes Dedicados de VPA (Modos Initial e Auto)
+
+Para testar e observar detalhadamente o comportamento do VPA de forma isolada, foram disponibilizados dois cenários sob o diretório `vpa`:
+
+* **VPA Initial com CronJob (`01-vpa-initial-cronjob.yml`):**
+  * O CronJob `vpa-stress-cronjob` é executado a cada 10 minutos (especificamente nos minutos terminados em 5, como 5, 15, 25... para evitar concorrência com o teste HPA).
+  * O Pod gerado executa um processamento intensivo de CPU por 3 minutos. O VPA associado (`vpa-stress-cronjob-vpa`) com `updateMode: "Initial"` coleta o consumo histórico e, na próxima execução periódica, o novo Pod é automaticamente criado com requisições e limites mais altos, calculados a partir da execução anterior.
+
+* **VPA Auto com Deployment e PDB (`02-vpa-auto-deployment.yml`):**
+  * O Deployment `vpa-stress-deployment` roda constantemente com 2 réplicas.
+  * Os containers monitoram o relógio do sistema e iniciam o estresse de CPU por 3 minutos quando o minuto atual termina em 5 (ex: 5, 15, 25...).
+  * O VPA associado (`vpa-stress-deployment-vpa`) com `updateMode: "Auto"` detecta o pico de uso de CPU que excede a requisição inicial e solicita a evicção dos Pods.
+  * O PodDisruptionBudget `vpa-stress-deployment-pdb` garante que pelo menos 1 réplica continue ativa durante o processo. Assim, o VPA Updater despeja as réplicas de forma alternada, permitindo que a nova réplica seja criada e mutada com os novos recursos sem causar indisponibilidade total.
+
+
