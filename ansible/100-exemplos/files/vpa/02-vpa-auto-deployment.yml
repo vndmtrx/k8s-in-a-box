@@ -1,0 +1,81 @@
+# ansible/100-exemplos/files/vpa/02-vpa-auto-deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpa-stress-deployment
+  namespace: exemplos
+  labels:
+    app: vpa-stress-deployment
+    componente: deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vpa-stress-deployment
+  template:
+    metadata:
+      labels:
+        app: vpa-stress-deployment
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+      restartPolicy: Always
+      containers:
+        - name: stress-container
+          image: alpine:3.20
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Iniciando loop de sincronização do estresse de VPA Auto..."
+              while true; do
+                MIN=$(date +%-M)
+                REMAINDER=$(( MIN % 10 ))
+                if [ "$REMAINDER" -eq 5 ]; then
+                  echo "Minuto atual termina em 5 ($MIN). Iniciando estresse de 3 minutos (180s)..."
+                  timeout 180s sh -c 'while true; do dd if=/dev/urandom bs=1M count=10 2>/dev/null | sha256sum | sha512sum | sha512sum > /dev/null; done'
+                  echo "Estresse de CPU finalizado. Dormindo por 3 minutos para avançar o relógio..."
+                  sleep 180
+                else
+                  sleep 15
+                fi
+              done
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              cpu: "1000m"
+              memory: "256Mi"
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: vpa-stress-deployment-pdb
+  namespace: exemplos
+  labels:
+    app: vpa-stress-deployment
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: vpa-stress-deployment
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-stress-deployment-vpa
+  namespace: exemplos
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: vpa-stress-deployment
+  updatePolicy:
+    updateMode: "Auto"
