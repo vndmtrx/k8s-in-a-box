@@ -8,3 +8,7 @@
 
 - name: Implantação do exemplo Contador
   ansible.builtin.import_tasks: 02-contador.yml
+
+- name: Implantação dos exemplos de VPA
+  ansible.builtin.import_tasks: 03-vpa.yml
+
