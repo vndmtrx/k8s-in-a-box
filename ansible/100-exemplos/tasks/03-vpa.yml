@@ -1,0 +1,31 @@
+# ansible/100-exemplos/tasks/03-vpa.yml
+---
+- name: Garantir diretório exemplos/vpa na home do usuário do ansible
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/exemplos/vpa/"
+    state: directory
+    mode: "0755"
+
+- name: Copiar exemplo vpa completo para a pasta de exemplos
+  ansible.builtin.copy:
+    src: "vpa/"
+    dest: "/home/{{ ansible_user }}/exemplos/vpa/"
+    mode: "0644"
+  register: vpa_copy
+
+- name: Aplicar Manifests do VPA
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/exemplos/vpa/"
+  register: vpa_apply
+  changed_when: "'configured' in vpa_apply.stdout or 'created' in vpa_apply.stdout"
+
+- name: Reiniciar deployment/vpa-stress-deployment se houver alterações
+  ansible.builtin.command:
+    cmd: "kubectl rollout restart deployment/vpa-stress-deployment -n exemplos"
+  when: vpa_copy.changed or vpa_apply.changed
+  changed_when: true
+
+- name: Aguardar rollout do VPA Deployment ser concluído
+  ansible.builtin.command:
+    cmd: "kubectl rollout status deployment/vpa-stress-deployment -n exemplos --timeout=120s"
+  changed_when: false
