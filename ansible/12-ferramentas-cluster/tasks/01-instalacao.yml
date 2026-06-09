@@ -1,11 +1,18 @@
 # ansible/12-ferramentas-cluster/tasks/01-instalacao.yml
 ---
+- name: Verificar se o executável do yq já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/yq"
+  register: yq_bin
+
 - name: Copiar yq para a VM em /usr/local/bin
   ansible.builtin.copy:
     src: "{{ pasta_temporarios }}/yq"
     dest: "/usr/local/bin/yq"
     mode: "0755"
   become: true
+  when: not yq_bin.stat.exists
+
 
 
 - name: Verificar se o executável do kubectl já está instalado na VM
@@ -85,8 +92,13 @@
         path: "/tmp/helm-bin.tar.gz"
         state: absent
 
+- name: Verificar se o executável do k9s já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/k9s"
+  register: k9s_bin
+
 - name: Instalar o k9s se não existir
-  when: not helm_bin.stat.exists
+  when: not k9s_bin.stat.exists
   block:
     - name: Garantir que a pasta de destino do k9s existe
       ansible.builtin.file:
@@ -126,8 +138,13 @@
         path: "/tmp/k9s-bin.tar.gz"
         state: absent
 
+- name: Verificar se o executável do popeye já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/popeye"
+  register: popeye_bin
+
 - name: Instalar o popeye se não existir
-  when: not helm_bin.stat.exists
+  when: not popeye_bin.stat.exists
   block:
     - name: Garantir que a pasta de destino do popeye existe
       ansible.builtin.file:
