@@ -18,6 +18,7 @@
   become: true
   ansible.builtin.dnf:
     update_cache: true
+  changed_when: false
 
 - name: Atualizar todos os pacotes  # noqa package-latest
   become: true
