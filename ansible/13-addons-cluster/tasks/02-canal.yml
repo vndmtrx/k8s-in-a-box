@@ -6,13 +6,12 @@
     state: directory
     mode: "0755"
 
-- name: Baixar manifesto do Canal (Flannel + Calico) # noqa command-instead-of-module
-  ansible.builtin.command: >
-    wget --quiet
-         -O /home/{{ ansible_user }}/charts/canal-manifest.yaml
-         https://raw.githubusercontent.com/projectcalico/calico/{{ versao_canal }}/manifests/canal.yaml
-  register: canal_wget
-  changed_when: canal_wget.rc != 0
+- name: Baixar manifesto do Canal (Flannel + Calico)
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/projectcalico/calico/{{ versao_canal }}/manifests/canal.yaml"
+    dest: "/home/{{ ansible_user }}/charts/canal-manifest.yaml"
+    mode: "0644"
+    force: false
 
 - name: Ajustar faixa de rede dos pods no net-conf.json
   ansible.builtin.replace:
@@ -28,7 +27,7 @@
 
 - name: Aguardar pods do Canal ficarem prontos
   ansible.builtin.command:
-    cmd: "kubectl -n kube-system wait --for=condition=Ready pod -l k8s-app=canal --timeout=180s"
+    cmd: "kubectl -n kube-system wait --for=condition=Ready pod -l k8s-app=canal --timeout=600s"
   register: resultado_wait
   failed_when: "'error' in resultado_wait.stderr or 'timed out' in resultado_wait.stderr"
   changed_when: false
