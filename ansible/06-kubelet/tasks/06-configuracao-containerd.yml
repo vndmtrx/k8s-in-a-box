@@ -16,12 +16,13 @@
                         'sandbox_image = "%s"' % node_images.pause)
       }}
     mode: "0644"
+  notify: Reiniciar containerd
 
 - name: Habilitar e iniciar containerd
   ansible.builtin.systemd:
     name: containerd
     enabled: true
-    state: restarted
+    state: started
 
 - name: Aguardar containerd estar pronto
   ansible.builtin.wait_for:
