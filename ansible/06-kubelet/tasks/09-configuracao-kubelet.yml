@@ -1,32 +1,35 @@
-# ansible/06-kubelet/tasks/08-configuracao-kubelet.yml
+# ansible/06-kubelet/tasks/09-configuracao-kubelet.yml
 ---
 - name: Configurar parâmetros de inicialização do kubelet
   ansible.builtin.template:
     src: kubelet.env.j2
     dest: /var/lib/kubelet/kubelet.env
     mode: "0644"
+  notify: Recarregar systemd e reiniciar kubelet
 
 - name: Criar arquivo de configuração principal do kubelet
   ansible.builtin.template:
     src: kubelet-config.yml.j2
     dest: /var/lib/kubelet/kubelet-config.yml
     mode: "0644"
+  notify: Recarregar systemd e reiniciar kubelet
 
 - name: Criar kubeconfig com configs de usuário para o kubelet
   ansible.builtin.template:
     src: kubelet.kubeconfig.j2
     dest: /var/lib/kubelet/kubelet.kubeconfig
     mode: "0644"
+  notify: Recarregar systemd e reiniciar kubelet
 
 - name: Configurar serviço do kubelet
   ansible.builtin.template:
     src: kubelet.service.j2
     dest: /etc/systemd/system/kubelet.service
     mode: "0644"
+  notify: Recarregar systemd e reiniciar kubelet
 
 - name: Garantir serviço ativo
   ansible.builtin.systemd:
     name: kubelet
     enabled: true
-    state: restarted
-    daemon_reload: true
+    state: started
