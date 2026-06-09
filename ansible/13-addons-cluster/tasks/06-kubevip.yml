@@ -6,13 +6,12 @@
     state: directory
     mode: "0755"
 
-- name: Baixar manifesto RBAC do Kube-vip # noqa command-instead-of-module
-  ansible.builtin.command: >
-    wget --quiet
-         -O /home/{{ ansible_user }}/charts/kubevip-rbac.yaml
-         https://kube-vip.io/manifests/rbac.yaml
-  register: kubevip_rbac_wget
-  changed_when: kubevip_rbac_wget.rc != 0
+- name: Baixar manifesto RBAC do Kube-vip
+  ansible.builtin.get_url:
+    url: "https://kube-vip.io/manifests/rbac.yaml"
+    dest: "/home/{{ ansible_user }}/charts/kubevip-rbac.yaml"
+    mode: "0644"
+    force: false
 
 - name: Aplicar manifesto RBAC do Kube-vip
   ansible.builtin.command:
@@ -44,13 +43,12 @@
   register: resultado_ds
   changed_when: "'created' in resultado_ds.stdout or 'configured' in resultado_ds.stdout"
 
-- name: Baixar manifesto do Cloud Provider do Kube-vip # noqa command-instead-of-module
-  ansible.builtin.command: >
-    wget --quiet
-         -O /home/{{ ansible_user }}/charts/kubevip-cloud-controller.yaml
-         https://raw.githubusercontent.com/kube-vip/kube-vip-cloud-provider/{{ versao_kubevip_cloud_provider }}/manifest/kube-vip-cloud-controller.yaml
-  register: kubevip_cc_wget
-  changed_when: kubevip_cc_wget.rc != 0
+- name: Baixar manifesto do Cloud Provider do Kube-vip
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/kube-vip/kube-vip-cloud-provider/{{ versao_kubevip_cloud_provider }}/manifest/kube-vip-cloud-controller.yaml"
+    dest: "/home/{{ ansible_user }}/charts/kubevip-cloud-controller.yaml"
+    mode: "0644"
+    force: false
 
 - name: Aplicar manifesto do Cloud Provider do Kube-vip
   ansible.builtin.command:
@@ -62,4 +60,4 @@
   ansible.builtin.command:
     cmd: "kubectl patch felixconfiguration default --type merge -p '{\"spec\": {\"chainInsertMode\": \"Append\"}}'"
   register: resultado_calico_patch
-  changed_when: "'patched' in resultado_calico_patch.stdout"
+  changed_when: "'patched' in resultado_calico_patch.stdout and 'no change' not in resultado_calico_patch.stdout"
