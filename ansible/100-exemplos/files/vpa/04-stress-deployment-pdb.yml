@@ -1,0 +1,13 @@
+# ansible/100-exemplos/files/vpa/04-vpa-stress-deployment-pdb.yml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: vpa-stress-deployment-pdb
+  namespace: exemplos
+  labels:
+    app: vpa-stress-deployment
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: vpa-stress-deployment
