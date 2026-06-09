@@ -22,7 +22,7 @@
 
 - name: Aplicar label control-plane nos managers
   ansible.builtin.command:
-    cmd: "kubectl label node {{ manager_host }} node-role.kubernetes.io/control-plane="
+    cmd: "kubectl label node {{ manager_host }} node-role.kubernetes.io/control-plane= --overwrite"
   loop: "{{ groups['managers'] }}"
   loop_control:
     loop_var: manager_host
@@ -31,7 +31,7 @@
 
 - name: Aplicar label worker nos workers
   ansible.builtin.command:
-    cmd: "kubectl label node {{ worker_host }} node-role.kubernetes.io/worker="
+    cmd: "kubectl label node {{ worker_host }} node-role.kubernetes.io/worker= --overwrite"
   loop: "{{ groups['workers'] }}"
   loop_control:
     loop_var: worker_host
@@ -40,7 +40,7 @@
 
 - name: Aplicar label instance-type nos nodes do cluster
   ansible.builtin.command:
-    cmd: "kubectl label node {{ node_host }} node.kubernetes.io/instance-type=libvirt"
+    cmd: "kubectl label node {{ node_host }} node.kubernetes.io/instance-type=libvirt --overwrite"
   loop: "{{ groups['cluster'] }}"
   loop_control:
     loop_var: node_host
