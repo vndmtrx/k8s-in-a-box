@@ -12,5 +12,5 @@
 - name: Ativar e iniciar serviço NFS
   ansible.builtin.service:
     name: nfs-server
-    state: restarted
+    state: started
     enabled: true

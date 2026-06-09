@@ -42,6 +42,14 @@
       --version "{{ versao_flannel }}"
       --namespace cni-flannel
       --values /home/{{ ansible_user }}/charts/flannel-helm-config.yml
-      --atomic --wait --timeout 120s
+      --atomic --wait --timeout 600s
   register: resultado_helm_upgrade
   changed_when: "'installed' in resultado_helm_upgrade.stdout or 'upgraded' in resultado_helm_upgrade.stdout"
+
+- name: Aguardar pods do Flannel ficarem prontos
+  ansible.builtin.command:
+    cmd: "kubectl -n cni-flannel wait --for=condition=Ready pod -l app.kubernetes.io/name=flannel --timeout=600s"
+  register: resultado_wait
+  failed_when: "'error' in resultado_wait.stderr or 'timed out' in resultado_wait.stderr"
+  changed_when: false
+

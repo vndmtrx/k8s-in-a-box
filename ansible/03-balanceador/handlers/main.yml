@@ -1,0 +1,11 @@
+# ansible/03-balanceador/handlers/main.yml
+---
+- name: Reiniciar HAProxy
+  ansible.builtin.systemd:
+    name: haproxy
+    state: restarted
+
+- name: Reiniciar Keepalived
+  ansible.builtin.systemd:
+    name: keepalived
+    state: restarted

@@ -1,0 +1,6 @@
+# ansible/11-kube-proxy-pod/handlers/main.yml
+---
+- name: Reiniciar DaemonSet do kube-proxy
+  ansible.builtin.command:
+    cmd: "kubectl rollout restart daemonset/kube-proxy -n kube-system"
+  changed_when: true

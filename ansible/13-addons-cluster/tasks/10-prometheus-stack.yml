@@ -30,6 +30,6 @@
       --namespace monitoring
       --create-namespace
       --values /home/{{ ansible_user }}/charts/prometheus-stack-helm-config.yml
-      --atomic --wait --timeout 300s
+      --atomic --wait --timeout 600s
   register: resultado_helm_upgrade
   changed_when: "'installed' in resultado_helm_upgrade.stdout or 'upgraded' in resultado_helm_upgrade.stdout"

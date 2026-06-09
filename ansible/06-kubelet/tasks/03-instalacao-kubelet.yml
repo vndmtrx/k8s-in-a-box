@@ -17,12 +17,12 @@
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
-    owner: root
-    group: kubernetes
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('kubernetes') }}"
     mode: "{{ item.mode | default('0750') }}"
   loop:
     # Configuração
-    - { path: /etc/kubernetes/manifests }
+    - { path: /etc/kubernetes/manifests, owner: root, group: root, mode: "0755" }
     - { path: /var/lib/kubelet }
 
     # Plugins CSI e storage

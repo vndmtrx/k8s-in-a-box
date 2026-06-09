@@ -22,11 +22,7 @@
     dest: /etc/modules-load.d/kubernetes.conf
     content: "{{ modulos_kernel_kubernetes | join('\n') }}\n"
     mode: "0644"
-
-- name: Recarregar módulos listados em /etc/modules-load.d
-  ansible.builtin.systemd:
-    name: systemd-modules-load
-    state: restarted
+  notify: Recarregar módulos do kernel
 
 - name: Carregar módulos explicitamente
   community.general.modprobe:
@@ -41,10 +37,15 @@
     enabled: true
     state: started
 
-- name: Desabilitar swap
-  ansible.builtin.command:
-    cmd: swapoff -a
+- name: Verificar se swap está ativo
+  ansible.builtin.command: swapon --show
+  register: swap_status
   changed_when: false
+
+- name: Desabilitar swap
+  ansible.builtin.command: swapoff -a
+  when: swap_status.stdout != ""
+  changed_when: true
 
 - name: Remover entrada de swap do /etc/fstab
   ansible.builtin.replace:

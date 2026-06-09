@@ -8,14 +8,10 @@
     owner: root
     group: root
     backup: true
-
-- name: Habilitar Keepalived no boot
-  ansible.builtin.systemd:
-    name: keepalived
-    enabled: true
+  notify: Reiniciar Keepalived
 
 - name: Garantir que Keepalived está rodando
   ansible.builtin.systemd:
     name: keepalived
     enabled: true
-    state: restarted
+    state: started

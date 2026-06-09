@@ -1,0 +1,17 @@
+# ansible/06-kubelet/handlers/main.yml
+---
+- name: Reiniciar CRI-O
+  ansible.builtin.systemd:
+    name: crio
+    state: restarted
+
+- name: Reiniciar containerd
+  ansible.builtin.systemd:
+    name: containerd
+    state: restarted
+
+- name: Recarregar systemd e reiniciar kubelet
+  ansible.builtin.systemd:
+    name: kubelet
+    state: restarted
+    daemon_reload: true

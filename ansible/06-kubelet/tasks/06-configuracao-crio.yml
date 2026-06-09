@@ -17,12 +17,13 @@
       network_dir = "/etc/cni/net.d/"
       plugin_dirs = ["/opt/cni/bin/"]
     mode: "0644"
+  notify: Reiniciar CRI-O
 
 - name: Habilitar e iniciar CRI-O
   ansible.builtin.systemd:
     name: crio
     enabled: true
-    state: restarted
+    state: started
 
 - name: Aguardar CRI-O estar pronto
   ansible.builtin.wait_for:

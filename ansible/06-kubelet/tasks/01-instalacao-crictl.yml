@@ -1,4 +1,4 @@
-# ansible/06-kubelet/tasks/02-instalacao-crictl.yml
+# ansible/06-kubelet/tasks/01-instalacao-crictl.yml
 ---
 - name: Verificar se o executável do crictl já está instalado na VM
   ansible.builtin.stat:
@@ -30,16 +30,6 @@
       loop:
         - crictl
 
-    - name: Configurar crictl para usar runtime correto
-      ansible.builtin.copy:
-        dest: /etc/crictl.yaml
-        content: |
-          runtime-endpoint: {{ container_runtime_sockets[container_runtime] }}
-          image-endpoint: {{ container_runtime_sockets[container_runtime] }}
-          timeout: 0
-          debug: false
-        mode: "0644"
-
   always:
     - name: Remover arquivo temporário do crictl
       ansible.builtin.file:
@@ -50,3 +40,14 @@
       ansible.builtin.file:
         path: "/tmp/crictl.tar.gz"
         state: absent
+
+- name: Configurar crictl para usar runtime correto
+  ansible.builtin.copy:
+    dest: /etc/crictl.yaml
+    content: |
+      runtime-endpoint: {{ container_runtime_sockets[container_runtime] }}
+      image-endpoint: {{ container_runtime_sockets[container_runtime] }}
+      timeout: 0
+      debug: false
+    mode: "0644"
+
