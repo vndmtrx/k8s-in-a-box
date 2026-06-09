@@ -4,7 +4,7 @@
   ansible.builtin.template:
     src: etcdctl-env.sh.j2
     dest: "/home/{{ ansible_user }}/.etcdctl-env"
-    mode: "0644"
+    mode: "0600"
 
 - name: Garantir que o etcdctl-env é carregado no .bashrc
   ansible.builtin.blockinfile:
@@ -19,4 +19,5 @@
   ansible.builtin.template:
     src: kubectl-admin.kubeconfig.j2
     dest: "/home/{{ ansible_user }}/.kube/config"
-    mode: "0644"
+    mode: "0600"
+
