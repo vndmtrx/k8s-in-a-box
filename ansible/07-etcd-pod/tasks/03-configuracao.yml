@@ -26,7 +26,7 @@
 
 - name: Forçar sincronização imediata do relógio com NTP (chrony)
   ansible.builtin.command: chronyc -a makestep
-  changed_when: true
+  changed_when: false
 
 - name: Aguardar o Etcd responder saudável (via API de prontidão HTTP)
   ansible.builtin.uri:
