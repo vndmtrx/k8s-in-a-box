@@ -15,4 +15,5 @@
 - name: Aplicar Manifests do Hello
   ansible.builtin.command:
     cmd: "kubectl apply -f /home/{{ ansible_user }}/exemplos/namespace-exemplos.yml"
-  changed_when: true
+  register: resultado_ns
+  changed_when: "'configured' in resultado_ns.stdout or 'created' in resultado_ns.stdout"
