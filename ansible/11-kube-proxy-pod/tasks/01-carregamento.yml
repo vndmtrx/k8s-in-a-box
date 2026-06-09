@@ -22,11 +22,10 @@
     cmd: "kubectl apply -f /home/{{ ansible_user }}/manifests/kube-proxy/"
   register: resultado_kubectl
   changed_when: "'configured' in resultado_kubectl.stdout or 'created' in resultado_kubectl.stdout"
+  notify: Reiniciar DaemonSet do kube-proxy
 
-- name: Reiniciar DaemonSet do kube-proxy se houver alterações
-  ansible.builtin.command:
-    cmd: "kubectl rollout restart daemonset/kube-proxy -n kube-system"
-  when: resultado_kubectl.changed
+- name: Executar reinicialização do DaemonSet se necessário
+  ansible.builtin.meta: flush_handlers
 
 - name: Esperar rollout do DaemonSet do kube-proxy
   ansible.builtin.command:
