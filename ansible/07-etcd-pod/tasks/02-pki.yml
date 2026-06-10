@@ -20,6 +20,7 @@
     owner: root
     group: root
     mode: "0644"
+  notify: Reiniciar Static Pod do Etcd
 
 # Certificados do servidor (específico do nó)
 - name: Copiar certificados do servidor
@@ -36,6 +37,7 @@
       dest: "/etc/kubernetes/conf/etcd/pki/server/{{ pki_certs.etcd_server.path_chave | format(inventory_hostname) | basename }}"
   loop_control:
     label: "{{ item.dest }}"
+  notify: Reiniciar Static Pod do Etcd
 
 # Certificados peer (todos os certificados para comunicação mútua)
 - name: Copiar certificados peer do nó atual
@@ -52,3 +54,4 @@
       dest: "/etc/kubernetes/conf/etcd/pki/peer/{{ pki_certs.etcd_peer.path_chave | format(inventory_hostname) | basename }}"
   loop_control:
     label: "{{ item.dest }}"
+  notify: Reiniciar Static Pod do Etcd
