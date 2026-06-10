@@ -1,0 +1,10 @@
+# ansible/08-kube-apiserver-pod/handlers/main.yml
+---
+- name: Reiniciar Static Pod do kube-apiserver
+  ansible.builtin.file:
+    path: /etc/kubernetes/manifests/kube-apiserver.yaml
+    state: touch
+    modification_time: now
+    owner: root
+    group: root
+    mode: "0644"
