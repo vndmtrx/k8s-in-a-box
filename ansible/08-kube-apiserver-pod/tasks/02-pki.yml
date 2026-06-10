@@ -23,6 +23,7 @@
     owner: root
     group: root
     mode: "0644"
+  notify: Reiniciar Static Pod do kube-apiserver
 
 # CA do Etcd (--etcd-cafile)
 - name: Copiar CA do Etcd
@@ -32,6 +33,7 @@
     owner: root
     group: root
     mode: "0644"
+  notify: Reiniciar Static Pod do kube-apiserver
 
 # CA do Front Proxy (--requestheader-client-ca-file)
 - name: Copiar CA do Front Proxy
@@ -41,6 +43,7 @@
     owner: root
     group: root
     mode: "0644"
+  notify: Reiniciar Static Pod do kube-apiserver
 
 # Certificado cliente apiserver→etcd (--etcd-certfile / --etcd-keyfile)
 - name: Copiar certificados cliente apiserver→etcd
@@ -59,6 +62,7 @@
       mode: "0640"
   loop_control:
     label: "{{ item.dest }}"
+  notify: Reiniciar Static Pod do kube-apiserver
 
 # Certificado cliente apiserver→kubelet (--kubelet-client-certificate / --kubelet-client-key)
 - name: Copiar certificados cliente apiserver→kubelet
@@ -77,6 +81,7 @@
       mode: "0640"
   loop_control:
     label: "{{ item.dest }}"
+  notify: Reiniciar Static Pod do kube-apiserver
 
 # Certificado cliente front-proxy (--proxy-client-cert-file / --proxy-client-key-file)
 - name: Copiar certificados cliente front-proxy
@@ -95,6 +100,7 @@
       mode: "0640"
   loop_control:
     label: "{{ item.dest }}"
+  notify: Reiniciar Static Pod do kube-apiserver
 
 # Chaves de Service Account (--service-account-key-file / --service-account-signing-key-file)
 - name: Copiar chaves de Service Account
@@ -113,6 +119,7 @@
       mode: "0640"
   loop_control:
     label: "{{ item.dest }}"
+  notify: Reiniciar Static Pod do kube-apiserver
 
 # TLS do servidor (--tls-cert-file / --tls-private-key-file) — específico por nó
 - name: Copiar certificado TLS do kube-apiserver (específico do nó)
@@ -131,3 +138,4 @@
       mode: "0640"
   loop_control:
     label: "{{ item.dest }}"
+  notify: Reiniciar Static Pod do kube-apiserver

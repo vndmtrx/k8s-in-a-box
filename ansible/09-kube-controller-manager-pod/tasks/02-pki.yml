@@ -32,6 +32,7 @@
       mode: "0644"
   loop_control:
     label: "{{ item.dest }}"
+  notify: Reiniciar Static Pod do kube-controller-manager
 
 - name: Copiar certificados de Service Account
   ansible.builtin.copy:
@@ -49,6 +50,7 @@
       mode: "0640"
   loop_control:
     label: "{{ item.dest }}"
+  notify: Reiniciar Static Pod do kube-controller-manager
 
 - name: Copiar certificados do kube-controller-manager (específico do nó)
   ansible.builtin.copy:
@@ -70,3 +72,4 @@
       mode: "0640"
   loop_control:
     label: "{{ item.dest }}"
+  notify: Reiniciar Static Pod do kube-controller-manager

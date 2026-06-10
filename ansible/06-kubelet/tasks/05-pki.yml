@@ -29,3 +29,5 @@
       mode: "0640"
   loop_control:
     label: "{{ item.dest }}"
+  notify: Recarregar systemd e reiniciar kubelet
+

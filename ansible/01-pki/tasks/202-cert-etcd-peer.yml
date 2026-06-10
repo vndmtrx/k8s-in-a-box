@@ -12,6 +12,36 @@
   register: etcd_peer_arquivos
   delegate_to: localhost
 
+- name: Verificar informações do certificado de peer Etcd existente ({{ manager_host }})
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.etcd_peer.path_cert | format(manager_host) }}"
+  register: etcd_peer_info
+  when: etcd_peer_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Verificar SKI do CA do Etcd vigente ({{ manager_host }})
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.etcd_peer.ca_pai.path_cert }}"
+  register: ca_etcd_ski_info
+  when: etcd_peer_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Decidir se certificado de peer Etcd deve ser gerado ({{ manager_host }})
+  ansible.builtin.set_fact:
+    pki_deve_gerar_etcd_peer: >-
+      {{
+        not etcd_peer_arquivos.results[0].stat.exists
+        or not etcd_peer_arquivos.results[1].stat.exists
+        or (etcd_peer_info.expired | default(false))
+        or (etcd_peer_info.not_after is defined and
+            ((etcd_peer_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - now()).days
+            < pki_validade.alerta | int)
+        or (etcd_peer_info.authority_key_identifier | default(none) is not none and
+            ca_etcd_ski_info.subject_key_identifier | default(none) is not none and
+            etcd_peer_info.authority_key_identifier != ca_etcd_ski_info.subject_key_identifier)
+      }}
+  delegate_to: localhost
+
 - name: Criar chave privada do certificado para cliente mTLS do peer Etcd ({{ manager_host }})
   community.crypto.openssl_privatekey:
     path: "{{ pki_certs.etcd_peer.path_chave | format(manager_host) }}"
@@ -19,7 +49,7 @@
     curve: "{{ pki_cifra_algo }}"
     state: "present"
     force: true
-  when: not etcd_peer_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_etcd_peer
   delegate_to: localhost
 
 - name: Gerar CSR do certificado para cliente mTLS do peer Etcd ({{ manager_host }})
@@ -40,7 +70,7 @@
       - clientAuth
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', '202-san-etcd-peer.j2') | from_yaml }}"
-  when: not etcd_peer_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_etcd_peer
   delegate_to: localhost
   register: etcd_peer_csr
 
@@ -55,5 +85,5 @@
     ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
     mode: "0644"
     force: true
-  when: not etcd_peer_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_etcd_peer
   delegate_to: localhost

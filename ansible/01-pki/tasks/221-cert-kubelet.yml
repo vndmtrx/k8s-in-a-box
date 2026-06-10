@@ -12,6 +12,36 @@
   register: kubelet_arquivos
   delegate_to: localhost
 
+- name: Verificar informações do certificado do kubelet existente ({{ node_host }})
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.kubelet.path_cert | format(node_host) }}"
+  register: kubelet_info
+  when: kubelet_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Verificar SKI do CA do Kubernetes vigente ({{ node_host }})
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.kubelet.ca_pai.path_cert }}"
+  register: ca_k8s_ski_info
+  when: kubelet_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Decidir se certificado do kubelet deve ser gerado ({{ node_host }})
+  ansible.builtin.set_fact:
+    pki_deve_gerar_kubelet: >-
+      {{
+        not kubelet_arquivos.results[0].stat.exists
+        or not kubelet_arquivos.results[1].stat.exists
+        or (kubelet_info.expired | default(false))
+        or (kubelet_info.not_after is defined and
+            ((kubelet_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - now()).days
+            < pki_validade.alerta | int)
+        or (kubelet_info.authority_key_identifier | default(none) is not none and
+            ca_k8s_ski_info.subject_key_identifier | default(none) is not none and
+            kubelet_info.authority_key_identifier != ca_k8s_ski_info.subject_key_identifier)
+      }}
+  delegate_to: localhost
+
 - name: Criar chave privada do certificado para o kubelet ({{ node_host }})
   community.crypto.openssl_privatekey:
     path: "{{ pki_certs.kubelet.path_chave | format(node_host) }}"
@@ -19,7 +49,7 @@
     curve: "{{ pki_cifra_algo }}"
     state: "present"
     force: true
-  when: not kubelet_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_kubelet
   delegate_to: localhost
 
 - name: Gerar CSR do certificado para o kubelet ({{ node_host }})
@@ -41,7 +71,7 @@
       - serverAuth
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', '221-san-kubelet.j2') | from_yaml }}"
-  when: not kubelet_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_kubelet
   delegate_to: localhost
   register: kubelet_csr
 
@@ -56,5 +86,5 @@
     ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
     mode: "0644"
     force: true
-  when: not kubelet_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_kubelet
   delegate_to: localhost

@@ -12,6 +12,36 @@
   register: kube_apiserver_arquivos
   delegate_to: localhost
 
+- name: Verificar informações do certificado do kube-apiserver existente ({{ manager_host }})
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.kube_apiserver.path_cert | format(manager_host) }}"
+  register: kube_apiserver_info
+  when: kube_apiserver_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Verificar SKI do CA do Kubernetes vigente ({{ manager_host }})
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.kube_apiserver.ca_pai.path_cert }}"
+  register: ca_k8s_ski_info
+  when: kube_apiserver_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Decidir se certificado do kube-apiserver deve ser gerado ({{ manager_host }})
+  ansible.builtin.set_fact:
+    pki_deve_gerar_kube_apiserver: >-
+      {{
+        not kube_apiserver_arquivos.results[0].stat.exists
+        or not kube_apiserver_arquivos.results[1].stat.exists
+        or (kube_apiserver_info.expired | default(false))
+        or (kube_apiserver_info.not_after is defined and
+            ((kube_apiserver_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - now()).days
+            < pki_validade.alerta | int)
+        or (kube_apiserver_info.authority_key_identifier | default(none) is not none and
+            ca_k8s_ski_info.subject_key_identifier | default(none) is not none and
+            kube_apiserver_info.authority_key_identifier != ca_k8s_ski_info.subject_key_identifier)
+      }}
+  delegate_to: localhost
+
 - name: Criar chave privada do certificado para o kube-apiserver ({{ manager_host }})
   community.crypto.openssl_privatekey:
     path: "{{ pki_certs.kube_apiserver.path_chave | format(manager_host) }}"
@@ -19,7 +49,7 @@
     curve: "{{ pki_cifra_algo }}"
     state: "present"
     force: true
-  when: not kube_apiserver_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_kube_apiserver
   delegate_to: localhost
 
 - name: Gerar CSR do certificado para o kube-apiserver ({{ manager_host }})
@@ -39,7 +69,7 @@
       - serverAuth
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', '211-san-kube-apiserver.j2') | from_yaml }}"
-  when: not kube_apiserver_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_kube_apiserver
   delegate_to: localhost
   register: kube_apiserver_csr
 
@@ -54,5 +84,5 @@
     ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
     mode: "0644"
     force: true
-  when: not kube_apiserver_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_kube_apiserver
   delegate_to: localhost

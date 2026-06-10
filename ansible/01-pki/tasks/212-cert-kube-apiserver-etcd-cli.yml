@@ -12,6 +12,36 @@
   register: kube_apiserver_etcd_cli_arquivos
   delegate_to: localhost
 
+- name: Verificar informações do certificado cliente apiserver→etcd existente
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.kube_apiserver_etcd_cli.path_cert }}"
+  register: kube_apiserver_etcd_cli_info
+  when: kube_apiserver_etcd_cli_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Verificar SKI do CA do Etcd vigente
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.kube_apiserver_etcd_cli.ca_pai.path_cert }}"
+  register: ca_etcd_ski_info
+  when: kube_apiserver_etcd_cli_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Decidir se certificado cliente apiserver→etcd deve ser gerado
+  ansible.builtin.set_fact:
+    pki_deve_gerar_kube_apiserver_etcd_cli: >-
+      {{
+        not kube_apiserver_etcd_cli_arquivos.results[0].stat.exists
+        or not kube_apiserver_etcd_cli_arquivos.results[1].stat.exists
+        or (kube_apiserver_etcd_cli_info.expired | default(false))
+        or (kube_apiserver_etcd_cli_info.not_after is defined and
+            ((kube_apiserver_etcd_cli_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - now()).days
+            < pki_validade.alerta | int)
+        or (kube_apiserver_etcd_cli_info.authority_key_identifier | default(none) is not none and
+            ca_etcd_ski_info.subject_key_identifier | default(none) is not none and
+            kube_apiserver_etcd_cli_info.authority_key_identifier != ca_etcd_ski_info.subject_key_identifier)
+      }}
+  delegate_to: localhost
+
 - name: Criar chave privada do certificado para cliente do kube-apiserver para Etcd
   community.crypto.openssl_privatekey:
     path: "{{ pki_certs.kube_apiserver_etcd_cli.path_chave }}"
@@ -19,7 +49,7 @@
     curve: "{{ pki_cifra_algo }}"
     state: "present"
     force: true
-  when: not kube_apiserver_etcd_cli_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_kube_apiserver_etcd_cli
   delegate_to: localhost
 
 - name: Gerar CSR do certificado para cliente do kube-apiserver para Etcd
@@ -39,7 +69,7 @@
       - clientAuth
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', '212-san-kube-apiserver-etcd-cli.j2') | from_yaml }}"
-  when: not kube_apiserver_etcd_cli_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_kube_apiserver_etcd_cli
   delegate_to: localhost
   register: etcd_apiserver_cli_csr
 
@@ -54,5 +84,5 @@
     ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
     mode: "0644"
     force: true
-  when: not kube_apiserver_etcd_cli_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_kube_apiserver_etcd_cli
   delegate_to: localhost
