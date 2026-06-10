@@ -1,0 +1,10 @@
+# ansible/10-kube-scheduler-pod/handlers/main.yml
+---
+- name: Reiniciar Static Pod do kube-scheduler
+  ansible.builtin.file:
+    path: /etc/kubernetes/manifests/kube-scheduler.yaml
+    state: touch
+    modification_time: now
+    owner: root
+    group: root
+    mode: "0644"
