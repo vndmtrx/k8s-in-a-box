@@ -1,0 +1,10 @@
+# ansible/07-etcd-pod/handlers/main.yml
+---
+- name: Reiniciar Static Pod do Etcd
+  ansible.builtin.file:
+    path: /etc/kubernetes/manifests/etcd.yaml
+    state: touch
+    modification_time: now
+    owner: root
+    group: root
+    mode: "0644"
