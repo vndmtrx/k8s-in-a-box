@@ -24,6 +24,7 @@
       mode: "0644"
   loop_control:
     label: "{{ item.dest }}"
+  notify: Reiniciar Static Pod do kube-scheduler
 
 - name: Copiar certificados do kube-scheduler (específico do nó)
   ansible.builtin.copy:
@@ -41,3 +42,4 @@
       mode: "0640"
   loop_control:
     label: "{{ item.dest }}"
+  notify: Reiniciar Static Pod do kube-scheduler
