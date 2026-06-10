@@ -12,6 +12,36 @@
   register: etcd_server_arquivos
   delegate_to: localhost
 
+- name: Verificar informações do certificado de servidor Etcd existente ({{ manager_host }})
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.etcd_server.path_cert | format(manager_host) }}"
+  register: etcd_server_info
+  when: etcd_server_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Verificar SKI do CA do Etcd vigente ({{ manager_host }})
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.etcd_server.ca_pai.path_cert }}"
+  register: ca_etcd_ski_info
+  when: etcd_server_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Decidir se certificado de servidor Etcd deve ser gerado ({{ manager_host }})
+  ansible.builtin.set_fact:
+    pki_deve_gerar_etcd_server: >-
+      {{
+        not etcd_server_arquivos.results[0].stat.exists
+        or not etcd_server_arquivos.results[1].stat.exists
+        or (etcd_server_info.expired | default(false))
+        or (etcd_server_info.not_after is defined and
+            ((etcd_server_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - now()).days
+            < pki_validade.alerta | int)
+        or (etcd_server_info.authority_key_identifier | default(none) is not none and
+            ca_etcd_ski_info.subject_key_identifier | default(none) is not none and
+            etcd_server_info.authority_key_identifier != ca_etcd_ski_info.subject_key_identifier)
+      }}
+  delegate_to: localhost
+
 - name: Criar chave privada do certificado para cliente mTLS do servidor Etcd ({{ manager_host }})
   community.crypto.openssl_privatekey:
     path: "{{ pki_certs.etcd_server.path_chave | format(manager_host) }}"
@@ -19,7 +49,7 @@
     curve: "{{ pki_cifra_algo }}"
     state: "present"
     force: true
-  when: not etcd_server_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_etcd_server
   delegate_to: localhost
 
 - name: Gerar CSR do certificado para cliente mTLS do servidor Etcd ({{ manager_host }})
@@ -40,7 +70,7 @@
       - clientAuth
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', '201-san-etcd-server.j2') | from_yaml }}"
-  when: not etcd_server_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_etcd_server
   delegate_to: localhost
   register: etcd_server_csr
 
@@ -55,5 +85,5 @@
     ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
     mode: "0644"
     force: true
-  when: not etcd_server_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_etcd_server
   delegate_to: localhost
