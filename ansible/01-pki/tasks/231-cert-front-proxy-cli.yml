@@ -1,6 +1,6 @@
 # ansible/01-pki/tasks/231-cert-front-proxy-cli.yml
 ---
-- name: Verificar arquivos existentes da chave para certificado do Kube Proxy
+- name: Verificar arquivos existentes da chave para certificado do Front Proxy Client
   ansible.builtin.stat:
     path: "{{ arquivo }}"
   loop:
@@ -12,17 +12,47 @@
   register: kube_front_proxy_cli_arquivos
   delegate_to: localhost
 
-- name: Criar chave privada do certificado para certificado do Kube Proxy
+- name: Verificar informações do certificado de Front Proxy Client existente
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.kube_front_proxy_cli.path_cert }}"
+  register: kube_front_proxy_cli_info
+  when: kube_front_proxy_cli_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Verificar SKI do CA do Front Proxy vigente
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.kube_front_proxy_cli.ca_pai.path_cert }}"
+  register: ca_front_proxy_ski_info
+  when: kube_front_proxy_cli_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Decidir se certificado de Front Proxy Client deve ser gerado
+  ansible.builtin.set_fact:
+    pki_deve_gerar_kube_front_proxy_cli: >-
+      {{
+        not kube_front_proxy_cli_arquivos.results[0].stat.exists
+        or not kube_front_proxy_cli_arquivos.results[1].stat.exists
+        or (kube_front_proxy_cli_info.expired | default(false))
+        or (kube_front_proxy_cli_info.not_after is defined and
+            ((kube_front_proxy_cli_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - now()).days
+            < pki_validade.alerta | int)
+        or (kube_front_proxy_cli_info.authority_key_identifier | default(none) is not none and
+            ca_front_proxy_ski_info.subject_key_identifier | default(none) is not none and
+            kube_front_proxy_cli_info.authority_key_identifier != ca_front_proxy_ski_info.subject_key_identifier)
+      }}
+  delegate_to: localhost
+
+- name: Criar chave privada do certificado para certificado do Front Proxy Client
   community.crypto.openssl_privatekey:
     path: "{{ pki_certs.kube_front_proxy_cli.path_chave }}"
     type: "{{ pki_cifra_tipo }}"
     curve: "{{ pki_cifra_algo }}"
     state: "present"
     force: true
-  when: not kube_front_proxy_cli_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_kube_front_proxy_cli
   delegate_to: localhost
 
-- name: Gerar CSR do certificado para certificado do Kube Proxy
+- name: Gerar CSR do certificado para certificado do Front Proxy Client
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_certs.kube_front_proxy_cli.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
@@ -38,11 +68,11 @@
     extended_key_usage:
       - clientAuth
     extended_key_usage_critical: true
-  when: not kube_front_proxy_cli_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_kube_front_proxy_cli
   delegate_to: localhost
   register: kube_front_proxy_cli_csr
 
-- name: Assinar certificado para certificado do Kube Proxy com o respectivo CA intermediário
+- name: Assinar certificado para certificado do Front Proxy Client com o respectivo CA intermediário
   community.crypto.x509_certificate:
     path: "{{ pki_certs.kube_front_proxy_cli.path_cert }}"
     csr_content: "{{ kube_front_proxy_cli_csr.csr }}"
@@ -53,5 +83,5 @@
     ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
     mode: "0644"
     force: true
-  when: not kube_front_proxy_cli_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_kube_front_proxy_cli
   delegate_to: localhost
