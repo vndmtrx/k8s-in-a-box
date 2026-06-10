@@ -1,6 +1,6 @@
 # ansible/01-pki/tasks/203-cert-etcd-cli.yml
 ---
-- name: Verificar arquivos existentes da chave para o Cliente Etcd
+- name: Verificar arquivos existentes da chave para o cliente Etcd / Etcdctl
   ansible.builtin.stat:
     path: "{{ arquivo }}"
   loop:
@@ -12,22 +12,52 @@
   register: etcd_cli_arquivos
   delegate_to: localhost
 
-- name: Criar chave privada do certificado para o Cliente Etcd
+- name: Verificar informações do certificado de cliente Etcd existente
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.etcd_cli.path_cert }}"
+  register: etcd_cli_info
+  when: etcd_cli_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Verificar SKI do CA do Etcd vigente
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_certs.etcd_cli.ca_pai.path_cert }}"
+  register: ca_etcd_ski_info
+  when: etcd_cli_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Decidir se certificado de cliente Etcd deve ser gerado
+  ansible.builtin.set_fact:
+    pki_deve_gerar_etcd_cli: >-
+      {{
+        not etcd_cli_arquivos.results[0].stat.exists
+        or not etcd_cli_arquivos.results[1].stat.exists
+        or (etcd_cli_info.expired | default(false))
+        or (etcd_cli_info.not_after is defined and
+            ((etcd_cli_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - now()).days
+            < pki_validade.alerta | int)
+        or (etcd_cli_info.authority_key_identifier | default(none) is not none and
+            ca_etcd_ski_info.subject_key_identifier | default(none) is not none and
+            etcd_cli_info.authority_key_identifier != ca_etcd_ski_info.subject_key_identifier)
+      }}
+  delegate_to: localhost
+
+- name: Criar chave privada do certificado para o cliente Etcd
   community.crypto.openssl_privatekey:
     path: "{{ pki_certs.etcd_cli.path_chave }}"
     type: "{{ pki_cifra_tipo }}"
     curve: "{{ pki_cifra_algo }}"
     state: "present"
     force: true
-  when: not etcd_cli_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_etcd_cli
   delegate_to: localhost
 
-- name: Gerar CSR do certificado para o Cliente Etcd
+- name: Gerar CSR do certificado para o cliente Etcd
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ pki_certs.etcd_cli.path_chave }}"
     digest: "{{ pki_algoritmo_hash }}"
     subject:
-      CN: etcdctl
+      CN: etcd-client
     use_common_name_for_san: false
     basic_constraints:
       - "CA:FALSE"
@@ -39,11 +69,11 @@
       - clientAuth
     extended_key_usage_critical: true
     subject_alt_name: "{{ lookup('template', '203-san-etcd-cli.j2') | from_yaml }}"
-  when: not etcd_cli_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_etcd_cli
   delegate_to: localhost
   register: etcd_cli_csr
 
-- name: Assinar certificado para o Cliente Etcd com o respectivo CA intermediário
+- name: Assinar certificado de cliente Etcd com o respectivo CA intermediário
   community.crypto.x509_certificate:
     path: "{{ pki_certs.etcd_cli.path_cert }}"
     csr_content: "{{ etcd_cli_csr.csr }}"
@@ -54,5 +84,5 @@
     ownca_not_after: "+{{ pki_validade.certificado | default(30) }}d"
     mode: "0644"
     force: true
-  when: not etcd_cli_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_etcd_cli
   delegate_to: localhost
