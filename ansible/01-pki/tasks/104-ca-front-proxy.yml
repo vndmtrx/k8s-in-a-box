@@ -12,6 +12,36 @@
   register: ca_front_proxy_arquivos
   delegate_to: localhost
 
+- name: Verificar informações do CA do Front Proxy existente
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_cas.front_proxy.path_cert }}"
+  register: ca_front_proxy_info
+  when: ca_front_proxy_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Verificar SKI do Root CA vigente
+  community.crypto.x509_certificate_info:
+    path: "{{ pki_root_ca.path_cert }}"
+  register: root_ca_ski_info
+  when: ca_front_proxy_arquivos.results[1].stat.exists
+  delegate_to: localhost
+
+- name: Decidir se CA do Front Proxy deve ser gerado
+  ansible.builtin.set_fact:
+    pki_deve_gerar_ca_front_proxy: >-
+      {{
+        not ca_front_proxy_arquivos.results[0].stat.exists
+        or not ca_front_proxy_arquivos.results[1].stat.exists
+        or (ca_front_proxy_info.expired | default(false))
+        or (ca_front_proxy_info.not_after is defined and
+            ((ca_front_proxy_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - now()).days
+            < pki_validade.alerta | int)
+        or (ca_front_proxy_info.authority_key_identifier | default(none) is not none and
+            root_ca_ski_info.subject_key_identifier | default(none) is not none and
+            ca_front_proxy_info.authority_key_identifier != root_ca_ski_info.subject_key_identifier)
+      }}
+  delegate_to: localhost
+
 - name: Criar chave privada da CA do Front Proxy
   community.crypto.openssl_privatekey:
     path: "{{ pki_cas.front_proxy.path_chave }}"
@@ -19,7 +49,7 @@
     curve: "{{ pki_cifra_algo }}"
     state: "present"
     force: true
-  when: not ca_front_proxy_arquivos.results[0].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_ca_front_proxy
   delegate_to: localhost
 
 - name: Gerar CSR da CA do Front Proxy
@@ -37,7 +67,7 @@
       - keyCertSign
       - cRLSign
     key_usage_critical: true
-  when: not ca_front_proxy_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_ca_front_proxy
   delegate_to: localhost
   register: ca_front_proxy_csr
 
@@ -52,5 +82,5 @@
     ownca_not_after: "+{{ pki_validade.intermediario | default(365) }}d"
     mode: "0644"
     force: true
-  when: not ca_front_proxy_arquivos.results[1].stat.exists or (pki_regerar_certs | default(false) | bool)
+  when: pki_deve_gerar_ca_front_proxy
   delegate_to: localhost
