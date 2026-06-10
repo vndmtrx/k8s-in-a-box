@@ -67,6 +67,7 @@
   hosts: cluster
   become: true
   gather_facts: false
+  serial: 1
   roles:
     - role: 06-kubelet
       tags:
