@@ -107,7 +107,7 @@ lint: ## Checagem da estrutura do Ansible
 	@command -v ansible-lint >/dev/null 2>&1 || { echo "ansible-lint não está instalado."; exit 1; }
 	@ansible-lint -q ansible/ || true
 
-k8s-in-a-box: cluster ops exemplos ## Executa todo o projeto
+k8s-in-a-box: cluster ops addons exemplos ## Executa todo o projeto
 	@echo "Cluster k8s-in-a-box provisionado com sucesso!"
 	@(xdg-open http://172.24.0.110 || open http://172.24.0.110 || echo "Acesse http://172.24.0.110 no seu navegador.") 2>/dev/null
 
@@ -181,17 +181,34 @@ ops-ferramentas: garante-config ## Executa apenas a role ferramentas-ops
 	@echo "Executando role ops-ferramentas..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-ferramentas
 
-ops-kube-proxy-pod: garante-config ## Executa apenas a role kube-proxy (Pod)
-	@echo "Executando role ops-kube-proxy..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-kube-proxy-pod
+ops-cni: garante-config ## Executa apenas a role de CNI e dependências de rede
+	@echo "Executando role ops-cni..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-cni
 
-ops-addons: garante-config ## Executa apenas a role configuracoes-ops
-	@echo "Executando role ops-addons..."
-	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-addons
+ops-kube-proxy: garante-config ## Executa apenas a role kube-proxy (se Canal CNI)
+	@echo "Executando role ops-kube-proxy..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-kube-proxy
+
+ops-kubevip: garante-config ## Executa apenas a role kube-vip (se Canal CNI)
+	@echo "Executando role ops-kubevip..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-kubevip
+
+ops-traefik: garante-config ## Executa apenas a role traefik (se Canal CNI)
+	@echo "Executando role ops-traefik..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-traefik
 
 ops: ops-up ## Executa toda a construção do cliente kubox para operação do cluster
 	@echo "Executando todas as roles de operações..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops
+
+addons-up: garante-config ## Sobe a vm se necessário (usa kubox)
+	vagrant up kubox
+
+addons: addons-up ## Executa o playbook de addons independentes
+	@echo "Executando todos os addons independentes..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/addons.yml" $(ANSIBLE_VERBOSE) --tags addons
+
+ops-addons: addons ## Atalho para rodar addons independentes
 
 ################################################################################
 ################################### Exemplos ###################################
