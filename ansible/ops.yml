@@ -6,7 +6,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 02-sistema
+    - role: infra-sistema
       tags:
         - ops-sistema
         - ops
@@ -17,32 +17,57 @@
   become: false
   gather_facts: false
   roles:
-    - role: 12-ferramentas-cluster
+    - role: ops-ferramentas
       tags:
         - ops-ferramentas
         - ops
 
-- name: Carregamento do kube-proxy como Pod (DaemonSet)
+- name: Instalação da Rede com Canal CNI e dependências
   hosts:
     - clientes
   become: false
   gather_facts: false
+  when: plugin_cni == 'canal'
   roles:
-    - role: 11-kube-proxy-pod
+    - role: addon-kube-proxy
       tags:
-        - ops-kube-proxy-pod
+        - ops-kube-proxy
+        - ops-cni
         - ops
+    - role: cni-canal
+      tags:
+        - ops-cni-canal
+        - ops-cni
+        - ops
+    - role: addon-kubevip
+      tags:
+        - ops-kubevip
+        - ops-cni
+        - ops
+    - role: addon-traefik
+      tags:
+        - ops-traefik
+        - ops-cni
+        - ops
+  tags:
+    - ops-cni
+    - ops
 
-- name: Aplicação de addons no cluster
+- name: Instalação da Rede com Cilium CNI
   hosts:
     - clientes
   become: false
   gather_facts: false
+  when: plugin_cni == 'cilium'
   roles:
-    - role: 13-addons-cluster
+    - role: cni-cilium
       tags:
-        - ops-addons
+        - ops-cni-cilium
+        - ops-cni
         - ops
+  tags:
+    - ops-cni
+    - ops
 
 - name: Implantação dos exemplos de deploys no cluster
   hosts:
@@ -50,6 +75,10 @@
   become: false
   gather_facts: false
   roles:
-    - role: 100-exemplos
+    - role: ops-exemplos
       tags:
         - exemplos
+        - ops-exemplos
+  tags:
+    - exemplos
+    - ops-exemplos
