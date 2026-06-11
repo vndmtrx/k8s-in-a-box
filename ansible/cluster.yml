@@ -6,7 +6,7 @@
   become: false
   gather_facts: false
   roles:
-    - role: 00-artefatos
+    - role: infra-artefatos
       tags:
         - cluster-artefatos
         - cluster
@@ -17,7 +17,7 @@
   become: false
   gather_facts: false
   roles:
-    - role: 01-pki
+    - role: infra-pki
       tags:
         - cluster-pki
         - cluster
@@ -28,7 +28,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 02-sistema
+    - role: infra-sistema
       tags:
         - cluster-sistema
         - cluster
@@ -38,7 +38,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 03-balanceador
+    - role: infra-balanceador
       tags:
         - cluster-balanceador
         - cluster
@@ -48,7 +48,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 04-nfs
+    - role: infra-nfs
       tags:
         - cluster-nfs
         - cluster
@@ -58,7 +58,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 05-cluster-base
+    - role: k8s-cluster-base
       tags:
         - cluster-kubernetes-base
         - cluster
@@ -69,7 +69,7 @@
   gather_facts: false
   serial: 1
   roles:
-    - role: 06-kubelet
+    - role: k8s-kubelet
       tags:
         - cluster-kubelet
         - cluster
@@ -79,7 +79,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 07-etcd-pod
+    - role: k8s-etcd-pod
       tags:
         - cluster-etcd-pod
         - cluster-etcd
@@ -90,7 +90,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 08-kube-apiserver-pod
+    - role: k8s-apiserver-pod
       tags:
         - cluster-kube-apiserver-pod
         - cluster-kube-apiserver
@@ -101,7 +101,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 09-kube-controller-manager-pod
+    - role: k8s-controller-manager-pod
       tags:
         - cluster-kube-controller-manager-pod
         - cluster-kube-controller-manager
@@ -112,7 +112,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: 10-kube-scheduler-pod
+    - role: k8s-scheduler-pod
       tags:
         - cluster-kube-scheduler-pod
         - cluster-kube-scheduler
