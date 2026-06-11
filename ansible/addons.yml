@@ -1,0 +1,11 @@
+# ansible/addons.yml
+---
+- name: Aplicação de addons independentes de CNI no cluster
+  hosts:
+    - clientes
+  become: false
+  gather_facts: false
+  roles:
+    - role: addon-addons-cluster
+      tags:
+        - addons
