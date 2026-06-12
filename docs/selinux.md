@@ -13,7 +13,7 @@ No contexto do **k8s-in-a-box**, o SELinux serve como:
 * **Proteção contra acessos indevidos a caminhos criticos do host**: como `/var/lib/etcd` (banco de dados do cluster), `/sys/fs/cgroup` (limites de recursos) e `/proc/net` (pilha de rede).
 * **Demonstração de boas praticas**: em ambientes de producao baseados em RHEL/AlmaLinux, o SELinux normalmente esta ativo. Mantê-lo no laboratório permite estudar e entender os ajustes necessarios.
 
-> 💡 O SELinux esta configurado em modo **permissivo** (`selinux: permissive` na role `02-sistema`). Isso significa que ele registra violações nos logs de auditoria (AVCs) mas não bloqueia operações. A política customizada foi desenvolvida para que, ao mudar para modo **enforcing**, o cluster continue operando normalmente.
+> 💡 O SELinux esta configurado em modo **permissivo** (`selinux: permissive` na role `infra-sistema`). Isso significa que ele registra violações nos logs de auditoria (AVCs) mas não bloqueia operações. A política customizada foi desenvolvida para que, ao mudar para modo **enforcing**, o cluster continue operando normalmente.
 
 ## Camadas de confinamento
 
@@ -29,9 +29,9 @@ Essa separação garante que, por exemplo, um container de aplicação (`contain
 
 ## A política customizada (`k8s-custom-selinux`)
 
-O projeto inclui um módulo de política de Type Enforcement compilado e carregado automaticamente pelo Ansible durante a configuração do kubelet (role `06-kubelet`, task `08-selinux.yml`).
+O projeto inclui um módulo de política de Type Enforcement compilado e carregado automaticamente pelo Ansible durante a configuração do kubelet (role `k8s-kubelet`, task `08-selinux.yml`).
 
-O template da política esta em `ansible/06-kubelet/templates/k8s-custom-selinux.te.j2`.
+O template da política esta em `ansible/k8s-kubelet/templates/k8s-custom-selinux.te.j2`.
 
 ### Pipeline de compilação
 

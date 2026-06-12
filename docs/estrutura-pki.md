@@ -198,7 +198,7 @@ A tabela abaixo lista todos os certificados gerados para o cluster, seguindo as 
 
 - **SANs (Subject Alternative Names):** `<VIP>` refere-se ao IP virtual do Keepalived (`172.24.0.10`), `<VIP_FQDN>` aos FQDNs configurados (`api.k8sbox.local`, `etcd.k8sbox.local`), e `<Service_IP>` ao primeiro IP do CIDR de serviços.
 
-- **Validades configuráveis:** todos os prazos são configuráveis através das variáveis em `ansible/01-pki/defaults/main.yml` na seção `pki_validade`.
+- **Validades configuráveis:** todos os prazos são configuráveis através das variáveis em `ansible/infra-pki/defaults/main.yml` na seção `pki_validade`.
 
 ### Par de Chaves de Service Account
 
@@ -343,7 +343,7 @@ O **k8s‑in‑a‑box** utiliza algoritmos modernos e seguros para geração de
 
 **ECDSA** oferece segurança equivalente a RSA com chaves menores (256 bits ECDSA ≈ 3072 bits RSA), resultando em menor consumo de CPU e largura de banda. A curva **secp256r1** (também conhecida como P-256) é amplamente suportada, oferece 128 bits de segurança e é adequada para uso geral. **SHA-256** é resistente a colisões e adequado para o tamanho da curva escolhida.
 
-Estes parâmetros são configuráveis em `ansible/01-pki/defaults/main.yml`:
+Estes parâmetros são configuráveis em `ansible/infra-pki/defaults/main.yml`:
 
 ```yaml
 pki_cifra_tipo: "ECC"

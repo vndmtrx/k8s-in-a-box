@@ -69,7 +69,7 @@ Algumas escolhas foram tomadas para simplificar o laboratório e maximizar o apr
 1. **Sistema Base AlmaLinux 10**: escolhido pela facilidade em relação à configuração de rede e pela disponibilidade de imagens atualizadas no Vagrant Cloud Images; outras distribuições podem exigir ajustes.
 1. **Certificados Gerenciados**: a geração de uma cadeia PKI completa (Root CA, CAs intermediárias e certificados de cliente e servidor) garante segurança entre todos os componentes, e também foi feita dessa forma para experimentações com rotação de certificados.
 1. **Runtime de Conteiners**: Foi utilizado o CRI-O pela simplicidade de instalação na distribuição atual. O containerd também foi disponibilizado caso haja preferência ou para estudo.
-1. **Plugin de Rede**: Foi utilizado o Canal (Calico + Flannel) como padrão para uso completo dos recursos de rede, como Network Policies. O CNI Flannel simples também foi disponibilizado.
+1. **Plugin de Rede**: Foi utilizado o Canal (Calico + Flannel) como padrão para uso completo dos recursos de rede, como Network Policies. O Cilium também está disponível como opção de CNI baseada em eBPF.
 1. **Control Plane via Static Pods**: em vez de instalar os componentes do plano de controle (`etcd`, `kube-apiserver`, `kube-controller-manager` e `kube-scheduler`) como serviços do sistema operacional gerenciados pelo `systemd` (modo tradicional), optou-se pela implantação via **Static Pods**. Isso simplifica o processo ao eliminar a necessidade de criar e gerenciar múltiplos Unit Files do systemd para cada componente, alinhando o projeto com as práticas de instalações modernas do Kubernetes (como o `kubeadm`). 
    * *Nota de Evolução:* Inicialmente, o projeto nasceu de forma puramente *"hard way"*, instalando cada um dos componentes manualmente a nível de sistema operacional (com downloads diretos e unit files manuais). A consolidação para Static Pods, embora ainda preserve o aspecto *"hard way"* (já que toda a cadeia PKI, certificados, arquivos de configuração e parâmetros ainda são gerados manualmente etapa por etapa pelo Ansible), adota uma arquitetura mais moderna, organizada e resiliente (o próprio Kubelet gerencia o ciclo de vida e a saúde dos componentes do control plane locais).
 1. **kube-proxy como DaemonSet**: em vez de rodar como serviço systemd estático, o `kube-proxy` é provisionado como um DaemonSet dentro do cluster. Isso simplifica o bootstrap inicial e dispensa a necessidade de certificados de cliente dedicados (autentica via `ServiceAccount`).
@@ -95,7 +95,7 @@ A personalização do cluster é feita em dois arquivos principais:
   Algumas das principais opções que podem ser ajustadas:
 
   * **Runtime de Conteiner** permite a escolha entre `crio` ou `containerd` para a parte de conteiners.
-  * **Plugin de CNI:** permite escolher entre `flannel` ou `canal` (Flannel + Calico) para a rede dos pods.
+  * **Plugin de CNI:** permite escolher entre `canal` (Flannel + Calico) ou `cilium` para a rede dos pods.
   * **Versões dos componentes:** define quais versões do Kubernetes, etcd, Helm e CNI Plugins serão utilizadas.
   * **Redes do cluster:** configura os blocos de endereçamento das redes de *hosts*, *pods* e *services*.
   * **Faixas de IPs do Kube-vip:** controla os intervalos disponíveis para LoadBalancers e IPs fixos.
@@ -125,7 +125,7 @@ Inclusive, é possível verificar o status do HAProxy em [http://172.24.0.21:900
 * **Balanceamento:** HAProxy faz o **failover** e o balanceamento do **kube-apiserver** e do **etcd**.
 * **PKI:** toda a comunicação entre componentes é protegida por certificados emitidos pela **cadeia PKI** do projeto (Root CA + CAs intermediários para cada componente core).
 * **Runtime:** `crio` como padrão pela simplicidade e estabilidade; `containerd` disponível.
-* **CNI:** `canal` (Calico + Flannel) como padrão (rede e políticas); `flannel` disponível como opção mais leve.
+* **CNI:** `canal` (Calico + Flannel) como padrão e suporte a `cilium`.
 * **kube-proxy:** provisionado como DaemonSet dentro do cluster, autenticando-se via `ServiceAccount`; sem certificados de cliente próprios.
 * **LoadBalancer & Egress (Kube-vip):** gerencia as solicitações de LoadBalancer e IPs virtuais no modo L2 (ARP), além de suportar a funcionalidade de Egress Gateway para que as conexões de saída das aplicações utilizem IPs fixos previamente definidos.
 * **Bastion (kubox):** host com `kubectl`, `etcdctl`, `helm` e utilitários para operar e inspecionar o cluster sem “poluir” os nós.
@@ -150,12 +150,12 @@ Você pode executar tudo de ponta a ponta com `make k8s-in-a-box` ou chamar **ta
 As principais opções ficam em `inventario/group_vars/all.yml`:
 
 * **Rede dos hosts/pods/serviços:** `rede_cidr_hosts`, `rede_cidr_pods`, `rede_cidr_services`
-* **CNI:** `plugin_cni: "canal"` (opções: `canal` ou `flannel`)
+* **CNI:** `plugin_cni: "canal"` (opções: `canal` ou `cilium`)
 * **VIP/HAProxy/Keepalived:** `keepalived_vip_ip`, `vip_api_fqdn`, `vip_etcd_fqdn`, timeouts e credenciais do HAProxy
 * **Kube-vip:** `kubevip_ips_manuais` e `kubevip_ips_loadbalacing`
 * **Versões:** `versao_kubernetes`, `versao_etcd`, `versao_cni`, `versao_helm`
 
-> 💡 Dica: ajuste primeiro CPU/RAM no `inventario/hosts.yml`. Em seguida, valide **rede** e **VIP**. Por fim, escolha o **CNI** conforme o objetivo: `canal` (recursos avançados) ou `flannel` (menor consumo de memória).
+> 💡 Dica: ajuste primeiro CPU/RAM no `inventario/hosts.yml`. Em seguida, valide **rede** e **VIP**. Por fim, escolha o **CNI** conforme o objetivo: `canal` (padrão) ou `cilium` (eBPF).
 
 ## Início Rápido
 

@@ -44,7 +44,7 @@ O **k8s‑in‑a‑box** é um ambiente Kubernetes completo, construído de form
 
 A estrutura do cluster é enriquecida com diversos addons, instalados via Ansible e detalhados na documentação específica ([Addons e Serviços Complementares](./addons.md)):
 
-* **Plugins de rede (CNI):** escolha entre `flannel` via Helm ou `canal` (Calico + Flannel), cujo manifesto é baixado e ajustado para a faixa de pods.
+* **Plugins de rede (CNI):** com suporte nativo a `canal` (Calico + Flannel) e estrutura preparada para `cilium`. A escolha do plugin ativo é definida na variável global `plugin_cni` dentro do arquivo de variáveis do inventário.
 * **CoreDNS:** fornece resolução de nomes interna no cluster, instalado como chart Helm.
 * **Metrics Server:** coleta métricas de CPU e memória dos pods/nodes.
 * **NFS Subdir External Provisioner:** cria volumes persistentes dinâmicos a partir do servidor NFS.
@@ -92,7 +92,7 @@ O `Makefile` agiliza tarefas recorrentes:
 * `make cluster-up`: sobe todas as VMs via Vagrant.
 * `make cluster`: executa o playbook do cluster (`cluster.yml`) com a tag `cluster`, automatizando a instalação completa.
 * `make cluster-<role>`: executa apenas uma role específica (ex.: `cluster-etcd`, `cluster-kubelet`, etc.).
-* `make ops`: sobe a VM `kubox` e aplica `ops.yml` com suas roles (`ops-sistema`, `ops-ferramentas`, `ops-addons`).
+* `make ops`: aplica o playbook de operações `ops.yml` para configurar a rede (CNI, kube-proxy, kube-vip, traefik) e utilitários adicionais no host `kubox`.
 * `make exemplos`: aplica o playbook para exemplos de aplicações.
 * `make snapshot` / `make restore`: gerencia snapshots das VMs para facilitar restaurações de estado.
 * `make clean`: destrói as VMs e remove artefatos gerados.

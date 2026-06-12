@@ -32,10 +32,10 @@
 - [x] Configuração do cluster etcd
 
 ### 🎮 Control Plane
-- [x] Configuração do etcd como backend (Static Pod) via role `07-etcd-pod`
-- [x] Instalação do kube-apiserver (Static Pod) via role `08-kube-apiserver-pod`
-- [x] Configuração do kube-controller-manager (Static Pod) via role `09-kube-controller-manager-pod`
-- [x] Configuração do kube-scheduler (Static Pod) via role `10-kube-scheduler-pod`
+- [x] Configuração do etcd como backend (Static Pod) via role `k8s-etcd-pod`
+- [x] Instalação do kube-apiserver (Static Pod) via role `k8s-apiserver-pod`
+- [x] Configuração do kube-controller-manager (Static Pod) via role `k8s-controller-manager-pod`
+- [x] Configuração do kube-scheduler (Static Pod) via role `k8s-scheduler-pod`
 - [x] Geração dos arquivos kubeconfig
   - [x] kubeconfig do admin
   - [x] kubeconfig do controller-manager

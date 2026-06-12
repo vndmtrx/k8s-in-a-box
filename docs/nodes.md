@@ -6,7 +6,7 @@ A verdadeira essência do **k8s-in-a-box** reside na instalação artesanal do p
 
 ## Preparação Base (Todos os Nós)
 
-Antes de receberem componentes Kubernetes, todos os nós do cluster (Managers e Workers) recebem configurações essenciais aplicadas pela role `05-cluster-base`:
+Antes de receberem componentes Kubernetes, todos os nós do cluster (Managers e Workers) recebem configurações essenciais aplicadas pela role `k8s-cluster-base`:
 
 * **Kernel e Rede:** Ajustes de sysctl, em especial a habilitação de roteamento de pacotes (`net.ipv4.ip_forward = 1`) e configurações no iptables para permitir o tráfego em bridge, vitais para os plugins de rede do K8s (CNI).
 * **Módulos:** Carregamento de módulos do kernel obrigatórios, como o `br_netfilter` e o `overlay`.
@@ -17,9 +17,9 @@ Antes de receberem componentes Kubernetes, todos os nós do cluster (Managers e 
 ## O Cluster Etcd
 
 O **etcd** é o banco de dados chave-valor distribuído que armazena todo o estado do cluster Kubernetes.
-* **Certificados (mTLS):** A comunicação do etcd é fortemente protegida. Foram criados certificados específicos para ele no passo de PKI (`01-pki`), validando a identidade de cada nó e encriptando a comunicação do cluster e das respostas aos clientes (API Server).
+* **Certificados (mTLS):** A comunicação do etcd é fortemente protegida. Foram criados certificados específicos para ele no passo de PKI (`infra-pki`), validando a identidade de cada nó e encriptando a comunicação do cluster e das respostas aos clientes (API Server).
 * **Quorum:** Na configuração `completo`, 3 instâncias do etcd sobem em máquinas diferentes (os managers). O Ansible configura dinamicamente a flag `--initial-cluster` com os IPs de todos os nós para que eles se descubram e formem um quorum válido.
-* **Execução (role `07-etcd-pod`):** O etcd é configurado como um pod estático privilegiado gerenciado pelo Kubelet, gravando os seus dados persistentes no diretório `/var/lib/etcd` montado a partir do host.
+* **Execução (role `k8s-etcd-pod`):** O etcd é configurado como um pod estático privilegiado gerenciado pelo Kubelet, gravando os seus dados persistentes no diretório `/var/lib/etcd` montado a partir do host.
 * **Ferramenta `etcdctl`:** Para evitar downloads adicionais da internet, o utilitário `etcdctl` é extraído dinamicamente direto do OverlayFS do container do etcd em execução no manager principal e disponibilizado na máquina `kubox`.
 
 ---
@@ -28,20 +28,20 @@ O **etcd** é o banco de dados chave-valor distribuído que armazena todo o esta
 
 O "cérebro" do cluster é composto por três serviços instalados nos nós Managers. Eles operam de forma interdependente e são implantados como **Static Pods** gerenciados pelo Kubelet (roles `-pod` correspondentes):
 
-1. **kube-apiserver (role `08-kube-apiserver-pod`):**
+1. **kube-apiserver (role `k8s-apiserver-pod`):**
    * É o único componente que conversa diretamente com o `etcd`.
    * Recebe requisições HTTP (porta 6443), autentica e autoriza o acesso baseando-se nos certificados PKI e tokens, e expõe a API do Kubernetes.
    * Suas flags de configuração são extensas, definindo o IP no qual ele escuta as requisições (no caso, o endereço local do Manager na rede do cluster) e apontando para toda a cascata de certificados de segurança.
 
-2. **kube-controller-manager (role `09-kube-controller-manager-pod`):**
+2. **kube-controller-manager (role `k8s-controller-manager-pod`):**
    * Roda em segundo plano avaliando o "estado atual" vs "estado desejado" dos objetos (ReplicaSets, Deployments, Nodes, etc.).
    * Ele utiliza um arquivo `kubeconfig` gerado anteriormente para se autenticar contra o `kube-apiserver`.
 
-3. **kube-scheduler (role `10-kube-scheduler-pod`):**
+3. **kube-scheduler (role `k8s-scheduler-pod`):**
    * Observa os Pods que acabaram de ser criados e que não têm um nó assinalado.
    * Baseado nas restrições de recursos e labels, ele determina o melhor Worker Node para alocar o Pod.
    * Também consome seu próprio `kubeconfig` para se autenticar.
-   * Na role de pod (`10-kube-scheduler-pod`), a configuração foi migrada para o formato da API moderna `KubeSchedulerConfiguration` (`kubescheduler.config.k8s.io/v1`).
+   * Na role de pod (`k8s-scheduler-pod`), a configuração foi migrada para o formato da API moderna `KubeSchedulerConfiguration` (`kubescheduler.config.k8s.io/v1`).
 
 > 💡 Em um cenário de Alta Disponibilidade (`completo`), todos os Managers rodam esses serviços ao mesmo tempo. O `etcd` e o `kube-apiserver` operam em modo ativo-ativo (balanceados pelo HAProxy), enquanto o `controller-manager` e o `scheduler` operam em eleição de líder (ativo-passivo).
 
@@ -51,13 +51,13 @@ O "cérebro" do cluster é composto por três serviços instalados nos nós Mana
 
 Após ter o cérebro rodando, é hora de instanciar os "músculos". Embora os Managers controlem o cluster, os pods efetivamente rodam num *Runtime de Contêiner* sob o comando do `kubelet`. No *k8s-in-a-box*, por padrão, os próprios Managers também recebem a função de Workers (embora possam ser "taintados" para não rodar cargas pesadas).
 
-1. **kubelet (role `06-kubelet`):**
+1. **kubelet (role `k8s-kubelet`):**
    * O "agente" do Kubernetes. Ele lê os manifestos assinalados pelo scheduler e garante que os contêineres definidos neles estejam executando corretamente e de forma saudável.
    * **Runtime:** A variável global `runtime_conteiner` define quem fará o peso pesado. Por padrão, o projeto instala e configura o **CRI-O**. Alternativamente, o **containerd** também está disponível para testes. Ambos implementam a interface CRI do Kubernetes.
    * **SELinux:** A role do kubelet também é responsável por compilar e carregar a política customizada de SELinux (`k8s-custom-selinux`) em cada nó do cluster. O binário do kubelet é instalado com o rótulo `bin_t` e executa sob o contexto `unconfined_service_t` do SELinux. Para detalhes completos, consulte a página [SELinux e Kubernetes](./selinux.md).
    * O Kubelet também usa certificados para se autenticar no API Server. Na inicialização do nó, se a PKI já estiver distribuída, ele sobe; em ambientes onde os certificados não foram pré-gerados (que o k8s-in-a-box simula), ele usa uma técnica de autorização para requisitar um certificado dinamicamente (`kubelet-bootstrap`).
 
-2. **kube-proxy (role `11-kube-proxy-pod`):**
+2. **kube-proxy (role `addon-kube-proxy`):**
    * Agora roda em cada nó do cluster como um DaemonSet (Pod) em cima do cluster (e não mais como um serviço de sistema systemd local), mantendo regras de rede (através do iptables ou IPVS).
    * É ele quem permite as abstrações de **Services** funcionarem, redirecionando o tráfego do IP do cluster (VIP do Service) para os IPs reais dos Pods executando o contêiner por trás dele.
    * **Exposição de Métricas:** Configurado com `metricsBindAddress: 0.0.0.0:10249`, permitindo que o Prometheus raspe suas métricas de rede em todos os nós através da porta `10249`.

@@ -19,7 +19,7 @@ O **Vagrant** é o motor que traduz as intenções do usuário em máquinas virt
 Onde o Vagrant cria o hardware genérico, o **Ansible** injeta a "alma" no sistema. O provisionamento é puramente declarativo.
 
 * **O Playbook Mestre (`ansible/cluster.yml`):**
-  A espinha dorsal que comanda a execução metódica de todas as roles na ordem exata de dependências. Ele executa: geração de certificados (`01-pki`), base de SO, balanceador, kubelet (iniciado antes do etcd para gerenciar os static pods do control plane), etcd, control plane (como Static Pods) e, por fim, os complementos. O `kube-proxy` é aplicado separadamente, via `ansible/ops.yml`, a partir da máquina `kubox`, após o cluster estar ativo e pronto para receber workloads.
+  A espinha dorsal que comanda a execução metódica de todas as roles na ordem exata de dependências. Ele executa: geração de certificados (`infra-pki`), base de SO, balanceador, kubelet (iniciado antes do etcd para gerenciar os static pods do control plane), etcd, control plane (como Static Pods) e, por fim, os complementos em `addons.yml`. O `kube-proxy` é aplicado como parte do playbook `ops.yml` via role `addon-kube-proxy` após o cluster estar ativo.
 * **Injeção de Variáveis:**
   Todo o comportamento dos playbooks deriva do arquivo universal `inventario/group_vars/all.yml`. Esse padrão permite que o usuário mude versões (ex: de Kubernetes v1.35 para v1.36) e plugins apenas manipulando esse arquivo, não precisando nunca tocar nos códigos subjacentes da pasta `ansible/`.
 * **Configuração Personalizada (`.ansible.cfg`):**
@@ -31,7 +31,7 @@ Para otimizar o tempo de provisionamento e mitigar o uso desnecessário de banda
 
 ### 1. Cache Local de Imagens de Containers
 As imagens do sistema (Kubernetes, pause, etcd, etc.) são pesadas e seu download repetido a cada nova criação de cluster consome banda e tempo significativos. O projeto resolve isso via cache no host de desenvolvimento:
-* **Detecção:** A role `06-kubelet` (`tasks/07-download-imagens-sistema.yml`) verifica se os tarballs das imagens necessárias já existem localmente no host na pasta `imagens/` (definida pelas variáveis do projeto).
+* **Detecção:** A role `k8s-kubelet` (`tasks/07-download-imagens-sistema.yml`) verifica se os tarballs das imagens necessárias já existem localmente no host na pasta `imagens/` (definida pelas variáveis do projeto).
 * **Download Centralizado:** Se ausente, o primeiro manager (`manager1`) faz o download da imagem via `skopeo copy` direto do registro de container para um tarball local e envia o arquivo de volta para o host de desenvolvimento (via `ansible.builtin.fetch`).
 * **Distribuição e Carga:** Para cada nó no cluster, o Ansible copia o tarball do host local para a VM e o importa diretamente no runtime de container configurado:
   * No **CRI-O**: A importação ocorre via `skopeo copy` para o `containers-storage`.
