@@ -1,4 +1,4 @@
-# ansible/13-addons-cluster/tasks/09-vpa.yml
+# ansible/addon-apps-cluster/tasks/06-vpa.yml
 ---
 - name: Adicionar repositório helm do VPA
   ansible.builtin.command:

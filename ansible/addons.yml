@@ -6,6 +6,6 @@
   become: false
   gather_facts: false
   roles:
-    - role: addon-addons-cluster
+    - role: addon-apps-cluster
       tags:
         - addons

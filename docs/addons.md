@@ -2,7 +2,7 @@
 
 Um cluster Kubernetes básico com apenas `etcd`, control plane e kubelets está "cego, surdo e mudo" até certo ponto: os nós rodam pods, mas eles não se comunicam entre si através dos hosts, não resolvem domínios internos e não têm armazenamento dinâmico.
 
-A role `13-addons-cluster` no projeto aplica a camada superior de funcionalidades, transformando o esqueleto num ambiente totalmente operacional.
+O pipeline de addons e de rede do projeto foi separado em playbooks específicos. A role `addon-apps-cluster` no playbook `addons.yml` aplica a camada superior de funcionalidades de aplicação, enquanto as roles de rede e CNI (`cni-canal`, `cni-cilium`, `addon-kubevip`, `addon-traefik`, `addon-kube-proxy`) rodam no playbook `ops.yml`, transformando o esqueleto num ambiente totalmente operacional.
 
 ## Labels e Taints Iniciais
 
@@ -12,14 +12,14 @@ Antes de instalar aplicativos, o Ansible aplica marcações lógicas:
 
 ## Plugin de Rede (CNI)
 
-O componente mais importante de addon é o CNI (Container Network Interface). Sem ele, os nós permanecem no estado `NotReady`. Ele cuida de assinalar IPs para os Pods vindos da faixa configurada (`172.25.0.0/17`).
+O componente mais importante de rede é o CNI (Container Network Interface). Sem ele, os nós permanecem no estado `NotReady`. Ele cuida de assinalar IPs para os Pods vindos da faixa configurada (`172.25.0.0/17`).
 
 * **Opção 1: Canal (Padrão):**
   * Canal é a fusão de dois projetos famosos: **Calico** para Network Policies (segurança e regras de roteamento) e **Flannel** para a sobreposição da rede (VXLAN/Host-GW). É robusto, eficiente e permite cenários reais de regras de firewall internas.
-* **Opção 2: Flannel Simples:**
-  * Opção leve focada inteiramente em criar o túnel de comunicação entre os nós, ideal para ambientes onde memória é estritamente limitante (como a configuração `nano`).
+* **Opção 2: Cilium (eBPF Native):**
+  * Opção baseada em eBPF que atua de forma nativa e consolidada no kernel do Linux, com roteamento de alta performance e compatibilidade integrada.
 
-O Ansible baixa os manifestos YAML de acordo com a variável `plugin_cni` e injeta a faixa CIDR de pods definida na variável `rede_cidr_pods` (dentro de `inventario/group_vars/all.yml`).
+O Ansible instala o CNI de acordo com a variável `plugin_cni` configurada no arquivo `inventario/group_vars/all.yml`.
 
 ## CoreDNS
 

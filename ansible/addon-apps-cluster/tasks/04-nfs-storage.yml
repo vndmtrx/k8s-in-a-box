@@ -1,4 +1,4 @@
-# ansible/13-addons-cluster/tasks/05-nfs-storage.yml
+# ansible/addon-apps-cluster/tasks/04-nfs-storage.yml
 ---
 - name: Adicionar repositório helm do NFS Subdir External Provisioner
   ansible.builtin.command:

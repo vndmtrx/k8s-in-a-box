@@ -1,4 +1,4 @@
-# ansible/13-addons-cluster/tasks/10-prometheus-stack.yml
+# ansible/addon-apps-cluster/tasks/07-prometheus-stack.yml
 ---
 - name: Adicionar repositório helm do Prometheus Community
   ansible.builtin.command:
