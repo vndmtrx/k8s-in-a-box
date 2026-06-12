@@ -1,0 +1,3 @@
+# ansible/cni-cilium/tasks/main.yml
+---
+# Reservado para implantação do Cilium CNI via Helm
