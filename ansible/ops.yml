@@ -22,45 +22,38 @@
         - ops-ferramentas
         - ops
 
-- name: Instalação da Rede com Canal CNI e dependências
+- name: Instalação da Rede CNI e dependências
   hosts:
     - clientes
   become: false
   gather_facts: false
-  when: plugin_cni == 'canal'
   roles:
     - role: addon-kube-proxy
+      when: plugin_cni == 'canal'
       tags:
         - ops-kube-proxy
         - ops-cni
         - ops
     - role: cni-canal
+      when: plugin_cni == 'canal'
       tags:
         - ops-cni-canal
         - ops-cni
         - ops
     - role: addon-kubevip
+      when: plugin_cni == 'canal'
       tags:
         - ops-kubevip
         - ops-cni
         - ops
     - role: addon-traefik
+      when: plugin_cni == 'canal'
       tags:
         - ops-traefik
         - ops-cni
         - ops
-  tags:
-    - ops-cni
-    - ops
-
-- name: Instalação da Rede com Cilium CNI
-  hosts:
-    - clientes
-  become: false
-  gather_facts: false
-  when: plugin_cni == 'cilium'
-  roles:
     - role: cni-cilium
+      when: plugin_cni == 'cilium'
       tags:
         - ops-cni-cilium
         - ops-cni
