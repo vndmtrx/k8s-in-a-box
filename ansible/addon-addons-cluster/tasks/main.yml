@@ -1,37 +1,22 @@
-# ansible/13-addons-cluster/tasks/main.yml
+# ansible/addon-addons-cluster/tasks/main.yml
 ---
 - name: Configurar Labels e Taints dos nós do cluster
   ansible.builtin.import_tasks: 01-labels-taints.yml
 
-- name: Instalar Flannel
-  ansible.builtin.import_tasks: 02-flannel.yml
-  when: plugin_cni == "flannel"
-
-- name: Instalar Canal (Flannel + Calico)
-  ansible.builtin.import_tasks: 02-canal.yml
-  when: plugin_cni == "canal"
-
 - name: Instalação e configuração do CoreDNS
-  ansible.builtin.import_tasks: 03-coredns.yml
+  ansible.builtin.import_tasks: 02-coredns.yml
 
 - name: Instalação e configuração do Metrics Server
-  ansible.builtin.import_tasks: 04-metrics.yml
+  ansible.builtin.import_tasks: 03-metrics.yml
 
 - name: Instalação e configuração do NFS Subdir External Provisioner
-  ansible.builtin.import_tasks: 05-nfs-storage.yml
-
-- name: Instalação e configuração do Kube-vip
-  ansible.builtin.import_tasks: 06-kubevip.yml
-
-- name: Instalação e configuração do Traefik Gateway API
-  ansible.builtin.import_tasks: 07-traefik-gateway-api.yml
+  ansible.builtin.import_tasks: 04-nfs-storage.yml
 
 - name: Instalação e configuração do Headlamp Dashboard
-  ansible.builtin.import_tasks: 08-headlamp.yml
+  ansible.builtin.import_tasks: 05-headlamp.yml
 
 - name: Instalação e configuração do Vertical Pod Autoscaler (VPA)
-  ansible.builtin.import_tasks: 09-vpa.yml
+  ansible.builtin.import_tasks: 06-vpa.yml
 
 - name: Instalação e configuração do Prometheus Operator e Grafana (Prometheus Stack)
-  ansible.builtin.import_tasks: 10-prometheus-stack.yml
-
+  ansible.builtin.import_tasks: 07-prometheus-stack.yml
