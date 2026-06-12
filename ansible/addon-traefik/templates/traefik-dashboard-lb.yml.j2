@@ -5,6 +5,7 @@ metadata:
   namespace: traefik
   annotations:
     kube-vip.io/loadbalancerIPs: "172.24.0.102"
+    io.cilium/lb-ipam-ips: "172.24.0.102"
 spec:
   type: LoadBalancer
   ports:
