@@ -1,4 +1,4 @@
-# ansible/11-kube-proxy-pod/tasks/01-carregamento.yml
+# ansible/addon-kube-proxy/tasks/01-carregamento.yml
 ---
 - name: Garantir diretório de manifestos do kube-proxy
   ansible.builtin.file:
