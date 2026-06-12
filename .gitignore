@@ -10,3 +10,6 @@ id_ed25519.pub
 
 # Symlink de configuração ativa (gerenciado pelo Makefile)
 inventario/hosts.yml
+
+# Cache do Ansible/SSH
+.cache/
