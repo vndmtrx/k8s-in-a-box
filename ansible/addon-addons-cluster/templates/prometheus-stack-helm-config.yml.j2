@@ -1,4 +1,4 @@
-# ansible/13-addons-cluster/templates/prometheus-stack-helm-config.yml.j2
+# ansible/addon-addons-cluster/templates/prometheus-stack-helm-config.yml.j2
 ---
 alertmanager:
   enabled: false
@@ -14,6 +14,7 @@ grafana:
     type: LoadBalancer
     annotations:
       kube-vip.io/loadbalancerIPs: "172.24.0.103"
+      io.cilium/lb-ipam-ips: "172.24.0.103"
 
   # Configurações de inicialização do Grafana para fixar o dashboard Global
   grafana.ini:
