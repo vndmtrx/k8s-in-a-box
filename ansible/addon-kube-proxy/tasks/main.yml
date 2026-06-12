@@ -1,4 +1,4 @@
-# ansible/11-kube-proxy-pod/tasks/main.yml
+# ansible/addon-kube-proxy/tasks/main.yml
 ---
 - name: Carregar manifestos do kube-proxy
   ansible.builtin.include_tasks: 01-carregamento.yml
