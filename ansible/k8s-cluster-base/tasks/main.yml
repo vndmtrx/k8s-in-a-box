@@ -1,4 +1,4 @@
-# ansible/05-cluster-base/tasks/main.yml
+# ansible/k8s-cluster-base/tasks/main.yml
 ---
 - name: Configurar pacotes
   ansible.builtin.import_tasks: 01-instalacao.yml

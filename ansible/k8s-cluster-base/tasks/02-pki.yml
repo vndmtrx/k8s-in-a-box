@@ -1,4 +1,4 @@
-# ansible/05-cluster-base/tasks/02-pki.yml
+# ansible/k8s-cluster-base/tasks/02-pki.yml
 ---
 - name: Copiar certificados dos CAs
   ansible.builtin.copy:
