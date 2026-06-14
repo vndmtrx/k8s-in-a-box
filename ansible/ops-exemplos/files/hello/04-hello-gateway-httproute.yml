@@ -7,8 +7,8 @@ metadata:
     app: hello-app
 spec:
   parentRefs:
-    - name: traefik-gateway-publico
-      namespace: traefik
+    - name: gateway-publico
+      namespace: gateway-system
       sectionName: web
   rules:
     - matches:
