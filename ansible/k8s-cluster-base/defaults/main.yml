@@ -1,4 +1,4 @@
-# ansible/05-cluster-base/defaults/main.yml
+# ansible/k8s-cluster-base/defaults/main.yml
 ---
 pacotes_kubernetes:
   - kernel-modules-extra
