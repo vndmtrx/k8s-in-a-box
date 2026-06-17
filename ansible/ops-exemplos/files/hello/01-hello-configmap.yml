@@ -51,12 +51,15 @@ data:
             <a class="btn" href="http://172.24.0.103/" target="_blank" rel="noopener noreferrer">Acessar</a>
             <p>Monitore m&eacute;tricas detalhadas de infraestrutura, pods, nodes e recursos do cluster.</p>
             <p class="token-help">Obter senha do admin na VM kubox:</p>
-            <pre class="copiavel">kubectl get secret -n monitoring prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo</pre>
+            <pre class="copiavel">kubectl get secret -n monitoramento prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo</pre>
           </div>
           <div class="service-card">
-            <h3>Traefik Dashboard</h3>
-            <a class="btn" href="http://172.24.0.102/" target="_blank" rel="noopener noreferrer">Acessar</a>
-            <p>Monitore o roteamento de tr&aacute;fego e o Gateway API do cluster.</p>
+            <h3>Gateway &amp; Rede</h3>
+            <a class="btn" href="http://172.24.0.102/" target="_blank" rel="noopener noreferrer">Traefik (Canal)</a>
+            <p></p>
+            <a class="btn" href="http://172.24.0.104/" target="_blank" rel="noopener noreferrer">Hubble (Cilium)</a>
+            
+            <p>Monitore o roteamento ou a observabilidade de rede de acordo com o CNI ativo.</p>
           </div>
 
           <div class="service-card">

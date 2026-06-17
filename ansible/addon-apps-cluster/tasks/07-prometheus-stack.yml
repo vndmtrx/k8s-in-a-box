@@ -27,7 +27,7 @@
   ansible.builtin.command:
     cmd: >
       helm upgrade --install prometheus-stack prometheus-community/kube-prometheus-stack
-      --namespace monitoring
+      --namespace monitoramento
       --create-namespace
       --values /home/{{ ansible_user }}/charts/prometheus-stack-helm-config.yml
       --atomic --wait --timeout 600s

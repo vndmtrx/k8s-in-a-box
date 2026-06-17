@@ -72,7 +72,7 @@ O **Vertical Pod Autoscaler (VPA)** é um addon essencial para otimização de r
 
 Para monitoramento completo de infraestrutura e aplicações, o projeto instala a stack de observabilidade nativa baseada no Prometheus Operator.
 
-* **Namespace de Instalação:** `monitoring`
+* **Namespace de Instalação:** `monitoramento`
 * **Chart Helm:** `prometheus-community/kube-prometheus-stack`
 * **Componentes Principais:**
   * **Prometheus:** Servidor de monitoramento principal com limite de retenção configurado para 3 dias (`retention: 3d`). Configurado com solicitações de recursos de `100m` CPU e `400Mi` RAM (limites de `500m` CPU e `1Gi` RAM).
@@ -95,5 +95,5 @@ Para monitoramento completo de infraestrutura e aplicações, o projeto instala 
 * **Como obter a senha de administrador do Grafana:**
   O usuário padrão é `admin`. A senha gerada aleatoriamente durante a instalação pode ser obtida executando o seguinte comando no terminal do cluster:
   ```bash
-  kubectl get secret -n monitoring prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+  kubectl get secret -n monitoramento prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
   ```

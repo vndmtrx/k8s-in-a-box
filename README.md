@@ -262,7 +262,7 @@ Para visualizar métricas detalhadas do cluster (nós, pods, plano de controle e
 * **Usuário padrão:** `admin`
 * **Comando para obter a senha:** Execute o comando abaixo no host `kubox` para obter a senha gerada aleatoriamente:
   ```bash
-  kubectl get secret -n monitoring prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+  kubectl get secret -n monitoramento prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
   ```
 
 ### Acesso Remoto (Túnel SSH / Port Forwarding)
