@@ -2,7 +2,7 @@
 
 Um cluster Kubernetes básico com apenas `etcd`, control plane e kubelets está "cego, surdo e mudo" até certo ponto: os nós rodam pods, mas eles não se comunicam entre si através dos hosts, não resolvem domínios internos e não têm armazenamento dinâmico.
 
-A role `13-addons-cluster` no projeto aplica a camada superior de funcionalidades, transformando o esqueleto num ambiente totalmente operacional.
+O pipeline de addons e de rede do projeto foi separado em playbooks específicos. A role `addon-apps-cluster` no playbook `addons.yml` aplica a camada superior de funcionalidades de aplicação, enquanto as roles de rede e CNI (`cni-canal`, `cni-cilium`, `addon-kubevip`, `addon-traefik`, `addon-kube-proxy`) rodam no playbook `ops.yml`, transformando o esqueleto num ambiente totalmente operacional.
 
 ## Labels e Taints Iniciais
 
@@ -12,14 +12,17 @@ Antes de instalar aplicativos, o Ansible aplica marcações lógicas:
 
 ## Plugin de Rede (CNI)
 
-O componente mais importante de addon é o CNI (Container Network Interface). Sem ele, os nós permanecem no estado `NotReady`. Ele cuida de assinalar IPs para os Pods vindos da faixa configurada (`172.25.0.0/17`).
+O componente mais importante de rede é o CNI (Container Network Interface). Sem ele, os nós permanecem no estado `NotReady`. Ele cuida de assinalar IPs para os Pods vindos da faixa configurada (`172.25.0.0/17`).
 
-* **Opção 1: Canal (Padrão):**
-  * Canal é a fusão de dois projetos famosos: **Calico** para Network Policies (segurança e regras de roteamento) e **Flannel** para a sobreposição da rede (VXLAN/Host-GW). É robusto, eficiente e permite cenários reais de regras de firewall internas.
-* **Opção 2: Flannel Simples:**
-  * Opção leve focada inteiramente em criar o túnel de comunicação entre os nós, ideal para ambientes onde memória é estritamente limitante (como a configuração `nano`).
+* **Opção 1: Cilium (Padrão):**
+  * O Cilium é um plugin de rede baseado em **eBPF** (Extended Berkeley Packet Filter) que roda de forma nativa e consolidada diretamente no kernel do Linux. Ele substitui regras complexas do iptables por programas eBPF rápidos, oferecendo roteamento de altíssima performance, balanceamento de serviços e políticas de segurança robustas.
+  * **Hubble UI:** Habilita um console visual de observabilidade que exibe em tempo real o fluxo de rede, requisições HTTP e possíveis quedas ou bloqueios de tráfego entre pods.
+  * **IPAM & L2:** Possui mecanismos nativos de IPAM (gerenciamento de blocos de IPs) e anúncio L2 (ARP), eliminando a necessidade de componentes auxiliares como o Kube-vip em redes bare-metal.
+  * **Gateway API Nativamente:** O Cilium atua diretamente como controller da especificação Gateway API, utilizando um Envoy integrado para processar e rotear o tráfego externo sem necessidade de um Ingress/Gateway Controller separado como o Traefik.
+* **Opção 2: Canal (Alternativo):**
+  * O Canal é a fusão de dois projetos clássicos: **Calico** para Network Policies (regras de firewall interno) e **Flannel** para a sobreposição de rede (encapsulamento VXLAN). É uma stack estável e tradicional, que neste laboratório é acompanhada do **kube-proxy**, **Kube-vip** e **Traefik** para prover as funcionalidades equivalentes à stack do Cilium.
 
-O Ansible baixa os manifestos YAML de acordo com a variável `plugin_cni` e injeta a faixa CIDR de pods definida na variável `rede_cidr_pods` (dentro de `inventario/group_vars/all.yml`).
+O Ansible instala e configura a stack correspondente de acordo com a variável `plugin_cni` definida no arquivo `inventario/group_vars/all.yml`.
 
 ## CoreDNS
 
@@ -40,22 +43,35 @@ Conforme detalhado no arquivo [nfs.md](./nfs.md), este provisionador converte re
 
 ## Componentes de Ingresso e Exposição
 
-Para interagir com o mundo exterior e testar aplicações, o laboratório usa:
+Para interagir com o mundo exterior e testar aplicações, o laboratório adota duas arquiteturas distintas baseadas no CNI escolhido:
 
+### Cenário A: CNI Cilium (Padrão)
+
+Quando o Cilium está ativo, o roteamento externo e a alocação de IPs de LoadBalancer ocorrem nativamente:
+* **LoadBalancer IPAM & L2 Announcement:** O próprio Cilium gerencia o pool de IPs do LoadBalancer (`kubevip_ips_loadbalacing` e `kubevip_ips_manuais`) e anuncia os IPs via ARP de forma nativa para a rede.
+* **Cilium Gateway (Envoy):** O Cilium atua como o controller oficial do Gateway API, processando diretamente recursos do tipo `Gateway` e `HTTPRoute` através do Envoy.
+* **Hubble UI Dashboard:** O painel do Hubble UI é provisionado no IP de LoadBalancer `172.24.0.104`.
+* **Headlamp Dashboard:** O dashboard administrativo é exposto através do Gateway e Envoy do Cilium no IP de LoadBalancer `172.24.0.101`.
+
+### Cenário B: CNI Canal (Alternativo)
+
+Quando o Canal está ativo, o cluster utiliza uma stack tradicional com os seguintes addons:
 1. **Kube-vip & Kube-vip Cloud Provider:**
-   * Kubernetes puro não sabe lidar com serviços do tipo `LoadBalancer` em infraestrutura bare-metal. O Kube-vip resolve esse problema de forma elegante.
-   * Utilizando o modo L2 (Layer 2), ele responde a requisições ARP no lugar dos roteadores e propaga os IPs virtuais (VIPs) diretamente nos nós do cluster.
-   * O `kube-vip-cloud-provider` atua como um controlador IPAM local, distribuindo automaticamente IPs do pool configurado (`kubevip_ips_loadbalacing`) ou atribuindo IPs fixos (`kubevip_ips_manuais`) especificados nas anotações dos serviços.
-   * **Egress Gateway:** Permite que o tráfego originado em pods específicos saia do cluster utilizando um IP estático dedicado (para acessar serviços externos). Para utilizá-lo, basta criar um serviço do tipo `LoadBalancer` configurando a anotação `kube-vip.io/egress: "true"` (com o IP em `kube-vip.io/loadbalancerIPs`) e a especificação `externalTrafficPolicy: Local`.
-     > 💡 **Nota de CNI**: O projeto configura automaticamente o Calico com `chainInsertMode: Append` para evitar que as regras de NAT do Kube-vip conflitem com o tráfego interno do cluster.
-
+   * Proveem suporte a serviços do tipo `LoadBalancer` em redes bare-metal.
+   * Utilizando o modo L2, o Kube-vip propaga os IPs virtuais na rede física através de requisições ARP gratuitas.
+   * O `kube-vip-cloud-provider` atua distribuindo IPs do pool `kubevip_ips_loadbalacing` e controlando o IPAM local.
+   * **Egress Gateway:** Permite que conexões externas de pods específicos saia com IPs estáticos usando a anotação `kube-vip.io/egress: "true"`.
 2. **Traefik Gateway API:**
-   * A evolução moderna do antigo conceito de Ingress Controllers. O Gateway API lida com roteamento HTTP avançado e o Traefik atua como essa "porta de entrada inteligente", escutando portas 80/443 do mundo exterior e direcionando o fluxo aos pods do cluster.
+   * Atua como Ingress Controller e implementação do Gateway API para Canal, processando as rotas HTTP e escutando requisições nas portas do cluster.
+* **Traefik Dashboard:** O painel do Traefik é exposto no IP `172.24.0.102`.
+* **Headlamp Dashboard:** O dashboard do Headlamp é exposto via gateway do Traefik no IP `172.24.0.101`.
+
+---
 
 ## Headlamp Dashboard
 
 Uma interface visual elegante, robusta e leve, instalada no cluster como forma fácil de visualizar todos os recursos (pods, logs, métricas, roles).
-O painel é acessado através do serviço Traefik criado por padrão e protegido com um ServiceAccount token (exemplo contido no `README.md` da raiz).
+O painel é acessado através do IP de LoadBalancer `172.24.0.101` (exposto pelo Envoy no Cilium ou pelo Traefik no Canal) e protegido com um token de ServiceAccount (veja instruções no `README.md` da raiz).
 
 ## Vertical Pod Autoscaler (VPA)
 
@@ -72,11 +88,11 @@ O **Vertical Pod Autoscaler (VPA)** é um addon essencial para otimização de r
 
 Para monitoramento completo de infraestrutura e aplicações, o projeto instala a stack de observabilidade nativa baseada no Prometheus Operator.
 
-* **Namespace de Instalação:** `monitoring`
+* **Namespace de Instalação:** `monitoramento`
 * **Chart Helm:** `prometheus-community/kube-prometheus-stack`
 * **Componentes Principais:**
   * **Prometheus:** Servidor de monitoramento principal com limite de retenção configurado para 3 dias (`retention: 3d`). Configurado com solicitações de recursos de `100m` CPU e `400Mi` RAM (limites de `500m` CPU e `1Gi` RAM).
-  * **Grafana:** Painel de visualização rico. Exposto via `LoadBalancer` Kube-vip com o IP fixo configurado `172.24.0.103`.
+  * **Grafana:** Painel de visualização rico. Exposto via serviço do tipo `LoadBalancer` com o IP fixo `172.24.0.103` (anunciado e gerenciado pelo Kube-vip no Canal ou pelo Cilium no Cilium).
   * **Alertmanager:** Desabilitado por padrão (`alertmanager.enabled: false`) para economia de recursos no ambiente local.
 * **Dashboards Pré-carregados:**
   O Grafana vem integrado de fábrica com dashboards da comunidade (`dotdc/grafana-dashboards-kubernetes`):
@@ -91,9 +107,9 @@ Para monitoramento completo de infraestrutura e aplicações, o projeto instala 
   * `kubeControllerManager` e `kubeScheduler` usam `insecureSkipVerify: true`.
   * `kubeEtcd` usa esquema `http`.
 * **Monitoramento do kube-proxy:**
-  As métricas do `kube-proxy` são raspadas via porta `10249`, configurada para responder na interface `0.0.0.0`.
+  As métricas do `kube-proxy` são raspadas via porta `10249`, configurada para responder na interface `0.0.0.0` (aplicável apenas sob CNI Canal, onde o kube-proxy é implantado como DaemonSet; sob CNI Cilium, o kube-proxy-replacement assume as regras de roteamento com eBPF).
 * **Como obter a senha de administrador do Grafana:**
   O usuário padrão é `admin`. A senha gerada aleatoriamente durante a instalação pode ser obtida executando o seguinte comando no terminal do cluster:
   ```bash
-  kubectl get secret -n monitoring prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+  kubectl get secret -n monitoramento prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
   ```

@@ -1,0 +1,14 @@
+# ansible/ops-exemplos/tasks/main.yml
+---
+- name: Implantação do namespace para os exemplos
+  ansible.builtin.import_tasks: 00-namespace.yml
+
+- name: Implantação do exemplo Hello
+  ansible.builtin.import_tasks: 01-hello.yml
+
+- name: Implantação do exemplo Contador
+  ansible.builtin.import_tasks: 02-contador.yml
+
+- name: Implantação dos exemplos de VPA
+  ansible.builtin.import_tasks: 03-vpa.yml
+

@@ -8,37 +8,39 @@ Para garantir que o laboratório simule práticas recomendadas de segurança de 
 
 ### 1. Hello App (`hello-app`)
 * **Tecnologia**: Nginx (`nginx:1.29-alpine`).
-* **Propósito**: Servir a página inicial do cluster (um dashboard em HTML que exibe atalhos para os serviços ativos como Headlamp, Traefik e Grafana, credenciais de acesso e informações dos nós).
+* **Propósito**: Servir a página inicial do cluster (um dashboard em HTML que exibe atalhos para os serviços ativos como Headlamp, Hubble UI/Traefik e Grafana, credenciais de acesso e informações dos nós).
 * **Manifestos**:
-  * [00-css-configmap.yml](../ansible/100-exemplos/files/hello/00-css-configmap.yml) (Estilos do dashboard)
-  * [01-hello-configmap.yml](../ansible/100-exemplos/files/hello/01-hello-configmap.yml) (Estrutura do index.html, contendo o IP e detalhes de atalho do Grafana no IP `172.24.0.103`)
-  * [02-hello-deployment.yml](../ansible/100-exemplos/files/hello/02-hello-deployment.yml) (Definição dos Pods com Nginx)
-  * [03-hello-service.yml](../ansible/100-exemplos/files/hello/03-hello-service.yml) (Exposição do Pod como Service interno)
-  * [04-hello-gateway-httproute.yml](../ansible/100-exemplos/files/hello/04-hello-gateway-httproute.yml) (Configuração de rota no Gateway API do Traefik)
-  * [05-hello-pdb.yml](../ansible/100-exemplos/files/hello/05-hello-pdb.yml) (PodDisruptionBudget)
-  * [06-hello-hpa.yml](../ansible/100-exemplos/files/hello/06-hello-hpa.yml) (Horizontal Pod Autoscaler baseado em CPU)
-  * [07-hello-hpa-teste-stress.yml](../ansible/100-exemplos/files/hello/07-hello-hpa-teste-stress.yml) (CronJob de teste de estresse de carga)
-  * [08-hello-networkpolicies.yml](../ansible/100-exemplos/files/hello/08-hello-networkpolicies.yml) (Isolamento de tráfego)
-  * [09-hello-vpa.yml](../ansible/100-exemplos/files/hello/09-hello-vpa.yml) (Vertical Pod Autoscaler para otimização de CPU/memória)
+  * [00-css-configmap.yml](../ansible/ops-exemplos/files/hello/00-css-configmap.yml) (Estilos do dashboard)
+  * [01-hello-configmap.yml](../ansible/ops-exemplos/files/hello/01-hello-configmap.yml) (Estrutura do index.html, contendo o IP e detalhes de atalho do Grafana no IP `172.24.0.103`)
+  * [02-hello-deployment.yml](../ansible/ops-exemplos/files/hello/02-hello-deployment.yml) (Definição dos Pods com Nginx)
+  * [03-hello-service.yml](../ansible/ops-exemplos/files/hello/03-hello-service.yml) (Exposição do Pod como Service interno)
+  * [04-hello-gateway-httproute.yml](../ansible/ops-exemplos/files/hello/04-hello-gateway-httproute.yml) (Configuração de rota no Gateway API)
+  * [05-hello-pdb.yml](../ansible/ops-exemplos/files/hello/05-hello-pdb.yml) (PodDisruptionBudget)
+  * [06-hello-hpa.yml](../ansible/ops-exemplos/files/hello/06-hello-hpa.yml) (Horizontal Pod Autoscaler baseado em CPU)
+  * [07-hello-hpa-teste-stress.yml](../ansible/ops-exemplos/files/hello/07-hello-hpa-teste-stress.yml) (CronJob de teste de estresse de carga)
+  * [09-hello-vpa.yml](../ansible/ops-exemplos/files/hello/09-hello-vpa.yml) (Vertical Pod Autoscaler para otimização de CPU/memória)
 
 ### 2. Contador de Acessos (`contador`)
 
 * **Tecnologia**: PHP/Apache (`php:8.5-apache`) + CronJob de apoio (`debian:stable`).
 * **Propósito**: Demonstrar a persistência em volumes compartilhados (gravação/leitura no arquivo `contador.txt` e `ultimo.txt` a cada acesso e no arquivo `cron.txt` a cada execução do CronJob).
 * **Manifestos**:
-  * [02-contador-configmap.yml](../ansible/100-exemplos/files/contador/02-contador-configmap.yml)
-  * [03-contador-deployment.yml](../ansible/100-exemplos/files/contador/03-contador-deployment.yml)
-  * [06-contador-cronjob.yml](../ansible/100-exemplos/files/contador/06-contador-cronjob.yml)
-  * [07-contador-networkpolicies.yml](../ansible/100-exemplos/files/contador/07-contador-networkpolicies.yml)
+  * [01-contador-pvc.yml](../ansible/ops-exemplos/files/contador/01-contador-pvc.yml) (PersistentVolumeClaim para armazenamento persistente)
+  * [02-contador-configmap.yml](../ansible/ops-exemplos/files/contador/02-contador-configmap.yml) (Configurações rootless do Apache)
+  * [03-contador-deployment.yml](../ansible/ops-exemplos/files/contador/03-contador-deployment.yml) (Definição do Pod rodando Apache e PHP)
+  * [04-contador-service.yml](../ansible/ops-exemplos/files/contador/04-contador-service.yml) (Exposição do serviço contador)
+  * [05-contador-gateway-httproute.yml](../ansible/ops-exemplos/files/contador/05-contador-gateway-httproute.yml) (Configuração de rota no Gateway API)
+  * [06-contador-cronjob.yml](../ansible/ops-exemplos/files/contador/06-contador-cronjob.yml) (CronJob que escreve dados no volume compartilhado)
+  * [08-contador-pdb.yml](../ansible/ops-exemplos/files/contador/08-contador-pdb.yml) (PodDisruptionBudget)
 
 ### 3. Exemplos dedicados de VPA (`vpa`)
 * **Propósito**: Demonstrar de forma isolada e sem concorrência com o HPA o funcionamento do Vertical Pod Autoscaler nos modos `Initial` (para CronJobs) e `Auto` (para Deployments contínuos com suporte a alta disponibilidade).
 * **Manifestos**:
-  * [01-stress-cronjob.yml](../ansible/100-exemplos/files/vpa/01-stress-cronjob.yml) (CronJob de estresse periódico)
-  * [02-stress-cronjob-vpa.yml](../ansible/100-exemplos/files/vpa/02-stress-cronjob-vpa.yml) (VPA com `updateMode: "Initial"` e `controlledValues: RequestsOnly`)
-  * [03-stress-deployment.yml](../ansible/100-exemplos/files/vpa/03-stress-deployment.yml) (Deployment de estresse contínuo com 2 réplicas)
-  * [04-stress-deployment-pdb.yml](../ansible/100-exemplos/files/vpa/04-stress-deployment-pdb.yml) (PodDisruptionBudget)
-  * [05-stress-deployment-vpa.yml](../ansible/100-exemplos/files/vpa/05-stress-deployment-vpa.yml) (VPA com `updateMode: "Auto"` e regras de `minAllowed/maxAllowed`)
+  * [01-stress-cronjob.yml](../ansible/ops-exemplos/files/vpa/01-stress-cronjob.yml) (CronJob de estresse periódico)
+  * [02-stress-cronjob-vpa.yml](../ansible/ops-exemplos/files/vpa/02-stress-cronjob-vpa.yml) (VPA com `updateMode: "Initial"` e `controlledValues: RequestsOnly`)
+  * [03-stress-deployment.yml](../ansible/ops-exemplos/files/vpa/03-stress-deployment.yml) (Deployment de estresse contínuo com 2 réplicas)
+  * [04-stress-deployment-pdb.yml](../ansible/ops-exemplos/files/vpa/04-stress-deployment-pdb.yml) (PodDisruptionBudget)
+  * [05-stress-deployment-vpa.yml](../ansible/ops-exemplos/files/vpa/05-stress-deployment-vpa.yml) (VPA com `updateMode: "Auto"` e regras de `minAllowed/maxAllowed`)
 
 
 
@@ -119,19 +121,18 @@ Your cluster score: A (100)
 * **Sem containers rodando como root**: Aprovado graças ao `runAsNonRoot: true` e portas `>= 1024`.
 * **Configuração correta de Probes**: Os probes de `liveness` e `readiness` estão devidamente configurados apontando para a porta HTTP local correta.
 * **Uso correto de recursos**: Limits e Requests de CPU/Memória estão definidos para evitar desperdício ou sobrecarga de nós.
-* **Isolamento de Rede**: NetworkPolicies ativas restringem o tráfego de entrada e saída somente para o necessário (por exemplo, permitindo apenas tráfego oriundo do Gateway Traefik).
 
 ## 📊 Dimensionamento Automático (HPA & VPA)
 
 Para demonstrar os recursos de escalabilidade automática do Kubernetes, o laboratório inclui configurações tanto para dimensionamento horizontal (HPA) quanto vertical (VPA) na aplicação `hello-app`:
 
 ### 1. Horizontal Pod Autoscaler (HPA)
-* **Manifesto:** [06-hello-hpa.yml](../ansible/100-exemplos/files/hello/06-hello-hpa.yml)
+* **Manifesto:** [06-hello-hpa.yml](../ansible/ops-exemplos/files/hello/06-hello-hpa.yml)
 * **Funcionamento:** Monitora o uso de CPU da aplicação `hello-app` (através dos dados coletados pelo `Metrics Server`) e escala a quantidade de réplicas de 2 (mínimo) a 5 (máximo) caso a média ultrapasse 50% de CPU.
-* **Teste de Carga:** O CronJob `hello-hpa-teste-stress` ([07-hello-hpa-teste-stress.yml](../ansible/100-exemplos/files/hello/07-hello-hpa-teste-stress.yml)) roda periodicamente para gerar requisições HTTP artificiais contra o `hello-app`, simulando um pico de acesso e ativando o escalonamento horizontal.
+* **Teste de Carga:** O CronJob `hello-hpa-teste-stress` ([07-hello-hpa-teste-stress.yml](../ansible/ops-exemplos/files/hello/07-hello-hpa-teste-stress.yml)) roda periodicamente para gerar requisições HTTP artificiais contra o `hello-app`, simulando um pico de acesso e ativando o escalonamento horizontal.
 
 ### 2. Vertical Pod Autoscaler (VPA)
-* **Manifesto:** [09-hello-vpa.yml](../ansible/100-exemplos/files/hello/09-hello-vpa.yml)
+* **Manifesto:** [09-hello-vpa.yml](../ansible/ops-exemplos/files/hello/09-hello-vpa.yml)
 * **Funcionamento:** O VPA monitora os pods para sugerir os limites ideais de CPU e memória de acordo com seu consumo histórico real.
 * **updateMode: "Off" (no hello-app):** No Deployment da aplicação, o VPA está configurado no modo `Off` (somente recomendação). Isso é uma boa prática fundamental: VPA e HPA baseado em CPU/memória **não** devem alterar os mesmos recursos do Pod simultaneamente de forma ativa para evitar loops de decisão conflitantes. Com o modo `Off`, o VPA gera relatórios e recomendações estáticas que podem ser analisadas manualmente pelo comando:
   ```bash
@@ -144,15 +145,15 @@ Para demonstrar os recursos de escalabilidade automática do Kubernetes, o labor
 Para testar e observar detalhadamente o comportamento do VPA de forma isolada, foram disponibilizados os cenários sob o diretório `vpa`:
 
 * **VPA Initial com CronJob (Modo `RequestsOnly`):**
-  * O CronJob `vpa-stress-cronjob` ([01-stress-cronjob.yml](../ansible/100-exemplos/files/vpa/01-stress-cronjob.yml)) é executado a cada 10 minutos (especificamente nos minutos terminados em 5, como 5, 15, 25... para evitar concorrência com o teste HPA).
+  * O CronJob `vpa-stress-cronjob` ([01-stress-cronjob.yml](../ansible/ops-exemplos/files/vpa/01-stress-cronjob.yml)) é executado a cada 10 minutos (especificamente nos minutos terminados em 5, como 5, 15, 25... para evitar concorrência com o teste HPA).
   * O Pod gerado executa um processamento intensivo de CPU por 2 minutos.
-  * O VPA associado `vpa-stress-cronjob-vpa` ([02-stress-cronjob-vpa.yml](../ansible/100-exemplos/files/vpa/02-stress-cronjob-vpa.yml)) está no modo `Initial` com a política `controlledValues: RequestsOnly` e um teto `maxAllowed` de `500m` CPU e `128Mi` memória. Isso faz com que o VPA recomende e ajuste **apenas a requisição (request)** de CPU até o limite máximo de `500m`, deixando o limite (`limit`) intocado no valor fixo de `500m` configurado no template do Pod.
+  * O VPA associado `vpa-stress-cronjob-vpa` ([02-stress-cronjob-vpa.yml](../ansible/ops-exemplos/files/vpa/02-stress-cronjob-vpa.yml)) está no modo `Initial` com a política `controlledValues: RequestsOnly` e um teto `maxAllowed` de `500m` CPU e `128Mi` memória. Isso faz com que o VPA recomende e ajuste **apenas a requisição (request)** de CPU até o limite máximo de `500m`, deixando o limite (`limit`) intocado no valor fixo de `500m` configurado no template do Pod.
 
 * **VPA Auto com Deployment e PDB (Modo `minAllowed/maxAllowed`):**
-  * O Deployment `vpa-stress-deployment` ([03-stress-deployment.yml](../ansible/100-exemplos/files/vpa/03-stress-deployment.yml)) roda constantemente com 2 réplicas.
+  * O Deployment `vpa-stress-deployment` ([03-stress-deployment.yml](../ansible/ops-exemplos/files/vpa/03-stress-deployment.yml)) roda constantemente com 2 réplicas.
   * Os containers monitoram o relógio do sistema e iniciam o estresse de CPU por 2 minutos quando o minuto atual termina em 5 (ex: 5, 15, 25...).
-  * O PodDisruptionBudget `vpa-stress-deployment-pdb` ([04-stress-deployment-pdb.yml](../ansible/100-exemplos/files/vpa/04-stress-deployment-pdb.yml)) garante que pelo menos 1 réplica continue ativa durante o processo.
-  * O VPA associado `vpa-stress-deployment-vpa` ([05-stress-deployment-vpa.yml](../ansible/100-exemplos/files/vpa/05-stress-deployment-vpa.yml)) opera no modo `Auto`. Ele conta com um bloco `resourcePolicy` delimitando a requisição recomendada entre o mínimo (`minAllowed`) de `10m` CPU e o máximo (`maxAllowed`) de `500m` CPU. Quando o estresse é detectado, o VPA Updater despeja as réplicas de forma alternada (respeitando o PDB), e o webhook do VPA recria os novos pods aplicando as novas configurações com a requisição de CPU limitada ao teto de `500m`.
+  * O PodDisruptionBudget `vpa-stress-deployment-pdb` ([04-stress-deployment-pdb.yml](../ansible/ops-exemplos/files/vpa/04-stress-deployment-pdb.yml)) garante que pelo menos 1 réplica continue ativa durante o processo.
+  * O VPA associado `vpa-stress-deployment-vpa` ([05-stress-deployment-vpa.yml](../ansible/ops-exemplos/files/vpa/05-stress-deployment-vpa.yml)) opera no modo `Auto`. Ele conta com um bloco `resourcePolicy` delimitando a requisição recomendada entre o mínimo (`minAllowed`) de `10m` CPU e o máximo (`maxAllowed`) de `500m` CPU. Quando o estresse é detectado, o VPA Updater despeja as réplicas de forma alternada (respeitando o PDB), e o webhook do VPA recria os novos pods aplicando as novas configurações com a requisição de CPU limitada ao teto de `500m`.
 
 
 

@@ -1,0 +1,47 @@
+service:
+  enabled: true
+  type: LoadBalancer
+  annotations:
+    kube-vip.io/loadbalancerIPs: "172.24.0.110"
+    io.cilium/lb-ipam-ips: "172.24.0.110"
+
+deployment:
+  enabled: true
+  replicas: 2
+
+podDisruptionBudget:
+  minAvailable: 1
+
+providers:
+  kubernetesGateway:
+    enabled: true
+
+gatewayClass:
+  enabled: true
+
+gateway:
+  enabled: false
+
+autoscaling:
+  minReplicas: 2
+  maxReplicas: 4
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 100Mi
+  limits:
+    cpu: 100m
+    memory: 100Mi
+
+tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    effect: "NoSchedule"
+  - key: "node-role.kubernetes.io/master"
+    effect: "NoSchedule"
+
+api:
+  dashboard: true
+
+additionalArguments:
+  - "--api.insecure=true"

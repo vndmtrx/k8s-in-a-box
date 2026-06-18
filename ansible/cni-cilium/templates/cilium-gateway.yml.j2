@@ -1,0 +1,22 @@
+# ansible/cni-cilium/templates/cilium-gateway.yml.j2
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: gateway-publico
+  namespace: kube-system
+  annotations:
+    kube-vip.io/loadbalancerIPs: "172.24.0.110"
+    io.cilium/lb-ipam-ips: "172.24.0.110"
+spec:
+  gatewayClassName: cilium
+  addresses:
+  - type: IPAddress
+    value: "172.24.0.110"
+  listeners:
+  - name: web
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: All

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: exemplos
+  labels:
+    purpose: exemplos
+    managed-by: k8s-in-a-box
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: exemplos-sa
+  namespace: exemplos
+automountServiceAccountToken: false
+

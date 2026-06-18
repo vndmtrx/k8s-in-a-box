@@ -44,12 +44,12 @@ O **k8s‑in‑a‑box** é um ambiente Kubernetes completo, construído de form
 
 A estrutura do cluster é enriquecida com diversos addons, instalados via Ansible e detalhados na documentação específica ([Addons e Serviços Complementares](./addons.md)):
 
-* **Plugins de rede (CNI):** escolha entre `flannel` via Helm ou `canal` (Calico + Flannel), cujo manifesto é baixado e ajustado para a faixa de pods.
+* **Plugins de rede (CNI):** com suporte padrão ao `cilium` (eBPF com Gateway API e LoadBalancer IPAM integrados) e suporte alternativo ao `canal` (Calico + Flannel com addons de rede externos). A escolha do plugin ativo é definida na variável global `plugin_cni` dentro do arquivo de variáveis do inventário.
 * **CoreDNS:** fornece resolução de nomes interna no cluster, instalado como chart Helm.
 * **Metrics Server:** coleta métricas de CPU e memória dos pods/nodes.
 * **NFS Subdir External Provisioner:** cria volumes persistentes dinâmicos a partir do servidor NFS.
-* **Kube-vip:** implementa balanceamento de serviços em camada 2 (ARP), distribuindo IPs externos para serviços do tipo LoadBalancer e fornecendo suporte a Egress Gateway.
-* **Gateway API (Traefik):** permite exposição de aplicações HTTP/HTTPS via objetos Gateway/HTTPRoute.
+* **Kube-vip (apenas com CNI Canal):** implementa balanceamento de serviços em camada 2 (ARP), distribuindo IPs externos para serviços do tipo LoadBalancer e fornecendo suporte a Egress Gateway. No Cilium, essas funções são providas de forma nativa.
+* **Gateway API (Traefik com CNI Canal / Envoy com CNI Cilium):** permite exposição de aplicações HTTP/HTTPS via objetos Gateway/HTTPRoute, usando Traefik ou a implementação nativa baseada em Envoy do Cilium.
 * **Headlamp Dashboard:** oferece uma interface web de administração, instalada com service account apropriada.
 * **Vertical Pod Autoscaler (VPA):** analisa o uso de recursos e sugere/ajusta limites de recursos verticalmente para os contêineres dos Pods de forma dinâmica.
 * **Stack de Observabilidade (kube-prometheus-stack + Grafana):** coleta e armazena métricas detalhadas dos componentes do cluster (nós, pods, kube-proxy, CoreDNS e control plane) no Prometheus e as visualiza em dashboards ricos pré-configurados no Grafana.
@@ -92,7 +92,7 @@ O `Makefile` agiliza tarefas recorrentes:
 * `make cluster-up`: sobe todas as VMs via Vagrant.
 * `make cluster`: executa o playbook do cluster (`cluster.yml`) com a tag `cluster`, automatizando a instalação completa.
 * `make cluster-<role>`: executa apenas uma role específica (ex.: `cluster-etcd`, `cluster-kubelet`, etc.).
-* `make ops`: sobe a VM `kubox` e aplica `ops.yml` com suas roles (`ops-sistema`, `ops-ferramentas`, `ops-addons`).
+* `make ops`: aplica o playbook de operações `ops.yml` para configurar a rede (CNI, kube-proxy, kube-vip, traefik) e utilitários adicionais no host `kubox`.
 * `make exemplos`: aplica o playbook para exemplos de aplicações.
 * `make snapshot` / `make restore`: gerencia snapshots das VMs para facilitar restaurações de estado.
 * `make clean`: destrói as VMs e remove artefatos gerados.
@@ -106,7 +106,7 @@ As redes do cluster são declaradas em `inventario/group_vars/all.yml`:
 * **rede_cidr_services:** `172.25.128.0/17`, destinada aos serviços ClusterIP.
 * **VIPs e Kube-vip:** o VIP do Keepalived é `172.24.0.10`; há duas faixas de IPs para o Kube-vip (`kubevip_ips_manuais`: `172.24.0.101-172.24.0.150` e `kubevip_ips_loadbalacing`: `172.24.0.201-172.24.0.250`).
 
-Essas redes, combinadas com a configuração de CNI (Flannel ou Canal) e com o load balancer HAProxy, permitem que o cluster opere de forma isolada, com endereços internos previsíveis para hosts, pods e serviços.
+Essas redes, combinadas com a configuração de CNI (Cilium ou Canal) e com o load balancer HAProxy, permitem que o cluster opere de forma isolada, com endereços internos previsíveis para hosts, pods e serviços.
 
 # Conclusão
 

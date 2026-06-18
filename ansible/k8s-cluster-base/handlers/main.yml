@@ -1,0 +1,16 @@
+# ansible/k8s-cluster-base/handlers/main.yml
+---
+- name: Reiniciar chronyd
+  ansible.builtin.service:
+    name: chronyd
+    state: restarted
+
+- name: Reiniciar VM
+  ansible.builtin.reboot:
+    post_reboot_delay: 10
+    reboot_timeout: 300
+
+- name: Recarregar módulos do kernel
+  ansible.builtin.systemd:
+    name: systemd-modules-load
+    state: restarted

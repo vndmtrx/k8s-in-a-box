@@ -2,7 +2,7 @@
 
 Em ambientes Kubernetes locais ou de laboratório, gerenciar armazenamento persistente de forma flexível é essencial. O **k8s-in-a-box** soluciona isso dedicando um nó ao papel de **Servidor NFS (Network File System)**.
 
-A automação deste provisionamento é guiada pela role Ansible `04-nfs`, e a integração com o cluster Kubernetes ocorre por meio do role `13-addons-cluster`.
+A automação deste provisionamento é guiada pela role Ansible `infra-nfs`, e a integração com o cluster Kubernetes ocorre por meio do role `addon-apps-cluster`.
 
 ## Configuração do Servidor
 

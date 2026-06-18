@@ -1,0 +1,53 @@
+# ansible/ops-exemplos/files/vpa/01-stress-cronjob.yml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vpa-stress-cronjob
+  namespace: exemplos
+  labels:
+    app: vpa-stress-cronjob
+    componente: cronjob
+spec:
+  schedule: "5-55/10 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    metadata:
+      labels:
+        app: vpa-stress-cronjob
+        componente: cronjob
+    spec:
+      ttlSecondsAfterFinished: 1800
+      template:
+        metadata:
+          labels:
+            app: vpa-stress-cronjob
+            componente: cronjob
+        spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+          restartPolicy: Never
+          containers:
+            - name: stress-container
+              image: alpine:3.20
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  echo "Iniciando estresse de CPU (VPA Initial) por 2 minutos..."
+                  timeout 120s sh -c 'while true; do dd if=/dev/urandom bs=1M count=10 2>/dev/null | sha256sum | sha512sum | sha512sum > /dev/null; done'
+                  echo "Estresse de CPU finalizado."
+              resources:
+                requests:
+                  cpu: "10m"
+                  memory: "32Mi"
+                limits:
+                  cpu: "500m"
+                  memory: "128Mi"

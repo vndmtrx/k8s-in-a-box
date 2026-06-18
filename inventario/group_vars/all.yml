@@ -18,7 +18,7 @@ container_runtime_sockets:
   crio: unix:///var/run/crio/crio.sock
 
 # Plugin de CNI
-plugin_cni: "canal"  #Opções disponíveis: flannel e canal (flannel+calico)
+plugin_cni: "cilium"  #Opções disponíveis: canal (flannel+calico) e cilium
 
 # Redes do projeto
 rede_cidr_hosts: "172.24.0.0/24"
@@ -53,7 +53,7 @@ porta_kube_scheduler: 10259
 
 # Versões dos componentes
 versao_etcd: "v3.6.8"         # https://endoflife.date/etcd e tag da versão corrente em https://github.com/kubernetes/kubernetes/blob/master/build/dependencies.yaml
-versao_kubernetes: "v1.36.1"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
+versao_kubernetes: "v1.36.2"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
 versao_crictl: "v1.36.0"      # https://github.com/kubernetes-sigs/cri-tools/releases
 versao_pause: "3.10.2"        # https://github.com/kubernetes/kubernetes/blob/master/build/pause/CHANGELOG.md
 versao_cni: "v1.9.1"          # https://github.com/containernetworking/plugins/releases e https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/
@@ -61,7 +61,7 @@ versao_gateway_api: "v1.5.1"  # https://github.com/kubernetes-sigs/gateway-api/r
 versao_helm: "v3.21.0"        # https://github.com/helm/helm/releases
 versao_k9s: "v0.50.18"        # https://github.com/derailed/k9s/releases
 versao_popeye: "v0.22.1"      # https://github.com/derailed/popeye/releases
-versao_kubevip: "v0.8.9"      # https://github.com/kube-vip/kube-vip/releases
+versao_kubevip: "v1.2.0"      # https://github.com/kube-vip/kube-vip/releases
 versao_kubevip_cloud_provider: "v0.0.12" # https://github.com/kube-vip/kube-vip-cloud-provider/releases
 
 # Imagens necessárias em todos os nós do cluster (managers e workers)
@@ -80,6 +80,10 @@ control_plane_images:
 # Versões dos plugins de rede (CNI)
 versao_canal: "v3.32.0"       # https://github.com/projectcalico/calico/releases (Flannel + Calico)
 versao_flannel: "v0.28.4"     # https://github.com/flannel-io/flannel/releases
+versao_cilium: "v1.19.4"      # https://github.com/cilium/cilium/releases
+
+# IP do Hubble UI via LoadBalancer (padrão dos outros dashboards do projeto)
+cilium_hubble_ui_ip: "172.24.0.104"  # 101=Headlamp, 102=Traefik, 103=Grafana, 104=Hubble
 
 # Kubernetes: https://kubernetes.io/releases/download/
 download_artefatos:
