@@ -1,4 +1,4 @@
-# ansible/100-exemplos/files/vpa/03-vpa-stress-deployment.yml
+# ansible/ops-exemplos/files/vpa/03-stress-deployment.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:

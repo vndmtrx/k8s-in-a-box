@@ -1,4 +1,4 @@
-# ansible/100-exemplos/tasks/main.yml
+# ansible/ops-exemplos/tasks/main.yml
 ---
 - name: Implantação do namespace para os exemplos
   ansible.builtin.import_tasks: 00-namespace.yml

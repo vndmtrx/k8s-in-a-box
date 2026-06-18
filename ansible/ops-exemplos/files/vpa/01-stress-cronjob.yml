@@ -1,4 +1,4 @@
-# ansible/100-exemplos/files/vpa/01-vpa-stress-cronjob.yml
+# ansible/ops-exemplos/files/vpa/01-stress-cronjob.yml
 apiVersion: batch/v1
 kind: CronJob
 metadata:

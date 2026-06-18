@@ -1,4 +1,4 @@
-# ansible/100-exemplos/tasks/02-contador.yml
+# ansible/ops-exemplos/tasks/02-contador.yml
 ---
 - name: Garantir diretório exemplos/contador na home do usuário do ansible
   ansible.builtin.file:

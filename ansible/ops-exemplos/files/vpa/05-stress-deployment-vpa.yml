@@ -1,4 +1,4 @@
-# ansible/100-exemplos/files/vpa/05-vpa-stress-deployment-vpa.yml
+# ansible/ops-exemplos/files/vpa/05-stress-deployment-vpa.yml
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:

@@ -1,4 +1,4 @@
-# ansible/100-exemplos/files/hello/09-hello-vpa.yml
+# ansible/ops-exemplos/files/hello/09-hello-vpa.yml
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
