@@ -69,7 +69,7 @@ Algumas escolhas foram tomadas para simplificar o laboratório e maximizar o apr
 1. **Sistema Base AlmaLinux 10**: escolhido pela facilidade em relação à configuração de rede e pela disponibilidade de imagens atualizadas no Vagrant Cloud Images; outras distribuições podem exigir ajustes.
 1. **Certificados Gerenciados**: a geração de uma cadeia PKI completa (Root CA, CAs intermediárias e certificados de cliente e servidor) garante segurança entre todos os componentes, e também foi feita dessa forma para experimentações com rotação de certificados.
 1. **Runtime de Conteiners**: Foi utilizado o CRI-O pela simplicidade de instalação na distribuição atual. O containerd também foi disponibilizado caso haja preferência ou para estudo.
-1. **Plugin de Rede**: Foi utilizado o Canal (Calico + Flannel) como padrão para uso completo dos recursos de rede, como Network Policies. O Cilium também está disponível como opção de CNI baseada em eBPF.
+1. **Plugin de Rede**: Foi utilizado o Cilium como padrão para uso avançado de rede e observabilidade nativa via eBPF. O Canal (Calico + Flannel) também está disponível como opção alternativa tradicional de CNI.
 1. **Control Plane via Static Pods**: em vez de instalar os componentes do plano de controle (`etcd`, `kube-apiserver`, `kube-controller-manager` e `kube-scheduler`) como serviços do sistema operacional gerenciados pelo `systemd` (modo tradicional), optou-se pela implantação via **Static Pods**. Isso simplifica o processo ao eliminar a necessidade de criar e gerenciar múltiplos Unit Files do systemd para cada componente, alinhando o projeto com as práticas de instalações modernas do Kubernetes (como o `kubeadm`). 
    * *Nota de Evolução:* Inicialmente, o projeto nasceu de forma puramente *"hard way"*, instalando cada um dos componentes manualmente a nível de sistema operacional (com downloads diretos e unit files manuais). A consolidação para Static Pods, embora ainda preserve o aspecto *"hard way"* (já que toda a cadeia PKI, certificados, arquivos de configuração e parâmetros ainda são gerados manualmente etapa por etapa pelo Ansible), adota uma arquitetura mais moderna, organizada e resiliente (o próprio Kubelet gerencia o ciclo de vida e a saúde dos componentes do control plane locais).
 1. **kube-proxy como DaemonSet**: em vez de rodar como serviço systemd estático, o `kube-proxy` é provisionado como um DaemonSet dentro do cluster. Isso simplifica o bootstrap inicial e dispensa a necessidade de certificados de cliente dedicados (autentica via `ServiceAccount`).
@@ -95,7 +95,7 @@ A personalização do cluster é feita em dois arquivos principais:
   Algumas das principais opções que podem ser ajustadas:
 
   * **Runtime de Conteiner** permite a escolha entre `crio` ou `containerd` para a parte de conteiners.
-  * **Plugin de CNI:** permite escolher entre `canal` (Flannel + Calico) ou `cilium` para a rede dos pods.
+  * **Plugin de CNI:** permite escolher entre `cilium` (padrão) ou `canal` (Flannel + Calico) para a rede dos pods.
   * **Versões dos componentes:** define quais versões do Kubernetes, etcd, Helm e CNI Plugins serão utilizadas.
   * **Redes do cluster:** configura os blocos de endereçamento das redes de *hosts*, *pods* e *services*.
   * **Faixas de IPs do Kube-vip:** controla os intervalos disponíveis para LoadBalancers e IPs fixos.
@@ -125,7 +125,7 @@ Inclusive, é possível verificar o status do HAProxy em [http://172.24.0.21:900
 * **Balanceamento:** HAProxy faz o **failover** e o balanceamento do **kube-apiserver** e do **etcd**.
 * **PKI:** toda a comunicação entre componentes é protegida por certificados emitidos pela **cadeia PKI** do projeto (Root CA + CAs intermediários para cada componente core).
 * **Runtime:** `crio` como padrão pela simplicidade e estabilidade; `containerd` disponível.
-* **CNI:** `canal` (Calico + Flannel) como padrão e suporte a `cilium`.
+* **CNI:** `cilium` como padrão (eBPF) e suporte alternativo a `canal` (Calico + Flannel).
 * **kube-proxy:** provisionado como DaemonSet dentro do cluster, autenticando-se via `ServiceAccount`; sem certificados de cliente próprios.
 * **LoadBalancer & Egress (Kube-vip):** gerencia as solicitações de LoadBalancer e IPs virtuais no modo L2 (ARP), além de suportar a funcionalidade de Egress Gateway para que as conexões de saída das aplicações utilizem IPs fixos previamente definidos.
 * **Bastion (kubox):** host com `kubectl`, `etcdctl`, `helm` e utilitários para operar e inspecionar o cluster sem “poluir” os nós.
@@ -150,12 +150,12 @@ Você pode executar tudo de ponta a ponta com `make k8s-in-a-box` ou chamar **ta
 As principais opções ficam em `inventario/group_vars/all.yml`:
 
 * **Rede dos hosts/pods/serviços:** `rede_cidr_hosts`, `rede_cidr_pods`, `rede_cidr_services`
-* **CNI:** `plugin_cni: "canal"` (opções: `canal` ou `cilium`)
+* **CNI:** `plugin_cni: "cilium"` (opções: `cilium` ou `canal`)
 * **VIP/HAProxy/Keepalived:** `keepalived_vip_ip`, `vip_api_fqdn`, `vip_etcd_fqdn`, timeouts e credenciais do HAProxy
 * **Kube-vip:** `kubevip_ips_manuais` e `kubevip_ips_loadbalacing`
 * **Versões:** `versao_kubernetes`, `versao_etcd`, `versao_cni`, `versao_helm`
 
-> 💡 Dica: ajuste primeiro CPU/RAM no `inventario/hosts.yml`. Em seguida, valide **rede** e **VIP**. Por fim, escolha o **CNI** conforme o objetivo: `canal` (padrão) ou `cilium` (eBPF).
+> 💡 Dica: ajuste primeiro CPU/RAM no `inventario/hosts.yml`. Em seguida, valide **rede** e **VIP**. Por fim, escolha o **CNI** conforme o objetivo: `cilium` (padrão) ou `canal` (tradicional).
 
 ## Início Rápido
 
@@ -244,7 +244,7 @@ Para a operação do cluster (e melhor simulação de um ambiente real), as ferr
   - Relatório em formato JSON: `popeye -o json`
 
 
-## Acesso aos Dashboards (Headlamp, Traefik e Grafana)
+## Acesso aos Dashboards (Headlamp, Hubble, Traefik e Grafana)
 
 No cluster, vários painéis visuais foram ativados para facilitar a administração, monitoramento e visualização dos componentes do cluster.
 
@@ -254,8 +254,15 @@ Para acessar o Headlamp Dashboard, acesse a URL [http://172.24.0.101](http://172
 kubectl -n headlamp create token headlamp-admin
 ```
 
-### 2. Traefik Dashboard
-Para verificar os endpoints expostos via Gateway API, acesse o painel do Traefik na URL [http://172.24.0.102](http://172.24.0.102/), sem necessidade de autenticação.
+### 2. Hubble UI / Traefik Dashboard (Observabilidade de Rede e Roteamento)
+O painel de controle para a rede depende do CNI ativo configurado no arquivo `all.yml`:
+
+* **Se o CNI ativo for o Cilium (Padrão):**
+  O **Hubble UI** fornece visualização gráfica detalhada de fluxos de rede, conexões de serviços e políticas aplicadas em tempo real.
+  * 🌐 **URL de Acesso:** [http://172.24.0.104](http://172.24.0.104/) (sem necessidade de autenticação).
+* **Se o CNI ativo for o Canal (Alternativo):**
+  O **Traefik Dashboard** permite verificar o roteamento HTTP, certificados e ingressos configurados via Gateway API (Traefik).
+  * 🌐 **URL de Acesso:** [http://172.24.0.102](http://172.24.0.102/) (sem necessidade de autenticação).
 
 ### 3. Grafana (Stack de Observabilidade)
 Para visualizar métricas detalhadas do cluster (nós, pods, plano de controle e CoreDNS), acesse o Grafana na URL [http://172.24.0.103](http://172.24.0.103/).
@@ -267,14 +274,14 @@ Para visualizar métricas detalhadas do cluster (nós, pods, plano de controle e
 
 ### Acesso Remoto (Túnel SSH / Port Forwarding)
 
-Se o seu ambiente `k8s-in-a-box` estiver sendo executado em uma máquina ou servidor remoto (onde você se conecta apenas via SSH), os IPs de LoadBalancer da rede privada (`172.24.0.101`, `172.24.0.102` e `172.24.0.103`) não estarão acessíveis diretamente pelo seu navegador físico local. 
+Se o seu ambiente `k8s-in-a-box` estiver sendo executado em uma máquina ou servidor remoto (onde você se conecta apenas via SSH), os IPs de LoadBalancer da rede privada (`172.24.0.101`, `172.24.0.102`, `172.24.0.103` e `172.24.0.104`) não estarão acessíveis diretamente pelo seu navegador físico local. 
 
 Para resolver isso de forma elegante, você pode criar túneis SSH (**Local Port Forwarding**) para mapear as portas locais do seu computador físico para as IPs virtuais internas do servidor:
 
 #### Método 1: Via Linha de Comando (Linux, macOS ou Windows Terminal)
 Execute o comando abaixo no terminal da sua máquina física local para iniciar uma sessão SSH contendo os túneis:
 ```bash
-ssh -L 8080:172.24.0.101:80 -L 8081:172.24.0.102:80 -L 8082:172.24.0.103:80 seu_usuario@ip_do_servidor_remoto
+ssh -L 8080:172.24.0.101:80 -L 8081:172.24.0.102:80 -L 8082:172.24.0.103:80 -L 8083:172.24.0.104:80 seu_usuario@ip_do_servidor_remoto
 ```
 
 #### Método 2: Via PuTTY (Windows GUI)
@@ -285,7 +292,7 @@ Se você utiliza o PuTTY para gerenciar suas conexões:
    * **Source port:** `8080`
    * **Destination:** `172.24.0.101:80`
    * Clique em **Add**.
-4. Adicione o túnel do **Traefik**:
+4. Adicione o túnel do **Traefik** (se CNI for Canal):
    * **Source port:** `8081`
    * **Destination:** `172.24.0.102:80`
    * Clique em **Add**.
@@ -293,12 +300,17 @@ Se você utiliza o PuTTY para gerenciar suas conexões:
    * **Source port:** `8082`
    * **Destination:** `172.24.0.103:80`
    * Clique em **Add**.
-6. Volte para a categoria **Session** no topo esquerdo, clique em **Save** para fixar a configuração e clique em **Open** para iniciar a conexão.
+6. Adicione o túnel do **Hubble UI** (se CNI for Cilium):
+   * **Source port:** `8083`
+   * **Destination:** `172.24.0.104:80`
+   * Clique em **Add**.
+7. Volte para a categoria **Session** no topo esquerdo, clique em **Save** para fixar a configuração e clique em **Open** para iniciar a conexão.
 
 Após conectar-se por qualquer um dos métodos, as interfaces estarão acessíveis no seu navegador local nos seguintes endereços:
 * 🌐 **Headlamp Dashboard:** [http://localhost:8080](http://localhost:8080)
-* 🌐 **Traefik Dashboard:** [http://localhost:8081/dashboard/](http://localhost:8081/dashboard/)
+* 🌐 **Traefik Dashboard (Canal):** [http://localhost:8081/dashboard/](http://localhost:8081/dashboard/)
 * 🌐 **Grafana Dashboard:** [http://localhost:8082](http://localhost:8082)
+* 🌐 **Hubble UI Dashboard (Cilium):** [http://localhost:8083](http://localhost:8083)
 
 > ⚠️ **ALERTA: É extremamente importante esclarecer que esses dashboards estão sendo expostos através de um Service do tipo LoadBalancer única e exclusivamente para fins de estudo e avaliação do cluster. Em produção, jamais deve-se expor esses componentes à rede pública; caso seja necessário acesso, utilize os mecanismos seguros que o Kubernetes oferece, como o `kubectl proxy` ou `kubectl port-forward`, garantindo que o tráfego permaneça interno ao cluster e protegido por autenticação e controle de permissões.**
 
