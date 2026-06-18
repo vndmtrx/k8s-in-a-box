@@ -12,7 +12,7 @@
   register: kube_apiserver_kubelet_cli_arquivos
   delegate_to: localhost
 
-- name: Verificar informações do certificado cliente apiserver→kubelet existente
+- name: Verificar informações do certificado cliente apiserver -> kubelet existente
   community.crypto.x509_certificate_info:
     path: "{{ pki_certs.kube_apiserver_kubelet_cli.path_cert }}"
   register: kube_apiserver_kubelet_cli_info
@@ -26,7 +26,7 @@
   when: kube_apiserver_kubelet_cli_arquivos.results[1].stat.exists
   delegate_to: localhost
 
-- name: Decidir se certificado cliente apiserver→kubelet deve ser gerado
+- name: Decidir se certificado cliente apiserver -> kubelet deve ser gerado
   ansible.builtin.set_fact:
     pki_deve_gerar_kube_apiserver_kubelet_cli: >-
       {{
