@@ -1,3 +1,11 @@
 # ansible/cni-cilium/tasks/main.yml
 ---
-# Reservado para implantação do Cilium CNI via Helm
+- name: Adicionar repositório Helm do Cilium
+  ansible.builtin.import_tasks: 01-repositorio.yml
+
+- name: Instalar CRDs do Gateway API
+  ansible.builtin.import_tasks: 02-gateway-api.yml
+
+- name: Instalar Cilium CNI e Configurar IPAM Pools
+  ansible.builtin.import_tasks: 03-instalacao.yml
+
