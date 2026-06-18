@@ -1,0 +1,76 @@
+# ansible/cni-cilium/templates/cilium-values.yml.j2
+---
+# --- Kubernetes API server (Obrigatório para kubeProxyReplacement=true)
+k8sServiceHost: "{{ vip_api_fqdn }}"
+k8sServicePort: "{{ porta_kube_apiserver }}"
+
+# --- kube-proxy replacement via eBPF
+kubeProxyReplacement: "true"
+
+# --- IPAM em modo 'kubernetes' (Alinhado com a rede_cidr_pods do cluster)
+ipam:
+  mode: "kubernetes"
+
+# --- L2 announcements (Anúncios ARP para substituir o KubeVIP Cloud Provider)
+l2announcements:
+  enabled: true
+
+# --- Gateway API nativo do Cilium (Atua como controlador do Gateway API)
+gatewayAPI:
+  enabled: true
+  gatewayClass:
+    create: auto
+
+# --- Recursos/Limites do Cilium Agent
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+# --- Operador: 1 réplica (Ambiente de laboratório/single-node control plane)
+operator:
+  replicas: 1
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# --- Hubble: Observabilidade e Visualização
+hubble:
+  relay:
+    enabled: true
+    podSecurityContext:
+      fsGroup: 0
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
+      runAsNonRoot: false
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  ui:
+    enabled: true
+    service:
+      type: LoadBalancer
+      annotations:
+        kube-vip.io/loadbalancerIPs: "{{ cilium_hubble_ui_ip }}"
+        io.cilium/lb-ipam-ips: "{{ cilium_hubble_ui_ip }}"
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+
