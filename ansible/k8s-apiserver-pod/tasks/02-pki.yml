@@ -45,8 +45,8 @@
     mode: "0644"
   notify: Reiniciar Static Pod do kube-apiserver
 
-# Certificado cliente apiserver→etcd (--etcd-certfile / --etcd-keyfile)
-- name: Copiar certificados cliente apiserver→etcd
+# Certificado cliente apiserver -> etcd (--etcd-certfile / --etcd-keyfile)
+- name: Copiar certificados cliente apiserver -> etcd
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -64,8 +64,8 @@
     label: "{{ item.dest }}"
   notify: Reiniciar Static Pod do kube-apiserver
 
-# Certificado cliente apiserver→kubelet (--kubelet-client-certificate / --kubelet-client-key)
-- name: Copiar certificados cliente apiserver→kubelet
+# Certificado cliente apiserver -> kubelet (--kubelet-client-certificate / --kubelet-client-key)
+- name: Copiar certificados cliente apiserver -> kubelet
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
