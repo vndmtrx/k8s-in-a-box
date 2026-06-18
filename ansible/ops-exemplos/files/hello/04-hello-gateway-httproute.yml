@@ -8,7 +8,7 @@ metadata:
 spec:
   parentRefs:
     - name: gateway-publico
-      namespace: gateway-system
+      namespace: kube-system
       sectionName: web
   rules:
     - matches:
