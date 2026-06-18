@@ -1,0 +1,18 @@
+# ansible/cni-cilium/templates/cilium-l2-policy.yml.j2
+---
+# Política L2 necessária para associar os IPs dos pools à interface física dos nós (eth1)
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: l2-policy-k8sbox
+  namespace: kube-system
+spec:
+  serviceSelector:
+    matchLabels: {} # Aplica-se a todos os LoadBalancers criados no cluster
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+  interfaces:
+    - eth1 # Interface física padrão usada no cluster
+  externalIPs: true
+  loadBalancerIPs: true
