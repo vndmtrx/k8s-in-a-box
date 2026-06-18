@@ -1,0 +1,70 @@
+# ansible/cni-cilium/tasks/03-instalacao.yml
+---
+- name: Garantir diretório charts na home do usuário do ansible
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/charts"
+    state: directory
+    mode: "0755"
+
+- name: Criar arquivo de configuração Helm para o Cilium
+  ansible.builtin.template:
+    src: cilium-values.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/cilium-values.yml"
+    mode: "0644"
+
+- name: Instalar ou Atualizar Cilium via Helm
+  ansible.builtin.command:
+    cmd: >
+      helm upgrade --install cilium cilium/cilium
+      --namespace kube-system
+      --version "{{ versao_cilium | regex_replace('^v', '') }}"
+      --values /home/{{ ansible_user }}/charts/cilium-values.yml
+  register: resultado_helm_upgrade
+
+  changed_when: "'installed' in resultado_helm_upgrade.stdout or 'upgraded' in resultado_helm_upgrade.stdout"
+
+- name: Aguardar DaemonSet do Cilium ficar pronto
+  ansible.builtin.command:
+    cmd: "kubectl -n kube-system wait --for=condition=Ready pod -l k8s-app=cilium --timeout=300s"
+  changed_when: false
+
+- name: Aguardar Deployment do Cilium Operator ficar pronto
+  ansible.builtin.command:
+    cmd: "kubectl -n kube-system rollout status deployment/cilium-operator --timeout=300s"
+  changed_when: false
+
+- name: Criar manifesto dos Pools de IPs do Cilium (LoadBalancer IPAM)
+  ansible.builtin.template:
+    src: cilium-lb-ipam-pool.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/cilium-lb-ipam-pool.yml"
+    mode: "0644"
+
+- name: Aplicar os Pools de IPs do Cilium
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/cilium-lb-ipam-pool.yml"
+  register: resultado_pools
+  changed_when: "'created' in resultado_pools.stdout or 'configured' in resultado_pools.stdout"
+
+- name: Criar manifesto da L2 Announcement Policy do Cilium
+  ansible.builtin.template:
+    src: cilium-l2-policy.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/cilium-l2-policy.yml"
+    mode: "0644"
+
+- name: Aplicar L2 Announcement Policy do Cilium
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/cilium-l2-policy.yml"
+  register: resultado_l2_policy
+  changed_when: "'created' in resultado_l2_policy.stdout or 'configured' in resultado_l2_policy.stdout"
+
+- name: Criar manifesto do Gateway do Cilium
+  ansible.builtin.template:
+    src: cilium-gateway.yml.j2
+    dest: "/home/{{ ansible_user }}/charts/cilium-gateway.yml"
+    mode: "0644"
+
+- name: Aplicar Gateway do Cilium
+  ansible.builtin.command:
+    cmd: "kubectl apply -f /home/{{ ansible_user }}/charts/cilium-gateway.yml"
+  register: resultado_gateway
+  changed_when: "'created' in resultado_gateway.stdout or 'configured' in resultado_gateway.stdout"
