@@ -118,7 +118,7 @@ destroy: garante-config ## Exclui permanentemente todas as VMs (vagrant destroy)
 	vagrant destroy -f
 
 clean: destroy ## Deleta as VMs e limpa todos os artefatos, chaves e symlinks temporários
-	rm -rf $(ARTEFATOS) .vagrant id_ed25519 id_ed25519.pub inventario/hosts.yml
+	rm -rf $(ARTEFATOS) .vagrant .cache id_ed25519 id_ed25519.pub inventario/hosts.yml
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Provisionamento do Kubernetes (Cluster)
