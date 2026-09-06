@@ -31,11 +31,6 @@ grupos.each do |grupo, dados|
   end
 end
 
-# Definição das linhas do /etc/hosts das máquinas, baseado na informação dos nodes, acima
-entradas_cluster = nodes.map do |nome, specs|
-  "#{specs["ip"]} #{nome}.#{PROJETO}.local"
-end.join("\n")
-
 Vagrant.configure("2") do |config|
   # Gera a chave SSH se não existir
   unless ARGV.include?("destroy")
