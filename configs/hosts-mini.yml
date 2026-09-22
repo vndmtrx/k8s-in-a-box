@@ -62,6 +62,6 @@ all:
         kubox:
           ansible_host: 172.24.0.254
           fqdn: kubox.k8sbox.local
-          memory: 384
+          memory: 1024
           cpus: 1
           autostart: false
