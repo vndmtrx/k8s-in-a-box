@@ -201,9 +201,9 @@ O projeto utiliza um sistema de configurações baseado em symlinks para facilit
 
 | Configuração | Load Balancers | Manager Nodes | Worker Nodes | Total | Recursos |
 |--------------|----------------|---------------|--------------|---------------|----------|
-| `nano` | 1 | 1 | 1 | 2 nós | ~6GB RAM, 6 vCPUs |
-| `mini` | 1 | 1 | 2 | 3 nós | ~10GB RAM, 9 vCPUs |
-| `completo` | 2 | 3 | 2 | 5 nós | ~19GB RAM, 18 vCPUs |
+| `nano` | 1 | 1 | 1 | 2 nós | ~6.5GB RAM, 6 vCPUs |
+| `mini` | 1 | 1 | 2 | 3 nós | ~11GB RAM, 9 vCPUs |
+| `completo` | 2 | 3 | 2 | 5 nós | ~19.5GB RAM, 18 vCPUs |
 
 > 📝 **Nota:** O total de nós considera apenas managers + workers. Já os recursos incluem todas as VMs (LBs, NFS, cluster e kubox).
 
