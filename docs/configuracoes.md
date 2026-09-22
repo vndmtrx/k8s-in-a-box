@@ -27,7 +27,7 @@ O projeto fornece três configurações prontas para uso:
 - 1 Servidor NFS
 - 1 Bastion Host (kubox)
 
-**Recursos aproximados:** ~6GB RAM, 6 vCPUs
+**Recursos aproximados:** ~6.5GB RAM, 6 vCPUs
 
 **Cenários ideais:**
 - Primeiros testes com o projeto
@@ -46,7 +46,7 @@ O projeto fornece três configurações prontas para uso:
 - 1 Servidor NFS
 - 1 Bastion Host (kubox)
 
-**Recursos aproximados:** ~10GB RAM, 9 vCPUs
+**Recursos aproximados:** ~11GB RAM, 9 vCPUs
 
 **Cenários ideais:**
 - Estudos de Kubernetes
@@ -65,7 +65,7 @@ O projeto fornece três configurações prontas para uso:
 - 1 Servidor NFS
 - 1 Bastion Host (kubox)
 
-**Recursos aproximados:** ~19GB RAM, 18 vCPUs
+**Recursos aproximados:** ~19.5GB RAM, 18 vCPUs
 
 **Cenários ideais:**
 - Simulação de ambiente de produção
