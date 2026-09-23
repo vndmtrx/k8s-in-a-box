@@ -334,6 +334,7 @@ make clean
 - **NÃO USE** esta chave em ambiente de produção
 - Para produção, sempre gere e use suas próprias chaves SSH
 - O `Makefile` do projeto utiliza uma configuração específica do Ansible localizada em `./ansible/.ansible.cfg`
+- **Requisitos de Disco:** o provisionamento completo (especialmente no modo `mini` ou `completo`) requer entre 25 a 30 GB de espaço livre em disco no host para acomodar a box do AlmaLinux 10, os discos virtuais das VMs e o cache local de imagens OCI e binários
 
 ## Conformidade e Validação
 
@@ -352,6 +353,17 @@ Este repositório é resultado de um estudo contínuo sobre como montar um clust
 Este projeto não é apenas uma implementação, mas um caminho de estudo estruturado para compreender cada aspecto do funcionamento do Kubernetes.
 
 Sinta‑se à vontade para contribuir com sugestões, issues e pull requests.
+
+## Referências e Softwares de Terceiros
+
+Este projeto não implementa novas tecnologias de contêiner ou protocolos de rede proprietários; ele atua puramente como automação e arquitetura de referência. Agradecemos e referenciamos os projetos open-source fundamentais que compõem este ecossistema sob suas respectivas licenças:
+
+* **Kubernetes, etcd, CRI-O e Helm:** Licença Apache 2.0
+* **Cilium:** Licença Apache 2.0
+* **HAProxy:** Licença GPLv2 / LGPLv2.1
+* **Keepalived:** Licença GPLv2
+* **Libvirt e KVM:** Licença LGPL / GPLv2
+* **Vagrant e plugins:** Licença BSL / MIT
 
 ## Licença
 
