@@ -257,3 +257,52 @@ vip_etcd_fqdn: "etcd.k8sbox.local"
 keepalived_vip_ip: "172.24.0.10"
 keepalived_vip_cidr: "172.24.0.10/24"
 keepalived_senha: "SenhaSuperSecreta123"
+
+###################################################
+### Configurações para a role infra-vms (libvirt) ###
+###################################################
+
+# Imagem base (qcow2) cacheada no host e reutilizada entre recriações de VM.
+#
+# FASE A (atual): base cloud do AlmaLinux 10 GenericCloud (x86_64), mantendo o
+# SO antigo enquanto se troca apenas o provisionador (Vagrant -> libvirt/Ansible).
+# FASE B: trocar para o Debian 13 "Trixie" generic amd64 publicado em
+# https://cloud.debian.org/images/cloud/trixie/latest/
+imagem_base_url: "https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/AlmaLinux-10-GenericCloud-latest.x86_64.qcow2"
+
+# Nome do arquivo qcow2 como fica no pool/cache do libvirt.
+imagem_base_arquivo: "AlmaLinux-10-GenericCloud-latest.x86_64.qcow2"
+
+# URL do checksum publicado para verificar a integridade da imagem base.
+# FASE A: o AlmaLinux publica checksums em SHA256.
+# FASE B: passa a ser o SHA512SUMS do Debian (mesma pasta "latest" acima).
+imagem_base_checksum_url: "https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/CHECKSUM"
+
+# Algoritmo do checksum da imagem base.
+# FASE A: sha256 (AlmaLinux). FASE B: vira sha512 (Debian SHA512SUMS).
+imagem_base_checksum_algo: "sha256"
+
+# Pool do libvirt onde ficam a imagem base e os overlays das VMs.
+# Coerente com o default LIBVIRT_POOL_PATH do Makefile.
+libvirt_pool_path: "/var/lib/libvirt/images"
+
+# Caminho de cache da imagem base (mesmo diretório do pool nesta fase).
+libvirt_cache_path: "{{ libvirt_pool_path }}"
+
+# URI de conexão com o libvirt (sempre do sistema, sem sudo).
+# Coerente com o default LIBVIRT_URI do Makefile.
+libvirt_uri: "qemu:///system"
+
+# Nome da rede libvirt NAT de management criada/destruída pelo provisionador.
+rede_mgmt_nome: "k8sbox_mgmt"
+
+# Tamanho de disco padrão do overlay quando o host não define disk_size.
+# Coerente com o default DISK_SIZE_DEFAULT do Makefile.
+disk_size_default: "20G"
+
+# Nome da interface de rede dentro da VM. Depende da box/imagem usada;
+# é referenciado pelo cloud-init (network-config) e pelo keepalived.
+interface_rede: "enp1s0"
+
+# Habilita a virtualização aninhada (nested) no XML do domínio.
+cpu_nested: true
