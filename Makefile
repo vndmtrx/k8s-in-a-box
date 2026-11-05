@@ -79,37 +79,6 @@ status: ## Mostra a configuração de cluster ativa
 		echo "Nenhuma configuração ativa (será usado $(CLUSTER))"; \
 	fi
 
-check-deps: ## Verifica se todas as dependências locais estão instaladas e configuradas
-	@echo "Verificando dependências do host..."
-	@FAILED=0; \
-	echo -n "  - Ansible: "; \
-	if command -v ansible >/dev/null 2>&1; then echo "OK"; else echo "NÃO ENCONTRADO"; FAILED=1; fi; \
-	echo -n "  - Vagrant: "; \
-	if command -v vagrant >/dev/null 2>&1; then echo "OK"; else echo "NÃO ENCONTRADO"; FAILED=1; fi; \
-	echo -n "  - KVM (/dev/kvm): "; \
-	if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then echo "OK"; else echo "SEM PERMISSÃO OU NÃO EXISTE"; FAILED=1; fi; \
-	echo -n "  - Conexão Libvirt (virsh): "; \
-	if virsh uri >/dev/null 2>&1; then echo "OK"; else echo "FALHA"; FAILED=1; fi; \
-	echo -n "  - Vagrant Libvirt Plugin: "; \
-	if vagrant plugin list 2>/dev/null | grep -q vagrant-libvirt; then echo "OK"; else echo "NÃO ENCONTRADO"; FAILED=1; fi; \
-	echo -n "  - Porta 6443 (Conflitos locais): "; \
-	if command -v ss >/dev/null 2>&1; then \
-		if ss -tln | grep -qE ':(6443)\s'; then \
-			echo "EM USO (Conflito detectado!)"; FAILED=1; \
-		else \
-			echo "LIVRE"; \
-		fi; \
-	else \
-		echo "IGNORADO (ss não disponível)"; \
-	fi; \
-	if [ $$FAILED -ne 0 ]; then \
-		echo ""; \
-		echo "Erro: Algumas dependências locais estão ausentes ou incorretamente configuradas."; \
-		exit 1; \
-	else \
-		echo "Tudo OK! Pronto para iniciar o provisionamento."; \
-	fi
-
 bootstrap: ## Valida pré-requisitos do host (binários, collection, permissões e recursos) antes de provisionar
 	@echo "Validando pré-requisitos do host para o provisionamento libvirt/Ansible..."
 	@set -euo pipefail; \
