@@ -16,6 +16,14 @@ CLUSTER_SOURCE := configs/hosts-$(CLUSTER).yml
 CLUSTER_LINK := inventario/hosts.yml
 PLAYBOOK := ./ansible/cluster.yml
 
+# Pré-requisitos do host (usados pelo alvo bootstrap)
+# Pool do libvirt onde ficam a imagem base e os overlays
+LIBVIRT_POOL_PATH ?= /var/lib/libvirt/images
+# URI do libvirt (sempre qemu:///system, sem sudo)
+LIBVIRT_URI ?= qemu:///system
+# Tamanho de disco padrão por VM quando o host não define disk_size no inventário
+DISK_SIZE_DEFAULT ?= 20G
+
 # Variável para controlar verbosidade (VERBOSE=v, VERBOSE=vv, VERBOSE=vvv)
 VERBOSE ?=
 ANSIBLE_VERBOSE := $(if $(VERBOSE),-$(VERBOSE),)
@@ -101,6 +109,76 @@ check-deps: ## Verifica se todas as dependências locais estão instaladas e con
 	else \
 		echo "Tudo OK! Pronto para iniciar o provisionamento."; \
 	fi
+
+bootstrap: ## Valida pré-requisitos do host (binários, collection, permissões e recursos) antes de provisionar
+	@echo "Validando pré-requisitos do host para o provisionamento libvirt/Ansible..."
+	@set -euo pipefail; \
+	falha() { echo ""; echo "Erro: pré-requisito ausente -> $$1"; exit 1; }; \
+	\
+	echo -n "  - Binário virsh: "; \
+	if command -v virsh >/dev/null 2>&1; then echo "OK"; else echo "NÃO ENCONTRADO"; falha "o binário 'virsh' não está instalado (pacote libvirt-clients)"; fi; \
+	echo -n "  - Binário qemu-img: "; \
+	if command -v qemu-img >/dev/null 2>&1; then echo "OK"; else echo "NÃO ENCONTRADO"; falha "o binário 'qemu-img' não está instalado (pacote qemu-utils)"; fi; \
+	echo -n "  - Binário cloud-localds/genisoimage: "; \
+	if command -v cloud-localds >/dev/null 2>&1; then echo "OK (cloud-localds)"; \
+	elif command -v genisoimage >/dev/null 2>&1; then echo "OK (genisoimage)"; \
+	else echo "NÃO ENCONTRADO"; falha "nem 'cloud-localds' (pacote cloud-image-utils) nem 'genisoimage' (pacote genisoimage) foram encontrados"; fi; \
+	echo -n "  - Binário ansible: "; \
+	if command -v ansible >/dev/null 2>&1; then echo "OK"; else echo "NÃO ENCONTRADO"; falha "o binário 'ansible' não está instalado"; fi; \
+	\
+	echo -n "  - Collection community.libvirt: "; \
+	if ansible-galaxy collection list 2>/dev/null | grep -q '^community\.libvirt '; then echo "OK"; \
+	else echo "NÃO ENCONTRADA"; falha "a collection Ansible 'community.libvirt' não está instalada (ansible-galaxy collection install community.libvirt)"; fi; \
+	\
+	echo -n "  - Grupo libvirt: "; \
+	if id -nG 2>/dev/null | tr ' ' '\n' | grep -qx libvirt; then echo "OK"; \
+	else echo "FORA DO GRUPO"; falha "o usuário '$$(id -un)' não pertence ao grupo 'libvirt' (sudo usermod -aG libvirt $$(id -un) e reiniciar a sessão)"; fi; \
+	\
+	echo -n "  - Conexão $(LIBVIRT_URI) sem sudo: "; \
+	if virsh -c "$(LIBVIRT_URI)" list >/dev/null 2>&1; then echo "OK"; \
+	else echo "FALHA"; falha "'virsh -c $(LIBVIRT_URI) list' não respondeu sem sudo (verifique o grupo libvirt e o serviço libvirtd)"; fi; \
+	\
+	echo -n "  - KVM (/dev/kvm): "; \
+	if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then echo "OK"; \
+	else echo "SEM PERMISSÃO OU NÃO EXISTE"; falha "/dev/kvm não existe ou não tem leitura/escrita (verifique virtualização habilitada e o grupo kvm)"; fi; \
+	\
+	echo -n "  - Pool gravável ($(LIBVIRT_POOL_PATH)): "; \
+	if [ ! -d "$(LIBVIRT_POOL_PATH)" ]; then echo "INEXISTENTE"; falha "o diretório do pool '$(LIBVIRT_POOL_PATH)' não existe"; \
+	elif ( tmp="$(LIBVIRT_POOL_PATH)/.k8sbox_bootstrap_test.$$$$"; touch "$$tmp" 2>/dev/null ) then rm -f "$(LIBVIRT_POOL_PATH)/.k8sbox_bootstrap_test.$$$$"; echo "OK (escrita direta)"; \
+	elif virsh -c "$(LIBVIRT_URI)" pool-list --all 2>/dev/null | awk 'NR>2{print $$1}' | while read -r p; do \
+			[ -n "$$p" ] || continue; \
+			path=$$(virsh -c "$(LIBVIRT_URI)" pool-dumpxml "$$p" 2>/dev/null | sed -n 's|.*<path>\(.*\)</path>.*|\1|p'); \
+			state=$$(virsh -c "$(LIBVIRT_URI)" pool-info "$$p" 2>/dev/null | awk -F': *' '/[Ee]stado|[Ss]tate/{print $$2}'); \
+			if [ "$$path" = "$(LIBVIRT_POOL_PATH)" ] && echo "$$state" | grep -qiE 'ativo|running'; then exit 0; fi; \
+		done; then echo "OK (pool libvirt ativo)"; \
+	else echo "NÃO GRAVÁVEL"; falha "o pool '$(LIBVIRT_POOL_PATH)' não é gravável e não há pool libvirt ativo apontando para ele"; fi; \
+	\
+	echo -n "  - Inventário efetivo: "; \
+	INV="$(CLUSTER_LINK)"; \
+	if [ ! -e "$$INV" ]; then INV="$(CLUSTER_SOURCE)"; fi; \
+	if [ ! -e "$$INV" ]; then echo "NÃO ENCONTRADO"; falha "nenhum inventário efetivo encontrado ('$(CLUSTER_LINK)' ou '$(CLUSTER_SOURCE)'); rode 'make init'"; fi; \
+	echo "$$INV"; \
+	\
+	echo "  - Calculando recursos exigidos pela topologia..."; \
+	RES=$$(ansible-inventory -i "$$INV" --list 2>/dev/null | DISK_SIZE_DEFAULT="$(DISK_SIZE_DEFAULT)" python3 "scripts/bootstrap_recursos.py") || falha "não foi possível interpretar o inventário efetivo ('$$INV')"; \
+	REQ_MEM_MB=$$(echo "$$RES" | awk '{print $$1}'); \
+	REQ_DISK_GB=$$(echo "$$RES" | awk '{print $$2}'); \
+	NUM_HOSTS=$$(echo "$$RES" | awk '{print $$3}'); \
+	echo "    topologia '$(CLUSTER)': $$NUM_HOSTS VMs, RAM exigida $$REQ_MEM_MB MiB, disco exigido $$REQ_DISK_GB GiB"; \
+	\
+	echo -n "  - RAM livre suficiente: "; \
+	AVAIL_MEM_MB=$$(awk '/^MemAvailable:/{printf "%d", $$2/1024}' /proc/meminfo); \
+	if [ "$${AVAIL_MEM_MB:-0}" -ge "$$REQ_MEM_MB" ]; then echo "OK ($$AVAIL_MEM_MB MiB disponíveis)"; \
+	else echo "INSUFICIENTE"; falha "RAM livre insuficiente: $$AVAIL_MEM_MB MiB disponíveis, $$REQ_MEM_MB MiB exigidos pela topologia '$(CLUSTER)'"; fi; \
+	\
+	echo -n "  - Disco livre suficiente: "; \
+	AVAIL_DISK_MB=$$(df -Pm "$(LIBVIRT_POOL_PATH)" 2>/dev/null | awk 'NR==2{print $$4}'); \
+	AVAIL_DISK_GB=$$(( $${AVAIL_DISK_MB:-0} / 1024 )); \
+	if [ "$$AVAIL_DISK_GB" -ge "$$REQ_DISK_GB" ]; then echo "OK ($$AVAIL_DISK_GB GiB disponíveis em $(LIBVIRT_POOL_PATH))"; \
+	else echo "INSUFICIENTE"; falha "disco livre insuficiente em '$(LIBVIRT_POOL_PATH)': $$AVAIL_DISK_GB GiB disponíveis, $$REQ_DISK_GB GiB exigidos pela topologia '$(CLUSTER)'"; fi; \
+	\
+	echo ""; \
+	echo "Tudo OK! Pré-requisitos do host validados. Pronto para iniciar o provisionamento."
 
 lint: ## Checagem da estrutura do Ansible com ansible-lint
 	@command -v ansible-lint >/dev/null 2>&1 || { echo "ansible-lint não está instalado."; exit 1; }
