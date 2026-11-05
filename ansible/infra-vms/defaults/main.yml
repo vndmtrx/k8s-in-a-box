@@ -1,0 +1,68 @@
+# ansible/infra-vms/defaults/main.yml
+---
+# Defaults internos da role infra-vms.
+#
+# As variáveis globais do provisionador (imagem_base_*, libvirt_pool_path,
+# libvirt_cache_path, libvirt_uri, rede_mgmt_nome, disk_size_default,
+# interface_rede, cpu_nested) já vivem em inventario/group_vars/all.yml e NÃO
+# são redefinidas aqui. Este arquivo guarda só o que é interno à role: nomes de
+# artefato derivados por host, caminhos de trabalho do cloud-init, dados de rede
+# calculados e os timeouts de espera do primeiro boot.
+#
+# IMPORTANTE: a role roda em localhost iterando os hosts do inventário, então
+# os nomes por host usam a variável de iteração `item` (o nome do host da
+# iteração), e não `inventory_hostname` (que seria sempre "localhost").
+
+###################################
+### Nomes de artefato por host ###
+###################################
+
+# Overlay qcow2 por host, com backing file apontando para a imagem base.
+# Fica no pool do libvirt (libvirt_pool_path). Ex.: "kubox.qcow2".
+infra_vms_overlay_nome: "{{ item }}.qcow2"
+
+# Seed ISO (NoCloud) por host, anexado ao domínio como CDROM para o cloud-init
+# consumir no primeiro boot. Ex.: "seed-kubox.iso".
+infra_vms_seed_nome: "seed-{{ item }}.iso"
+
+######################################################
+### Diretório de trabalho para renderizar cloud-init ###
+######################################################
+
+# Base onde ficam os artefatos de cloud-init renderizados (user-data,
+# network-config, meta-data) antes de empacotá-los no seed ISO.
+# pasta_artefatos já é definida em all.yml.
+infra_vms_cloudinit_dir: "{{ pasta_artefatos }}/cloud-init"
+
+# Subdiretório por host, para isolar os três arquivos de cada VM antes de
+# gerar o seed ISO. Ex.: ".../cloud-init/kubox/".
+infra_vms_cloudinit_host_dir: "{{ infra_vms_cloudinit_dir }}/{{ item }}"
+
+###############################
+### Rede de management (NAT) ###
+###############################
+
+# Gateway da rede NAT de management, usado no network-config (rota default) e
+# como servidor de DNS das VMs. Derivado de rede_cidr_hosts (172.24.0.0/24),
+# definido em all.yml.
+rede_mgmt_gateway: "{{ rede_cidr_hosts | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
+
+# Prefixo (CIDR) da rede de management, usado para montar o endereço estático
+# da VM no formato <ip>/<prefixo> no network-config.
+rede_mgmt_prefixo: "{{ rede_cidr_hosts | ansible.utils.ipaddr('prefix') }}"
+
+#######################################################
+### Timeouts de espera do primeiro boot (cloud-init) ###
+#######################################################
+
+# Tempo máximo (segundos) aguardando o qemu-guest-agent devolver o IP da VM via
+# `virsh domifaddr --source agent`. Esgotado o prazo, a role falha explicitamente
+# em vez de seguir para o cluster sem conectividade (ver Error Handling do design).
+infra_vms_guest_agent_timeout: 300
+
+# Intervalo (segundos) entre as tentativas de consultar o guest-agent.
+infra_vms_guest_agent_intervalo: 5
+
+# Tempo máximo (segundos) aguardando o SSH responder como o usuário configurado
+# após o cloud-init concluir o primeiro boot.
+infra_vms_ssh_timeout: 300
