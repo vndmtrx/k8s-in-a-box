@@ -1,15 +1,8 @@
 # Vagrant
 .vagrant/
 
-# Arquivos gerados automaticamente pelo projeto
-artefatos/*
-
-# Chaves SSH
-id_ed25519
-id_ed25519.pub
+# Tudo o que o projeto gera (cache, VMs, chaves, PKI, logs do Ansible e das execuções)
+/.target/
 
 # Symlink de configuração ativa (gerenciado pelo Makefile)
 inventario/hosts.yml
-
-# Cache do Ansible/SSH
-.cache/

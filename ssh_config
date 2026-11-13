@@ -4,7 +4,7 @@ Host *
     VisualHostKey yes
 
 Host 172.24.0.*
-    User vagrant
-    IdentityFile ./id_ed25519
+    User k8sbox
+    IdentityFile ./.target/cluster/ssh/id_ed25519
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
