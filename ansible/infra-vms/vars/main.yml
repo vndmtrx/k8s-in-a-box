@@ -4,7 +4,8 @@
 # Para acrescentar uma distro, acrescente uma entrada aqui e em `imagens_base`
 # (inventario/group_vars/all.yml). As roles fora de infra-vms não ramificam por distro.
 #
-#   boot             bios ou efi (firmware do domínio)
+#   boot             bios ou efi (firmware do domínio). efi usa o OVMF com Secure Boot
+#                    (libvirt escolhe a variante assinada) e cria um NVRAM por domínio
 #   chrony_conf      caminho do chrony.conf
 #   chrony_servico   nome do serviço do chrony
 #   reboot_pendente  comando que devolve rc 1 quando a VM precisa reiniciar
@@ -15,7 +16,7 @@
 # e os ajustes de SO; a Fase C acrescenta o Debian.
 distros:
   almalinux:
-    boot: bios
+    boot: efi
     chrony_conf: /etc/chrony.conf
     chrony_servico: chronyd
     reboot_pendente: needs-restarting -r
