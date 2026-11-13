@@ -4,7 +4,7 @@ global_defs {
 
 vrrp_instance VI_1 {
     state {{ 'MASTER' if inventory_hostname == groups['loadbalancers'][0] else 'BACKUP' }}
-    interface eth1
+    interface {{ interface_rede }}
     virtual_router_id 51
     priority {{ 200 if inventory_hostname == groups['loadbalancers'][0] else 100 }}
     advert_int 1
