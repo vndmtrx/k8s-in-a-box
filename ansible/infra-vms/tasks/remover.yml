@@ -1,0 +1,18 @@
+# ansible/infra-vms/tasks/remover.yml
+---
+# Remove TODO domínio com o prefixo do projeto, mesmo que o inventário ativo
+# não o liste (por exemplo, depois de trocar a topologia completo por mini).
+- name: Listar os domínios do libvirt
+  community.libvirt.virt:
+    command: list_vms
+    uri: "{{ libvirt_uri }}"
+  register: infra_vms_todos
+  changed_when: false
+  run_once: true
+
+- name: Remover cada domínio do projeto
+  ansible.builtin.include_tasks: remover-dominio.yml
+  loop: "{{ infra_vms_todos.list_vms | select('match', '^' ~ (libvirt_prefixo | regex_escape) ~ '-') | list }}"
+  loop_control:
+    loop_var: infra_vms_remover_dominio
+  run_once: true

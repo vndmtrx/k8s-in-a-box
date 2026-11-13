@@ -1,0 +1,67 @@
+# ansible/infra-vms/tasks/imagem-base-distro.yml
+---
+# Variáveis de entrada: infra_vms_distro_nome (chave de imagens_base).
+# A imagem base é FIXADA por versão e nunca é sobrescrita: depois que uma VM
+# roda, o arquivo passa ao usuário do QEMU e os overlays dependem do conteúdo.
+- name: Resolver a imagem desta distribuição
+  ansible.builtin.set_fact:
+    infra_vms_img: "{{ imagens_base[infra_vms_distro_nome] }}"
+    infra_vms_img_caminho: "{{ pasta_cache_imagens }}/{{ imagens_base[infra_vms_distro_nome].arquivo }}"
+  run_once: true
+
+- name: Criar a pasta de cache das imagens
+  ansible.builtin.file:
+    path: "{{ pasta_cache_imagens }}"
+    state: directory
+    mode: "0755"
+  run_once: true
+
+- name: Ler a lista de checksums publicada
+  ansible.builtin.uri:
+    url: "{{ infra_vms_img.checksum_url }}"
+    return_content: true
+  register: infra_vms_img_checksums
+  run_once: true
+
+- name: Extrair o checksum esperado da imagem
+  ansible.builtin.set_fact:
+    infra_vms_img_esperado: >-
+      {{ ((infra_vms_img_checksums.content
+           | regex_search('(?m)^([0-9a-f]+)\s+\*?(?:\./)?' ~ (infra_vms_img.arquivo | regex_escape) ~ '\s*$', '\1'))
+          or ['']) | first }}
+  run_once: true
+
+- name: Falhar se o checksum da imagem não está na lista publicada
+  ansible.builtin.fail:
+    msg: "O arquivo {{ infra_vms_img.arquivo }} não consta em {{ infra_vms_img.checksum_url }}."
+  when: infra_vms_img_esperado == ''
+  run_once: true
+
+- name: Verificar se a imagem já está no cache
+  ansible.builtin.stat:
+    path: "{{ infra_vms_img_caminho }}"
+    checksum_algorithm: "{{ infra_vms_img.checksum_algo }}"
+    get_checksum: true
+  register: infra_vms_img_stat
+  run_once: true
+
+- name: Baixar a imagem base e verificar o checksum
+  ansible.builtin.get_url:
+    url: "{{ infra_vms_img.url }}"
+    dest: "{{ infra_vms_img_caminho }}"
+    checksum: "{{ infra_vms_img.checksum_algo }}:{{ infra_vms_img_esperado }}"
+    mode: "0644"
+  when: not infra_vms_img_stat.stat.exists
+  run_once: true
+
+- name: Falhar se a imagem existente não confere com o checksum publicado
+  ansible.builtin.fail:
+    msg: >-
+      {{ infra_vms_img_caminho }} não confere com o checksum publicado
+      ({{ infra_vms_img.checksum_algo }}:{{ infra_vms_img_esperado }}).
+      O arquivo não foi alterado porque VMs podem depender dele.
+      Para baixar de novo: make clean-all (apaga VMs e cache).
+  when:
+    - infra_vms_img_stat.stat.exists
+    - infra_vms_img_stat.stat.checksum != infra_vms_img_esperado
+  run_once: true

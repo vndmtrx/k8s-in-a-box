@@ -1,0 +1,34 @@
+# ansible/infra-vms/tasks/espera.yml
+---
+# Roda por SSH, como ansible_user, depois que o domínio foi ligado.
+- name: Esperar o SSH da VM
+  ansible.builtin.wait_for_connection:
+    delay: 5
+    timeout: "{{ infra_vms_ssh_timeout }}"
+
+# Como root: em algumas VMs o /run/cloud-init fica com modo 0700 e o
+# `cloud-init status` falha com PermissionError para outro usuário.
+- name: Esperar o cloud-init terminar
+  become: true
+  ansible.builtin.command: cloud-init status --wait --long
+  register: infra_vms_cloudinit
+  changed_when: false
+  failed_when: infra_vms_cloudinit.rc not in [0, 2]
+  timeout: "{{ infra_vms_cloudinit_timeout }}"
+
+- name: Avisar se o cloud-init terminou com erro recuperável
+  ansible.builtin.debug:
+    msg: "{{ inventory_hostname }}: cloud-init terminou com erro recuperável.\n{{ infra_vms_cloudinit.stdout }}"
+  when: infra_vms_cloudinit.rc == 2
+
+- name: Ver se a VM precisa reiniciar depois do cloud-init
+  ansible.builtin.command: "{{ infra_vms_distro.reboot_pendente }}"
+  register: infra_vms_reboot
+  changed_when: false
+  failed_when: infra_vms_reboot.rc not in [0, 1]
+
+- name: Reiniciar a VM e esperar o SSH voltar
+  ansible.builtin.reboot:
+    reboot_timeout: "{{ infra_vms_ssh_timeout }}"
+  become: true
+  when: infra_vms_reboot.rc == 1

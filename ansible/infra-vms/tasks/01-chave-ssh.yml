@@ -1,0 +1,34 @@
+# ansible/infra-vms/tasks/01-chave-ssh.yml
+---
+- name: Criar a pasta da chave SSH do cluster
+  ansible.builtin.file:
+    path: "{{ pasta_ssh }}"
+    state: directory
+    mode: "0700"
+  run_once: true
+
+- name: Gerar a chave SSH ed25519 do cluster, se ausente
+  ansible.builtin.command:
+    argv:
+      - ssh-keygen
+      - -q
+      - -t
+      - ed25519
+      - -N
+      - ""
+      - -C
+      - k8sbox
+      - -f
+      - "{{ pasta_ssh }}/id_ed25519"
+    creates: "{{ pasta_ssh }}/id_ed25519"
+  run_once: true
+
+- name: Ler a chave pública
+  ansible.builtin.slurp:
+    src: "{{ pasta_ssh }}/id_ed25519.pub"
+  register: infra_vms_chave_publica_arquivo
+  run_once: true
+
+- name: Guardar a chave pública para o cloud-init
+  ansible.builtin.set_fact:
+    infra_vms_chave_publica: "{{ infra_vms_chave_publica_arquivo.content | b64decode | trim }}"

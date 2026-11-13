@@ -1,0 +1,45 @@
+# ansible/infra-vms/tasks/restaurar-so.yml
+---
+# Volta a VM ao snapshot `so` (clean-k8s). Pula hosts que nunca foram criados.
+- name: Listar os snapshots da VM
+  ansible.builtin.command:
+    argv: [virsh, -c, "{{ libvirt_uri }}", snapshot-list, --name, "{{ infra_vms_dominio }}"]
+  register: infra_vms_snapshots
+  changed_when: false
+  failed_when: false
+
+- name: Restaurar o snapshot {{ infra_vms_snapshot_so }}
+  when:
+    - infra_vms_snapshots.rc == 0
+    - infra_vms_snapshot_so in infra_vms_snapshots.stdout_lines
+  block:
+    - name: Desligar a VM
+      ansible.builtin.include_tasks: parar-dominio.yml
+
+    - name: Voltar ao snapshot
+      ansible.builtin.command:
+        argv:
+          - virsh
+          - -c
+          - "{{ libvirt_uri }}"
+          - snapshot-revert
+          - "{{ infra_vms_dominio }}"
+          - "{{ infra_vms_snapshot_so }}"
+      changed_when: true
+
+    - name: Ligar a VM
+      community.libvirt.virt:
+        name: "{{ infra_vms_dominio }}"
+        state: running
+        uri: "{{ libvirt_uri }}"
+
+    - name: Esperar a porta SSH
+      ansible.builtin.wait_for:
+        host: "{{ ansible_host }}"
+        port: 22
+        timeout: "{{ infra_vms_ssh_timeout }}"
+
+- name: Avisar quando não há snapshot para restaurar
+  ansible.builtin.debug:
+    msg: "{{ infra_vms_dominio }}: sem snapshot '{{ infra_vms_snapshot_so }}'; nada a restaurar."
+  when: infra_vms_snapshot_so not in infra_vms_snapshots.stdout_lines

@@ -1,0 +1,8 @@
+# ansible/infra-vms/tasks/02-imagem-base.yml
+---
+# Uma passada por distribuição usada pelos hosts do play (e não por host).
+- name: Garantir a imagem base de cada distribuição usada
+  ansible.builtin.include_tasks: imagem-base-distro.yml
+  loop: "{{ ansible_play_hosts_all | map('extract', hostvars, 'distro_base') | unique | list }}"
+  loop_control:
+    loop_var: infra_vms_distro_nome

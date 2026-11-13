@@ -1,0 +1,40 @@
+# ansible/infra-vms/tasks/snapshot-so.yml
+---
+# Tira o snapshot `so` logo depois do cloud-init, com a VM desligada. Desligada,
+# o snapshot é interno ao qcow2 e não guarda memória. Só é tirado uma vez.
+- name: Listar os snapshots da VM
+  ansible.builtin.command:
+    argv: [virsh, -c, "{{ libvirt_uri }}", snapshot-list, --name, "{{ infra_vms_dominio }}"]
+  register: infra_vms_snapshots
+  changed_when: false
+
+- name: Tirar o snapshot {{ infra_vms_snapshot_so }}
+  when: infra_vms_snapshot_so not in infra_vms_snapshots.stdout_lines
+  block:
+    - name: Desligar a VM
+      ansible.builtin.include_tasks: parar-dominio.yml
+
+    - name: Criar o snapshot
+      ansible.builtin.command:
+        argv:
+          - virsh
+          - -c
+          - "{{ libvirt_uri }}"
+          - snapshot-create-as
+          - "{{ infra_vms_dominio }}"
+          - "{{ infra_vms_snapshot_so }}"
+          - --description
+          - "SO pronto: cloud-init concluído, sem Kubernetes"
+      changed_when: true
+
+    - name: Ligar a VM
+      community.libvirt.virt:
+        name: "{{ infra_vms_dominio }}"
+        state: running
+        uri: "{{ libvirt_uri }}"
+
+    - name: Esperar a porta SSH
+      ansible.builtin.wait_for:
+        host: "{{ ansible_host }}"
+        port: 22
+        timeout: "{{ infra_vms_ssh_timeout }}"

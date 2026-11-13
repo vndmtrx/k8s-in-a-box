@@ -1,0 +1,7 @@
+# ansible/infra-vms/tasks/main.yml
+---
+# Ponto de entrada padrão da role: criar as VMs. As demais operações
+# (espera.yml, snapshot-so.yml, desligar.yml, remover.yml, restaurar-so.yml)
+# são chamadas pelo provisiona.yml com `tasks_from`.
+- name: Criar as VMs
+  ansible.builtin.import_tasks: criar.yml

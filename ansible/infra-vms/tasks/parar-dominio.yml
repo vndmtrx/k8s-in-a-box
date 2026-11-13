@@ -1,0 +1,38 @@
+# ansible/infra-vms/tasks/parar-dominio.yml
+---
+# Desliga o domínio infra_vms_dominio, se ele existir e estiver ligado.
+# Pede o desligamento ao convidado (ACPI) e, se não atender no prazo, força.
+- name: Ler o estado do domínio
+  community.libvirt.virt:
+    command: status
+    name: "{{ infra_vms_dominio }}"
+    uri: "{{ libvirt_uri }}"
+  register: infra_vms_estado
+  failed_when: false
+  changed_when: false
+
+- name: Desligar o domínio
+  when: infra_vms_estado.status | default('') == 'running'
+  block:
+    - name: Pedir o desligamento ao convidado
+      community.libvirt.virt:
+        name: "{{ infra_vms_dominio }}"
+        state: shutdown
+        uri: "{{ libvirt_uri }}"
+
+    - name: Esperar o domínio desligar
+      community.libvirt.virt:
+        command: status
+        name: "{{ infra_vms_dominio }}"
+        uri: "{{ libvirt_uri }}"
+      register: infra_vms_estado_espera
+      until: infra_vms_estado_espera.status == 'shutdown'
+      retries: 30
+      delay: 2
+      changed_when: false
+  rescue:
+    - name: Forçar o desligamento
+      community.libvirt.virt:
+        name: "{{ infra_vms_dominio }}"
+        state: destroyed
+        uri: "{{ libvirt_uri }}"

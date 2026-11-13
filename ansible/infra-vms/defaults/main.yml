@@ -2,67 +2,102 @@
 ---
 # Defaults internos da role infra-vms.
 #
-# As variáveis globais do provisionador (imagem_base_*, libvirt_pool_path,
-# libvirt_cache_path, libvirt_uri, rede_mgmt_nome, disk_size_default,
-# interface_rede, cpu_nested) já vivem em inventario/group_vars/all.yml e NÃO
-# são redefinidas aqui. Este arquivo guarda só o que é interno à role: nomes de
-# artefato derivados por host, caminhos de trabalho do cloud-init, dados de rede
-# calculados e os timeouts de espera do primeiro boot.
+# As variáveis do usuário (pasta_*, distro_base, imagens_base, interface_rede,
+# rede_mgmt_*, libvirt_*, disk_size_default, cpu_nested) vivem em
+# inventario/group_vars/all.yml. Este arquivo guarda só o que é interno à role.
 #
-# IMPORTANTE: a role roda em localhost iterando os hosts do inventário, então
-# os nomes por host usam a variável de iteração `item` (o nome do host da
-# iteração), e não `inventory_hostname` (que seria sempre "localhost").
+# O playbook provisiona.yml trata cada host do inventário como alvo de um play
+# local, então os nomes abaixo usam `inventory_hostname` (o host da vez).
 
-###################################
-### Nomes de artefato por host ###
-###################################
+##############################
+### Distro e imagem do host ###
+##############################
 
-# Overlay qcow2 por host, com backing file apontando para a imagem base.
-# Fica no pool do libvirt (libvirt_pool_path). Ex.: "kubox.qcow2".
-infra_vms_overlay_nome: "{{ item }}.qcow2"
+# Linha da tabela `distros` (vars/main.yml) da distribuição do host.
+infra_vms_distro: "{{ distros[distro_base] }}"
 
-# Seed ISO (NoCloud) por host, anexado ao domínio como CDROM para o cloud-init
-# consumir no primeiro boot. Ex.: "seed-kubox.iso".
-infra_vms_seed_nome: "seed-{{ item }}.iso"
+# Imagem base fixada da distribuição do host e seu caminho no cache.
+infra_vms_imagem: "{{ imagens_base[distro_base] }}"
+infra_vms_imagem_caminho: "{{ pasta_cache_imagens }}/{{ infra_vms_imagem.arquivo }}"
 
-######################################################
-### Diretório de trabalho para renderizar cloud-init ###
-######################################################
+#######################################
+### Nomes e caminhos de cada VM     ###
+#######################################
 
-# Base onde ficam os artefatos de cloud-init renderizados (user-data,
-# network-config, meta-data) antes de empacotá-los no seed ISO.
-# pasta_artefatos já é definida em all.yml.
-infra_vms_cloudinit_dir: "{{ pasta_artefatos }}/cloud-init"
+# Nome do domínio no libvirt. Ex.: "k8sbox-manager1".
+infra_vms_dominio: "{{ libvirt_prefixo }}-{{ inventory_hostname }}"
 
-# Subdiretório por host, para isolar os três arquivos de cada VM antes de
-# gerar o seed ISO. Ex.: ".../cloud-init/kubox/".
-infra_vms_cloudinit_host_dir: "{{ infra_vms_cloudinit_dir }}/{{ item }}"
+# Pasta da VM no Target: disco, seed e arquivos do cloud-init.
+infra_vms_dir: "{{ pasta_vms }}/{{ inventory_hostname }}"
+infra_vms_disco: "{{ infra_vms_dir }}/disco.qcow2"
+infra_vms_seed: "{{ infra_vms_dir }}/seed.iso"
+infra_vms_cloudinit_dir: "{{ infra_vms_dir }}/cloud-init"
+
+# Tamanho do overlay: disk_size do host ou o padrão global.
+infra_vms_disk_size: "{{ disk_size | default(disk_size_default) }}"
+
+# MAC derivado do IP: 52:54:00:<2º octeto>:<3º octeto>:<4º octeto> em hexadecimal.
+# Ex.: 172.24.0.31 -> 52:54:00:18:00:1f. O cloud-init casa a placa por ele.
+infra_vms_ip_octetos: "{{ ansible_host.split('.') | map('int') | list }}"
+infra_vms_mac: >-
+  52:54:00:{{ '%02x' | format(infra_vms_ip_octetos[1]) }}:{{ '%02x' | format(infra_vms_ip_octetos[2]) }}:{{ '%02x' | format(infra_vms_ip_octetos[3]) }}
+
+# Pacotes do SO desta VM: grupo `base` (toda VM) mais um grupo da tabela para
+# cada grupo do inventário a que o host pertence (cluster, loadbalancers, nfs,
+# clientes). O grupo `todos` do inventário não inclui o kubox, por isso `base`.
+infra_vms_pacotes: >-
+  {{ (['base'] + group_names)
+     | select('in', infra_vms_distro.pacotes)
+     | map('extract', infra_vms_distro.pacotes)
+     | flatten | unique | list }}
 
 ###############################
 ### Rede de management (NAT) ###
 ###############################
 
-# Gateway da rede NAT de management, usado no network-config (rota default) e
-# como servidor de DNS das VMs. Derivado de rede_cidr_hosts (172.24.0.0/24),
-# definido em all.yml.
+# Gateway da rede NAT (primeiro IP de rede_cidr_hosts), usado como rota padrão.
 rede_mgmt_gateway: "{{ rede_cidr_hosts | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
 
-# Prefixo (CIDR) da rede de management, usado para montar o endereço estático
-# da VM no formato <ip>/<prefixo> no network-config.
+# Prefixo (/24) e máscara da rede de management.
 rede_mgmt_prefixo: "{{ rede_cidr_hosts | ansible.utils.ipaddr('prefix') }}"
+rede_mgmt_mascara: "{{ rede_cidr_hosts | ansible.utils.ipaddr('netmask') }}"
 
-#######################################################
-### Timeouts de espera do primeiro boot (cloud-init) ###
-#######################################################
+#######################################
+### Esperas do primeiro boot        ###
+#######################################
 
-# Tempo máximo (segundos) aguardando o qemu-guest-agent devolver o IP da VM via
-# `virsh domifaddr --source agent`. Esgotado o prazo, a role falha explicitamente
-# em vez de seguir para o cluster sem conectividade (ver Error Handling do design).
-infra_vms_guest_agent_timeout: 300
-
-# Intervalo (segundos) entre as tentativas de consultar o guest-agent.
-infra_vms_guest_agent_intervalo: 5
-
-# Tempo máximo (segundos) aguardando o SSH responder como o usuário configurado
-# após o cloud-init concluir o primeiro boot.
+# Tempo máximo (segundos) até o SSH responder como ansible_user.
 infra_vms_ssh_timeout: 300
+
+# Tempo máximo (segundos) de `cloud-init status --wait`.
+infra_vms_cloudinit_timeout: 900
+
+# Nome do snapshot libvirt tirado logo depois do cloud-init (usado pelo clean-k8s).
+infra_vms_snapshot_so: "so"
+
+#######################################
+### cloud-init (user-data)          ###
+#######################################
+
+# Conteúdo do user-data como dicionário; o template escreve `#cloud-config` +
+# to_nice_yaml. A Fase B acrescenta timezone, locale, ntp, write_files e runcmd
+# a partir da tabela `distros`.
+infra_vms_user_data:
+  hostname: "{{ inventory_hostname }}"
+  fqdn: "{{ fqdn }}"
+  preserve_hostname: false
+  manage_etc_hosts: false
+  users:
+    - name: "{{ ansible_user }}"
+      shell: /bin/bash
+      sudo: "ALL=(ALL) NOPASSWD:ALL"
+      lock_passwd: true
+      ssh_authorized_keys:
+        - "{{ infra_vms_chave_publica }}"
+  package_update: true
+  package_upgrade: false
+  packages: "{{ infra_vms_pacotes }}"
+
+# Memória mínima: o dnf do cloud-init sofre OOM em VMs de 384 MiB (medido), então
+# os nós de suporte usam 512 MiB. Não use swap: o Kubernetes exige swap desligado
+# e o projeto mantém a mesma regra em todas as VMs.

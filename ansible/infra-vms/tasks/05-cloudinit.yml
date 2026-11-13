@@ -1,0 +1,65 @@
+# ansible/infra-vms/tasks/05-cloudinit.yml
+---
+- name: Renderizar os arquivos do cloud-init
+  ansible.builtin.template:
+    src: "{{ item.origem }}"
+    dest: "{{ infra_vms_cloudinit_dir }}/{{ item.destino }}"
+    mode: "0644"
+  loop:
+    - { origem: user-data.yml.j2, destino: user-data }
+    - { origem: meta-data.yml.j2, destino: meta-data }
+    - { origem: network-config.yml.j2, destino: network-config }
+  loop_control:
+    label: "{{ item.destino }}"
+
+# O seed só é gerado quando ausente: depois que a VM roda, o arquivo passa ao
+# usuário do QEMU e não pode ser sobrescrito. Mudou o template? make clean-vms.
+- name: Verificar se o seed já existe
+  ansible.builtin.stat:
+    path: "{{ infra_vms_seed }}"
+  register: infra_vms_seed_stat
+
+- name: Gerar o seed ISO do cloud-init
+  when: not infra_vms_seed_stat.stat.exists
+  block:
+    - name: Procurar o cloud-localds
+      ansible.builtin.shell: command -v cloud-localds  # noqa command-instead-of-shell
+      register: infra_vms_cloud_localds
+      changed_when: false
+      failed_when: false
+
+    - name: Gerar o seed com cloud-localds
+      ansible.builtin.command:
+        argv:
+          - cloud-localds
+          - "--network-config={{ infra_vms_cloudinit_dir }}/network-config"
+          - "{{ infra_vms_seed }}.tmp"
+          - "{{ infra_vms_cloudinit_dir }}/user-data"
+          - "{{ infra_vms_cloudinit_dir }}/meta-data"
+      when: infra_vms_cloud_localds.rc == 0
+      changed_when: true
+
+    - name: Gerar o seed com genisoimage (alternativa)
+      ansible.builtin.command:
+        argv:
+          - genisoimage
+          - -quiet
+          - -output
+          - "{{ infra_vms_seed }}.tmp"
+          - -volid
+          - cidata
+          - -joliet
+          - -rock
+          - "{{ infra_vms_cloudinit_dir }}/user-data"
+          - "{{ infra_vms_cloudinit_dir }}/meta-data"
+          - "{{ infra_vms_cloudinit_dir }}/network-config"
+      when: infra_vms_cloud_localds.rc != 0
+      changed_when: true
+
+    - name: Colocar o seed no lugar
+      ansible.builtin.command:
+        argv:
+          - mv
+          - "{{ infra_vms_seed }}.tmp"
+          - "{{ infra_vms_seed }}"
+      changed_when: true

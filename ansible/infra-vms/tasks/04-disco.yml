@@ -1,0 +1,32 @@
+# ansible/infra-vms/tasks/04-disco.yml
+---
+- name: Criar as pastas da VM no Target
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ infra_vms_dir }}"
+    - "{{ infra_vms_cloudinit_dir }}"
+
+- name: Verificar se o disco da VM já existe
+  ansible.builtin.stat:
+    path: "{{ infra_vms_disco }}"
+  register: infra_vms_disco_stat
+
+- name: Criar o overlay qcow2 com a imagem base como backing file
+  ansible.builtin.command:
+    argv:
+      - qemu-img
+      - create
+      - -q
+      - -f
+      - qcow2
+      - -F
+      - qcow2
+      - -b
+      - "{{ infra_vms_imagem_caminho }}"
+      - "{{ infra_vms_disco }}"
+      - "{{ infra_vms_disk_size }}"
+  when: not infra_vms_disco_stat.stat.exists
+  changed_when: true

@@ -1,0 +1,16 @@
+# ansible/infra-vms/tasks/remover-dominio.yml
+---
+# Variável de entrada: infra_vms_remover_dominio.
+- name: Parar o domínio {{ infra_vms_remover_dominio }}
+  community.libvirt.virt:
+    name: "{{ infra_vms_remover_dominio }}"
+    state: destroyed
+    uri: "{{ libvirt_uri }}"
+  failed_when: false
+
+- name: Remover a definição e os snapshots de {{ infra_vms_remover_dominio }}
+  community.libvirt.virt:
+    command: undefine
+    name: "{{ infra_vms_remover_dominio }}"
+    flags: snapshots_metadata
+    uri: "{{ libvirt_uri }}"

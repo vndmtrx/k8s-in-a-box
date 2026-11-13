@@ -1,0 +1,17 @@
+# ansible/infra-vms/tasks/03-rede.yml
+---
+- name: Definir a rede NAT de management (DHCP desligado)
+  community.libvirt.virt_net:
+    name: "{{ rede_mgmt_nome }}"
+    state: present
+    xml: "{{ lookup('ansible.builtin.template', 'rede.xml.j2') }}"
+    uri: "{{ libvirt_uri }}"
+  run_once: true
+
+- name: Ativar a rede de management
+  community.libvirt.virt_net:
+    name: "{{ rede_mgmt_nome }}"
+    state: active
+    autostart: false
+    uri: "{{ libvirt_uri }}"
+  run_once: true

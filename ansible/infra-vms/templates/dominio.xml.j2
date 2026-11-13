@@ -1,0 +1,73 @@
+<domain type='kvm'>
+  <name>{{ infra_vms_dominio }}</name>
+  <memory unit='MiB'>{{ memory }}</memory>
+  <vcpu>{{ cpus }}</vcpu>
+  <memoryBacking>
+    <source type='memfd'/>
+    <access mode='shared'/>
+  </memoryBacking>
+  <os{% if infra_vms_distro.boot == 'efi' %} firmware='efi'{% endif %}>
+    <type arch='x86_64' machine='q35'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+  </features>
+  <cpu mode='host-model'>
+{% if cpu_nested %}
+    <feature policy='require' name='{{ infra_vms_virt_feature }}'/>
+{% endif %}
+  </cpu>
+{% if cgroup_cpu_shares is defined or cgroup_cpu_period is defined or cgroup_cpu_quota is defined %}
+  <cputune>
+{% if cgroup_cpu_shares is defined %}
+    <shares>{{ cgroup_cpu_shares }}</shares>
+{% endif %}
+{% if cgroup_cpu_period is defined %}
+    <period>{{ cgroup_cpu_period }}</period>
+{% endif %}
+{% if cgroup_cpu_quota is defined %}
+    <quota>{{ cgroup_cpu_quota }}</quota>
+{% endif %}
+  </cputune>
+{% endif %}
+{% if cgroup_mem_hard_limit is defined or cgroup_mem_soft_limit is defined %}
+  <memtune>
+{% if cgroup_mem_hard_limit is defined %}
+    <hard_limit unit='MiB'>{{ cgroup_mem_hard_limit }}</hard_limit>
+{% endif %}
+{% if cgroup_mem_soft_limit is defined %}
+    <soft_limit unit='MiB'>{{ cgroup_mem_soft_limit }}</soft_limit>
+{% endif %}
+  </memtune>
+{% endif %}
+{% if cgroup_blkio_weight is defined %}
+  <blkiotune>
+    <weight>{{ cgroup_blkio_weight }}</weight>
+  </blkiotune>
+{% endif %}
+  <devices>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2'/>
+      <source file='{{ infra_vms_disco }}'/>
+      <target dev='vda' bus='virtio'/>
+    </disk>
+    <disk type='file' device='cdrom'>
+      <driver name='qemu' type='raw'/>
+      <source file='{{ infra_vms_seed }}'/>
+      <target dev='sda' bus='sata'/>
+      <readonly/>
+    </disk>
+    <interface type='network'>
+      <mac address='{{ infra_vms_mac }}'/>
+      <source network='{{ rede_mgmt_nome }}'/>
+      <model type='virtio'/>
+    </interface>
+    <channel type='unix'>
+      <target type='virtio' name='org.qemu.guest_agent.0'/>
+    </channel>
+    <serial type='pty'/>
+    <console type='pty'/>
+  </devices>
+</domain>

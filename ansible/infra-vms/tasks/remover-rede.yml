@@ -1,0 +1,8 @@
+# ansible/infra-vms/tasks/remover-rede.yml
+---
+- name: Remover a rede de management
+  community.libvirt.virt_net:
+    name: "{{ rede_mgmt_nome }}"
+    state: absent
+    uri: "{{ libvirt_uri }}"
+  run_once: true

@@ -1,0 +1,29 @@
+# ansible/infra-vms/tasks/criar.yml
+---
+- name: Conferir se a distribuição do host consta na tabela de distros
+  ansible.builtin.assert:
+    that:
+      - distro_base in distros
+      - distro_base in imagens_base
+    fail_msg: >-
+      distro_base='{{ distro_base }}' do host {{ inventory_hostname }} não é conhecida.
+      Valores aceitos: {{ distros.keys() | list | join(', ') }}.
+    quiet: true
+
+- name: Garantir a chave SSH do cluster
+  ansible.builtin.import_tasks: 01-chave-ssh.yml
+
+- name: Garantir as imagens base no cache
+  ansible.builtin.import_tasks: 02-imagem-base.yml
+
+- name: Garantir a rede de management
+  ansible.builtin.import_tasks: 03-rede.yml
+
+- name: Criar o disco da VM
+  ansible.builtin.import_tasks: 04-disco.yml
+
+- name: Gerar o cloud-init e o seed da VM
+  ansible.builtin.import_tasks: 05-cloudinit.yml
+
+- name: Definir e ligar o domínio
+  ansible.builtin.import_tasks: 06-dominio.yml

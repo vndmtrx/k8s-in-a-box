@@ -1,0 +1,4 @@
+# ansible/infra-vms/tasks/desligar.yml
+---
+- name: Desligar a VM
+  ansible.builtin.include_tasks: parar-dominio.yml

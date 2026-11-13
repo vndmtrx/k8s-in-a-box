@@ -1,0 +1,36 @@
+# ansible/infra-vms/tasks/06-dominio.yml
+---
+- name: Detectar a feature de virtualização do processador (vmx ou svm)
+  ansible.builtin.command:
+    argv: [grep, -m1, -o, -E, "vmx|svm", /proc/cpuinfo]
+  register: infra_vms_cpu_feature
+  changed_when: false
+  failed_when: infra_vms_cpu_feature.rc not in [0, 1]
+  run_once: true
+  when: cpu_nested | bool
+
+- name: Guardar a feature de virtualização
+  ansible.builtin.set_fact:
+    infra_vms_virt_feature: "{{ infra_vms_cpu_feature.stdout | default('') | trim }}"
+  run_once: true
+
+- name: Falhar se o nested foi pedido e o processador não tem vmx nem svm
+  ansible.builtin.fail:
+    msg: "cpu_nested está ligado, mas /proc/cpuinfo não mostra vmx nem svm."
+  when:
+    - cpu_nested | bool
+    - infra_vms_virt_feature == ''
+  run_once: true
+
+- name: Definir o domínio {{ infra_vms_dominio }}
+  community.libvirt.virt:
+    command: define
+    xml: "{{ lookup('ansible.builtin.template', 'dominio.xml.j2') }}"
+    uri: "{{ libvirt_uri }}"
+
+- name: Ligar o domínio {{ infra_vms_dominio }}
+  community.libvirt.virt:
+    name: "{{ infra_vms_dominio }}"
+    state: running
+    autostart: false
+    uri: "{{ libvirt_uri }}"

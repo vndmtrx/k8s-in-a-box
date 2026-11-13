@@ -1,0 +1,29 @@
+# ansible/infra-vms/vars/main.yml
+---
+# Tabela_Distros: o ÚNICO lugar do projeto com diferenças entre distribuições.
+# Para acrescentar uma distro, acrescente uma entrada aqui e em `imagens_base`
+# (inventario/group_vars/all.yml). As roles fora de infra-vms não ramificam por distro.
+#
+#   boot             bios ou efi (firmware do domínio)
+#   chrony_conf      caminho do chrony.conf
+#   chrony_servico   nome do serviço do chrony
+#   reboot_pendente  comando que devolve rc 1 quando a VM precisa reiniciar
+#   pacotes          pacotes do SO por grupo: `base` vale para toda VM; os demais
+#                    valem para hosts do grupo do inventário de mesmo nome
+#
+# Fase A: só o necessário para o cloud-init básico. A Fase B completa os pacotes
+# e os ajustes de SO; a Fase C acrescenta o Debian.
+distros:
+  almalinux:
+    boot: bios
+    chrony_conf: /etc/chrony.conf
+    chrony_servico: chronyd
+    reboot_pendente: needs-restarting -r
+    pacotes:
+      base:
+        - qemu-guest-agent
+        - dnf-utils          # needs-restarting, usado na checagem de reboot
+      cluster: []
+      loadbalancers: []
+      nfs: []
+      clientes: []

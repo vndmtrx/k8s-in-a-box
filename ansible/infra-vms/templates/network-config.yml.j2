@@ -1,0 +1,16 @@
+version: 2
+ethernets:
+  {{ interface_rede }}:
+    match:
+      macaddress: "{{ infra_vms_mac }}"
+    set-name: {{ interface_rede }}
+    dhcp4: false
+    dhcp6: false
+    addresses:
+      - {{ ansible_host }}/{{ rede_mgmt_prefixo }}
+    routes:
+      - to: 0.0.0.0/0
+        via: {{ rede_mgmt_gateway }}
+    nameservers:
+      addresses: {{ rede_mgmt_dns | to_json }}
+      search: [{{ rede_mgmt_dominio }}]
