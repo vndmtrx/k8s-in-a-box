@@ -56,13 +56,20 @@ infra_vms_pacotes: >-
       | flatten) + (infra_vms_atualizacao.pacotes | default([]))
      | unique | list }}
 
-# Atualização automática: só entra quando atualiza_sistema não é 'nenhum'.
-infra_vms_atualizacao: "{{ infra_vms_distro.atualizacao if atualiza_sistema != 'nenhum' else {} }}"
+# Atualização automática: o bloco `atualizacao` quando atualiza_sistema não é 'nenhum';
+# com 'nenhum', o bloco `sem_atualizacao` (desliga a que a imagem já traz ligada).
+infra_vms_atualizacao: >-
+  {{ infra_vms_distro.atualizacao if atualiza_sistema != 'nenhum'
+     else (infra_vms_distro.sem_atualizacao | default({})) }}
 
 # makestep faz o chrony acertar o relógio de uma vez (ele fica atrasado depois de restaurar
-# um snapshot). O arquivo e o serviço do chrony mudam por distro.
+# um snapshot). As duas distros já trazem `makestep 1 3` (só nas 3 primeiras medições),
+# então a linha é trocada, não só acrescentada. O arquivo e o serviço mudam por distro.
 infra_vms_comandos_chrony:
-  - "grep -q '^makestep' {{ infra_vms_distro.chrony_conf }} || echo 'makestep 1.0 -1' >> {{ infra_vms_distro.chrony_conf }}"
+  - >-
+    if grep -q '^makestep' {{ infra_vms_distro.chrony_conf }};
+    then sed -i 's/^makestep.*/makestep 1.0 -1/' {{ infra_vms_distro.chrony_conf }};
+    else echo 'makestep 1.0 -1' >> {{ infra_vms_distro.chrony_conf }}; fi
   - "systemctl restart {{ infra_vms_distro.chrony_servico }}"
 
 ###############################
@@ -116,6 +123,7 @@ infra_vms_user_data:
     enabled: true
     ntp_client: chrony
   write_files: "{{ infra_vms_atualizacao.write_files | default([]) }}"
+  bootcmd: "{{ infra_vms_distro.bootcmd | default([]) }}"
   runcmd: "{{ (infra_vms_distro.runcmd | default([])) + infra_vms_comandos_chrony + (infra_vms_atualizacao.runcmd | default([])) }}"
 
 # Memória mínima: o dnf do cloud-init sofre OOM em VMs de 384 MiB (medido), então

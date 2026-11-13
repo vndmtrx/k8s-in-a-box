@@ -11,9 +11,12 @@
 #   reboot_pendente  comando que devolve rc 1 quando a VM precisa reiniciar
 #   pacotes          pacotes do SO por grupo: `base` vale para toda VM; os demais
 #                    valem para hosts do grupo do inventário de mesmo nome
-#
-# Fase B: pacotes por grupo, SELinux e atualização automática do AlmaLinux. A Fase C
-# acrescenta o Debian.
+#   runcmd           comandos do primeiro boot próprios da distro
+#   bootcmd          comandos que precisam rodar antes dos módulos do cloud-init (todo boot)
+#   atualizacao      pacotes, write_files e runcmd da atualização automática
+#                    (quando atualiza_sistema não é 'nenhum')
+#   sem_atualizacao  write_files e runcmd para DESLIGAR a atualização automática
+#                    (atualiza_sistema: nenhum), quando a imagem já a traz ligada
 distros:
   almalinux:
     boot: efi
@@ -77,3 +80,84 @@ distros:
             {% endif %}
       runcmd:
         - systemctl enable --now dnf-automatic.timer
+
+  debian:
+    boot: efi
+    chrony_conf: /etc/chrony/chrony.conf
+    chrony_servico: chrony
+    # rc 1 quando o arquivo existe (algum pacote pediu reinício).
+    reboot_pendente: test ! -e /var/run/reboot-required
+    # O chrony substitui o systemd-timesyncd da imagem (o apt remove o timesyncd).
+    # A imagem generic traz o kernel completo, então não há pacote de módulos extras.
+    pacotes:
+      base:
+        - qemu-guest-agent
+        - chrony
+        - nano
+        - wget
+        - bash-completion
+        - mtr-tiny
+        - locales
+      cluster:
+        - iproute2
+        - nftables
+        - iptables
+        - conntrack
+        - ethtool
+        - socat
+        - tar
+        - xz-utils
+        - skopeo
+        - nfs-common
+      loadbalancers:
+        - haproxy
+        - keepalived
+        - openssl
+        - socat
+      nfs:
+        - nfs-kernel-server
+      clientes: []
+    # O AppArmor já vem ativo na imagem. O cc_locale do cloud-init falha no Debian se o
+    # idioma não foi gerado antes (update-locale sai com 255), então o bootcmd, que roda
+    # antes dele, acrescenta o idioma ao /etc/locale.gen e roda o locale-gen.
+    bootcmd:
+      - >-
+        grep -qx '{{ locale_lang }} {{ locale_lang.split('.') | last }}' /etc/locale.gen ||
+        { echo '{{ locale_lang }} {{ locale_lang.split('.') | last }}' >> /etc/locale.gen && locale-gen; }
+    # A unit do qemu-guest-agent é estática e só sobe pelo udev; instalada depois do boot,
+    # ela fica parada até o próximo boot.
+    runcmd:
+      - systemctl start qemu-guest-agent
+    # O 52k8sbox-atualizacoes vem depois do 20auto-upgrades e do 50unattended-upgrades
+    # da imagem, então vale sobre eles. O `#clear` zera a lista de origens padrão.
+    atualizacao:
+      pacotes:
+        - unattended-upgrades
+      write_files:
+        - path: /etc/apt/apt.conf.d/52k8sbox-atualizacoes
+          permissions: "0644"
+          content: |
+            {% if atualiza_sistema == 'seguranca' %}
+            #clear Unattended-Upgrade::Origins-Pattern;
+            Unattended-Upgrade::Origins-Pattern {
+                "origin=Debian,codename=${distro_codename}-security,label=Debian-Security";
+            };
+            {% endif %}
+            {% if pacotes_sem_atualizacao_automatica | length > 0 %}
+            Unattended-Upgrade::Package-Blacklist {
+            {% for p in pacotes_sem_atualizacao_automatica %}
+                "^{{ p | regex_escape }}$";
+            {% endfor %}
+            };
+            {% endif %}
+            Unattended-Upgrade::Automatic-Reboot "false";
+            APT::Periodic::Update-Package-Lists "1";
+            APT::Periodic::Unattended-Upgrade "1";
+      runcmd: []
+    # A imagem traz o unattended-upgrades ligado; atualiza_sistema: nenhum o desliga.
+    sem_atualizacao:
+      write_files:
+        - path: /etc/apt/apt.conf.d/52k8sbox-atualizacoes
+          permissions: "0644"
+          content: |
+            APT::Periodic::Unattended-Upgrade "0";

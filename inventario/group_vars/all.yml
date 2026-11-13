@@ -323,6 +323,12 @@ imagens_base:
     arquivo: "AlmaLinux-10-GenericCloud-10.2-20261109.0.x86_64.qcow2"
     checksum_url: "https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/CHECKSUM"
     checksum_algo: "sha256"
+  # Imagem `generic` (não a `genericcloud`): traz o kernel completo, com todos os módulos.
+  debian:
+    url: "https://cloud.debian.org/images/cloud/trixie/20261111-2659/debian-13-generic-amd64-20261111-2659.qcow2"
+    arquivo: "debian-13-generic-amd64-20261111-2659.qcow2"
+    checksum_url: "https://cloud.debian.org/images/cloud/trixie/20261111-2659/SHA512SUMS"
+    checksum_algo: "sha512"
 
 # Nome da interface de rede DENTRO da VM. O cloud-init casa a placa pelo MAC
 # (derivado do IP) e a renomeia para este nome, igual em qualquer distro.
@@ -354,7 +360,7 @@ disk_size_default: "20G"
 cpu_nested: true
 
 # Atualização automática do SO, instalada e ligada pelo cloud-init.
-#   nenhum    : não liga nada
+#   nenhum    : não liga nada (no Debian, desliga a que a imagem já traz ligada)
 #   seguranca : só correções de segurança (padrão)
 #   todos     : todas as atualizações (liga também o upgrade no primeiro boot)
 # Nenhuma das opções reinicia a VM sozinha. O runtime (CRI-O/containerd) não vem do
