@@ -1,21 +1,22 @@
 # ansible/k8s-cluster-base/tasks/01-instalacao.yml
 ---
-- name: Instalar pacotes necessários para o kubernetes
-  become: true
-  ansible.builtin.dnf:
-    name: "{{ pacotes_kubernetes }}"
-    state: present
+# Os pacotes do SO (inclusive o cliente NFS) vêm do cloud-init: ver ansible/infra-vms/vars/main.yml.
+- name: Conferir se os comandos do SO existem
+  ansible.builtin.shell: "command -v {{ item }}"  # noqa command-instead-of-shell
+  loop: "{{ comandos_so_kubernetes }}"
+  register: comandos_conferidos
+  changed_when: false
+  failed_when: false
 
-- name: Verificar se precisa reiniciar pós-instalação de pacotes
-  ansible.builtin.command: needs-restarting -r
-  register: reboot_check_k8s
-  ignore_errors: true
-  changed_when: reboot_check_k8s.rc == 1
-  failed_when: reboot_check_k8s.rc not in [0, 1]
-  notify: Reiniciar VM
-
-- name: Executar reboot imediato se necessário
-  ansible.builtin.meta: flush_handlers
+- name: Falhar se faltar algum comando do SO
+  ansible.builtin.assert:
+    that: comandos_conferidos.results | rejectattr('rc', 'equalto', 0) | list | length == 0
+    fail_msg: >-
+      Faltam comandos em {{ inventory_hostname }}:
+      {{ comandos_conferidos.results | rejectattr('rc', 'equalto', 0) | map(attribute='item') | join(', ') }}.
+      Os pacotes do SO vêm do cloud-init: revise ansible/infra-vms/vars/main.yml
+      e recrie a VM (make clean-vms).
+    quiet: true
 
 - name: Garantir configuração de módulos necessários
   ansible.builtin.copy:
@@ -30,12 +31,6 @@
     state: present
     persistent: present
   loop: "{{ modulos_kernel_kubernetes }}"
-
-- name: Habilitar serviço nftables
-  ansible.builtin.systemd:
-    name: nftables
-    enabled: true
-    state: started
 
 - name: Verificar se swap está ativo
   ansible.builtin.command: swapon --show
@@ -57,6 +52,7 @@
   ansible.posix.sysctl:
     name: "{{ item.key }}"
     value: "{{ item.value }}"
+    sysctl_file: /etc/sysctl.d/99-kubernetes.conf  # o Debian 13 não lê /etc/sysctl.conf no boot
     state: present
     reload: true
   loop:

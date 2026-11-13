@@ -1,17 +1,18 @@
 # ansible/k8s-cluster-base/defaults/main.yml
 ---
-pacotes_kubernetes:
-  - kernel-modules-extra
-  - iproute
-  - nftables
+# Comandos que o cloud-init deve ter instalado nos nós do cluster
+# (pacotes em ansible/infra-vms/vars/main.yml, grupo cluster).
+comandos_so_kubernetes:
+  - ip
+  - nft
   - iptables
-  - iptables-nft
-  - conntrack-tools
+  - conntrack
   - ethtool
   - socat
   - tar
-  - xz
   - skopeo
+  - chronyc
+  - mount.nfs
 
 modulos_kernel_kubernetes:
   - overlay

@@ -1,11 +1,19 @@
 # ansible/03-balanceador/tasks/01-instalacao.yml
 ---
-- name: Instalar pacotes necessários para o Haproxy e Keepalived
-  ansible.builtin.dnf:
-    name:
-      - haproxy
-      - keepalived
-      - openssl
-      - socat
-      - dnsmasq
-    state: present
+# Os pacotes vêm do cloud-init (ansible/infra-vms/vars/main.yml, grupo loadbalancers).
+- name: Conferir se os comandos do SO existem
+  ansible.builtin.shell: "command -v {{ item }}"  # noqa command-instead-of-shell
+  loop: "{{ comandos_so_balanceador }}"
+  register: comandos_conferidos
+  changed_when: false
+  failed_when: false
+
+- name: Falhar se faltar algum comando do SO
+  ansible.builtin.assert:
+    that: comandos_conferidos.results | rejectattr('rc', 'equalto', 0) | list | length == 0
+    fail_msg: >-
+      Faltam comandos em {{ inventory_hostname }}:
+      {{ comandos_conferidos.results | rejectattr('rc', 'equalto', 0) | map(attribute='item') | join(', ') }}.
+      Os pacotes do SO vêm do cloud-init: revise ansible/infra-vms/vars/main.yml
+      e recrie a VM (make clean-vms).
+    quiet: true

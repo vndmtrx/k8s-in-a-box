@@ -1,15 +1,29 @@
 # ansible/04-nfs/tasks/01-instalacao.yml
 ---
-- name: Instalar pacote do NFS
-  ansible.builtin.package:
-    name: nfs-utils
-    state: present
+# O pacote do servidor NFS vem do cloud-init (ansible/infra-vms/vars/main.yml, grupo nfs).
+- name: Conferir se os comandos do SO existem
+  ansible.builtin.shell: "command -v {{ item }}"  # noqa command-instead-of-shell
+  loop: "{{ comandos_so_nfs }}"
+  register: comandos_conferidos
+  changed_when: false
+  failed_when: false
+
+- name: Falhar se faltar algum comando do SO
+  ansible.builtin.assert:
+    that: comandos_conferidos.results | rejectattr('rc', 'equalto', 0) | list | length == 0
+    fail_msg: >-
+      Faltam comandos em {{ inventory_hostname }}:
+      {{ comandos_conferidos.results | rejectattr('rc', 'equalto', 0) | map(attribute='item') | join(', ') }}.
+      Os pacotes do SO vêm do cloud-init: revise ansible/infra-vms/vars/main.yml
+      e recrie a VM (make clean-vms).
+    quiet: true
 
 - name: Criar diretório para compartilhamento
   ansible.builtin.file:
     path: /srv/nfs/k8s
     state: directory
-    owner: nobody
-    group: nobody
+    # 65534 é o usuário e o grupo "nobody" no AlmaLinux e "nobody"/"nogroup" no Debian
+    owner: "65534"
+    group: "65534"
     mode: "0755"
 

@@ -1,0 +1,5 @@
+# ansible/infra-nfs/defaults/main.yml
+---
+# Comandos que o cloud-init deve ter instalado no servidor NFS.
+comandos_so_nfs:
+  - exportfs

@@ -1,30 +1,22 @@
 # ansible/02-sistema/tasks/00-base.yml
 ---
-- name: Colocar SELinux em modo permissivo (a politica customizada e aplicada na role 06-kubelet)
-  become: true
-  ansible.posix.selinux:
-    policy: targeted
-    state: permissive
-
-- name: Instalar pacotes extras necessários
-  become: true
-  ansible.builtin.dnf:
-    name: "{{ pacotes_extras }}"
-    state: present
-
-- name: Configurar o TZ para o especificado em defaults
-  community.general.timezone:
-    name: "{{ timezone_tz }}"
-
-- name: Ler configuração atual do locale  # noqa no-changed-when
-  ansible.builtin.command: localectl status
-  register: resultado_locale
+# Pacotes, SELinux, fuso horário e idioma do SO vêm do cloud-init (ansible/infra-vms).
+- name: Conferir se os comandos do SO existem
+  ansible.builtin.shell: "command -v {{ item }}"  # noqa command-instead-of-shell
+  loop: "{{ comandos_so_base }}"
+  register: comandos_conferidos
   changed_when: false
+  failed_when: false
 
-- name: Configurar locale se necessário
-  ansible.builtin.command: "localectl set-locale LANG={{ locale_lang }}"
-  when: "'LANG=' ~ locale_lang not in resultado_locale.stdout"
-  changed_when: true
+- name: Falhar se faltar algum comando do SO
+  ansible.builtin.assert:
+    that: comandos_conferidos.results | rejectattr('rc', 'equalto', 0) | list | length == 0
+    fail_msg: >-
+      Faltam comandos em {{ inventory_hostname }}:
+      {{ comandos_conferidos.results | rejectattr('rc', 'equalto', 0) | map(attribute='item') | join(', ') }}.
+      Os pacotes do SO vêm do cloud-init: revise ansible/infra-vms/vars/main.yml
+      e recrie a VM (make clean-vms).
+    quiet: true
 
 - name: Gerar arquivo /etc/hosts para cada nó do cluster
   ansible.builtin.template:

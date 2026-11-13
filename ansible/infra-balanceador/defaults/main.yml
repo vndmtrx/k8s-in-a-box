@@ -1,0 +1,8 @@
+# ansible/infra-balanceador/defaults/main.yml
+---
+# Comandos que o cloud-init deve ter instalado nos balanceadores.
+comandos_so_balanceador:
+  - haproxy
+  - keepalived
+  - openssl
+  - socat

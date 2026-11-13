@@ -1,16 +1,8 @@
-# ansible/02-sistema/defaults/main.yml
+# ansible/infra-sistema/defaults/main.yml
 ---
-# Variável para controlar a atualização dos pacotes do sistema instalado (all, patch, none)
-atualiza_sistema: "seguranca"
-
-locale_lang: "pt_BR.UTF-8"
-timezone_tz: "America/Sao_Paulo"
-pacotes_extras:
-  - langpacks-core-pt_BR
-  - langpacks-pt
-  - glibc-langpack-pt
-  - mtr
-  - nano
+# Comandos que o cloud-init deve ter instalado em toda VM (pacotes em ansible/infra-vms/vars/main.yml).
+comandos_so_base:
+  - chronyc
   - wget
-  - dnf-utils
-  - bash-completion
+  - nano
+  - mtr
