@@ -31,6 +31,10 @@ infra_vms_dominio: "{{ libvirt_prefixo }}-{{ inventory_hostname }}"
 infra_vms_dir: "{{ pasta_vms }}/{{ inventory_hostname }}"
 infra_vms_disco: "{{ infra_vms_dir }}/disco.qcow2"
 infra_vms_seed: "{{ infra_vms_dir }}/seed.iso"
+
+# NVRAM do UEFI (só com boot: efi). Fica no Target; o libvirt cria a partir do modelo
+# do OVMF na primeira vez que a VM liga e apaga no undefine --nvram.
+infra_vms_nvram: "{{ infra_vms_dir }}/nvram.fd"
 infra_vms_cloudinit_dir: "{{ infra_vms_dir }}/cloud-init"
 
 # Tamanho do overlay: disk_size do host ou o padrão global.

@@ -8,6 +8,9 @@
   </memoryBacking>
   <os{% if infra_vms_distro.boot == 'efi' %} firmware='efi'{% endif %}>
     <type arch='x86_64' machine='q35'>hvm</type>
+{% if infra_vms_distro.boot == 'efi' %}
+    <nvram>{{ infra_vms_nvram }}</nvram>
+{% endif %}
     <boot dev='hd'/>
   </os>
   <features>
