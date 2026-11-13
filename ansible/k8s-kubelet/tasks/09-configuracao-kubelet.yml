@@ -1,5 +1,14 @@
 # ansible/06-kubelet/tasks/09-configuracao-kubelet.yml
 ---
+# Com o systemd-resolved (Debian), o /etc/resolv.conf aponta para o stub 127.0.0.53. O
+# CoreDNS herda esse arquivo do kubelet, encaminha para si mesmo e cai com `plugin/loop`.
+# Igual ao kubeadm: se o systemd-resolved publica o arquivo com os servidores reais, o
+# kubelet usa esse. Sem o systemd-resolved (AlmaLinux), fica o /etc/resolv.conf.
+- name: Ver se o systemd-resolved publica o resolv.conf com os servidores reais
+  ansible.builtin.stat:
+    path: /run/systemd/resolve/resolv.conf
+  register: kubelet_resolv_resolved
+
 - name: Configurar parâmetros de inicialização do kubelet
   ansible.builtin.template:
     src: kubelet.env.j2
