@@ -34,6 +34,7 @@
       become: true
       ansible.builtin.command: restorecon -R /opt/cni/bin
       changed_when: true
+      when: selinux_politica_customizada | bool
 
   always:
     - name: Remover arquivo compactado dos plugins
