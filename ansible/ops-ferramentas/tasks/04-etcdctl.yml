@@ -1,44 +1,29 @@
-# ansible/12-ferramentas-cluster/tasks/04-etcdctl.yml
+# ansible/ops-ferramentas/tasks/04-etcdctl.yml
 ---
 # O `kubectl cp` usa `tar` dentro do container para empacotar o arquivo antes
-# de transferi-lo. A imagem distroless do etcd não possui `tar`, tornando esse
-# método inviável. A alternativa é ler o mount point do overlay do container
-# diretamente via `crictl inspect`, que expõe o caminho do merged layer do
-# overlayfs. Esse caminho existe enquanto o container estiver rodando e é
-# independente do container runtime (containerd ou cri-o).
+# de transferi-lo, e a imagem distroless do etcd não possui `tar`. O `etcdctl`
+# sai da própria imagem do etcd que o `k8s-kubelet` já deixou no cache OCI
+# (formato docker-archive). Assim ele tem exatamente a versão do container, e o
+# passo não depende do container runtime nem de um manager no ar.
 - name: Verificar se o executável do etcdctl já está instalado na VM
   ansible.builtin.stat:
     path: "/usr/local/bin/etcdctl"
   register: etcdctl_bin
 
-- name: Extrair etcdctl do overlay filesystem do container etcd no manager
+- name: Instalar o etcdctl a partir da imagem do etcd
   when: not etcdctl_bin.stat.exists
   block:
-    - name: Obter container ID do etcd em execução no manager principal
-      ansible.builtin.command: >
-        /usr/local/bin/crictl ps --name "^etcd$" --state Running -q
-      register: etcd_container_id
-      changed_when: false
-      delegate_to: "{{ groups['managers'][0] }}"
-      become: true
-
-    - name: Obter caminho do overlay filesystem do container etcd
-      ansible.builtin.shell: >
-        /usr/local/bin/crictl inspect {{ etcd_container_id.stdout | trim }} |
-        python3 -c "import json,sys; d=json.load(sys.stdin);
-        print(d['info']['runtimeSpec']['root']['path'])"
-      register: etcd_overlay_path
-      changed_when: false
-      delegate_to: "{{ groups['managers'][0] }}"
-      become: true
-
-    - name: Baixar etcdctl do overlay do manager para o host de controle
-      ansible.builtin.fetch:
-        src: "{{ etcd_overlay_path.stdout | trim }}/usr/local/bin/etcdctl"
-        dest: "{{ pasta_cache_binarios }}/etcdctl-{{ versao_etcd }}"
-        flat: true
-      delegate_to: "{{ groups['managers'][0] }}"
-      become: true
+    - name: Extrair etcdctl da imagem do etcd no cache
+      ansible.builtin.script:
+        cmd: >-
+          extrai-do-oci.py
+          {{ pasta_cache_oci }}/etcd-{{ versao_etcd }}.tar
+          usr/local/bin/etcdctl
+          {{ pasta_cache_binarios }}/etcdctl-{{ versao_etcd }}
+        executable: python3
+        creates: "{{ pasta_cache_binarios }}/etcdctl-{{ versao_etcd }}"
+      delegate_to: localhost
+      become: false
 
     - name: Instalar etcdctl no kubox
       ansible.builtin.copy:
