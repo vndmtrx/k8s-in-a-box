@@ -80,8 +80,12 @@ all:
       children:
         suporte: {}
         cluster: {}
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
 
     clientes:
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
       hosts:
         kubox:
           ansible_host: 172.24.0.254
