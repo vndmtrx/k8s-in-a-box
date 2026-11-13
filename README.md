@@ -75,7 +75,7 @@ Algumas escolhas foram tomadas para simplificar o laboratório e maximizar o apr
 1. **kube-proxy como DaemonSet**: em vez de rodar como serviço systemd estático, o `kube-proxy` é provisionado como um DaemonSet dentro do cluster. Isso simplifica o bootstrap inicial e dispensa a necessidade de certificados de cliente dedicados (autentica via `ServiceAccount`).
 1. **SELinux ativo com política customizada**: em vez de desabilitar o SELinux como a maioria dos tutoriais orienta, o projeto mantém o SELinux ativo e compila uma política de Type Enforcement customizada (`k8s-custom-selinux`) que resolve os alertas de segurança mantendo o confinamento dos containers. Para detalhes, consulte a [documentação de SELinux](docs/selinux.md).
 1. **Cache Local de Imagens com Skopeo**: para evitar downloads repetitivos a cada recriação do cluster, o projeto armazena em cache no host os tarballs das imagens necessárias (via `skopeo copy`). Nas VMs, elas são distribuídas e carregadas diretamente no CRI-O (`containers-storage`) ou Containerd (`ctr`).
-1. **Extração do `etcdctl` via OverlayFS**: em vez de baixar um tarball completo do Etcd da internet para obter o binário cliente no host de operação (`kubox`), o Ansible o extrai diretamente do OverlayFS (merged layer) do container etcd em execução no control plane.
+1. **Extração do `etcdctl` da imagem do etcd**: em vez de baixar um tarball completo do Etcd da internet para obter o binário cliente no host de operação (`kubox`), o Ansible o extrai da imagem do etcd que já está no cache de imagens do host. O binário tem a mesma versão do container e a extração funciona com CRI-O e com containerd.
 
 ## Arquitetura e Configurações de Instalação
 

@@ -38,12 +38,12 @@ As imagens do sistema (Kubernetes, pause, etcd, etc.) são pesadas e seu downloa
   * No **Containerd**: A importação ocorre via `ctr -n k8s.io images import`.
 * **Benefício:** Permite um provisionamento rápido ("offline-ready") após o primeiro download.
 
-### 2. Extração Dinâmica do `etcdctl` via OverlayFS
+### 2. Extração do `etcdctl` da imagem do etcd em cache
 Tradicionalmente, a instalação da ferramenta de gerenciamento do `etcd` (`etcdctl`) exigiria o download do arquivo compactado completo de lançamento do etcd na internet para descompactar apenas um binário. No projeto:
-* O Ansible identifica o container ID do etcd em execução no `manager1` usando `crictl ps`.
-* Consulta os metadados do container via `crictl inspect` e extrai o caminho do diretório mesclado no OverlayFS (`merged layer`) que contém o sistema de arquivos em tempo de execução do container.
-* Copia o executável `etcdctl` diretamente desse caminho do OverlayFS do manager para o host local e depois o instala no bastion host `kubox`.
-* **Benefício:** Remove o download do tarball de distribuição do etcd, reduzindo a dependência de APIs externas e acelerando o provisionamento das ferramentas.
+* A imagem do etcd já está no cache OCI do host (`.target/cache/oci/etcd-<versão>.tar`, formato `docker-archive`), deixada pela role `k8s-kubelet`.
+* O script `ansible/ops-ferramentas/files/extrai-do-oci.py` percorre as camadas da imagem, da mais nova para a mais antiga, e grava o `usr/local/bin/etcdctl` em `.target/cache/binarios/etcdctl-<versão>`.
+* O Ansible instala esse executável no bastion host `kubox`.
+* **Benefício:** o `etcdctl` tem exatamente a versão do container do etcd, sem baixar o tarball de distribuição e sem depender do container runtime (CRI-O ou containerd) nem de um manager no ar.
 
 ## Makefile
 
