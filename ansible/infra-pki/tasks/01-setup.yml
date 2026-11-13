@@ -2,7 +2,7 @@
 ---
 - name: Remover estrutura anterior de outras gerações no caso de regerar os certificados
   ansible.builtin.file:
-    path: "{{ pki_pasta_base }}"
+    path: "{{ pasta_pki }}"
     state: absent
   when: pki_regerar_certs | bool
 

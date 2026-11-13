@@ -2,7 +2,7 @@
 ---
 - name: Verificar se os arquivos já foram baixados no host
   ansible.builtin.stat:
-    path: "{{ pasta_temporarios }}/{{ item.value.arquivo }}"
+    path: "{{ pasta_cache_binarios }}/{{ item.value.arquivo }}"
   loop: "{{ download_artefatos | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
@@ -11,7 +11,7 @@
 - name: Baixar artefatos necessários no host
   ansible.builtin.get_url:
     url: "{{ item.item.value.url }}"
-    dest: "{{ pasta_temporarios }}/{{ item.item.value.arquivo }}"
+    dest: "{{ pasta_cache_binarios }}/{{ item.item.value.arquivo }}"
     mode: "0644"
     checksum: "{{ item.item.value.checksum | default(omit) }}"
   loop: "{{ arquivos_locais.results }}"

@@ -2,7 +2,7 @@
 ---
 - name: Garantir que a pasta temporária de imagens existe no Host
   ansible.builtin.file:
-    path: "{{ pasta_temporarios }}/imagens"
+    path: "{{ pasta_cache_oci }}"
     state: directory
     mode: "0755"
   delegate_to: localhost
@@ -11,7 +11,7 @@
 
 - name: Verificar no Host se as imagens em formato Tarball já existem
   ansible.builtin.stat:
-    path: "{{ pasta_temporarios }}/imagens/{{ item.key }}-{{ item.value | split(':') | last }}.tar"
+    path: "{{ pasta_cache_oci }}/{{ item.key }}-{{ item.value | split(':') | last }}.tar"
   register: imagens_tar_stat
   delegate_to: localhost
   become: false
@@ -33,10 +33,10 @@
   when: not item.stat.exists
   changed_when: true
 
-- name: Copiar tarball do manager1 de volta para a pasta de temporários no Host
+- name: Copiar tarball do manager1 de volta para o cache de imagens OCI no Host
   ansible.builtin.fetch:
     src: "/tmp/{{ item.item.key }}-{{ item.item.value | split(':') | last }}.tar"
-    dest: "{{ pasta_temporarios }}/imagens/{{ item.item.key }}-{{ item.item.value | split(':') | last }}.tar"
+    dest: "{{ pasta_cache_oci }}/{{ item.item.key }}-{{ item.item.value | split(':') | last }}.tar"
     flat: true
   delegate_to: "{{ groups['managers'][0] }}"
   run_once: true
@@ -80,7 +80,7 @@
 
 - name: Copiar tarball da imagem do Host para a VM
   ansible.builtin.copy:
-    src: "{{ pasta_temporarios }}/imagens/{{ item.item.key }}-{{ item.item.value | split(':') | last }}.tar"
+    src: "{{ pasta_cache_oci }}/{{ item.item.key }}-{{ item.item.value | split(':') | last }}.tar"
     dest: "/tmp/{{ item.item.key }}.tar"
     mode: "0644"
   loop: "{{ crictl_image_check.results }}"

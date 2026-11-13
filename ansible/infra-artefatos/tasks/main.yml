@@ -1,8 +1,8 @@
 # ansible/00-artefatos/tasks/main.yml
 ---
-- name: Criar pasta de temporários para arquivos baixados
+- name: Criar pasta de cache dos binários baixados
   ansible.builtin.file:
-    path: "{{ pasta_temporarios }}"
+    path: "{{ pasta_cache_binarios }}"
     state: directory
     mode: "0755"
 

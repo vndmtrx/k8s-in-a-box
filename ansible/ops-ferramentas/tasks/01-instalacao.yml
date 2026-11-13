@@ -7,7 +7,7 @@
 
 - name: Copiar yq para a VM em /usr/local/bin
   ansible.builtin.copy:
-    src: "{{ pasta_temporarios }}/yq"
+    src: "{{ pasta_cache_binarios }}/{{ download_artefatos['yq-bin'].arquivo }}"
     dest: "/usr/local/bin/yq"
     mode: "0755"
   become: true
@@ -25,12 +25,12 @@
   block:
     - name: Copiar kubectl para a VM em /usr/local/bin
       ansible.builtin.copy:
-        src: "{{ pasta_temporarios }}/kubectl"
+        src: "{{ pasta_cache_binarios }}/{{ download_artefatos['kubectl-bin'].arquivo }}"
         dest: "/usr/local/bin/kubectl"
         mode: "0755"
       become: true
 
-    - name: Criar diretório ~/.kube para usuário padrão do vagrant
+    - name: Criar diretório ~/.kube para o usuário de acesso (ansible_user)
       ansible.builtin.file:
         path: "/home/{{ ansible_user }}/.kube"
         state: directory
@@ -62,7 +62,7 @@
 
     - name: Copiar helm para a VM (em /tmp)
       ansible.builtin.copy:
-        src: "{{ pasta_temporarios }}/helm-bin.tar.gz"
+        src: "{{ pasta_cache_binarios }}/{{ download_artefatos['helm-bin'].arquivo }}"
         dest: "/tmp/helm-bin.tar.gz"
         mode: "0644"
 
@@ -108,7 +108,7 @@
 
     - name: Copiar k9s para a VM (em /tmp)
       ansible.builtin.copy:
-        src: "{{ pasta_temporarios }}/k9s-bin.tar.gz"
+        src: "{{ pasta_cache_binarios }}/{{ download_artefatos['k9s-bin'].arquivo }}"
         dest: "/tmp/k9s-bin.tar.gz"
         mode: "0644"
 
@@ -154,7 +154,7 @@
 
     - name: Copiar popeye para a VM (em /tmp)
       ansible.builtin.copy:
-        src: "{{ pasta_temporarios }}/popeye-bin.tar.gz"
+        src: "{{ pasta_cache_binarios }}/{{ download_artefatos['popeye-bin'].arquivo }}"
         dest: "/tmp/popeye-bin.tar.gz"
         mode: "0644"
 

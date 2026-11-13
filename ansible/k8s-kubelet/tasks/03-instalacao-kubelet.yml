@@ -7,7 +7,7 @@
 
 - name: Copiar kubelet para a VM
   ansible.builtin.copy:
-    src: "{{ pasta_temporarios }}/kubelet"
+    src: "{{ pasta_cache_binarios }}/{{ download_artefatos['kubelet-bin'].arquivo }}"
     dest: "/usr/local/bin/kubelet"
     mode: "0755"
     setype: bin_t

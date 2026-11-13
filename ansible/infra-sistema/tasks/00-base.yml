@@ -44,7 +44,7 @@
   block:
     - name: Copiar Tailspin para a VM (em /tmp)
       ansible.builtin.copy:
-        src: "{{ pasta_temporarios }}/tailspin.tar.gz"
+        src: "{{ pasta_cache_binarios }}/{{ download_artefatos['tailspin-bin'].arquivo }}"
         dest: "/tmp/tailspin.tar.gz"
         mode: "0644"
 

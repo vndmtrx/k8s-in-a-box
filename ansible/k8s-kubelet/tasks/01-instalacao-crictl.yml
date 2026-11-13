@@ -10,7 +10,7 @@
   block:
     - name: Copiar crictl para a VM (em /tmp)
       ansible.builtin.copy:
-        src: "{{ pasta_temporarios }}/crictl.tar.gz"
+        src: "{{ pasta_cache_binarios }}/{{ download_artefatos['crictl-bin'].arquivo }}"
         dest: "/tmp/crictl.tar.gz"
         mode: "0644"
 

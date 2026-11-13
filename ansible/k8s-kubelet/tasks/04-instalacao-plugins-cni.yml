@@ -19,7 +19,7 @@
   block:
     - name: Copiar compactado dos plugins para a VM
       ansible.builtin.copy:
-        src: "{{ pasta_temporarios }}/cni-plugins.tgz"
+        src: "{{ pasta_cache_binarios }}/{{ download_artefatos['cni-plugins-bin'].arquivo }}"
         dest: "/tmp/cni-plugins.tgz"
         mode: "0644"
 

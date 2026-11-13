@@ -35,14 +35,14 @@
     - name: Baixar etcdctl do overlay do manager para o host de controle
       ansible.builtin.fetch:
         src: "{{ etcd_overlay_path.stdout | trim }}/usr/local/bin/etcdctl"
-        dest: "{{ pasta_temporarios }}/etcdctl"
+        dest: "{{ pasta_cache_binarios }}/etcdctl-{{ versao_etcd }}"
         flat: true
       delegate_to: "{{ groups['managers'][0] }}"
       become: true
 
     - name: Instalar etcdctl no kubox
       ansible.builtin.copy:
-        src: "{{ pasta_temporarios }}/etcdctl"
+        src: "{{ pasta_cache_binarios }}/etcdctl-{{ versao_etcd }}"
         dest: "/usr/local/bin/etcdctl"
         mode: "0755"
       become: true
