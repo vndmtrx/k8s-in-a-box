@@ -7,6 +7,12 @@
 #   disk_size              tamanho do overlay qcow2 do host (default: 20G).
 #                          Só vale a pena setar onde 20G é insuficiente.
 #
+#   sobe_com_cluster       false tira o host do `make up` (só `make ops-up` o cria).
+#                          Padrão: true. Nenhuma VM liga no boot do PC.
+#
+#   distro_base            almalinux ou debian, para trocar a distribuição de um
+#                          host (padrão: o valor global de all.yml).
+#
 #   Limites de cgroup no XML do domínio (vazios por padrão -> blocos
 #   cputune/memtune/blkiotune são omitidos quando não definidos):
 #     cgroup_cpu_shares    peso relativo de CPU (padrão libvirt 1024)
@@ -18,14 +24,14 @@
 #
 # A topologia `completo` é a mais pesada (roda num notebook e passa pela
 # validação Sonobuoy). Por isso os nós de SUPORTE (loadbalancers + nfs), que
-# têm só 384 MiB / 1 cpu, recebem peso reduzido de CPU e de E/S de bloco para
+# têm só 512 MiB / 1 cpu, recebem peso reduzido de CPU e de E/S de bloco para
 # dar prioridade aos managers/workers sob contenção. Os limites são relativos:
 # em folga de recursos ninguém é artificialmente limitado; sob disputa, o
 # escalonador favorece o cluster. Managers/workers ficam com os defaults.
 ---
 all:
   vars:
-    ansible_user: vagrant
+    ansible_user: k8sbox
 
   children:
     loadbalancers:
@@ -33,7 +39,7 @@ all:
         loadbalancer1:
           ansible_host: 172.24.0.21
           fqdn: loadbalancer1.k8sbox.local
-          memory: 384
+          memory: 512
           cpus: 1
           # Nó de suporte: metade do peso de CPU (padrão 1024) e peso de E/S
           # de bloco reduzido para ceder prioridade ao cluster sob contenção.
@@ -42,7 +48,7 @@ all:
         loadbalancer2:
           ansible_host: 172.24.0.22
           fqdn: loadbalancer2.k8sbox.local
-          memory: 384
+          memory: 512
           cpus: 1
           # Mesmo tratamento do loadbalancer1 (par do keepalived).
           cgroup_cpu_shares: 512
@@ -53,7 +59,7 @@ all:
         nfs1:
           ansible_host: 172.24.0.25
           fqdn: nfs.k8sbox.local
-          memory: 384
+          memory: 512
           cpus: 1
           # Nó de suporte: pouco CPU, mas peso de E/S de bloco um pouco maior
           # que os loadbalancers por ser o nó de armazenamento (serve os
@@ -117,4 +123,4 @@ all:
           fqdn: kubox.k8sbox.local
           memory: 1024
           cpus: 1
-          autostart: false
+          sobe_com_cluster: false

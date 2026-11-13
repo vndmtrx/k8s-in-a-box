@@ -7,6 +7,12 @@
 #   disk_size              tamanho do overlay qcow2 do host (default: 20G).
 #                          Só vale a pena setar onde 20G é insuficiente.
 #
+#   sobe_com_cluster       false tira o host do `make up` (só `make ops-up` o cria).
+#                          Padrão: true. Nenhuma VM liga no boot do PC.
+#
+#   distro_base            almalinux ou debian, para trocar a distribuição de um
+#                          host (padrão: o valor global de all.yml).
+#
 #   Limites de cgroup no XML do domínio (vazios por padrão -> blocos
 #   cputune/memtune/blkiotune são omitidos quando não definidos):
 #     cgroup_cpu_shares    peso relativo de CPU (padrão libvirt 1024)
@@ -20,7 +26,7 @@
 ---
 all:
   vars:
-    ansible_user: vagrant
+    ansible_user: k8sbox
 
   children:
     loadbalancers:
@@ -28,7 +34,7 @@ all:
         loadbalancer1:
           ansible_host: 172.24.0.21
           fqdn: loadbalancer1.k8sbox.local
-          memory: 384
+          memory: 512
           cpus: 1
 
     nfs:
@@ -36,7 +42,7 @@ all:
         nfs1:
           ansible_host: 172.24.0.25
           fqdn: nfs.k8sbox.local
-          memory: 384
+          memory: 512
           cpus: 1
 
     managers:
@@ -82,4 +88,4 @@ all:
           fqdn: kubox.k8sbox.local
           memory: 1024
           cpus: 1
-          autostart: false
+          sobe_com_cluster: false
