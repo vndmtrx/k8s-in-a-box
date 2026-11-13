@@ -9,6 +9,10 @@ linha separada por espaços:
 RAM vem de `memory` (MiB) de cada host. O disco vem de `disk_size` por host,
 caindo no default global (variável de ambiente DISK_SIZE_DEFAULT, padrão 20G)
 quando o host não define o seu. Usado pelo alvo `make bootstrap`.
+
+A variável de ambiente HOSTS_EXISTENTES (nomes separados por espaço) lista hosts
+cujas VMs já estão ligadas: eles não entram na soma, para que repetir `make up`
+com o cluster no ar não falhe por falta de RAM.
 """
 import json
 import os
@@ -45,13 +49,18 @@ def main():
         sys.exit("inventário efetivo sem hosts")
 
     disco_default = os.environ.get("DISK_SIZE_DEFAULT", "20G")
+    existentes = set(os.environ.get("HOSTS_EXISTENTES", "").split())
     ram_mib = 0
     disco_gib = 0.0
-    for host in hostvars.values():
+    contados = 0
+    for nome, host in hostvars.items():
+        if nome in existentes:
+            continue
+        contados += 1
         ram_mib += int(host.get("memory", 0))
         disco_gib += para_gib(host.get("disk_size", disco_default))
 
-    print("%d %.0f %d" % (ram_mib, round(disco_gib), len(hostvars)))
+    print("%d %.0f %d" % (ram_mib, round(disco_gib), contados))
 
 
 if __name__ == "__main__":
