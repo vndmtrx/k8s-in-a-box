@@ -84,7 +84,7 @@ status: ## Mostra a configuração de cluster ativa
 		echo "Nenhuma configuração ativa (será usado $(CLUSTER))"; \
 	fi
 
-bootstrap: ## Valida pré-requisitos do host (binários, collection, permissões, .target e recursos) antes de provisionar
+bootstrap: garante-config ## Valida pré-requisitos do host (binários, collection, permissões, .target e recursos) antes de provisionar
 	@echo "Validando pré-requisitos do host para o provisionamento libvirt/Ansible..."
 	@set -euo pipefail; \
 	falha() { echo ""; echo "Erro: pré-requisito ausente -> $$1"; exit 1; }; \
