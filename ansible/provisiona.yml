@@ -1,0 +1,107 @@
+# ansible/provisiona.yml
+---
+# Cria, desliga e remove as VMs do inventário com libvirt + cloud-init.
+# Cada host do inventário é alvo de um play local: --limit <host> restringe a
+# operação a esse host. Escolha a operação com --tags:
+#   criar | desligar | remover | remover-rede | restaurar-so
+# O `make up` passa -e apenas_sobe_com_cluster=true para pular hosts com
+# sobe_com_cluster: false (o kubox). O `make ops-up` usa --limit kubox.
+
+- name: Selecionar as VMs alvo
+  hosts: all
+  connection: local
+  gather_facts: false
+  tags: [always]
+  tasks:
+    - name: Marcar o host como alvo
+      ansible.builtin.group_by:
+        key: vms_alvo
+      changed_when: false
+      when: >-
+        not (apenas_sobe_com_cluster | default(false) | bool)
+        or (sobe_com_cluster | default(true) | bool)
+
+- name: Criar e ligar as VMs
+  hosts: vms_alvo
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ libvirt_python }}"
+  roles:
+    - role: infra-vms
+  tags: [criar]
+
+- name: Esperar o cloud-init de cada VM
+  hosts: vms_alvo
+  gather_facts: false
+  tasks:
+    - name: Esperar SSH, cloud-init e reboot
+      ansible.builtin.include_role:
+        name: infra-vms
+        tasks_from: espera.yml
+  tags: [criar]
+
+- name: Tirar o snapshot do SO pronto
+  hosts: vms_alvo
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ libvirt_python }}"
+  tasks:
+    - name: Snapshot `so`
+      ansible.builtin.include_role:
+        name: infra-vms
+        tasks_from: snapshot-so.yml
+  tags: [criar]
+
+- name: Desligar as VMs
+  hosts: all
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ libvirt_python }}"
+  tasks:
+    - name: Desligar
+      ansible.builtin.include_role:
+        name: infra-vms
+        tasks_from: desligar.yml
+  tags: [desligar]
+
+- name: Voltar as VMs ao snapshot do SO
+  hosts: all
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ libvirt_python }}"
+  tasks:
+    - name: Restaurar o snapshot `so`
+      ansible.builtin.include_role:
+        name: infra-vms
+        tasks_from: restaurar-so.yml
+  tags: [restaurar-so]
+
+- name: Remover as VMs do projeto
+  hosts: all
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ libvirt_python }}"
+  tasks:
+    - name: Remover
+      ansible.builtin.include_role:
+        name: infra-vms
+        tasks_from: remover.yml
+  tags: [remover]
+
+- name: Remover a rede de management
+  hosts: all
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ libvirt_python }}"
+  tasks:
+    - name: Remover a rede
+      ansible.builtin.include_role:
+        name: infra-vms
+        tasks_from: remover-rede.yml
+  tags: [remover-rede]
