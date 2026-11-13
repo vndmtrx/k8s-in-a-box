@@ -1,10 +1,31 @@
 # inventario/group_vars/all.yml
 ---
-# Caminho absoluto para a pasta de artefatos
-pasta_artefatos: "{{ playbook_dir }}/../artefatos"
+#############################################################
+### Pasta .target: tudo o que o projeto gera fica aqui    ###
+#############################################################
 
-# Pasta onde ficam os artefatos dos certificados
-pasta_temporarios: "{{ pasta_artefatos }}/tmp"
+# Raiz única. As demais pastas derivam dela. Ignorada pelo git.
+pasta_target: "{{ (playbook_dir ~ '/../.target') | realpath }}"
+
+# Cache: sobrevive aos alvos clean-k8s, clean-vms e clean-cluster
+pasta_cache: "{{ pasta_target }}/cache"
+pasta_cache_imagens: "{{ pasta_cache }}/imagens"     # imagens base qcow2 (infra-vms)
+pasta_cache_binarios: "{{ pasta_cache }}/binarios"   # binários e tar.gz baixados (infra-artefatos)
+pasta_cache_oci: "{{ pasta_cache }}/oci"             # tar das imagens do cluster (k8s-kubelet)
+
+# Identidade do cluster
+pasta_cluster: "{{ pasta_target }}/cluster"
+pasta_ssh: "{{ pasta_cluster }}/ssh"                 # chave SSH (infra-vms)
+pasta_pki: "{{ pasta_cluster }}/pki"                 # CAs e certificados (infra-pki)
+
+# VMs: uma pasta por host (disco, seed.iso, cloud-init)
+pasta_vms: "{{ pasta_target }}/vms"
+
+# Log, fatos e sockets do Ansible
+pasta_ansible: "{{ pasta_target }}/ansible"
+
+# Logs por execução do make k8s-in-a-box
+pasta_logs: "{{ pasta_target }}/logs"
 
 #############################################################
 ### Configurações para as role relacionadas ao kubernetes ###
@@ -61,6 +82,8 @@ versao_gateway_api: "v1.6.2"  # https://github.com/kubernetes-sigs/gateway-api/r
 versao_helm: "v3.22.0"        # https://github.com/helm/helm/releases
 versao_k9s: "v0.51.0"         # https://github.com/derailed/k9s/releases
 versao_popeye: "v0.22.1"      # https://github.com/derailed/popeye/releases
+versao_tailspin: "7.0.0"      # https://github.com/bensadeh/tailspin/releases
+versao_yq: "v4.54.3"          # https://github.com/mikefarah/yq/releases
 versao_kubevip: "v1.2.4"      # https://github.com/kube-vip/kube-vip/releases
 versao_kubevip_cloud_provider: "v0.0.12" # https://github.com/kube-vip/kube-vip-cloud-provider/releases
 
@@ -85,63 +108,63 @@ versao_cilium: "v1.20.2"      # https://github.com/cilium/cilium/releases
 # IP do Hubble UI via LoadBalancer (padrão dos outros dashboards do projeto)
 cilium_hubble_ui_ip: "172.24.0.104"  # 101=Headlamp, 102=Traefik, 103=Grafana, 104=Hubble
 
+# Binários baixados no host para pasta_cache_binarios. O nome do arquivo leva a
+# versão: o download é pulado se o arquivo existe, e o cache sobrevive ao clean,
+# então sem a versão no nome trocar a versão reaproveitaria o binário antigo.
 # Kubernetes: https://kubernetes.io/releases/download/
 download_artefatos:
   tailspin-bin:
-    url: "https://github.com/bensadeh/tailspin/releases/latest/download/tailspin-x86_64-unknown-linux-musl.tar.gz"
-    arquivo: "tailspin.tar.gz"
+    url: "https://github.com/bensadeh/tailspin/releases/download/{{ versao_tailspin }}/tailspin-x86_64-unknown-linux-musl.tar.gz"
+    arquivo: "tailspin-{{ versao_tailspin }}.tar.gz"
 
   yq-bin:
-    url: "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64"
-    arquivo: "yq"
+    url: "https://github.com/mikefarah/yq/releases/download/{{ versao_yq }}/yq_linux_amd64"
+    arquivo: "yq-{{ versao_yq }}"
 
   kubelet-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubelet"
-    arquivo: "kubelet"
+    arquivo: "kubelet-{{ versao_kubernetes }}"
     checksum: "sha256:https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubelet.sha256"
 
   kubectl-bin:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubectl"
-    arquivo: "kubectl"
+    arquivo: "kubectl-{{ versao_kubernetes }}"
     checksum: "sha256:https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubectl.sha256"
 
   cni-plugins-bin:
     url: "https://github.com/containernetworking/plugins/releases/download/{{ versao_cni }}/cni-plugins-linux-amd64-{{ versao_cni }}.tgz"
-    arquivo: "cni-plugins.tgz"
+    arquivo: "cni-plugins-{{ versao_cni }}.tgz"
     checksum: "sha256:https://github.com/containernetworking/plugins/releases/download/{{ versao_cni }}/cni-plugins-linux-amd64-{{ versao_cni }}.tgz.sha256"
 
   crictl-bin:
     url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ versao_crictl }}/crictl-{{ versao_crictl }}-linux-amd64.tar.gz"
-    arquivo: "crictl.tar.gz"
+    arquivo: "crictl-{{ versao_crictl }}.tar.gz"
     checksum: "sha256:https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ versao_crictl }}/crictl-{{ versao_crictl }}-linux-amd64.tar.gz.sha256"
 
   helm-bin:
     url: "https://get.helm.sh/helm-{{ versao_helm }}-linux-amd64.tar.gz"
-    arquivo: "helm-bin.tar.gz"
+    arquivo: "helm-{{ versao_helm }}.tar.gz"
     checksum: "sha256:https://get.helm.sh/helm-{{ versao_helm }}-linux-amd64.tar.gz.sha256"
 
   k9s-bin:
     url: "https://github.com/derailed/k9s/releases/download/{{ versao_k9s }}/k9s_Linux_amd64.tar.gz"
-    arquivo: "k9s-bin.tar.gz"
+    arquivo: "k9s-{{ versao_k9s }}.tar.gz"
     checksum: "sha256:https://github.com/derailed/k9s/releases/download/{{ versao_k9s }}/checksums.sha256"
 
   popeye-bin:
     url: "https://github.com/derailed/popeye/releases/download/{{ versao_popeye }}/popeye_linux_amd64.tar.gz"
-    arquivo: "popeye-bin.tar.gz"
+    arquivo: "popeye-{{ versao_popeye }}.tar.gz"
     checksum: "sha256:https://github.com/derailed/popeye/releases/download/{{ versao_popeye }}/checksums.sha256"
 
 ########################################
 ### Configurações para a role 02-pki ###
 ########################################
 
-# Pasta onde ficam os artefatos dos certificados
-pki_pasta_base: "{{ pasta_artefatos }}/pki"
-
-# Pastas para os CAs e certificados:
+# Pastas para os CAs e certificados (dentro de pasta_pki, definida no topo):
 pki_pastas:
-  ca: "{{ pki_pasta_base }}/CAs"
-  etcd: "{{ pki_pasta_base }}/etcd"
-  k8s: "{{ pki_pasta_base }}/k8s"
+  ca: "{{ pasta_pki }}/CAs"
+  etcd: "{{ pasta_pki }}/etcd"
+  k8s: "{{ pasta_pki }}/k8s"
 
 # Configuração que decide se os certificados serão regerados
 pki_regerar_certs: false
@@ -258,51 +281,50 @@ keepalived_vip_ip: "172.24.0.10"
 keepalived_vip_cidr: "172.24.0.10/24"
 keepalived_senha: "SenhaSuperSecreta123"
 
-###################################################
-### Configurações para a role infra-vms (libvirt) ###
-###################################################
+#####################################################################
+### Configurações para o provisionador (playbook provisiona.yml)  ###
+#####################################################################
 
-# Imagem base (qcow2) cacheada no host e reutilizada entre recriações de VM.
-#
-# FASE A (atual): base cloud do AlmaLinux 10 GenericCloud (x86_64), mantendo o
-# SO antigo enquanto se troca apenas o provisionador (Vagrant -> libvirt/Ansible).
-# FASE B: trocar para o Debian 13 "Trixie" generic amd64 publicado em
-# https://cloud.debian.org/images/cloud/trixie/latest/
-imagem_base_url: "https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/AlmaLinux-10-GenericCloud-latest.x86_64.qcow2"
+# Distribuição das VMs: almalinux ou debian. Vale para todo o inventário e pode
+# ser sobrescrita por host (distro_base no host). As diferenças entre as
+# distribuições ficam na tabela `distros` da role infra-vms (vars/main.yml).
+distro_base: "almalinux"
 
-# Nome do arquivo qcow2 como fica no pool/cache do libvirt.
-imagem_base_arquivo: "AlmaLinux-10-GenericCloud-latest.x86_64.qcow2"
+# Imagens base cloud (qcow2), FIXADAS por versão: o overlay de cada VM depende
+# do conteúdo exato da base, então nunca use "latest". Para trocar de versão,
+# mude url, arquivo e checksum_url juntos e recrie as VMs (make clean-vms).
+imagens_base:
+  almalinux:
+    url: "https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/AlmaLinux-10-GenericCloud-10.2-20261109.0.x86_64.qcow2"
+    arquivo: "AlmaLinux-10-GenericCloud-10.2-20261109.0.x86_64.qcow2"
+    checksum_url: "https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/CHECKSUM"
+    checksum_algo: "sha256"
 
-# URL do checksum publicado para verificar a integridade da imagem base.
-# FASE A: o AlmaLinux publica checksums em SHA256.
-# FASE B: passa a ser o SHA512SUMS do Debian (mesma pasta "latest" acima).
-imagem_base_checksum_url: "https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/CHECKSUM"
+# Nome da interface de rede DENTRO da VM. O cloud-init casa a placa pelo MAC
+# (derivado do IP) e a renomeia para este nome, igual em qualquer distro.
+# Usado por keepalived, kube-vip e Cilium.
+interface_rede: "mgmt0"
 
-# Algoritmo do checksum da imagem base.
-# FASE A: sha256 (AlmaLinux). FASE B: vira sha512 (Debian SHA512SUMS).
-imagem_base_checksum_algo: "sha256"
+# Rede libvirt NAT de management, criada e destruída pelo provisionador.
+rede_mgmt_nome: "k8sbox_mgmt"
+rede_mgmt_dns:
+  - "1.1.1.1"
+  - "8.8.8.8"
+rede_mgmt_dominio: "k8sbox.local"
 
-# Pool do libvirt onde ficam a imagem base e os overlays das VMs.
-# Coerente com o default LIBVIRT_POOL_PATH do Makefile.
-libvirt_pool_path: "/var/lib/libvirt/images"
-
-# Caminho de cache da imagem base (mesmo diretório do pool nesta fase).
-libvirt_cache_path: "{{ libvirt_pool_path }}"
-
-# URI de conexão com o libvirt (sempre do sistema, sem sudo).
-# Coerente com o default LIBVIRT_URI do Makefile.
+# Conexão com o libvirt (sempre do sistema, sem sudo).
 libvirt_uri: "qemu:///system"
 
-# Nome da rede libvirt NAT de management criada/destruída pelo provisionador.
-rede_mgmt_nome: "k8sbox_mgmt"
+# Interpretador dos módulos libvirt do Ansible. O Python do Ansible instalado
+# por pipx não traz o módulo `libvirt`; o do sistema traz (python3-libvirt).
+libvirt_python: "/usr/bin/python3"
+
+# Prefixo do nome dos domínios: <prefixo>-<host>.
+libvirt_prefixo: "k8sbox"
 
 # Tamanho de disco padrão do overlay quando o host não define disk_size.
 # Coerente com o default DISK_SIZE_DEFAULT do Makefile.
 disk_size_default: "20G"
-
-# Nome da interface de rede dentro da VM. Depende da box/imagem usada;
-# é referenciado pelo cloud-init (network-config) e pelo keepalived.
-interface_rede: "enp1s0"
 
 # Habilita a virtualização aninhada (nested) no XML do domínio.
 cpu_nested: true
