@@ -1,0 +1,14 @@
+# ansible/infra-vms/tasks/acertar-relogio.yml
+---
+# Depois de voltar ao snapshot o relógio da VM fica atrasado. O chrony tem 'makestep 1.0 -1'
+# (cloud-init), então um makestep manual acerta de uma vez, sem esperar a sincronização.
+- name: Esperar o SSH da VM restaurada
+  ansible.builtin.wait_for_connection:
+    delay: 2
+    connect_timeout: 30
+    timeout: "{{ infra_vms_ssh_timeout }}"
+
+- name: Acertar o relógio com o chrony
+  become: true
+  ansible.builtin.command: chronyc -a makestep
+  changed_when: true

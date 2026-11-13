@@ -15,6 +15,8 @@
   block:
     - name: Desligar a VM
       ansible.builtin.include_tasks: parar-dominio.yml
+      vars:
+        infra_vms_parar_forcado: true
 
     - name: Voltar ao snapshot
       ansible.builtin.command:
@@ -38,6 +40,10 @@
         host: "{{ ansible_host }}"
         port: 22
         timeout: "{{ infra_vms_ssh_timeout }}"
+
+    - name: Marcar a VM como restaurada
+      ansible.builtin.set_fact:
+        infra_vms_restaurado: true
 
 - name: Avisar quando não há snapshot para restaurar
   ansible.builtin.debug:

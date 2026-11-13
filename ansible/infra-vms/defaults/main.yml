@@ -81,7 +81,7 @@ rede_mgmt_mascara: "{{ rede_cidr_hosts | ansible.utils.ipaddr('netmask') }}"
 #######################################
 
 # Tempo máximo (segundos) até o SSH responder como ansible_user.
-infra_vms_ssh_timeout: 300
+infra_vms_ssh_timeout: 900
 
 # Tempo máximo (segundos) de `cloud-init status --wait`.
 infra_vms_cloudinit_timeout: 900

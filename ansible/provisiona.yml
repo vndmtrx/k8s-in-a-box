@@ -80,6 +80,17 @@
         tasks_from: restaurar-so.yml
   tags: [restaurar-so]
 
+- name: Acertar o relógio das VMs restauradas
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Acertar o relógio
+      ansible.builtin.include_role:
+        name: infra-vms
+        tasks_from: acertar-relogio.yml
+      when: infra_vms_restaurado | default(false) | bool
+  tags: [restaurar-so]
+
 - name: Remover as VMs do projeto
   hosts: all
   connection: local

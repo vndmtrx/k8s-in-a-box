@@ -1,9 +1,12 @@
 # ansible/infra-vms/tasks/espera.yml
 ---
 # Roda por SSH, como ansible_user, depois que o domínio foi ligado.
+# Durante a instalação dos pacotes (dnf) o ping do Ansible pode demorar mais que os 5 s de cada
+# tentativa, então cada tentativa tem 30 s. Várias VMs instalando juntas esticam o prazo total.
 - name: Esperar o SSH da VM
   ansible.builtin.wait_for_connection:
     delay: 5
+    connect_timeout: 30
     timeout: "{{ infra_vms_ssh_timeout }}"
 
 # Como root: em algumas VMs o /run/cloud-init fica com modo 0700 e o

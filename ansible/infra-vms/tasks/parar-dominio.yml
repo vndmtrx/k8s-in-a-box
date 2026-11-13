@@ -11,8 +11,21 @@
   failed_when: false
   changed_when: false
 
+# Com infra_vms_parar_forcado o domínio é desligado na hora, sem pedir ao convidado (usado
+# antes de voltar ao snapshot, quando o estado atual vai ser descartado de qualquer jeito).
+- name: Desligar o domínio na hora
+  community.libvirt.virt:
+    name: "{{ infra_vms_dominio }}"
+    state: destroyed
+    uri: "{{ libvirt_uri }}"
+  when:
+    - infra_vms_parar_forcado | default(false) | bool
+    - infra_vms_estado.status | default('') == 'running'
+
 - name: Desligar o domínio
-  when: infra_vms_estado.status | default('') == 'running'
+  when:
+    - not (infra_vms_parar_forcado | default(false) | bool)
+    - infra_vms_estado.status | default('') == 'running'
   block:
     - name: Pedir o desligamento ao convidado
       community.libvirt.virt:
