@@ -5,6 +5,7 @@
     that:
       - distro_base in distros
       - distro_base in imagens_base
+      - atualiza_sistema in ['nenhum', 'seguranca', 'todos']
     fail_msg: >-
       distro_base='{{ distro_base }}' do host {{ inventory_hostname }} não é conhecida.
       Valores aceitos: {{ distros.keys() | list | join(', ') }}.

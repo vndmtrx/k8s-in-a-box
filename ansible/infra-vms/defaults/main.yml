@@ -50,10 +50,20 @@ infra_vms_mac: >-
 # cada grupo do inventário a que o host pertence (cluster, loadbalancers, nfs,
 # clientes). O grupo `todos` do inventário não inclui o kubox, por isso `base`.
 infra_vms_pacotes: >-
-  {{ (['base'] + group_names)
-     | select('in', infra_vms_distro.pacotes)
-     | map('extract', infra_vms_distro.pacotes)
-     | flatten | unique | list }}
+  {{ ((['base'] + group_names)
+      | select('in', infra_vms_distro.pacotes)
+      | map('extract', infra_vms_distro.pacotes)
+      | flatten) + (infra_vms_atualizacao.pacotes | default([]))
+     | unique | list }}
+
+# Atualização automática: só entra quando atualiza_sistema não é 'nenhum'.
+infra_vms_atualizacao: "{{ infra_vms_distro.atualizacao if atualiza_sistema != 'nenhum' else {} }}"
+
+# makestep faz o chrony acertar o relógio de uma vez (ele fica atrasado depois de restaurar
+# um snapshot). O arquivo e o serviço do chrony mudam por distro.
+infra_vms_comandos_chrony:
+  - "grep -q '^makestep' {{ infra_vms_distro.chrony_conf }} || echo 'makestep 1.0 -1' >> {{ infra_vms_distro.chrony_conf }}"
+  - "systemctl restart {{ infra_vms_distro.chrony_servico }}"
 
 ###############################
 ### Rede de management (NAT) ###
@@ -84,8 +94,7 @@ infra_vms_snapshot_so: "so"
 #######################################
 
 # Conteúdo do user-data como dicionário; o template escreve `#cloud-config` +
-# to_nice_yaml. A Fase B acrescenta timezone, locale, ntp, write_files e runcmd
-# a partir da tabela `distros`.
+# to_nice_yaml. Os dados que mudam por distro vêm da tabela `distros`.
 infra_vms_user_data:
   hostname: "{{ inventory_hostname }}"
   fqdn: "{{ fqdn }}"
@@ -98,9 +107,16 @@ infra_vms_user_data:
       lock_passwd: true
       ssh_authorized_keys:
         - "{{ infra_vms_chave_publica }}"
+  timezone: "{{ timezone_tz }}"
+  locale: "{{ locale_lang }}"
   package_update: true
-  package_upgrade: false
+  package_upgrade: "{{ atualiza_sistema == 'todos' }}"
   packages: "{{ infra_vms_pacotes }}"
+  ntp:
+    enabled: true
+    ntp_client: chrony
+  write_files: "{{ infra_vms_atualizacao.write_files | default([]) }}"
+  runcmd: "{{ (infra_vms_distro.runcmd | default([])) + infra_vms_comandos_chrony + (infra_vms_atualizacao.runcmd | default([])) }}"
 
 # Memória mínima: o dnf do cloud-init sofre OOM em VMs de 384 MiB (medido), então
 # os nós de suporte usam 512 MiB. Não use swap: o Kubernetes exige swap desligado

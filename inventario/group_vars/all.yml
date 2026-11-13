@@ -328,3 +328,24 @@ disk_size_default: "20G"
 
 # Habilita a virtualização aninhada (nested) no XML do domínio.
 cpu_nested: true
+
+# Atualização automática do SO, instalada e ligada pelo cloud-init.
+#   nenhum    : não liga nada
+#   seguranca : só correções de segurança (padrão)
+#   todos     : todas as atualizações (liga também o upgrade no primeiro boot)
+# Nenhuma das opções reinicia a VM sozinha. O runtime (CRI-O/containerd) não vem do
+# gerenciador de pacotes do SO, então a atualização automática não o altera.
+atualiza_sistema: "seguranca"
+
+# Pacotes que a atualização automática não deve tocar (Package-Blacklist no Debian,
+# excludepkgs no AlmaLinux). Vazio por padrão. Não trava o upgrade manual.
+pacotes_sem_atualizacao_automatica: []
+
+# Fuso horário e idioma das VMs (aplicados pelo cloud-init).
+timezone_tz: "America/Sao_Paulo"
+locale_lang: "pt_BR.UTF-8"
+
+# Política SELinux customizada do projeto (k8s-custom-selinux). Desligada por enquanto:
+# o AlmaLinux fica em modo permissive e o Debian usa o AppArmor padrão. O código da
+# política continua no repositório, atrás desta flag.
+selinux_politica_customizada: false
