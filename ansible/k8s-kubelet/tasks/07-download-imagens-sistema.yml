@@ -103,7 +103,7 @@
 
 - name: Importar imagem no Containerd usando ctr
   ansible.builtin.command: >
-    ctr -n k8s.io images import /tmp/{{ item.item.key }}.tar
+    /usr/local/bin/ctr -n k8s.io images import /tmp/{{ item.item.key }}.tar
   loop: "{{ crictl_image_check.results }}"
   loop_control:
     label: "{{ item.item.value }}"

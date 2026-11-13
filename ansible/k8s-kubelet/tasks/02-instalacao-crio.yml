@@ -1,19 +1,82 @@
 # ansible/06-kubelet/tasks/02-instalacao-crio.yml
 ---
-- name: Extrair versão major.minor do Kubernetes para CRI-O
-  ansible.builtin.set_fact:
-    versao_crio: "{{ versao_kubernetes | regex_search('^v\\d+\\.\\d+') }}"
+# CRI-O pelo pacote estático (cri-o.amd64.<versao>.tar.gz), igual em qualquer distro.
+# Instala só o que é do CRI-O: o crictl e os plugins CNI do pacote são ignorados, porque o
+# projeto tem versões fixas deles (versao_crictl e versao_cni) em outras tasks.
+- name: Conferir se a série do CRI-O é a do Kubernetes
+  ansible.builtin.assert:
+    that: (versao_crio | regex_search('^v\\d+\\.\\d+')) == (versao_kubernetes | regex_search('^v\\d+\\.\\d+'))
+    fail_msg: "versao_crio ({{ versao_crio }}) deve ser da mesma série do Kubernetes ({{ versao_kubernetes }})."
+    quiet: true
 
-- name: Adicionar repositório CRI-O
-  ansible.builtin.yum_repository:
-    name: cri-o
-    description: CRI-O
-    baseurl: "https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ versao_crio }}/rpm/"
-    enabled: true
-    gpgcheck: true
-    gpgkey: "https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ versao_crio }}/rpm/repodata/repomd.xml.key"
+- name: Verificar a versão do CRI-O instalada
+  ansible.builtin.command: /usr/local/bin/crio --version
+  register: crio_versao_atual
+  changed_when: false
+  failed_when: false
 
-- name: Instalar CRI-O
-  ansible.builtin.dnf:
-    name: cri-o
-    state: present
+- name: Instalar o CRI-O a partir do pacote estático
+  when: (versao_crio | regex_replace('^v', '')) not in crio_versao_atual.stdout
+  block:
+    - name: Copiar o pacote do CRI-O para a VM
+      ansible.builtin.copy:
+        src: "{{ pasta_cache_binarios }}/{{ download_artefatos['crio-bin'].arquivo }}"
+        dest: /var/tmp/crio-pacote.tar.gz
+        mode: "0644"
+
+    - name: Criar a pasta de extração
+      ansible.builtin.file:
+        path: /var/tmp/crio-pacote
+        state: directory
+        mode: "0755"
+
+    - name: Extrair o pacote do CRI-O
+      ansible.builtin.unarchive:
+        src: /var/tmp/crio-pacote.tar.gz
+        dest: /var/tmp/crio-pacote
+        remote_src: true
+        extra_opts: [--strip-components=1]
+
+    - name: Criar as pastas do CRI-O
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - /usr/libexec/crio
+        - /etc/crio/crio.conf.d
+        - /etc/containers/registries.conf.d
+
+    - name: Instalar os arquivos do CRI-O
+      ansible.builtin.copy:
+        src: "/var/tmp/crio-pacote/{{ item.origem }}"
+        dest: "{{ item.destino }}"
+        mode: "{{ item.modo }}"
+        remote_src: true
+      loop:
+        - { origem: bin/crio, destino: /usr/local/bin/crio, modo: "0755" }
+        - { origem: bin/pinns, destino: /usr/local/bin/pinns, modo: "0755" }
+        - { origem: bin/conmon, destino: /usr/libexec/crio/conmon, modo: "0755" }
+        - { origem: bin/conmonrs, destino: /usr/libexec/crio/conmonrs, modo: "0755" }
+        - { origem: bin/crun, destino: /usr/libexec/crio/crun, modo: "0755" }
+        - { origem: bin/runc, destino: /usr/libexec/crio/runc, modo: "0755" }
+        - { origem: bin/crio-credential-provider, destino: /usr/libexec/crio/crio-credential-provider, modo: "0755" }
+        - { origem: contrib/policy.json, destino: /etc/crio/policy.json, modo: "0644" }
+        - { origem: etc/10-crio.conf, destino: /etc/crio/crio.conf.d/10-crio.conf, modo: "0644" }
+        - { origem: contrib/registries.conf, destino: /etc/containers/registries.conf.d/crio.conf, modo: "0644" }
+        - { origem: contrib/crio.service, destino: /etc/systemd/system/crio.service, modo: "0644" }
+      loop_control:
+        label: "{{ item.destino }}"
+
+    - name: Recarregar o systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+  always:
+    - name: Remover os arquivos temporários do CRI-O
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/tmp/crio-pacote
+        - /var/tmp/crio-pacote.tar.gz

@@ -76,6 +76,9 @@ porta_kube_scheduler: 10259
 versao_etcd: "3.7.1"          # https://endoflife.date/etcd e tag da versão corrente em https://github.com/kubernetes/kubernetes/blob/master/build/dependencies.yaml
 versao_kubernetes: "v1.37.2"  # https://endoflife.date/kubernetes e https://dl.k8s.io/release/stable.txt
 versao_crictl: "v1.37.0"      # https://github.com/kubernetes-sigs/cri-tools/releases
+versao_crio: "v1.37.3"        # https://github.com/cri-o/cri-o/releases (série igual à do Kubernetes)
+versao_containerd: "2.3.7"    # https://github.com/containerd/containerd/releases (sem o "v")
+versao_runc: "v1.5.3"         # https://github.com/opencontainers/runc/releases (usado com o containerd)
 versao_pause: "3.10.2"        # https://github.com/kubernetes/kubernetes/blob/master/build/pause/CHANGELOG.md
 versao_cni: "v1.9.1"          # https://github.com/containernetworking/plugins/releases e https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/
 versao_gateway_api: "v1.6.3"  # https://github.com/kubernetes-sigs/gateway-api/releases/
@@ -130,6 +133,27 @@ download_artefatos:
     url: "https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubectl"
     arquivo: "kubectl-{{ versao_kubernetes }}"
     checksum: "sha256:https://dl.k8s.io/release/{{ versao_kubernetes }}/bin/linux/amd64/kubectl.sha256"
+
+  # Runtimes de contêiner: pacotes estáticos, iguais em todas as distros. Só o runtime escolhido
+  # em container_runtime é baixado (campo somente_runtime). O update automático do SO não os
+  # atualiza: a versão sobe por versao_crio, versao_containerd e versao_runc.
+  crio-bin:
+    somente_runtime: crio
+    url: "https://storage.googleapis.com/cri-o/artifacts/cri-o.amd64.{{ versao_crio }}.tar.gz"
+    arquivo: "cri-o.amd64.{{ versao_crio }}.tar.gz"
+    checksum: "sha256:https://storage.googleapis.com/cri-o/artifacts/cri-o.amd64.{{ versao_crio }}.tar.gz.sha256sum"
+
+  containerd-bin:
+    somente_runtime: containerd
+    url: "https://github.com/containerd/containerd/releases/download/v{{ versao_containerd }}/containerd-{{ versao_containerd }}-linux-amd64.tar.gz"
+    arquivo: "containerd-{{ versao_containerd }}-linux-amd64.tar.gz"
+    checksum: "sha256:https://github.com/containerd/containerd/releases/download/v{{ versao_containerd }}/containerd-{{ versao_containerd }}-linux-amd64.tar.gz.sha256sum"
+
+  runc-bin:
+    somente_runtime: containerd
+    url: "https://github.com/opencontainers/runc/releases/download/{{ versao_runc }}/runc.amd64"
+    arquivo: "runc-{{ versao_runc }}.amd64"
+    checksum: "sha256:https://github.com/opencontainers/runc/releases/download/{{ versao_runc }}/runc.sha256sum"
 
   cni-plugins-bin:
     url: "https://github.com/containernetworking/plugins/releases/download/{{ versao_cni }}/cni-plugins-linux-amd64-{{ versao_cni }}.tgz"

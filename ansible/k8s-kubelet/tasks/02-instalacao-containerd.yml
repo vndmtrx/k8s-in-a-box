@@ -1,15 +1,53 @@
 # ansible/06-kubelet/tasks/02-instalacao-containerd.yml
 ---
-- name: Adicionar repositório Docker
-  ansible.builtin.yum_repository:
-    name: docker-ce-stable
-    description: Docker CE Stable - $basearch
-    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
-    enabled: true
-    gpgcheck: true
-    gpgkey: https://download.docker.com/linux/centos/gpg
+# containerd e runc pelos pacotes estáticos, iguais em qualquer distro. A unit do systemd
+# é do projeto (o tar.gz não traz a unit).
+- name: Verificar a versão do containerd instalada
+  ansible.builtin.command: /usr/local/bin/containerd --version
+  register: containerd_versao_atual
+  changed_when: false
+  failed_when: false
 
-- name: Instalar containerd
-  ansible.builtin.dnf:
-    name: containerd.io
-    state: present
+- name: Instalar o containerd a partir do pacote estático
+  when: versao_containerd not in containerd_versao_atual.stdout
+  block:
+    - name: Copiar o pacote do containerd para a VM
+      ansible.builtin.copy:
+        src: "{{ pasta_cache_binarios }}/{{ download_artefatos['containerd-bin'].arquivo }}"
+        dest: /var/tmp/containerd-pacote.tar.gz
+        mode: "0644"
+
+    - name: Extrair os binários do containerd em /usr/local
+      ansible.builtin.unarchive:
+        src: /var/tmp/containerd-pacote.tar.gz
+        dest: /usr/local
+        remote_src: true
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Copiar o runc
+      ansible.builtin.copy:
+        src: "{{ pasta_cache_binarios }}/{{ download_artefatos['runc-bin'].arquivo }}"
+        dest: /usr/local/sbin/runc
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Instalar a unit do containerd
+      ansible.builtin.template:
+        src: containerd.service.j2
+        dest: /etc/systemd/system/containerd.service
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Recarregar o systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+  always:
+    - name: Remover o pacote temporário do containerd
+      ansible.builtin.file:
+        path: /var/tmp/containerd-pacote.tar.gz
+        state: absent

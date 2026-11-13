@@ -1,9 +1,19 @@
 # ansible/00-artefatos/tasks/download-artefatos.yml
 ---
+# Entradas com somente_runtime só valem para o container_runtime escolhido.
+- name: Selecionar os artefatos desta execução
+  ansible.builtin.set_fact:
+    artefatos_selecionados: >-
+      {{ download_artefatos | dict2items
+         | rejectattr('value.somente_runtime', 'defined') | list
+         + download_artefatos | dict2items
+         | selectattr('value.somente_runtime', 'defined')
+         | selectattr('value.somente_runtime', 'equalto', container_runtime) | list }}
+
 - name: Verificar se os arquivos já foram baixados no host
   ansible.builtin.stat:
     path: "{{ pasta_cache_binarios }}/{{ item.value.arquivo }}"
-  loop: "{{ download_artefatos | dict2items }}"
+  loop: "{{ artefatos_selecionados }}"
   loop_control:
     label: "{{ item.key }}"
   register: arquivos_locais

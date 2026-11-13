@@ -1,7 +1,15 @@
 # ansible/06-kubelet/tasks/06-configuracao-containerd.yml
 ---
+- name: Criar a pasta de configuração do containerd (o pacote estático não a cria)
+  ansible.builtin.file:
+    path: /etc/containerd
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: Gerar configuração padrão do containerd
-  ansible.builtin.command: containerd config default
+  ansible.builtin.command: /usr/local/bin/containerd config default
   register: containerd_config
   changed_when: false
 
