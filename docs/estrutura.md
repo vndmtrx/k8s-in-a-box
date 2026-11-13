@@ -74,9 +74,8 @@ Assim, o cluster opera em uma faixa de IPs **172.24.0.0/24**, definida em `inven
 
 ### Configurações de Cluster
 
-O projeto oferece três configurações pré-definidas para diferentes cenários:
+O projeto oferece duas configurações pré-definidas para diferentes cenários:
 
-- **`configs/hosts-nano.yml`**: configuração mínima (1 LB, 1 Manager, 1 Worker) para ambientes com recursos limitados
 - **`configs/hosts-mini.yml`**: configuração padrão balanceada (1 LB, 1 Manager, 2 Workers)
 - **`configs/hosts-completo.yml`**: configuração completa (2 LBs, 3 Managers, 2 Workers) para alta disponibilidade
 
@@ -86,7 +85,7 @@ A configuração ativa é controlada via symlink `inventario/hosts.yml` usando o
 
 O `Makefile` agiliza tarefas recorrentes:
 
-* `make init`: ativa a configuração de cluster definida em `config.mk` (ex: `CLUSTER = nano`)
+* `make init`: ativa a configuração de cluster definida em `config.mk` (ex: `CLUSTER = mini`)
 * `make status`: mostra qual configuração está atualmente ativa
 * `make k8s-in-a-box`: sobe todo o cluster (executa os dois playbooks completos).
 * `make cluster-up`: sobe todas as VMs via Vagrant.

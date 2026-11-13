@@ -9,9 +9,6 @@
 # 1. CLUSTER: Define a topologia do cluster e os recursos alocados
 # ------------------------------------------------------------------------------
 # Opções disponíveis:
-#   - nano     : 1 Control Plane, 1 Worker, 1 NFS, 1 Load Balancer, 1 Bastion
-#                (Ideal para testes rápidos. Mínimo de ~6.5GB RAM / 6 vCPUs)
-#
 #   - mini     : 1 Control Plane, 2 Workers, 1 NFS, 1 Load Balancer, 1 Bastion
 #                (Configuração padrão do projeto. Recomendado ~11GB RAM / 9 vCPUs)
 #

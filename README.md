@@ -83,8 +83,7 @@ Aqui está a base do laboratório: uma topologia mínima funcional e uma topolog
 
 A personalização do cluster é feita em dois arquivos principais:
 
-- **Configurações de cluster pré-definidas** (`configs/hosts-*.yml`): o projeto oferece três configurações prontas para diferentes cenários:
-  - `configs/hosts-nano.yml` - configuração mínima para ambientes com recursos limitados
+- **Configurações de cluster pré-definidas** (`configs/hosts-*.yml`): o projeto oferece duas configurações prontas para diferentes cenários:
   - `configs/hosts-mini.yml` - configuração padrão balanceada (padrão do projeto)
   - `configs/hosts-completo.yml` - configuração completa para estudos avançados e testes de alta disponibilidade
   
@@ -167,7 +166,7 @@ cd k8s-in-a-box
 
 2. (Opcional) Defina a configuração do cluster no arquivo `config.mk` na raiz do projeto (crie o arquivo se não existir):
 ```makefile
-CLUSTER = mini # Opções: nano, mini, completo
+CLUSTER = mini # Opções: mini, completo
 ```
 E então ative-a rodando:
 ```bash
@@ -201,7 +200,6 @@ O projeto utiliza um sistema de configurações baseado em symlinks para facilit
 
 | Configuração | Load Balancers | Manager Nodes | Worker Nodes | Total | Recursos |
 |--------------|----------------|---------------|--------------|---------------|----------|
-| `nano` | 1 | 1 | 1 | 2 nós | ~6.5GB RAM, 6 vCPUs |
 | `mini` | 1 | 1 | 2 | 3 nós | ~11GB RAM, 9 vCPUs |
 | `completo` | 2 | 3 | 2 | 5 nós | ~19.5GB RAM, 18 vCPUs |
 

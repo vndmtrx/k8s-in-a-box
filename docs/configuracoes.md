@@ -14,28 +14,9 @@ Este design permite:
 
 ## Configurações Pré-definidas
 
-O projeto fornece três configurações prontas para uso:
+O projeto fornece duas configurações prontas para uso:
 
-### 1. Nano (`configs/hosts-nano.yml`)
-
-**Uso recomendado:** Testes rápidos e ambientes com recursos muito limitados
-
-**Topologia:**
-- 1 Load Balancer
-- 1 Manager Node
-- 1 Worker Node
-- 1 Servidor NFS
-- 1 Bastion Host (kubox)
-
-**Recursos aproximados:** ~6.5GB RAM, 6 vCPUs
-
-**Cenários ideais:**
-- Primeiros testes com o projeto
-- Ambiente de desenvolvimento pessoal
-- Máquinas com recursos limitados
-- Validação rápida de conceitos
-
-### 2. Mini (`configs/hosts-mini.yml`) - Padrão
+### 1. Mini (`configs/hosts-mini.yml`) - Padrão
 
 **Uso recomendado:** Uso geral e estudos
 
@@ -54,7 +35,7 @@ O projeto fornece três configurações prontas para uso:
 - Balanceamento básico de carga
 - Configuração padrão do projeto
 
-### 3. Completo (`configs/hosts-completo.yml`)
+### 2. Completo (`configs/hosts-completo.yml`)
 
 **Uso recomendado:** Alta disponibilidade e testes avançados
 
@@ -80,7 +61,6 @@ As configurações do projeto são centralizadas no arquivo `config.mk` na raiz 
 
 ### `CLUSTER` (Topologia)
 Define o número de nós e a distribuição do laboratório:
-- `nano`: Cluster mínimo (1 Manager, 1 Worker, 1 LB, 1 NFS).
 - `mini`: Topologia padrão balanceada (1 Manager, 2 Workers, 1 LB, 1 NFS).
 - `completo`: Alta Disponibilidade (3 Managers com quorum etcd, 2 Workers, 2 LBs com Keepalived, 1 NFS).
 

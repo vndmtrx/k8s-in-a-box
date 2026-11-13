@@ -42,7 +42,7 @@ O Keepalived implementa o protocolo VRRP (Virtual Router Redundancy Protocol). S
 * **Health Checks:**
   * O Keepalived monitora constantemente a saúde do processo do HAProxy (via script de check na porta tcp do proxy). Se o HAProxy de uma máquina MASTER falhar, o Keepalived cede o VIP para outra máquina, mitigando pontos únicos de falha.
 
-> 💡 **Nota Prática:** Mesmo em configurações como a `nano` ou `mini` (onde existe apenas 1 nó load balancer), o Keepalived é instalado. Isso garante que o cluster sempre dependa de um IP lógico (`172.24.0.10`), mantendo a arquitetura uniforme para quando houver transição para a topologia `completa`.
+> 💡 **Nota Prática:** Mesmo em configurações como a `mini` (onde existe apenas 1 nó load balancer), o Keepalived é instalado. Isso garante que o cluster sempre dependa de um IP lógico (`172.24.0.10`), mantendo a arquitetura uniforme para quando houver transição para a topologia `completa`.
 
 ## Resumo do Fluxo
 
