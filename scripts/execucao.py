@@ -152,7 +152,7 @@ def tamanho_pasta(pasta):
 
 
 def variaveis_do_projeto():
-    """Lê distro_base, plugin_cni e container_runtime do inventário ativo."""
+    """Lê distro_base e container_runtime do inventário ativo."""
     inventario = os.path.join(RAIZ, "inventario", "hosts.yml")
     if not os.path.exists(inventario):
         return {}
@@ -167,7 +167,6 @@ def variaveis_do_projeto():
     return {
         "hosts": ", ".join(sorted(hostvars)),
         "distro_base": ", ".join(distros),
-        "plugin_cni": primeiro.get("plugin_cni", "?"),
         "container_runtime": primeiro.get("container_runtime", "?"),
     }
 

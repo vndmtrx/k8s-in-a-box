@@ -38,8 +38,9 @@ container_runtime_sockets:
   containerd: unix:///var/run/containerd/containerd.sock
   crio: unix:///var/run/crio/crio.sock
 
-# Plugin de CNI
-plugin_cni: "cilium"  #Opções disponíveis: canal (flannel+calico) e cilium
+# A rede dos pods é do Cilium (eBPF): substitui o kube-proxy, dá os IPs de LoadBalancer
+# (LB IPAM + anúncio L2) e implementa a Gateway API. O Canal (Calico + Flannel) com
+# kube-proxy, Kube-vip e Traefik saiu do projeto em 2026-11-14.
 
 # Redes do projeto
 rede_cidr_hosts: "172.24.0.0/24"
@@ -52,9 +53,11 @@ primeiro_ip_pods: "{{ rede_cidr_pods | ansible.utils.ipaddr('1') | ansible.utils
 primeiro_ip_services: "{{ rede_cidr_services | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
 coredns_ip: "{{ rede_cidr_services | ansible.utils.ipaddr('10') | ansible.utils.ipaddr('address') }}"
 
-# Range de IPs para o Kube-vip fazer LoadBalancing
-kubevip_ips_manuais: "172.24.0.101-172.24.0.150"
-kubevip_ips_loadbalacing: "172.24.0.201-172.24.0.250"
+# Faixas de IPs de LoadBalancer do Cilium (CiliumLoadBalancerIPPool)
+#   lb_ips_fixos     IPs pedidos por serviço (io.cilium/lb-ipam-ips): Headlamp, Grafana, Hubble, Gateway
+#   lb_ips_dinamicos IPs entregues a qualquer outro serviço LoadBalancer
+lb_ips_fixos: "172.24.0.101-172.24.0.150"
+lb_ips_dinamicos: "172.24.0.201-172.24.0.250"
 
 # Portas usadas no projeto
 porta_etcd_https: 2379
@@ -87,14 +90,12 @@ versao_k9s: "v0.51.0"         # https://github.com/derailed/k9s/releases
 versao_popeye: "v0.22.1"      # https://github.com/derailed/popeye/releases
 versao_tailspin: "7.0.0"      # https://github.com/bensadeh/tailspin/releases
 versao_yq: "v4.54.3"          # https://github.com/mikefarah/yq/releases
-versao_kubevip: "v1.2.4"      # https://github.com/kube-vip/kube-vip/releases
-versao_kubevip_cloud_provider: "v0.0.12" # https://github.com/kube-vip/kube-vip-cloud-provider/releases
 
-# Imagens necessárias em todos os nós do cluster (managers e workers)
+# Imagens necessárias em todos os nós do cluster (managers e workers). Sem kube-proxy:
+# o Cilium o substitui.
 # Checar tags das imagens disponíveis em https://explore.ggcr.dev/?repo=registry.k8s.io
 node_images:
   pause: "registry.k8s.io/pause:{{ versao_pause }}"
-  proxy: "registry.k8s.io/kube-proxy:{{ versao_kubernetes }}"
 
 # Imagens dos componentes do control plane (apenas managers)
 control_plane_images:
@@ -103,13 +104,11 @@ control_plane_images:
   controller_manager: "registry.k8s.io/kube-controller-manager:{{ versao_kubernetes }}"
   scheduler:          "registry.k8s.io/kube-scheduler:{{ versao_kubernetes }}"
 
-# Versões dos plugins de rede (CNI)
-versao_canal: "v3.32.0"       # https://github.com/projectcalico/calico/releases (Flannel + Calico)
-versao_flannel: "v0.28.9"     # https://github.com/flannel-io/flannel/releases
+# Versão do CNI
 versao_cilium: "v1.20.4"      # https://github.com/cilium/cilium/releases
 
 # IP do Hubble UI via LoadBalancer (padrão dos outros dashboards do projeto)
-cilium_hubble_ui_ip: "172.24.0.104"  # 101=Headlamp, 102=Traefik, 103=Grafana, 104=Hubble
+cilium_hubble_ui_ip: "172.24.0.104"  # 101=Headlamp, 103=Grafana, 104=Hubble, 110=Gateway
 
 # Binários baixados no host para pasta_cache_binarios. O nome do arquivo leva a
 # versão: o download é pulado se o arquivo existe, e o cache sobrevive ao clean,
@@ -332,7 +331,7 @@ imagens_base:
 
 # Nome da interface de rede DENTRO da VM. O cloud-init casa a placa pelo MAC
 # (derivado do IP) e a renomeia para este nome, igual em qualquer distro.
-# Usado por keepalived, kube-vip e Cilium.
+# Usado pelo keepalived e pelo Cilium.
 interface_rede: "mgmt0"
 
 # Rede libvirt NAT de management, criada e destruída pelo provisionador.

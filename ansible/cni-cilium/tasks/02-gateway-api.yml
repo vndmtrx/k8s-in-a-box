@@ -1,7 +1,6 @@
 # ansible/cni-cilium/tasks/02-gateway-api.yml
 ---
-# Como o addon-traefik não roda no path do Cilium, a instalação dos CRDs do Gateway API
-# deve ser feita aqui para que o controller do Cilium consiga inicializar com suporte a Gateway API.
+# Os CRDs do Gateway API vêm antes do Cilium, para o controller dele subir com suporte a Gateway API.
 - name: Instalar CRDs do Gateway API do Kubernetes (Versão Experimental para o Cilium)
   ansible.builtin.command:
     cmd: "kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ versao_gateway_api }}/experimental-install.yaml"

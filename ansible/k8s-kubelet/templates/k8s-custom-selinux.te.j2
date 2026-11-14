@@ -68,7 +68,7 @@ allow container_t node_t:udp_socket { node_bind };
 allow container_t self:tcp_socket { create connect accept listen write read getattr setattr getopt setopt bind shutdown };
 allow container_t self:udp_socket { create connect accept listen write read getattr setattr getopt setopt bind shutdown };
 
-# Permite que componentes de rede (como CNI CoreDNS e Kube-proxy) consultem a tabela de roteamento
+# Permite que componentes de rede (como o CoreDNS e o Cilium) consultem a tabela de roteamento
 # e interfaces de rede da VM a partir do netlink do Kernel.
 allow container_t self:netlink_route_socket { create bind read write getattr nlmsg_read nlmsg_write };
 

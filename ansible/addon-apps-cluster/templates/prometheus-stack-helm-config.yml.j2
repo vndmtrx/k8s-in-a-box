@@ -9,11 +9,10 @@ defaultRules:
 grafana:
   enabled: true
 
-  # Exposição do Grafana via Kube-vip LoadBalancer
+  # Exposição do Grafana por um LoadBalancer do Cilium (LB IPAM)
   service:
     type: LoadBalancer
     annotations:
-      kube-vip.io/loadbalancerIPs: "172.24.0.103"
       io.cilium/lb-ipam-ips: "172.24.0.103"
 
   # Configurações de inicialização do Grafana para fixar o dashboard Global

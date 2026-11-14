@@ -28,7 +28,7 @@
   ansible.builtin.include_tasks: 06-configuracao-crio.yml
   when: container_runtime == "crio"
 
-- name: Pré-baixar as imagens de sistema (pause e kube-proxy)
+- name: Pré-baixar as imagens de sistema (pause e control plane)
   ansible.builtin.include_tasks: 07-download-imagens-sistema.yml
 
 - name: Configurar políticas do SELinux (desligado por padrão; selinux_politica_customizada)

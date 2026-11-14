@@ -238,7 +238,7 @@ ops-setup: ops-up ## Prepara a VM kubox com ferramentas de operação (kubectl, 
 	@echo "Configurando ferramentas operacionais na VM kubox..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-sistema,ops-ferramentas
 
-cni: ops-up ## Instala e configura a pilha de rede/gateway CNI ativa (Cilium ou Canal)
+cni: ops-up ## Instala e configura o Cilium (rede, LoadBalancer, Gateway API e Hubble)
 	@echo "Instalando CNI e componentes de rede..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags ops-cni
 

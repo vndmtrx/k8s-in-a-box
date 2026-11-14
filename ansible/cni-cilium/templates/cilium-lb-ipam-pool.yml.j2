@@ -6,8 +6,8 @@ metadata:
   name: lb-pool-fixo
 spec:
   blocks:
-    - start: "{{ kubevip_ips_manuais.split('-')[0] }}"
-      stop: "{{ kubevip_ips_manuais.split('-')[1] }}"
+    - start: "{{ lb_ips_fixos.split('-')[0] }}"
+      stop: "{{ lb_ips_fixos.split('-')[1] }}"
 ---
 apiVersion: cilium.io/v2alpha1
 kind: CiliumLoadBalancerIPPool
@@ -15,5 +15,5 @@ metadata:
   name: lb-pool-dinamico
 spec:
   blocks:
-    - start: "{{ kubevip_ips_loadbalacing.split('-')[0] }}"
-      stop: "{{ kubevip_ips_loadbalacing.split('-')[1] }}"
+    - start: "{{ lb_ips_dinamicos.split('-')[0] }}"
+      stop: "{{ lb_ips_dinamicos.split('-')[1] }}"

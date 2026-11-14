@@ -54,12 +54,10 @@ data:
             <pre class="copiavel">kubectl get secret -n monitoramento prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo</pre>
           </div>
           <div class="service-card">
-            <h3>Gateway &amp; Rede</h3>
-            <a class="btn" href="http://172.24.0.102/" target="_blank" rel="noopener noreferrer">Traefik (Canal)</a>
-            <p></p>
-            <a class="btn" href="http://172.24.0.104/" target="_blank" rel="noopener noreferrer">Hubble (Cilium)</a>
+            <h3>Rede (Cilium)</h3>
+            <a class="btn" href="http://172.24.0.104/" target="_blank" rel="noopener noreferrer">Hubble UI</a>
             
-            <p>Monitore o roteamento ou a observabilidade de rede de acordo com o CNI ativo.</p>
+            <p>Observe o tr&aacute;fego de rede entre os pods em tempo real.</p>
           </div>
 
           <div class="service-card">
