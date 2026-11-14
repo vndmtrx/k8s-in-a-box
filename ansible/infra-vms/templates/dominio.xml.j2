@@ -70,7 +70,11 @@
     <channel type='unix'>
       <target type='virtio' name='org.qemu.guest_agent.0'/>
     </channel>
-    <serial type='pty'/>
+    <!-- O console serial vai para um arquivo no Target: guarda as mensagens do kernel
+         (OOM, travamentos) e do cloud-init mesmo quando o SSH não responde. -->
+    <serial type='pty'>
+      <log file='{{ infra_vms_console_log }}' append='on'/>
+    </serial>
     <console type='pty'/>
   </devices>
 </domain>

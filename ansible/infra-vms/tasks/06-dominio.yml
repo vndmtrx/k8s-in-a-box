@@ -22,6 +22,16 @@
     - infra_vms_virt_feature == ''
   run_once: true
 
+# Se o virtlogd criar o arquivo, ele sai com modo 0600 e dono do QEMU, e só o sudo o lê.
+# Criado antes por nós, com 0644, o virtlogd só acrescenta e o arquivo segue legível.
+- name: Criar o log do console serial, legível sem sudo
+  ansible.builtin.file:
+    path: "{{ infra_vms_console_log }}"
+    state: touch
+    mode: "0644"
+    access_time: preserve
+    modification_time: preserve
+
 - name: Definir o domínio {{ infra_vms_dominio }}
   community.libvirt.virt:
     command: define
