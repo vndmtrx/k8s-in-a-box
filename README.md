@@ -238,6 +238,20 @@ Para a operação do cluster (e melhor simulação de um ambiente real), as ferr
   - Análise de namespace específico: `popeye -n exemplos`
   - Relatório em formato JSON: `popeye -o json`
 
+## Testes de conformidade (Sonobuoy)
+
+O [Sonobuoy](https://sonobuoy.io/) roda, a partir do `kubox`, os testes de conformidade do próprio Kubernetes (imagem `registry.k8s.io/conformance` da versão do cluster). O modo fica em `sonobuoy_modo`, em cada `configs/hosts-*.yml`:
+
+| Topologia | `sonobuoy_modo` | O que roda | Tempo |
+|---|---|---|---|
+| `mini` | `quick` | 1 teste (cria e remove um pod) | minutos |
+| `completo` | `certified-conformance` | todos os testes `[Conformance]` | horas |
+
+- `make conformidade`: roda o teste no cluster que já está no ar.
+- `make teste-conformidade`: remove as VMs, cria o cluster do zero, roda o teste e remove as VMs de novo. O cache e os logs ficam.
+
+O resultado vai para `.target/logs/<execução>/conformidade/`: `resultado.tar.gz` (tudo o que o Sonobuoy coletou), `resumo.txt`, `status.json` e `e2e-falhas.jsonl`. O alvo falha se algum plugin não passar.
+
 
 ## Acesso aos Dashboards (Headlamp, Hubble e Grafana)
 

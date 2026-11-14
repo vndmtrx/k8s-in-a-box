@@ -88,6 +88,7 @@ versao_gateway_api: "v1.6.3"  # https://github.com/kubernetes-sigs/gateway-api/r
 versao_helm: "v3.22.0"        # https://github.com/helm/helm/releases
 versao_k9s: "v0.51.0"         # https://github.com/derailed/k9s/releases
 versao_popeye: "v0.22.1"      # https://github.com/derailed/popeye/releases
+versao_sonobuoy: "v0.57.5"    # https://github.com/vmware-tanzu/sonobuoy/releases (usa a imagem registry.k8s.io/conformance da versão do cluster)
 versao_tailspin: "7.0.0"      # https://github.com/bensadeh/tailspin/releases
 versao_yq: "v4.54.3"          # https://github.com/mikefarah/yq/releases
 
@@ -178,6 +179,11 @@ download_artefatos:
     url: "https://github.com/derailed/popeye/releases/download/{{ versao_popeye }}/popeye_linux_amd64.tar.gz"
     arquivo: "popeye-{{ versao_popeye }}.tar.gz"
     checksum: "sha256:https://github.com/derailed/popeye/releases/download/{{ versao_popeye }}/checksums.sha256"
+
+  sonobuoy-bin:
+    url: "https://github.com/vmware-tanzu/sonobuoy/releases/download/{{ versao_sonobuoy }}/sonobuoy_{{ versao_sonobuoy | regex_replace('^v', '') }}_linux_amd64.tar.gz"
+    arquivo: "sonobuoy-{{ versao_sonobuoy }}.tar.gz"
+    checksum: "sha256:https://github.com/vmware-tanzu/sonobuoy/releases/download/{{ versao_sonobuoy }}/sonobuoy_{{ versao_sonobuoy | regex_replace('^v', '') }}_checksums.txt"
 
 ########################################
 ### Configurações para a role 02-pki ###

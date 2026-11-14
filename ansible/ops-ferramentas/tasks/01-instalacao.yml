@@ -183,3 +183,50 @@
       ansible.builtin.file:
         path: "/tmp/popeye-bin.tar.gz"
         state: absent
+
+# Sonobuoy: testes de conformidade do Kubernetes (make conformidade).
+- name: Verificar se o executável do sonobuoy já está instalado na VM
+  ansible.builtin.stat:
+    path: "/usr/local/bin/sonobuoy"
+  register: sonobuoy_bin
+
+- name: Instalar o sonobuoy se não existir
+  when: not sonobuoy_bin.stat.exists
+  block:
+    - name: Garantir que a pasta de destino do sonobuoy existe
+      ansible.builtin.file:
+        path: /tmp/sonobuoy
+        state: directory
+        mode: "0755"
+
+    - name: Copiar sonobuoy para a VM (em /tmp)
+      ansible.builtin.copy:
+        src: "{{ pasta_cache_binarios }}/{{ download_artefatos['sonobuoy-bin'].arquivo }}"
+        dest: "/tmp/sonobuoy-bin.tar.gz"
+        mode: "0644"
+
+    - name: Descompactar sonobuoy
+      ansible.builtin.unarchive:
+        src: "/tmp/sonobuoy-bin.tar.gz"
+        dest: "/tmp/sonobuoy"
+        remote_src: true
+        mode: "0755"
+
+    - name: Instalar binário do sonobuoy em /usr/local/bin
+      ansible.builtin.copy:
+        src: "/tmp/sonobuoy/sonobuoy"
+        dest: "/usr/local/bin/sonobuoy"
+        mode: "0755"
+        remote_src: true
+      become: true
+
+  always:
+    - name: Remover diretório temporário do sonobuoy
+      ansible.builtin.file:
+        path: "/tmp/sonobuoy"
+        state: absent
+
+    - name: Remover arquivo temporário do sonobuoy
+      ansible.builtin.file:
+        path: "/tmp/sonobuoy-bin.tar.gz"
+        state: absent

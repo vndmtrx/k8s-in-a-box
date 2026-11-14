@@ -4,7 +4,7 @@
 Uso:
     execucao.py <etapa> [<etapa> ...]
 
-Cada etapa é um alvo do make (`up`, `cluster`, `ops`, `addons`, `exemplos`).
+Cada etapa é um alvo do make (`up`, `cluster`, `ops`, `addons`, `exemplos`, `conformidade`).
 O script cria `.target/logs/AAAAMMDDhhmmss/` com:
 
     acoes.log      saída das etapas (make e Ansible, com profile_tasks e timer)
@@ -273,6 +273,8 @@ def main():
     ambiente = dict(os.environ)
     ambiente["ANSIBLE_CALLBACKS_ENABLED"] = "profile_tasks,timer,junit"
     ambiente["JUNIT_OUTPUT_DIR"] = os.path.join(pasta, "tarefas")
+    # Etapas que guardam arquivos próprios (ex.: o resultado do Sonobuoy) usam esta pasta.
+    ambiente["EXECUCAO_DIR"] = pasta
 
     amostrador = Amostrador(os.path.join(pasta, "recursos.tsv"), TARGET)
     amostrador.start()

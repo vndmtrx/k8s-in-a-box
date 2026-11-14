@@ -32,6 +32,9 @@
 all:
   vars:
     ansible_user: k8sbox
+    # Teste de conformidade (make conformidade / make teste-conformidade)
+    sonobuoy_modo: certified-conformance
+    sonobuoy_espera_min: 360
 
   children:
     loadbalancers:

@@ -1,0 +1,15 @@
+# ansible/conformidade.yml
+---
+# Testes de conformidade do Kubernetes com o Sonobuoy, a partir do kubox.
+# O modo vem de sonobuoy_modo (configs/hosts-*.yml): quick na mini, certified-conformance
+# na completo. Use `make conformidade` (cluster já no ar) ou `make teste-conformidade`
+# (cria o cluster do zero, testa e remove as VMs).
+- name: Conformidade do cluster (Sonobuoy)
+  hosts:
+    - clientes
+  become: false
+  gather_facts: false
+  roles:
+    - role: ops-conformidade
+      tags:
+        - conformidade

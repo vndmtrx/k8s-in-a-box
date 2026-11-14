@@ -1,0 +1,91 @@
+# ansible/ops-conformidade/tasks/main.yml
+---
+# Roda o Sonobuoy a partir do kubox, espera o fim, guarda o resultado no PC e limpa o
+# cluster. Falha se algum plugin não passou.
+- name: Fixar a pasta local do resultado
+  ansible.builtin.set_fact:
+    sonobuoy_destino: "{{ sonobuoy_pasta_local }}"
+
+- name: Criar a pasta local do resultado
+  ansible.builtin.file:
+    path: "{{ sonobuoy_destino }}"
+    state: directory
+    mode: "0755"
+  delegate_to: localhost
+
+- name: Remover restos de uma execução anterior do Sonobuoy
+  ansible.builtin.command: sonobuoy delete --all --wait
+  changed_when: false
+
+- name: Rodar o Sonobuoy e guardar o resultado
+  block:
+    - name: Iniciar o Sonobuoy no modo {{ sonobuoy_modo }}
+      ansible.builtin.command: sonobuoy run --mode {{ sonobuoy_modo }}
+      changed_when: true
+
+    - name: Esperar o Sonobuoy terminar, em minutos no máximo {{ sonobuoy_espera_min }}
+      ansible.builtin.command: sonobuoy status --json
+      register: sonobuoy_status
+      changed_when: false
+      failed_when: false
+      until: >-
+        sonobuoy_status.rc == 0 and sonobuoy_status.stdout is match('\s*\{') and
+        (sonobuoy_status.stdout | from_json).status in ['complete', 'failed']
+      retries: "{{ (sonobuoy_espera_min | int * 60 / sonobuoy_intervalo_s | int) | int }}"
+      delay: "{{ sonobuoy_intervalo_s | int }}"
+
+    - name: Recriar a pasta remota do resultado
+      ansible.builtin.file:
+        path: "{{ sonobuoy_pasta_remota }}"
+        state: "{{ item }}"
+        mode: "0755"
+      loop: [absent, directory]
+
+    - name: Baixar o resultado do Sonobuoy no kubox
+      ansible.builtin.command: >-
+        sonobuoy retrieve {{ sonobuoy_pasta_remota }} --filename resultado.tar.gz
+      changed_when: true
+
+    - name: Gerar os resumos
+      ansible.builtin.shell: |
+        set -o pipefail
+        cd {{ sonobuoy_pasta_remota }}
+        sonobuoy status --json > status.json
+        sonobuoy results resultado.tar.gz > resumo.txt
+        sonobuoy results resultado.tar.gz --plugin e2e --mode detailed \
+          | grep -v '"status":"passed"' | grep -v '"status":"skipped"' > e2e-falhas.jsonl || true
+      args:
+        executable: /bin/bash
+      changed_when: false
+
+    - name: Trazer o resultado para o PC
+      ansible.builtin.fetch:
+        src: "{{ sonobuoy_pasta_remota }}/{{ item }}"
+        dest: "{{ sonobuoy_destino }}/{{ item }}"
+        flat: true
+      loop: [resultado.tar.gz, status.json, resumo.txt, e2e-falhas.jsonl]
+
+  always:
+    - name: Limpar o Sonobuoy e os namespaces de teste do cluster
+      ansible.builtin.command: sonobuoy delete --all --wait
+      changed_when: true
+      failed_when: false
+
+- name: Ler o status final
+  ansible.builtin.set_fact:
+    sonobuoy_final: "{{ lookup('ansible.builtin.file', sonobuoy_destino ~ '/status.json') | from_json }}"
+
+- name: Mostrar o resumo
+  ansible.builtin.debug:
+    msg: "{{ lookup('ansible.builtin.file', sonobuoy_destino ~ '/resumo.txt').splitlines() }}"
+
+- name: Falhar se algum plugin não passou
+  ansible.builtin.assert:
+    that:
+      - sonobuoy_final.status == 'complete'
+      - sonobuoy_final.plugins | rejectattr('result-status', 'equalto', 'passed') | list | length == 0
+    fail_msg: >-
+      O Sonobuoy ({{ sonobuoy_modo }}) não passou: status {{ sonobuoy_final.status }},
+      plugins {{ sonobuoy_final.plugins | map(attribute='plugin') | zip(sonobuoy_final.plugins | map(attribute='result-status')) | list }}.
+      Detalhes em {{ sonobuoy_destino }}.
+    success_msg: "Sonobuoy ({{ sonobuoy_modo }}) passou. Resultado em {{ sonobuoy_destino }}."

@@ -1,0 +1,21 @@
+# ansible/ops-conformidade/defaults/main.yml
+---
+# Modo do Sonobuoy. Cada topologia escolhe o seu em configs/hosts-*.yml (all.vars):
+#   quick                  1 teste (cria e remove um pod): prova que o Sonobuoy roda; ~5 min
+#   certified-conformance  todos os testes [Conformance] do Kubernetes; horas
+sonobuoy_modo: quick
+
+# Tempo máximo, em minutos, para o Sonobuoy terminar.
+sonobuoy_espera_min: 60
+
+# Intervalo, em segundos, entre as consultas ao status.
+sonobuoy_intervalo_s: 30
+
+# Pasta no kubox onde o resultado é baixado antes de ir para o PC.
+sonobuoy_pasta_remota: "/home/{{ ansible_user }}/sonobuoy"
+
+# Pasta no PC onde ficam o tarball e os resumos. Dentro de `make teste-conformidade`,
+# o scripts/execucao.py passa a pasta da execução (EXECUCAO_DIR); fora dele, uma pasta nova.
+sonobuoy_pasta_local: >-
+  {{ (lookup('ansible.builtin.env', 'EXECUCAO_DIR') or (pasta_logs ~ '/conformidade-' ~ now(fmt='%Y%m%d%H%M%S')))
+     ~ '/conformidade' }}

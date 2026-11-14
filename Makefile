@@ -258,6 +258,10 @@ exemplos: garante-config ## Faz deploy das aplicações de demonstração (Hello
 	@echo "Instalando aplicações de exemplos..."
 	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/ops.yml" $(ANSIBLE_VERBOSE) --tags exemplos
 
+conformidade: garante-config ## Roda o Sonobuoy no cluster no ar (modo em sonobuoy_modo, por topologia) e guarda o resultado em .target/logs
+	@echo "Rodando os testes de conformidade (Sonobuoy) a partir do kubox..."
+	ANSIBLE_CONFIG="$(CFG)" ansible-playbook "./ansible/conformidade.yml" $(ANSIBLE_VERBOSE)
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Pipelines Principais & Extras
 # ──────────────────────────────────────────────────────────────────────────────
@@ -268,6 +272,14 @@ k8s-in-a-box: garante-config ## Executa a esteira completa e grava logs e métri
 	@CLUSTER="$(CLUSTER)" python3 -B scripts/execucao.py up cluster ops addons exemplos
 	@echo "Cluster k8s-in-a-box provisionado com sucesso!"
 	@(xdg-open http://172.24.0.110 || open http://172.24.0.110 || echo "Acesse http://172.24.0.110 no seu navegador.") 2>/dev/null
+
+teste-conformidade: garante-config ## Cria o cluster do zero, roda o Sonobuoy e remove as VMs (cache e logs ficam)
+	@$(MAKE) --no-print-directory clean-vms
+	@rc=0; CLUSTER="$(CLUSTER)" python3 -B scripts/execucao.py up cluster ops addons exemplos conformidade || rc=$$?; \
+	$(MAKE) --no-print-directory clean-vms; \
+	if [ $$rc -eq 0 ]; then echo "Conformidade OK. Resultado em $$(ls -td $(TARGET)/logs/2*/ | head -1)conformidade/"; \
+	else echo "Falhou (rc=$$rc). Logs em $$(ls -td $(TARGET)/logs/2*/ | head -1)"; fi; \
+	exit $$rc
 
 snapshot: ## Cria um snapshot único (nome makefile_snapshot) de todas as VMs do projeto
 	@vms=$$(virsh -c "$(LIBVIRT_URI)" list --all --name | grep '^$(VM_PREFIXO)-' || true); \
