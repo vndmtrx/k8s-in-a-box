@@ -19,7 +19,7 @@ O **Vagrant** é o motor que traduz as intenções do usuário em máquinas virt
 Onde o Vagrant cria o hardware genérico, o **Ansible** injeta a "alma" no sistema. O provisionamento é puramente declarativo.
 
 * **O Playbook Mestre (`ansible/cluster.yml`):**
-  A espinha dorsal que comanda a execução metódica de todas as roles na ordem exata de dependências. Ele executa: geração de certificados (`infra-pki`), base de SO, balanceador, kubelet (iniciado antes do etcd para gerenciar os static pods do control plane), etcd, control plane (como Static Pods) e, por fim, os complementos em `addons.yml`. O `kube-proxy` é aplicado como parte do playbook `ops.yml` via role `addon-kube-proxy` após o cluster estar ativo.
+  A espinha dorsal que comanda a execução metódica de todas as roles na ordem exata de dependências. Ele executa: geração de certificados (`infra-pki`), base de SO, balanceador, kubelet (iniciado antes do etcd para gerenciar os static pods do control plane), etcd, control plane (como Static Pods) e, por fim, os complementos em `addons.yml`. A rede (Cilium, que também substitui o `kube-proxy`) é aplicada pelo playbook `ops.yml` após o cluster estar ativo.
 * **Injeção de Variáveis:**
   Todo o comportamento dos playbooks deriva do arquivo universal `inventario/group_vars/all.yml`. Esse padrão permite que o usuário mude versões (ex: de Kubernetes v1.35 para v1.36) e plugins apenas manipulando esse arquivo, não precisando nunca tocar nos códigos subjacentes da pasta `ansible/`.
 * **Configuração Personalizada (`.ansible.cfg`):**

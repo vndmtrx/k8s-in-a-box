@@ -29,7 +29,7 @@ Este projeto serve como:
   - Balanceador de carga frontal (HAProxy)
   - Plano de Controle com 3 nós
   - Nós de trabalho para execução de cargas
-  - Kube-vip para serviços de balanceamento de carga e Egress Gateway
+  - Cilium para rede, serviços de balanceamento de carga e Gateway API
 
 ### Controle de Acesso
 - Demonstração de boas práticas:
@@ -45,15 +45,14 @@ Este projeto serve como:
   - Terminação TLS
   - Distribuição de carga do Plano de Controle
   - Monitoramento de integridade dos pontos de acesso
-- Kube-vip:
-  - Modo camada 2 (ARP) para ambiente local e controle de Egress (SNAT)
-  - Integração com serviços Kubernetes através do Kube-vip Cloud Provider (IPAM local)
-  - Faixa de endereços IP configurável
+- Cilium (LoadBalancer):
+  - LB IPAM com anúncio em camada 2 (ARP) para o ambiente local
+  - Faixas de endereços IP configuráveis
 
 ### Rede
-- Flannel CNI:
-  - Rede sobreposta VXLAN
-  - Isolamento de contêineres
+- Cilium CNI (eBPF):
+  - Substitui o kube-proxy
+  - Isolamento de contêineres e políticas de rede
   - Políticas básicas de rede
 - Malha de Serviços (planejado):
   - Exemplo de implementação
@@ -107,7 +106,7 @@ Exemplos de controle de tráfego:
 Demonstrações de:
 - IP interno do cluster (ClusterIP)
 - Porta do nó (NodePort)
-- Balanceador de carga via Kube-vip
+- Balanceador de carga via Cilium
 - Entrada com TLS
 
 ## Guia de Contribuição
@@ -149,8 +148,7 @@ Para reportar problemas de segurança:
 - [Documentação de Segurança do Kubernetes](https://kubernetes.io/docs/concepts/security/)
 - [Modelo de Segurança do etcd](https://etcd.io/docs/latest/op-guide/security/)
 - [Boas Práticas de PKI](https://kubernetes.io/docs/setup/best-practices/certificates/)
-- [Flannel CNI](https://github.com/flannel-io/flannel)
-- [Kube-vip](https://kube-vip.io/)
+- [Cilium](https://cilium.io/)
 - [Boas Práticas do HAProxy](https://www.haproxy.com/blog/the-four-essential-sections-of-an-haproxy-configuration/)
 
 ## Licença

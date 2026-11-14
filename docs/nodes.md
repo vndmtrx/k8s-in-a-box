@@ -57,10 +57,7 @@ Após ter o cérebro rodando, é hora de instanciar os "músculos". Embora os Ma
    * **SELinux:** A role do kubelet também é responsável por compilar e carregar a política customizada de SELinux (`k8s-custom-selinux`) em cada nó do cluster. O binário do kubelet é instalado com o rótulo `bin_t` e executa sob o contexto `unconfined_service_t` do SELinux. Para detalhes completos, consulte a página [SELinux e Kubernetes](./selinux.md).
    * O Kubelet também usa certificados para se autenticar no API Server. Na inicialização do nó, se a PKI já estiver distribuída, ele sobe; em ambientes onde os certificados não foram pré-gerados (que o k8s-in-a-box simula), ele usa uma técnica de autorização para requisitar um certificado dinamicamente (`kubelet-bootstrap`).
 
-2. **kube-proxy (role `addon-kube-proxy`):**
-   * Agora roda em cada nó do cluster como um DaemonSet (Pod) em cima do cluster (e não mais como um serviço de sistema systemd local), mantendo regras de rede (através do iptables ou IPVS).
-   * É ele quem permite as abstrações de **Services** funcionarem, redirecionando o tráfego do IP do cluster (VIP do Service) para os IPs reais dos Pods executando o contêiner por trás dele.
-   * **Exposição de Métricas:** Configurado com `metricsBindAddress: 0.0.0.0:10249`, permitindo que o Prometheus raspe suas métricas de rede em todos os nós através da porta `10249`.
-   * **Atualização Automática (Rollout):** A automação do Ansible monitora o ConfigMap do `kube-proxy` e executa um restart automático do DaemonSet (`kubectl rollout restart daemonset/kube-proxy`) caso alguma alteração de configuração ocorra.
+2. **Sem kube-proxy:**
+   * O cluster não instala o `kube-proxy`. O Cilium (`kubeProxyReplacement`) faz as abstrações de **Services** funcionarem em eBPF, redirecionando o tráfego do IP do Service para os IPs reais dos Pods.
 
-Concluída a instalação e ativação do `kubelet`, os nós informam seu status para o API Server e passam a constar no comando `kubectl get nodes` como estado `NotReady`. Eles só transitarão para `Ready` na próxima etapa: a instalação dos Addons de Rede (CNI). Somente após o cluster estar ativo é que o `kube-proxy` é provisionado (como DaemonSet) junto com os demais addons, a partir do bastion host `kubox`.
+Concluída a instalação e ativação do `kubelet`, os nós informam seu status para o API Server e passam a constar no comando `kubectl get nodes` como estado `NotReady`. Eles só transitarão para `Ready` na próxima etapa: a instalação dos Addons de Rede (CNI). O Cilium é instalado a partir do bastion host `kubox`, depois que o control plane está ativo.

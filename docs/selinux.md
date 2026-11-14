@@ -21,8 +21,8 @@ No cluster, os processos operam em diferentes dominios (contextos) do SELinux, o
 
 * **Host (init_t)**: o systemd e os servicos nativos do sistema operacional.
 * **Runtime de containers (unconfined_service_t)**: o containerd ou CRI-O, que gerencia o ciclo de vida dos containers. O kubelet também opera nesse dominio.
-* **Containers de aplicação (container_t)**: todos os pods normais do cluster (CoreDNS, Traefik, Headlamp, aplicações do usuario, etc.).
-* **Containers privilegiados (spc_t)**: pods de sistema que precisam de acesso direto aos recursos do host (Etcd, kube-proxy).
+* **Containers de aplicação (container_t)**: todos os pods normais do cluster (CoreDNS, Headlamp, aplicações do usuario, etc.).
+* **Containers privilegiados (spc_t)**: pods de sistema que precisam de acesso direto aos recursos do host (Etcd, Cilium).
 * **Arquivos do container (container_file_t)**: o sistema de arquivos interno (rootfs) de cada container, rotulado automaticamente pelo runtime.
 
 Essa separação garante que, por exemplo, um container de aplicação (`container_t`) não consiga acessar os mesmos recursos que o Etcd (`spc_t`) ou o kubelet (`unconfined_service_t`), mesmo que todos rodem na mesma maquina.
@@ -99,7 +99,7 @@ Os componentes do Control Plane do cluster são executados como contêineres (St
 
 * **Etcd (Static Pod privilegiado - `spc_t`)**: Como o etcd precisa gravar diretamente no diretório do host `/var/lib/etcd` (que possui o rótulo genérico `var_lib_t`), seu manifesto é configurado com `privileged: true`. Isso faz com que o runtime de contêiner execute o etcd sob o domínio `spc_t` (Super Privileged Container), que não possui restrições de escrita no host.
 * **kube-apiserver, kube-controller-manager e kube-scheduler (Static Pods - `container_t`)**: Esses componentes rodam como contêineres normais, mas com privilégios específicos e privilégio de rede do host (`hostNetwork: true`). Eles montam diretórios de configuração do host em `/etc/kubernetes/conf/<componente>`, os quais são montados como `readOnly: true` (ou `readWrite` no caso de caminhos de PKI específicos) e contam com o confinamento padrão do SELinux.
-* **kube-proxy (DaemonSet - `spc_t`)**: Executa em todos os nós com `privileged: true` para poder manipular as tabelas de roteamento, iptables/IPVS e namespaces de rede do host.
+* **Cilium (DaemonSet - `spc_t`)**: Executa em todos os nós com privilégios para carregar programas eBPF e manipular o roteamento e os namespaces de rede do host. Ele também substitui o `kube-proxy`, que o projeto não instala.
 
 ## Verificação e troubleshooting
 

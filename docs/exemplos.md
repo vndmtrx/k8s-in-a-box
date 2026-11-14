@@ -8,7 +8,7 @@ Para garantir que o laboratório simule práticas recomendadas de segurança de 
 
 ### 1. Hello App (`hello-app`)
 * **Tecnologia**: Nginx (`nginx:1.29-alpine`).
-* **Propósito**: Servir a página inicial do cluster (um dashboard em HTML que exibe atalhos para os serviços ativos como Headlamp, Hubble UI/Traefik e Grafana, credenciais de acesso e informações dos nós).
+* **Propósito**: Servir a página inicial do cluster (um dashboard em HTML que exibe atalhos para os serviços ativos como Headlamp, Hubble UI e Grafana, credenciais de acesso e informações dos nós).
 * **Manifestos**:
   * [00-css-configmap.yml](../ansible/ops-exemplos/files/hello/00-css-configmap.yml) (Estilos do dashboard)
   * [01-hello-configmap.yml](../ansible/ops-exemplos/files/hello/01-hello-configmap.yml) (Estrutura do index.html, contendo o IP e detalhes de atalho do Grafana no IP `172.24.0.103`)
