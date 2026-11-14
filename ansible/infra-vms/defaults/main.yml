@@ -129,6 +129,8 @@ infra_vms_user_data:
   bootcmd: "{{ infra_vms_distro.bootcmd | default([]) }}"
   runcmd: "{{ (infra_vms_distro.runcmd | default([])) + infra_vms_comandos_chrony + (infra_vms_atualizacao.runcmd | default([])) }}"
 
-# Memória mínima: o dnf do cloud-init sofre OOM em VMs de 384 MiB (medido), então
-# os nós de suporte usam 512 MiB. Não use swap: o Kubernetes exige swap desligado
-# e o projeto mantém a mesma regra em todas as VMs.
+# Memória mínima: o dnf do cloud-init sofre OOM em VMs de 384 MiB (medido). Com 512 MiB,
+# 1 de 5 primeiras subidas do AlmaLinux travou o SSH no meio do cloud-init (matriz de
+# 2026-11-13); com 768 MiB sobravam ~346 MiB livres depois do cloud-init. Os nós de suporte
+# usam 1 GiB. Não use swap: o Kubernetes exige swap desligado e o projeto mantém a mesma
+# regra em todas as VMs.
