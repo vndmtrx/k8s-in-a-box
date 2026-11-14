@@ -1,2 +1,4 @@
 #cloud-config
-{{ infra_vms_user_data | to_nice_yaml(indent=2, width=1000) }}
+{# O schema do cloud-init exige ao menos 1 item em bootcmd, runcmd, write_files e packages;
+   uma lista vazia deixa o status em "degraded done". Chaves com lista vazia saem do arquivo. #}
+{{ infra_vms_user_data | dict2items | rejectattr('value', 'equalto', []) | items2dict | to_nice_yaml(indent=2, width=1000) }}
