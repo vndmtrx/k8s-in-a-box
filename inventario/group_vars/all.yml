@@ -314,10 +314,12 @@ keepalived_senha: "SenhaSuperSecreta123"
 ### Configurações para o provisionador (playbook provisiona.yml)  ###
 #####################################################################
 
-# Distribuição das VMs: almalinux ou debian. Vale para todo o inventário e pode
-# ser sobrescrita por host (distro_base no host). As diferenças entre as
+# Distribuição das VMs: debian (padrão) ou almalinux. Vale para todo o inventário e
+# pode ser sobrescrita por host (distro_base no host). As diferenças entre as
 # distribuições ficam na tabela `distros` da role infra-vms (vars/main.yml).
-distro_base: "almalinux"
+# O Debian é o padrão desde 2026-11-15: as duas passaram na conformidade (469 testes,
+# 0 falhas), e o Debian sobe mais rápido e usa menos RAM (matriz de 2026-11-14).
+distro_base: "debian"
 
 # Imagens base cloud (qcow2), FIXADAS por versão: o overlay de cada VM depende
 # do conteúdo exato da base, então nunca use "latest". Para trocar de versão,
