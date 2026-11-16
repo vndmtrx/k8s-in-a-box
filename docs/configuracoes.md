@@ -27,7 +27,7 @@ O projeto fornece duas configurações prontas para uso:
 - 1 Servidor NFS
 - 1 Bastion Host (kubox)
 
-**Recursos aproximados:** ~11GB RAM, 9 vCPUs
+**Recursos aproximados:** ~12GB RAM, 9 vCPUs
 
 **Cenários ideais:**
 - Estudos de Kubernetes
@@ -46,7 +46,7 @@ O projeto fornece duas configurações prontas para uso:
 - 1 Servidor NFS
 - 1 Bastion Host (kubox)
 
-**Recursos aproximados:** ~19.5GB RAM, 18 vCPUs
+**Recursos aproximados:** ~21GB RAM, 18 vCPUs
 
 **Cenários ideais:**
 - Simulação de ambiente de produção
@@ -120,8 +120,8 @@ Exibe todos os comandos disponíveis e uma breve explicação do sistema de conf
 
 4. **Alternar para outra configuração (se necessário):**
    ```bash
-   # Primeiro destruir o cluster atual
-   make destroy
+   # Primeiro remover as VMs atuais
+   make clean-vms
    
    # Configurar CLUSTER = completo no config.mk e rodar make init
    make init
@@ -161,7 +161,7 @@ Cada arquivo de configuração (`configs/hosts-*.yml`) segue a estrutura padrão
 ```yaml
 all:
   vars:
-    ansible_user: vagrant
+    ansible_user: k8sbox
 
   children:
     loadbalancers:
@@ -169,7 +169,7 @@ all:
         loadbalancer1:
           ansible_host: 172.24.0.21
           fqdn: loadbalancer1.k8sbox.local
-          memory: 512
+          memory: 1024
           cpus: 1
     
     managers:
@@ -195,6 +195,8 @@ all:
 - `fqdn`: Nome completo da máquina (usado no `/etc/hosts`)
 - `memory`: Memória RAM em MB
 - `cpus`: Número de vCPUs
+- `distro_base` (opcional): `debian` ou `almalinux`, para um host usar uma distro diferente da global
+- `disk_size`, `sobe_com_cluster` e `cgroup_*` (opcionais): descritos no cabeçalho de cada `configs/hosts-*.yml`
 
 ## Considerações Importantes
 
@@ -212,14 +214,14 @@ Todas as configurações utilizam a mesma faixa de rede (`172.24.0.0/24`). Se vo
 
 1. Editar o arquivo de configuração em `configs/`
 2. Editar `inventario/group_vars/all.yml` (variável `rede_cidr_hosts`)
-3. Ajustar o `Vagrantfile` se necessário
+3. Recriar a rede e as VMs (`make clean-cluster`), porque a rede `k8sbox_mgmt` do libvirt é criada com a faixa antiga
 
 ### Migração Entre Configurações
 
 **Importante:** Não é possível migrar um cluster ativo entre configurações. Para mudar de configuração:
 
 1. Fazer backup dos dados importantes (se houver)
-2. Destruir o cluster atual (`make destroy`)
+2. Remover as VMs atuais (`make clean-vms`)
 3. Configurar `CLUSTER = nova` no `config.mk` e ativar a configuração (`make init`)
 4. Provisionar novamente (`make k8s-in-a-box`)
 
@@ -256,12 +258,12 @@ make init
 
 | Comando | Descrição |
 |---------|-----------|
-| `make check-deps` | Valida se todas as dependências locais estão instaladas |
+| `make bootstrap` | Valida se o host tem o que o projeto precisa (binários, grupo `libvirt`, KVM, RAM e disco) |
 | `make init` | Ativa a configuração configurada no `config.mk` |
 | `make status` | Mostra a configuração ativa |
 | `make help` | Exibe ajuda completa do Makefile |
 | `make k8s-in-a-box` | Provisiona o cluster com a configuração ativa |
-| `make destroy` | Destroi o cluster atual |
+| `make clean-vms` | Remove as VMs do cluster atual (mantém chave SSH, PKI e cache) |
 
 ---
 

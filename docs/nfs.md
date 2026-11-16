@@ -10,7 +10,7 @@ O objetivo principal deste nó é prover um sistema de arquivos via rede que o c
 
 ### Instalação
 
-A instalação básica envolve a adição do pacote `nfs-utils` no sistema operacional base (AlmaLinux). Este pacote contém todos os binários necessários para que a máquina possa exportar diretórios para outras através do protocolo NFS. O serviço principal gerenciado pelo Ansible é o `nfs-server`.
+O pacote do servidor NFS vem do cloud-init, no primeiro boot da VM: `nfs-kernel-server` no Debian e `nfs-utils` no AlmaLinux. A role `infra-nfs` só confere se os comandos existem (como o `exportfs`) e configura o serviço `nfs-server`.
 
 ### Exportação de Diretórios
 

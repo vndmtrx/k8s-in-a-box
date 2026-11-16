@@ -15,7 +15,7 @@ O **k8s‑in‑a‑box** é um ambiente Kubernetes completo, construído de form
 ### Servidor NFS
 
 * **Função:** fornecer armazenamento persistente para o cluster, usado por um StorageClass dinâmico.
-* **Configuração:** utiliza `nfs-utils` para exportar o diretório `/srv/nfs/k8s`, configurado via template `/etc/exports`; o serviço `nfs-server` é mantido ativo.
+* **Configuração:** exporta o diretório `/srv/nfs/k8s`, configurado via template `/etc/exports`; o serviço `nfs-server` é mantido ativo. O pacote do servidor vem do cloud-init (`nfs-kernel-server` no Debian, `nfs-utils` no AlmaLinux).
 
 ### Managers (3 nós)
 
@@ -24,13 +24,13 @@ O **k8s‑in‑a‑box** é um ambiente Kubernetes completo, construído de form
 
   * **Etcd**: banco de dados distribuído com certificados configurados para mTLS, executando como Static Pod gerenciado pelo kubelet.
   * **Componentes do Control Node**: `kube‑apiserver`, `kube‑controller‑manager` e `kube‑scheduler`. São executados como **Static Pods** declarados no diretório `/etc/kubernetes/manifests` e gerenciados diretamente pelo Kubelet local (método padrão e único do cluster).
-  * **Componentes extras instalados:** `kubelet` e `containerd` / `CRI-O`, permitindo que os managers gerenciem os Static Pods locais e executem workloads se necessário.
-  * **SELinux:** política customizada de Type Enforcement (`k8s-custom-selinux`) compilada e carregada em cada nó. Para detalhes, consulte a página [SELinux e Kubernetes](./selinux.md).
+  * **Componentes extras instalados:** `kubelet` e `CRI-O` / `containerd`, permitindo que os managers gerenciem os Static Pods locais e executem workloads se necessário.
+  * **SELinux e AppArmor:** no AlmaLinux o SELinux fica em `permissive`; no Debian o AppArmor da imagem fica ligado. A política customizada (`k8s-custom-selinux`) existe, mas está desligada por flag. Para detalhes, consulte a página [SELinux e Kubernetes](./selinux.md).
 
 ### Workers (2 nós)
 
 * **Função:** executar os pods e workloads do usuário.
-* **Componentes instalados:** `kubelet` e `containerd`, com configuração de CNI, plugins instalados e política customizada de SELinux, mas sem os serviços de controle (`etcd` e API Server).
+* **Componentes instalados:** `kubelet` e o runtime de contêiner (`CRI-O` por padrão, ou `containerd`), com os plugins CNI, mas sem os serviços de controle (`etcd` e API Server).
 
 > 💡 O cluster não tem `kube-proxy`: o Cilium faz esse papel em eBPF.
 
@@ -53,21 +53,18 @@ A estrutura do cluster é enriquecida com diversos addons, instalados via Ansibl
 * **Vertical Pod Autoscaler (VPA):** analisa o uso de recursos e sugere/ajusta limites de recursos verticalmente para os contêineres dos Pods de forma dinâmica.
 * **Stack de Observabilidade (kube-prometheus-stack + Grafana):** coleta e armazena métricas detalhadas dos componentes do cluster (nós, pods, CoreDNS e control plane) no Prometheus e as visualiza em dashboards ricos pré-configurados no Grafana.
 
-## Automação com Vagrant, Makefile e definições de rede
+## Automação com libvirt, cloud-init, Makefile e definições de rede
 
-Para orquestrar as máquinas virtuais e simplificar a execução dos playbooks, o projeto utiliza **Vagrant** com provider **LibVirt** e um **Makefile** que expõe comandos úteis.
+Para criar as máquinas virtuais e simplificar a execução dos playbooks, o projeto usa o **libvirt** (KVM), o **cloud-init** e um **Makefile** que expõe comandos úteis. Os detalhes estão em [Provisionamento](./provisionamento.md).
 
-### Vagrantfile
+### VMs no libvirt
 
-O `Vagrantfile` lê o inventário Ansible ativo (`inventario/hosts.yml`, que é um symlink gerenciado pelo Makefile apontando para uma das configurações em `configs/hosts-*.yml`) e cria as VMs conforme os grupos e hosts definidos. Cada VM recebe:
+O playbook `ansible/provisiona.yml` (role `infra-vms`) lê o inventário Ansible ativo (`inventario/hosts.yml`, que é um symlink gerenciado pelo Makefile apontando para uma das configurações em `configs/hosts-*.yml`) e cria as VMs conforme os grupos e hosts definidos. Cada VM recebe:
 
-* **Nome, IP, memória e CPUs** a partir das variáveis `ansible_host`, `memory` e `cpus` do inventário.
-* **Chave SSH** gerada automaticamente, adicionada ao `authorized_keys` dos usuários vagrant.
-* **Provisionamento de Rede**
-    * **Rede LibVirt:** o provider define um rede de gerenciamento (192.168.250.0/24) e cria uma rede privada `k8sbox_mgmt` em modo NAT para os IPs do cluster.
-        * `eth0` (rede padrão do Vagrant) tem a rota padrão desativada.
-    * **Rede privada:** rede de acesso do cluster à internet e de acesso aos serviços do cluster, pelo usuário do host:
-        * `eth1` é configurada como `net_mgmt`, com IP fixo (ex.: `172.24.0.x`), gateway `172.24.0.1` e DNS públicos (`1.1.1.1,8.8.8.8`). O script de provisionamento usa `nmcli` para garantir que essa interface seja persistente.
+* **Nome, IP, memória e CPUs** a partir das variáveis `ansible_host`, `memory` e `cpus` do inventário. O domínio se chama `k8sbox-<host>`.
+* **Disco** como overlay qcow2 da imagem cloud da distro (`distro_base`), em `.target/vms/<host>/disco.qcow2`.
+* **Chave SSH** gerada automaticamente em `.target/cluster/ssh/`, entregue pelo cloud-init ao usuário `k8sbox`.
+* **Rede:** uma única placa na rede libvirt `k8sbox_mgmt` (NAT, `172.24.0.0/24`, sem DHCP). O cloud-init casa a placa pelo MAC, a renomeia para `mgmt0` e configura o IP fixo (ex.: `172.24.0.x`), o gateway `172.24.0.1` e os DNS públicos (`1.1.1.1` e `8.8.8.8`). O nome `mgmt0` é o mesmo nas duas distros.
 
 Assim, o cluster opera em uma faixa de IPs **172.24.0.0/24**, definida em `inventario/group_vars/all.yml` como `rede_cidr_hosts`.
 
@@ -86,14 +83,16 @@ O `Makefile` agiliza tarefas recorrentes:
 
 * `make init`: ativa a configuração de cluster definida em `config.mk` (ex: `CLUSTER = mini`)
 * `make status`: mostra qual configuração está atualmente ativa
-* `make k8s-in-a-box`: sobe todo o cluster (executa os dois playbooks completos).
-* `make cluster-up`: sobe todas as VMs via Vagrant.
+* `make bootstrap`: confere se o host tem o que o projeto precisa (o `make up` já o chama).
+* `make k8s-in-a-box`: sobe todo o cluster e grava os logs da execução em `.target/logs/`.
+* `make up`: cria e liga as VMs do cluster no libvirt (o `kubox` sobe com `make ops-up`).
+* `make ssh-<host>`: abre SSH numa VM (ex.: `make ssh-manager1`).
 * `make cluster`: executa o playbook do cluster (`cluster.yml`) com a tag `cluster`, automatizando a instalação completa.
-* `make cluster-<role>`: executa apenas uma role específica (ex.: `cluster-etcd`, `cluster-kubelet`, etc.).
+* `make infra` / `make control-plane`: executam só a parte pré-Kubernetes ou só o Kubernetes core.
 * `make ops`: aplica o playbook de operações `ops.yml` para configurar a rede (Cilium) e utilitários adicionais no host `kubox`.
 * `make exemplos`: aplica o playbook para exemplos de aplicações.
 * `make snapshot` / `make restore`: gerencia snapshots das VMs para facilitar restaurações de estado.
-* `make clean`: destrói as VMs e remove artefatos gerados.
+* `make clean-k8s`, `make clean-vms`, `make clean-cluster`, `make clean-all` e `make purge`: limpeza em camadas, do Kubernetes até o `.target` inteiro.
 
 ### Definições de Rede do Cluster
 
@@ -108,6 +107,6 @@ Essas redes, combinadas com o Cilium e com o load balancer HAProxy, permitem que
 
 # Conclusão
 
-Este documento apresentou uma visão geral da arquitetura do `k8s‑in‑a‑box`, descrevendo os componentes principais do cluster, os addons instalados e a infraestrutura de provisionamento com Vagrant, Makefile e as configurações de rede. O objetivo foi mostrar como cada elemento contribui para formar um ambiente Kubernetes completo, replicável e de fácil gestão.
+Este documento apresentou uma visão geral da arquitetura do `k8s‑in‑a‑box`, descrevendo os componentes principais do cluster, os addons instalados e a infraestrutura de provisionamento com libvirt, cloud-init, Makefile e as configurações de rede. O objetivo foi mostrar como cada elemento contribui para formar um ambiente Kubernetes completo, replicável e de fácil gestão.
 
-Nas demais páginas desta documentação, são explorados em detalhes o funcionamento e a configuração de cada serviço e addon, incluindo o balanceamento com HAProxy/Keepalived, o provisionamento persistente via NFS, a criação dos nós managers e workers (com seu runtime CRI-O/containerd e política customizada de SELinux) e a instalação completa dos addons de cluster.
+Nas demais páginas desta documentação, são explorados em detalhes o funcionamento e a configuração de cada serviço e addon, incluindo o balanceamento com HAProxy/Keepalived, o provisionamento persistente via NFS, a criação dos nós managers e workers (com seu runtime CRI-O/containerd) e a instalação completa dos addons de cluster.

@@ -1,5 +1,15 @@
 # SELinux e Kubernetes
-O **k8s-in-a-box** mantém o SELinux ativo em modo permissivo em todas as VMs do cluster. Diferentemente de muitos tutoriais e guias de instalação manual do Kubernetes que simplesmente desabilitam o SELinux, este projeto optou por mantê-lo ativo e desenvolver uma política customizada de Type Enforcement que resolve todos os alertas de segurança (AVCs) gerados pela operação normal do cluster.
+
+> ⚠️ **Estado atual (2026-11):** a política customizada descrita nesta página está **desligada** pela flag `selinux_politica_customizada: false` (`inventario/group_vars/all.yml`) e fica para uma fase futura. O código continua no projeto: com a flag em `true`, a role `k8s-kubelet` volta a compilar e carregar a política, e a rotular o kubelet e os plugins CNI.
+>
+> | Distro | Proteção do SO | Quem configura |
+> |---|---|---|
+> | AlmaLinux 10 | SELinux em modo `permissive`, sem a política customizada | cloud-init (`setenforce 0` e `/etc/selinux/config`) |
+> | Debian 13 | AppArmor da imagem, ligado, sem perfil customizado | a própria imagem |
+>
+> O resto da página descreve a política e vale para quando a flag for ligada, no AlmaLinux.
+
+O **k8s-in-a-box** mantém o SELinux ativo em modo permissivo nas VMs AlmaLinux. Diferentemente de muitos tutoriais e guias de instalação manual do Kubernetes que simplesmente desabilitam o SELinux, este projeto optou por mantê-lo ativo e desenvolver uma política customizada de Type Enforcement que resolve todos os alertas de segurança (AVCs) gerados pela operação normal do cluster.
 
 Esta página documenta as decisões de segurança tomadas, a estrutura da política customizada e como ela interage com os diferentes componentes do Kubernetes.
 
@@ -13,7 +23,7 @@ No contexto do **k8s-in-a-box**, o SELinux serve como:
 * **Proteção contra acessos indevidos a caminhos criticos do host**: como `/var/lib/etcd` (banco de dados do cluster), `/sys/fs/cgroup` (limites de recursos) e `/proc/net` (pilha de rede).
 * **Demonstração de boas praticas**: em ambientes de producao baseados em RHEL/AlmaLinux, o SELinux normalmente esta ativo. Mantê-lo no laboratório permite estudar e entender os ajustes necessarios.
 
-> 💡 O SELinux esta configurado em modo **permissivo** (`selinux: permissive` na role `infra-sistema`). Isso significa que ele registra violações nos logs de auditoria (AVCs) mas não bloqueia operações. A política customizada foi desenvolvida para que, ao mudar para modo **enforcing**, o cluster continue operando normalmente.
+> 💡 O SELinux está configurado em modo **permissivo** pelo cloud-init, no primeiro boot das VMs AlmaLinux. Isso significa que ele registra violações nos logs de auditoria (AVCs) mas não bloqueia operações. A política customizada foi desenvolvida para que, ao mudar para modo **enforcing**, o cluster continue operando normalmente.
 
 ## Camadas de confinamento
 
@@ -29,7 +39,7 @@ Essa separação garante que, por exemplo, um container de aplicação (`contain
 
 ## A política customizada (`k8s-custom-selinux`)
 
-O projeto inclui um módulo de política de Type Enforcement compilado e carregado automaticamente pelo Ansible durante a configuração do kubelet (role `k8s-kubelet`, task `08-selinux.yml`).
+O projeto inclui um módulo de política de Type Enforcement que o Ansible compila e carrega durante a configuração do kubelet (role `k8s-kubelet`, task `08-selinux.yml`), quando `selinux_politica_customizada` é `true`.
 
 O template da política esta em `ansible/k8s-kubelet/templates/k8s-custom-selinux.te.j2`.
 
@@ -84,14 +94,14 @@ Componentes de sistema que precisam de acesso de **escrita** a esses recursos (c
 
 ## O kubelet e seu contexto SELinux
 
-O kubelet é um caso especial. Ele não roda como container, mas como um serviço systemd direto no host. Suas configurações de SELinux são:
+O kubelet é um caso especial. Ele não roda como container, mas como um serviço systemd direto no host. Com `selinux_politica_customizada: true`, suas configurações de SELinux são:
 
 * **Binário**: instalado em `/usr/local/bin/kubelet` com o rótulo `bin_t` (via `setype: bin_t` na task do Ansible). Isso garante que o systemd reconheça o binário como um executável legítimo.
 * **Contexto de execução**: o unit file do systemd inclui a diretiva `SELinuxContext=system_u:system_r:unconfined_service_t:s0`, que força o kubelet a rodar no domínio `unconfined_service_t`. Esse domínio tem acesso amplo aos recursos do host, necessario porque o kubelet precisa gerenciar containers, montar volumes, configurar rede e interagir com o runtime.
 
 ### Plugins de CNI
 
-Os plugins de rede (CNI) são binários instalados em `/opt/cni/bin`. Após a instalação, o Ansible executa `restorecon -R /opt/cni/bin` para restaurar os rótulos de SELinux corretos nos binários, garantindo que o kubelet consiga executá-los sem alertas.
+Os plugins de rede (CNI) são binários instalados em `/opt/cni/bin`. Com a flag ligada, o Ansible executa `restorecon -R /opt/cni/bin` após a instalação, para restaurar os rótulos de SELinux corretos nos binários e garantir que o kubelet consiga executá-los sem alertas.
 
 ## Componentes do Control Plane em Modo Pod
 

@@ -10,7 +10,7 @@ Antes de receberem componentes Kubernetes, todos os nós do cluster (Managers e 
 
 * **Kernel e Rede:** Ajustes de sysctl, em especial a habilitação de roteamento de pacotes (`net.ipv4.ip_forward = 1`) e configurações no iptables para permitir o tráfego em bridge, vitais para os plugins de rede do K8s (CNI).
 * **Módulos:** Carregamento de módulos do kernel obrigatórios, como o `br_netfilter` e o `overlay`.
-* **Pacotes:** Instalação de utilitários como `curl`, `wget`, `conntrack` e `socat`, requeridos pelo Kubernetes.
+* **Pacotes:** utilitários como `conntrack`, `socat`, `nftables`, `iptables` e `skopeo` vêm do cloud-init, no primeiro boot da VM. A role só confere se os comandos existem.
 
 ---
 
@@ -53,8 +53,9 @@ Após ter o cérebro rodando, é hora de instanciar os "músculos". Embora os Ma
 
 1. **kubelet (role `k8s-kubelet`):**
    * O "agente" do Kubernetes. Ele lê os manifestos assinalados pelo scheduler e garante que os contêineres definidos neles estejam executando corretamente e de forma saudável.
-   * **Runtime:** A variável global `runtime_conteiner` define quem fará o peso pesado. Por padrão, o projeto instala e configura o **CRI-O**. Alternativamente, o **containerd** também está disponível para testes. Ambos implementam a interface CRI do Kubernetes.
-   * **SELinux:** A role do kubelet também é responsável por compilar e carregar a política customizada de SELinux (`k8s-custom-selinux`) em cada nó do cluster. O binário do kubelet é instalado com o rótulo `bin_t` e executa sob o contexto `unconfined_service_t` do SELinux. Para detalhes completos, consulte a página [SELinux e Kubernetes](./selinux.md).
+   * **Runtime:** A variável global `container_runtime` define quem fará o peso pesado. Por padrão, o projeto instala e configura o **CRI-O**. Alternativamente, o **containerd** (com o runc) também está disponível para testes. Ambos implementam a interface CRI do Kubernetes e vêm como pacote estático, com versão fixada (`versao_crio`, `versao_containerd`, `versao_runc`); a atualização automática do SO não os atualiza.
+   * **SELinux:** a role do kubelet tem o código da política customizada de SELinux (`k8s-custom-selinux`), mas ele só roda com `selinux_politica_customizada: true` (o padrão é `false`). Para detalhes, consulte a página [SELinux e Kubernetes](./selinux.md).
+   * **DNS:** quando o nó usa o `systemd-resolved` (Debian), o kubelet passa aos pods o `/run/systemd/resolve/resolv.conf`, com os servidores reais. Com o `/etc/resolv.conf` do stub `127.0.0.53`, o CoreDNS encaminharia as consultas para ele mesmo.
    * O Kubelet também usa certificados para se autenticar no API Server. Na inicialização do nó, se a PKI já estiver distribuída, ele sobe; em ambientes onde os certificados não foram pré-gerados (que o k8s-in-a-box simula), ele usa uma técnica de autorização para requisitar um certificado dinamicamente (`kubelet-bootstrap`).
 
 2. **Sem kube-proxy:**

@@ -5,10 +5,11 @@
 ## 📋 Progresso do Projeto
 
 ### Infraestrutura Base
-- [x] Configuração do Vagrant
+- [x] Criação das VMs no libvirt pelo Ansible (o Vagrant saiu em 2026-11)
 - [x] Configuração do Ansible
 - [x] Configuração da Rede
-- [x] Preparação do Sistema Base
+- [x] Preparação do Sistema Base (cloud-init)
+- [x] Duas distribuições: Debian 13 (padrão) e AlmaLinux 10
 
 ### 🔐 PKI (Public Key Infrastructure)
 - [x] Root CA do projeto
@@ -48,8 +49,8 @@
   - [x] Escolha do runtime (containerd/CRI-O)
   - [x] Instalação e configuração
 - [x] Instalação do kubelet
-- [x] Política customizada de SELinux (Type Enforcement)
-- [x] Configuração do kube-proxy (Migrado para DaemonSet em ops.yml)
+- [x] Política customizada de SELinux (Type Enforcement), hoje desligada por flag
+- [x] ~Configuração do kube-proxy~ (o Cilium substitui o kube-proxy)
 
 ### 🌐 Rede do Cluster
 - [x] Escolha do CNI Plugin
@@ -57,7 +58,7 @@
   - [x] Configuração da rede dos pods
   - [x] Configuração da rede dos serviços
 - [x] Instalação do CoreDNS
-- [x] Configuração do Kube-vip (L2 & Egress Gateway)
+- [x] ~Configuração do Kube-vip~ (os IPs de LoadBalancer vêm do LB IPAM do Cilium)
 - [x] Configuração do Gateway API
 - [x] Validação da rede
 
@@ -65,7 +66,10 @@
 - [x] Vertical Pod Autoscaler (VPA)
 - [x] Stack de Observabilidade (kube-prometheus-stack + Grafana)
 - [x] ServiceMonitor do CoreDNS integrado ao Prometheus
-- [x] Métricas do kube-proxy expostas para o Prometheus
+- [x] ~Métricas do kube-proxy expostas para o Prometheus~ (sem kube-proxy)
+
+### ✅ Validação
+- [x] Testes de conformidade com o Sonobuoy (469 testes, 0 falhas, nas duas distros)
 
 ### 📚 Documentação
 - [x] README do Projeto
