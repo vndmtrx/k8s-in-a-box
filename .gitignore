@@ -1,6 +1,3 @@
-# Vagrant
-.vagrant/
-
 # Tudo o que o projeto gera (cache, VMs, chaves, PKI, logs do Ansible e das execuções)
 /.target/
 

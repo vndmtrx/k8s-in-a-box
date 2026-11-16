@@ -164,11 +164,10 @@ arquivos-newlines: ## Adiciona quebra de linha no final dos arquivos que não po
 	find . -type f \
 	  -not -path "./.git/*" \
 	  -not -path "./.target/*" \
-	  -not -path "./.vagrant/*" \
 	  -exec sh -c '[ -n "$$(tail -c1 "$$1" 2>/dev/null)" ] && echo >> "$$1"' _ {} \;
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Gerenciamento de Máquinas Virtuais (Vagrant)
+# Gerenciamento de Máquinas Virtuais (libvirt, playbook provisiona.yml)
 # ──────────────────────────────────────────────────────────────────────────────
 
 up: garante-config bootstrap ## Cria e liga as VMs do cluster (menos as com sobe_com_cluster: false, como o kubox)
