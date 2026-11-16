@@ -11,12 +11,13 @@ assignees: ''
 <!-- Descreva o problema encontrado -->
 
 ## Onde aconteceu?
-<!-- No host ao executar o Vagrant? Em alguma VM específica? -->
+<!-- No host, ao criar as VMs (make up)? Em alguma VM específica? Em qual etapa do make k8s-in-a-box? -->
 
-## Ambiente do Host (se o problema for no Vagrant)
-- Sistema Operacional: 
-- Versão do Vagrant:
-- Provider (libvirt/virtualbox):
+## Ambiente
+- Sistema Operacional do host: 
+- Versões do libvirt e do QEMU:
+- Topologia (`CLUSTER`), `distro_base` e `container_runtime`:
+- Pasta de logs da execução (`.target/logs/AAAAMMDDhhmmss/`), se houver:
 
 ## Logs relevantes
 <!-- Cole aqui qualquer mensagem de erro ou output relevante -->

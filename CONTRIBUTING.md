@@ -14,10 +14,12 @@ Obrigado por seu interesse em contribuir com o projeto [K8s in a Box](https://gi
 ### Preparação do Ambiente
 1. Requisitos básicos:
    - Git
-   - Vagrant
-   - LibVirt
-   - Ansible
-   - Python 3.x
+   - libvirt com KVM e o firmware OVMF (UEFI)
+   - cloud-image-utils (ou genisoimage)
+   - Ansible (com a biblioteca Python `netaddr`)
+   - Python 3.x com o módulo `libvirt`
+
+   O `make bootstrap` confere tudo isso e diz o que falta.
 
 2. Clone o repositório:
    ```bash
@@ -46,9 +48,9 @@ Obrigado por seu interesse em contribuir com o projeto [K8s in a Box](https://gi
 
 1. **Teste suas alterações**:
    ```bash
-   make clean         # Destrua o ambiente atual
-   make k8s-in-a-box  # Recrie do zero
-   vagrant ssh kubox  # Acesse as ferramentas do cluster
+   make clean-vms     # Remova as VMs atuais
+   make k8s-in-a-box  # Recrie do zero (os logs ficam em .target/logs/)
+   make ssh-kubox     # Acesse as ferramentas do cluster
    ```
 
 2. **Envie um Pull Request**:
@@ -82,7 +84,7 @@ Obrigado por seu interesse em contribuir com o projeto [K8s in a Box](https://gi
 
 ## Problemas?
 
-- Use o ambiente padrão do Vagrant
+- Use as topologias de `configs/` e a distro padrão (`distro_base: debian`)
 - Certifique-se de destruir e recriar o ambiente ao testar
 - Documente erros encontrados
 - Abra uma issue descrevendo o problema

@@ -23,7 +23,8 @@ Este projeto serve como:
   - Certificados: 30 dias (`pki_validade_cert: 30`)
 
 ### Ambiente de Laboratório
-- Virtualização via Vagrant com LibVirt
+- Virtualização com libvirt (KVM), VMs criadas pelo Ansible e configuradas pelo cloud-init
+- UEFI com Secure Boot ligado nas VMs
 - Rede isolada (172.24.0.0/24)
 - Arquitetura em camadas:
   - Balanceador de carga frontal (HAProxy)
@@ -34,7 +35,7 @@ Este projeto serve como:
 ### Controle de Acesso
 - Demonstração de boas práticas:
   - Chaves Ed25519 para acesso SSH
-  - Usuário sem privilégios de root (vagrant)
+  - Usuário sem privilégios de root (k8sbox), com `sudo` para o Ansible
   - Elevação de privilégios configurada via Ansible
 - Observação: configurações simplificadas para ambiente de estudos
 
