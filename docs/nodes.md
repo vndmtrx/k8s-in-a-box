@@ -1,6 +1,24 @@
 # Plano de Controle e Nós de Trabalho
 
-A verdadeira essência do **k8s-in-a-box** reside na instalação artesanal do plano de controle (Control Plane / Managers) e dos nós de trabalho (Worker Nodes). O projeto provisiona os componentes centrais do control plane no modo de **Static Pods** gerenciados pelo `kubelet` a partir de manifestos em `/etc/kubernetes/manifests`, simulando de forma artesanal o fluxo de inicialização moderno executado pelo `kubeadm`.
+A verdadeira essência do **k8s-in-a-box** reside na instalação artesanal do plano de controle (Control Plane / Managers) e dos nós de trabalho (Worker Nodes). O projeto provisiona os componentes centrais do control plane no modo de **Static Pods** gerenciados pelo `kubelet` a partir de manifestos em `/opt/k8s-in-a-box/manifests`, simulando de forma artesanal o fluxo de inicialização moderno executado pelo `kubeadm`.
+
+---
+
+## Onde ficam os arquivos (`/opt/k8s-in-a-box`)
+
+Tudo o que é do Kubernetes num nó mora em `/opt/k8s-in-a-box`, sem link. Os dados ficam em `/var`, e os daemons do SO e o runtime ficam no lugar padrão.
+
+| Pasta | Conteúdo |
+|---|---|
+| `/opt/k8s-in-a-box/bin/` | `kubelet` e `crictl` (no PATH dos shells de login por `/etc/profile.d/k8s-in-a-box.sh`; com `sudo`, use o caminho inteiro) |
+| `/opt/k8s-in-a-box/manifests/` | manifestos dos Static Pods (`staticPodPath` do kubelet) |
+| `/opt/k8s-in-a-box/conf/<componente>/` | configuração e PKI de `etcd`, `kube-apiserver`, `kube-controller-manager` e `kube-scheduler`, montadas nos pods por `hostPath` |
+| `/opt/k8s-in-a-box/pki/` | CAs do cluster |
+| `/opt/k8s-in-a-box/kubelet/` | `kubelet-config.yml`, `kubelet.kubeconfig`, `kubelet.env` e `pki/` do kubelet |
+| `/opt/k8s-in-a-box/so/` | links para as configs dos daemons do SO: `kubelet.service`, `haproxy.cfg`, `keepalived.conf`, `exports`, sysctl, módulos, CRI-O, containerd, `crictl.yaml` e `/etc/cni/net.d` (só os que existem na VM) |
+| `/var/lib/etcd`, `/var/lib/kubelet` | dados do etcd e dos pods |
+
+Ficam no lugar padrão: o runtime (`/usr/local/bin/crio`, `/usr/libexec/crio`, `/usr/local/bin/containerd`, `/etc/crio`, `/etc/containerd`), o CNI (`/opt/cni/bin`, `/etc/cni/net.d`, que o Cilium grava) e as ferramentas do `kubox` (`/usr/local/bin`). As pastas montadas em pods (`conf/<componente>/`) não têm link dentro, porque o contêiner não enxerga o destino.
 
 ---
 

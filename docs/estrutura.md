@@ -23,7 +23,7 @@ O **k8s‑in‑a‑box** é um ambiente Kubernetes completo, construído de form
 * **Componentes instalados:**
 
   * **Etcd**: banco de dados distribuído com certificados configurados para mTLS, executando como Static Pod gerenciado pelo kubelet.
-  * **Componentes do Control Node**: `kube‑apiserver`, `kube‑controller‑manager` e `kube‑scheduler`. São executados como **Static Pods** declarados no diretório `/etc/kubernetes/manifests` e gerenciados diretamente pelo Kubelet local (método padrão e único do cluster).
+  * **Componentes do Control Node**: `kube‑apiserver`, `kube‑controller‑manager` e `kube‑scheduler`. São executados como **Static Pods** declarados no diretório `/opt/k8s-in-a-box/manifests` e gerenciados diretamente pelo Kubelet local (método padrão e único do cluster).
   * **Componentes extras instalados:** `kubelet` e `CRI-O` / `containerd`, permitindo que os managers gerenciem os Static Pods locais e executem workloads se necessário.
   * **SELinux e AppArmor:** no AlmaLinux o SELinux fica em `permissive`; no Debian o AppArmor da imagem fica ligado. A política customizada (`k8s-custom-selinux`) existe, mas está desligada por flag. Para detalhes, consulte a página [SELinux e Kubernetes](./selinux.md).
 

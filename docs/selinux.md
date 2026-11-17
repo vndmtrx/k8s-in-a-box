@@ -96,7 +96,7 @@ Componentes de sistema que precisam de acesso de **escrita** a esses recursos (c
 
 O kubelet é um caso especial. Ele não roda como container, mas como um serviço systemd direto no host. Com `selinux_politica_customizada: true`, suas configurações de SELinux são:
 
-* **Binário**: instalado em `/usr/local/bin/kubelet` com o rótulo `bin_t` (via `setype: bin_t` na task do Ansible). Isso garante que o systemd reconheça o binário como um executável legítimo.
+* **Binário**: instalado em `/opt/k8s-in-a-box/bin/kubelet` com o rótulo `bin_t` (via `setype: bin_t` na task do Ansible). Isso garante que o systemd reconheça o binário como um executável legítimo.
 * **Contexto de execução**: o unit file do systemd inclui a diretiva `SELinuxContext=system_u:system_r:unconfined_service_t:s0`, que força o kubelet a rodar no domínio `unconfined_service_t`. Esse domínio tem acesso amplo aos recursos do host, necessario porque o kubelet precisa gerenciar containers, montar volumes, configurar rede e interagir com o runtime.
 
 ### Plugins de CNI
@@ -108,7 +108,7 @@ Os plugins de rede (CNI) são binários instalados em `/opt/cni/bin`. Com a flag
 Os componentes do Control Plane do cluster são executados como contêineres (Static Pods) gerenciados pelo Kubelet:
 
 * **Etcd (Static Pod privilegiado - `spc_t`)**: Como o etcd precisa gravar diretamente no diretório do host `/var/lib/etcd` (que possui o rótulo genérico `var_lib_t`), seu manifesto é configurado com `privileged: true`. Isso faz com que o runtime de contêiner execute o etcd sob o domínio `spc_t` (Super Privileged Container), que não possui restrições de escrita no host.
-* **kube-apiserver, kube-controller-manager e kube-scheduler (Static Pods - `container_t`)**: Esses componentes rodam como contêineres normais, mas com privilégios específicos e privilégio de rede do host (`hostNetwork: true`). Eles montam diretórios de configuração do host em `/etc/kubernetes/conf/<componente>`, os quais são montados como `readOnly: true` (ou `readWrite` no caso de caminhos de PKI específicos) e contam com o confinamento padrão do SELinux.
+* **kube-apiserver, kube-controller-manager e kube-scheduler (Static Pods - `container_t`)**: Esses componentes rodam como contêineres normais, mas com privilégios específicos e privilégio de rede do host (`hostNetwork: true`). Eles montam diretórios de configuração do host em `/opt/k8s-in-a-box/conf/<componente>`, os quais são montados como `readOnly: true` (ou `readWrite` no caso de caminhos de PKI específicos) e contam com o confinamento padrão do SELinux.
 * **Cilium (DaemonSet - `spc_t`)**: Executa em todos os nós com privilégios para carregar programas eBPF e manipular o roteamento e os namespaces de rede do host. Ele também substitui o `kube-proxy`, que o projeto não instala.
 
 ## Verificação e troubleshooting
@@ -127,8 +127,8 @@ ausearch -m avc -ts recent
 
 Verificar o rótulo de um arquivo:
 ```bash
-ls -Z /usr/local/bin/kubelet
-# system_u:object_r:bin_t:s0 /usr/local/bin/kubelet
+ls -Z /opt/k8s-in-a-box/bin/kubelet
+# system_u:object_r:bin_t:s0 /opt/k8s-in-a-box/bin/kubelet
 ```
 
 Verificar o contexto de um processo:
