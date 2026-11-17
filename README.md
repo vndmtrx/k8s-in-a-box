@@ -161,12 +161,12 @@ As principais opções ficam em `inventario/group_vars/all.yml`:
 
 ## Início Rápido
 
-1. Instale os pré-requisitos do host (exemplo para Debian 13; em Fedora/AlmaLinux os nomes mudam, e o `make bootstrap` diz o que falta):
+1. Instale os pacotes do SO (exemplo para Debian 13). O `make bootstrap`, no passo 4, confere cada um e mostra o comando `apt` ou `dnf` com o que faltar:
 ```bash
-sudo apt install libvirt-daemon-system qemu-system-x86 qemu-utils ovmf cloud-image-utils python3-libvirt
+sudo apt install libvirt-daemon-system qemu-system-x86 qemu-utils ovmf cloud-image-utils python3-libvirt pipx
 sudo usermod -aG libvirt "$USER"   # depois, saia e entre de novo na sessão
-pipx install ansible && pipx inject ansible netaddr
 ```
+O Ansible, o `netaddr` e o `ansible-lint` não vêm do SO: o próprio projeto os instala com o `pipx`, em versões fixas, dentro de `.target/ferramentas` (sem `sudo` e sem mexer em outro Ansible que você tenha). Os alvos do `Makefile` usam essas ferramentas.
 
 2. Clone o repositório:
 ```bash
@@ -204,7 +204,8 @@ O projeto utiliza um sistema de configurações baseado em symlinks para facilit
 
 ### Comandos disponíveis
 
-- **Validar o host:** `make bootstrap` (binários, collection `community.libvirt`, módulo Python `libvirt`, grupo `libvirt`, `/dev/kvm`, acesso do QEMU à pasta `.target/`, RAM e disco livres para a topologia). O `make up` roda o `bootstrap` antes de criar as VMs.
+- **Validar o host:** `make bootstrap`. Ele confere os pacotes do SO e mostra o comando que instala os que faltam; depois instala as ferramentas do projeto (`make ferramentas`) e confere a collection `community.libvirt`, o grupo `libvirt`, o `/dev/kvm`, o acesso do QEMU à pasta `.target/` e a RAM e o disco livres para a topologia. O `make up` roda o `bootstrap` antes de criar as VMs.
+- **Ferramentas do projeto:** `make ferramentas` instala (ou confere) o Ansible, o `netaddr` e o `ansible-lint` em `.target/ferramentas`, nas versões `VERSAO_ANSIBLE`, `VERSAO_ANSIBLE_CORE`, `VERSAO_NETADDR` e `VERSAO_ANSIBLE_LINT` do `Makefile`. Para usá-las fora do `make`: `export PATH="$PWD/.target/ferramentas/bin:$PATH"`.
 - **Ativar uma configuração:** `make init` (carrega e ativa o tipo configurado em `config.mk`)
 - **Ver configuração ativa:** `make status`
 - **Ajuda completa:** `make help`
@@ -338,6 +339,7 @@ Tudo o que o projeto gera fica em `.target/`, na raiz do repositório (ignorada 
 .target/
 ├── cache/        # imagens base qcow2, binários e tar das imagens OCI do cluster
 ├── cluster/      # chave SSH (ssh/) e PKI (pki/) deste cluster
+├── ferramentas/  # Ansible, netaddr e ansible-lint do projeto (pipx); bin/ entra no PATH do make
 ├── vms/<host>/   # disco.qcow2 (overlay), seed.iso, nvram.fd, console.log, cloud-init/
 ├── ansible/      # ansible.log, cache de fatos e sockets SSH
 └── logs/         # uma pasta por execução do make k8s-in-a-box
@@ -369,7 +371,7 @@ A limpeza é feita em camadas. Cada alvo apaga também o que os de cima apagam:
 | `make clean-vms` | as VMs e `.target/vms` | recria as VMs (o cloud-init baixa os pacotes do SO) |
 | `make clean-cluster` | + a rede `k8sbox_mgmt`, a chave SSH, a PKI e `.target/ansible` | + gera chave e PKI novas |
 | `make clean-all` | + o cache (imagens base, binários e imagens OCI) | baixa tudo de novo |
-| `make purge` | + os logs: o `.target` inteiro | recomeça do zero |
+| `make purge` | + os logs e as ferramentas: o `.target` inteiro | recomeça do zero (o `bootstrap` reinstala as ferramentas) |
 
 > ⚠️ `clean-all` e `purge` apagam o cache (~2 GiB para baixar de novo), e o `purge` apaga também os logs das execuções anteriores.
 

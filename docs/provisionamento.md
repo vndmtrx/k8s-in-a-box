@@ -123,7 +123,8 @@ Digitar comandos longos de Ansible repetidamente gera atrito e abre espaço para
 | Alvo | O que faz |
 |---|---|
 | `make init` / `make status` | ativa e mostra a topologia (symlink `inventario/hosts.yml` para `configs/hosts-<CLUSTER>.yml`) |
-| `make bootstrap` | confere o host: binários, collection `community.libvirt`, módulo Python `libvirt`, grupo `libvirt`, `/dev/kvm`, acesso do QEMU ao `.target`, RAM e disco |
+| `make bootstrap` | confere os pacotes do SO (e mostra o `apt`/`dnf` do que falta), instala as ferramentas do projeto e confere a collection `community.libvirt`, o grupo `libvirt`, `/dev/kvm`, o acesso do QEMU ao `.target`, a RAM e o disco |
+| `make ferramentas` | instala o Ansible, o `netaddr` e o `ansible-lint` com o `pipx` em `.target/ferramentas`, em versões fixas |
 | `make up` / `make down` | cria e liga as VMs (menos o `kubox`) / desliga sem remover |
 | `make ops-up` | cria e liga só o `kubox` |
 | `make ssh-<host>` | abre SSH numa VM (ex.: `make ssh-manager1`) |

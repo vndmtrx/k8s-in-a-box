@@ -16,10 +16,10 @@ Obrigado por seu interesse em contribuir com o projeto [K8s in a Box](https://gi
    - Git
    - libvirt com KVM e o firmware OVMF (UEFI)
    - cloud-image-utils (ou genisoimage)
-   - Ansible (com a biblioteca Python `netaddr`)
    - Python 3.x com o módulo `libvirt`
+   - pipx
 
-   O `make bootstrap` confere tudo isso e diz o que falta.
+   O `make bootstrap` confere tudo isso, diz o que falta e instala o Ansible, o `netaddr` e o `ansible-lint` do projeto em `.target/ferramentas`.
 
 2. Clone o repositório:
    ```bash

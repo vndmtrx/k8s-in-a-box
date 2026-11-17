@@ -10,6 +10,17 @@ CFG = ./ansible/.ansible.cfg
 
 -include config.mk
 
+# Ferramentas Python do projeto (Ansible, netaddr, ansible-lint), instaladas pelo pipx
+# em .target/ferramentas, sem sudo e sem mexer no Ansible que o usuário já tenha. O
+# `make bootstrap` as instala; os alvos do Makefile as acham primeiro no PATH.
+FERRAMENTAS := $(CURDIR)/$(TARGET)/ferramentas
+export PATH := $(FERRAMENTAS)/bin:$(PATH)
+VERSAO_ANSIBLE ?= 14.4.0
+VERSAO_ANSIBLE_CORE ?= 2.21.6
+VERSAO_NETADDR ?= 1.3.0
+VERSAO_ANSIBLE_LINT ?= 26.11.0
+PIPX_PROJETO = PIPX_HOME="$(FERRAMENTAS)/pipx" PIPX_BIN_DIR="$(FERRAMENTAS)/bin" PIPX_MAN_DIR="$(FERRAMENTAS)/man" pipx
+
 # Variáveis para controlar o tipo dos clusters
 # Opções de CLUSTER: (mini, completo)
 CLUSTER ?= mini
@@ -84,19 +95,59 @@ status: ## Mostra a configuração de cluster ativa
 		echo "Nenhuma configuração ativa (será usado $(CLUSTER))"; \
 	fi
 
-bootstrap: garante-config ## Valida pré-requisitos do host (binários, collection, permissões, .target e recursos) antes de provisionar
+ferramentas: ## Instala o Ansible, o netaddr e o ansible-lint do projeto em .target/ferramentas (pipx, sem sudo)
+	@command -v pipx >/dev/null 2>&1 || { echo "Erro: o pipx não está instalado. Rode 'make bootstrap' para ver o comando que instala os pacotes do SO."; exit 1; }
+	@mkdir -p "$(FERRAMENTAS)"
+	@set -euo pipefail; \
+	log="$(FERRAMENTAS)/pipx.log"; \
+	pipx_quieto() { $(PIPX_PROJETO) "$$@" >"$$log" 2>&1 || { cat "$$log"; exit 1; }; }; \
+	versao() { $(PIPX_PROJETO) runpip ansible show "$$1" 2>/dev/null | sed -n 's/^Version: //p'; }; \
+	if [ "$$(versao ansible)" != "$(VERSAO_ANSIBLE)" ]; then \
+		echo "Instalando o ansible $(VERSAO_ANSIBLE) em $(TARGET)/ferramentas (pipx)..."; \
+		pipx_quieto install --force --include-deps "ansible==$(VERSAO_ANSIBLE)"; \
+	fi; \
+	for p in "ansible-core $(VERSAO_ANSIBLE_CORE) " "netaddr $(VERSAO_NETADDR) " "ansible-lint $(VERSAO_ANSIBLE_LINT) --include-apps"; do \
+		set -- $$p; \
+		if [ "$$(versao $$1)" != "$$2" ]; then \
+			echo "Instalando o $$1 $$2..."; \
+			pipx_quieto inject --force $${3:-} ansible "$$1==$$2"; \
+		fi; \
+	done; \
+	echo "Ferramentas do projeto: ansible $$(versao ansible) (core $$(versao ansible-core)), netaddr $$(versao netaddr), ansible-lint $$(versao ansible-lint)"
+
+bootstrap: garante-config ## Valida o host: pede os pacotes do SO que faltam, instala as ferramentas do projeto e confere permissões, .target e recursos
 	@echo "Validando pré-requisitos do host para o provisionamento libvirt/Ansible..."
 	@set -euo pipefail; \
+	falta_deb=""; falta_rpm=""; \
+	precisa() { \
+		echo -n "  - $$1: "; \
+		if eval "$$2" >/dev/null 2>&1; then echo "OK"; \
+		else echo "FALTA"; falta_deb="$$falta_deb $$3"; falta_rpm="$$falta_rpm $$4"; fi; \
+	}; \
+	echo "Pacotes do SO:"; \
+	precisa "virsh (libvirt)" "command -v virsh" libvirt-daemon-system libvirt; \
+	precisa "QEMU/KVM" "command -v qemu-system-x86_64 || test -x /usr/libexec/qemu-kvm" qemu-system-x86 qemu-kvm; \
+	precisa "qemu-img" "command -v qemu-img" qemu-utils qemu-img; \
+	precisa "OVMF (UEFI)" "compgen -G '/usr/share/OVMF/OVMF_CODE*.fd' || compgen -G '/usr/share/edk2/ovmf/OVMF_CODE*.fd'" ovmf edk2-ovmf; \
+	precisa "cloud-localds ou genisoimage" "command -v cloud-localds || command -v genisoimage" cloud-image-utils genisoimage; \
+	precisa "ssh-keygen" "command -v ssh-keygen" openssh-client openssh-clients; \
+	precisa "módulo Python libvirt (/usr/bin/python3)" "/usr/bin/python3 -c 'import libvirt'" python3-libvirt python3-libvirt; \
+	precisa "pipx" "command -v pipx" pipx pipx; \
+	if [ -n "$$falta_deb" ]; then \
+		echo ""; echo "Erro: faltam pacotes do SO. Instale-os e rode 'make bootstrap' de novo:"; \
+		if command -v apt-get >/dev/null 2>&1; then echo "  sudo apt install$$falta_deb"; \
+		elif command -v dnf >/dev/null 2>&1; then echo "  sudo dnf install$$falta_rpm"; \
+		else echo "  Debian/Ubuntu: sudo apt install$$falta_deb"; echo "  Fedora/AlmaLinux: sudo dnf install$$falta_rpm"; fi; \
+		exit 1; \
+	fi; \
+	$(MAKE) --no-print-directory ferramentas; \
+	echo "Ambiente:"; \
 	falha() { echo ""; echo "Erro: pré-requisito ausente -> $$1"; exit 1; }; \
 	\
-	for bin in virsh qemu-img ssh-keygen ansible; do \
+	for bin in ansible ansible-playbook ansible-inventory; do \
 		echo -n "  - Binário $$bin: "; \
-		if command -v $$bin >/dev/null 2>&1; then echo "OK"; else echo "NÃO ENCONTRADO"; falha "o binário '$$bin' não está instalado"; fi; \
+		if command -v $$bin >/dev/null 2>&1; then echo "OK ($$(command -v $$bin))"; else echo "NÃO ENCONTRADO"; falha "o binário '$$bin' não está instalado (rode 'make ferramentas')"; fi; \
 	done; \
-	echo -n "  - Binário cloud-localds/genisoimage: "; \
-	if command -v cloud-localds >/dev/null 2>&1; then echo "OK (cloud-localds)"; \
-	elif command -v genisoimage >/dev/null 2>&1; then echo "OK (genisoimage)"; \
-	else echo "NÃO ENCONTRADO"; falha "nem 'cloud-localds' (pacote cloud-image-utils) nem 'genisoimage' (pacote genisoimage) foram encontrados"; fi; \
 	\
 	echo -n "  - Collection community.libvirt: "; \
 	if ansible-galaxy collection list 2>/dev/null | grep -q '^community\.libvirt '; then echo "OK"; \
@@ -189,7 +240,7 @@ ssh-%: garante-config
 #   clean-vms      VMs e $(TARGET)/vms
 #   clean-cluster  + $(TARGET)/cluster (chave SSH, PKI), $(TARGET)/ansible e a rede
 #   clean-all      + $(TARGET)/cache (imagens, binários, imagens OCI)
-#   purge          + $(TARGET)/logs, ou seja, o $(TARGET) inteiro
+#   purge          + $(TARGET)/logs e $(TARGET)/ferramentas, ou seja, o $(TARGET) inteiro
 # ──────────────────────────────────────────────────────────────────────────────
 
 clean-k8s: garante-config ## Volta as VMs ao snapshot 'so': apaga o Kubernetes e mantém o SO pronto
@@ -207,7 +258,7 @@ clean-cluster: clean-vms ## clean-vms + remove a rede, a chave SSH, a PKI e o es
 clean-all: clean-cluster ## clean-cluster + apaga o cache (imagens base, binários e imagens OCI); mantém os logs
 	rm -rf "$(TARGET)/cache"
 
-purge: clean-all ## clean-all + apaga os logs: remove o .target inteiro e permite recomeçar do zero
+purge: clean-all ## clean-all + apaga os logs e as ferramentas: remove o .target inteiro e permite recomeçar do zero
 	rm -rf "$(TARGET)"
 
 # ──────────────────────────────────────────────────────────────────────────────
