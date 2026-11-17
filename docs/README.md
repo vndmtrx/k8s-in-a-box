@@ -13,6 +13,7 @@ Bem-vindo à documentação do projeto **k8s‑in‑a-box**. Nesta seção são 
 1. **[SELinux e Kubernetes](./selinux.md)**: documenta o SELinux no AlmaLinux e o AppArmor no Debian, e a política customizada de SELinux, hoje desligada por flag.
 1. **[Addons e serviços complementares](./addons.md)**: Cilium (CNI, LoadBalancer e Gateway API), CoreDNS, Metrics Server, NFS Subdir Provisioner, Headlamp Dashboard, VPA e stack de observabilidade (kube-prometheus-stack + Grafana).
 1. **[Provisionamento: libvirt, cloud-init, Ansible e Makefile](./provisionamento.md)**: descreve a criação das VMs no libvirt, o cloud-init, as diferenças entre as distros (e como acrescentar uma terceira) e os alvos do Makefile.
+1. **[Resiliência da rede do nó](./resiliencia.md)**: o que quebra e o que segue quando as regras de firewall de um nó somem ou quando um nó reinicia, como voltar, e o teste de 1 hora com várias interrupções.
 1. **[Aplicações de Exemplo e Segurança](./exemplos.md)**: detalha os deploys de demonstração (`hello-app` e `contador`), a arquitetura para execução não-root (rootless) e a validação de 100% de conformidade no Popeye.
 
 ## Sobre

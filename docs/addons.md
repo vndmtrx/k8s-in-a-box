@@ -23,6 +23,10 @@ O projeto usa o **Cilium**:
 
 > O Canal (Calico + Flannel), que vinha acompanhado de kube-proxy, Kube-vip e Traefik, saiu do projeto em 2026-11. Manter dois caminhos de rede dobrava a matriz de testes, e o caminho alternativo quebrava sem ninguém notar.
 
+### Resiliência da rede do nó
+
+O masquerade e o TPROXY do Cilium rodam em eBPF (`bpf.masquerade` e `bpf.tproxy`). O que acontece quando as regras de firewall de um nó somem (`nft flush ruleset`, ou o `nftables.service` ao parar), quando um nó reinicia, e como voltar, está em [Resiliência da rede do nó](./resiliencia.md).
+
 ## CoreDNS
 
 Assim que a rede sobe, o **CoreDNS** é instalado (gerenciado via Helm e implantado no namespace `kube-system`).
