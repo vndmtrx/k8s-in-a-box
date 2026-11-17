@@ -152,12 +152,18 @@ def tamanho_pasta(pasta):
 
 
 def variaveis_do_projeto():
-    """Lê distro_base e container_runtime do inventário ativo."""
+    """Lê distro_base e container_runtime do inventário ativo.
+
+    O --playbook-dir faz o ansible-inventory ler também ansible/group_vars e
+    ansible/host_vars, como o ansible-playbook lê. Sem ele, uma troca de distro ou de
+    runtime feita ali (como na matriz e na conformidade) não aparecia no maquina.txt.
+    """
     inventario = os.path.join(RAIZ, "inventario", "hosts.yml")
     if not os.path.exists(inventario):
         return {}
     try:
-        saida = subprocess.run(["ansible-inventory", "-i", inventario, "--list"],
+        saida = subprocess.run(["ansible-inventory", "-i", inventario,
+                                "--playbook-dir", os.path.join(RAIZ, "ansible"), "--list"],
                                capture_output=True, text=True, timeout=60, cwd=RAIZ)
         hostvars = json.loads(saida.stdout)["_meta"]["hostvars"]
     except (OSError, subprocess.TimeoutExpired, ValueError, KeyError):
