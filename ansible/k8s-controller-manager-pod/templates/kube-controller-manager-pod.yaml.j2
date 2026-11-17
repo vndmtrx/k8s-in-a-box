@@ -70,6 +70,6 @@ spec:
       type: RuntimeDefault
   volumes:
   - hostPath:
-      path: /etc/kubernetes/conf/kube-controller-manager
+      path: {{ pasta_opt_conf }}/kube-controller-manager
       type: DirectoryOrCreate
     name: kube-controller-manager-conf

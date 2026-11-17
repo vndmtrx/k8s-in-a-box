@@ -8,8 +8,8 @@ Wants=network-online.target
 Type=notify
 
 WorkingDirectory=/var/lib/kubelet
-EnvironmentFile=-/var/lib/kubelet/kubelet.env
-ExecStart=/usr/local/bin/kubelet $KUBELET_OPTS
+EnvironmentFile=-{{ pasta_opt_kubelet }}/kubelet.env
+ExecStart={{ pasta_opt_bin }}/kubelet $KUBELET_OPTS
 {% if selinux_politica_customizada | bool %}
 SELinuxContext=system_u:system_r:unconfined_service_t:s0
 {% endif %}

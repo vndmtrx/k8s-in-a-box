@@ -6,3 +6,18 @@ comandos_so_base:
   - wget
   - nano
   - mtr
+
+# Configs dos daemons do SO que ganham link em /opt/k8s-in-a-box/so/ (só as que existem).
+links_so:
+  - { nome: hosts, real: /etc/hosts }
+  - { nome: haproxy.cfg, real: /etc/haproxy/haproxy.cfg }
+  - { nome: keepalived.conf, real: /etc/keepalived/keepalived.conf }
+  - { nome: exports, real: /etc/exports }
+  - { nome: sysctl-99-kubernetes.conf, real: /etc/sysctl.d/99-kubernetes.conf }
+  - { nome: modules-load-kubernetes.conf, real: /etc/modules-load.d/kubernetes.conf }
+  - { nome: kubelet.service, real: /etc/systemd/system/kubelet.service }
+  - { nome: crio-10-kubernetes.conf, real: /etc/crio/crio.conf.d/10-kubernetes.conf }
+  - { nome: containerd-config.toml, real: /etc/containerd/config.toml }
+  - { nome: containerd.service, real: /etc/systemd/system/containerd.service }
+  - { nome: crictl.yaml, real: /etc/crictl.yaml }
+  - { nome: cni-net.d, real: /etc/cni/net.d }

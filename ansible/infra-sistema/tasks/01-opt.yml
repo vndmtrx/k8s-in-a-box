@@ -1,0 +1,14 @@
+# ansible/infra-sistema/tasks/01-opt.yml
+---
+# /opt/k8s-in-a-box existe em todas as VMs. Nos nós do cluster, o k8s-cluster-base cria as
+# pastas do Kubernetes; em todas, so/ guarda os links para as configs dos daemons do SO.
+- name: Criar /opt/k8s-in-a-box e a pasta so/
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ pasta_opt }}"
+    - "{{ pasta_opt_so }}"

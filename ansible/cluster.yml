@@ -117,3 +117,17 @@
         - cluster-kube-scheduler-pod
         - cluster-kube-scheduler
         - cluster
+
+- name: Links das configs do SO em /opt/k8s-in-a-box/so
+  hosts:
+    - todos
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Criar os links
+      ansible.builtin.import_role:
+        name: infra-sistema
+        tasks_from: links-so.yml
+  tags:
+    - cluster-links-so
+    - cluster

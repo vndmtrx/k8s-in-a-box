@@ -2,13 +2,13 @@
 ---
 - name: Verificar se o executável do kubelet já está instalado na VM
   ansible.builtin.stat:
-    path: "/usr/local/bin/kubelet"
+    path: "{{ pasta_opt_bin }}/kubelet"
   register: kubelet_bin
 
 - name: Copiar kubelet para a VM
   ansible.builtin.copy:
     src: "{{ pasta_cache_binarios }}/{{ download_artefatos['kubelet-bin'].arquivo }}"
-    dest: "/usr/local/bin/kubelet"
+    dest: "{{ pasta_opt_bin }}/kubelet"
     mode: "0755"
     setype: "{{ 'bin_t' if selinux_politica_customizada | bool else omit }}"
   when: not kubelet_bin.stat.exists
@@ -22,7 +22,7 @@
     mode: "{{ item.mode | default('0750') }}"
   loop:
     # Configuração
-    - { path: /etc/kubernetes/manifests, owner: root, group: root, mode: "0755" }
+    - { path: "{{ pasta_opt_manifestos }}", owner: root, group: root, mode: "0755" }
     - { path: /var/lib/kubelet }
 
     # Plugins CSI e storage

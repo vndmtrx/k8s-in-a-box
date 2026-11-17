@@ -68,7 +68,7 @@
     home: /var/lib/kubernetes
     create_home: false
 
-- name: Criar diretório de configuração
+- name: Criar as pastas do Kubernetes em /opt/k8s-in-a-box
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -76,8 +76,31 @@
     group: kubernetes
     mode: "0750"
   loop:
-    - /etc/kubernetes
-    - /etc/kubernetes/pki
+    - "{{ pasta_opt_conf }}"
+    - "{{ pasta_opt_pki }}"
+
+# bin/ e manifests/ ficam legíveis por todos; kubelet/ guarda a chave do kubelet.
+- name: Criar as pastas do kubelet em /opt/k8s-in-a-box
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ pasta_opt_bin }}", mode: "0755" }
+    - { path: "{{ pasta_opt_manifestos }}", mode: "0755" }
+    - { path: "{{ pasta_opt_kubelet }}", mode: "0750" }
+
+- name: Pôr o bin/ do projeto no PATH dos shells de login
+  ansible.builtin.copy:
+    dest: /etc/profile.d/k8s-in-a-box.sh
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      # Binários do Kubernetes (kubelet, crictl) ficam em {{ pasta_opt_bin }}.
+      case ":$PATH:" in *":{{ pasta_opt_bin }}:"*) ;; *) PATH="$PATH:{{ pasta_opt_bin }}" ;; esac
 
 - name: Criar diretório de trabalho do Kubernetes
   ansible.builtin.file:

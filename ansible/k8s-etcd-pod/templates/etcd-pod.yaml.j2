@@ -70,6 +70,6 @@ spec:
       type: DirectoryOrCreate
     name: etcd-data
   - hostPath:
-      path: /etc/kubernetes/conf/etcd
+      path: {{ pasta_opt_conf }}/etcd
       type: DirectoryOrCreate
     name: etcd-conf

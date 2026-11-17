@@ -1,0 +1,23 @@
+# ansible/infra-sistema/tasks/links-so.yml
+---
+# Roda no fim do cluster.yml. Para cada config de daemon do SO que existe na VM, cria um
+# link em /opt/k8s-in-a-box/so/ apontando para o arquivo real, que fica no lugar padrão.
+# Nenhum desses links fica dentro de pasta montada em pod.
+- name: Ver quais configs do SO existem nesta VM
+  ansible.builtin.stat:
+    path: "{{ item.real }}"
+  loop: "{{ links_so }}"
+  loop_control:
+    label: "{{ item.real }}"
+  register: links_so_stat
+
+- name: Criar os links em so/
+  ansible.builtin.file:
+    src: "{{ item.item.real }}"
+    dest: "{{ pasta_opt_so }}/{{ item.item.nome }}"
+    state: link
+    owner: root
+    group: root
+  loop: "{{ links_so_stat.results | selectattr('stat.exists') | list }}"
+  loop_control:
+    label: "{{ item.item.nome }} -> {{ item.item.real }}"

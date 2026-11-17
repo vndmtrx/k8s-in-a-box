@@ -71,7 +71,7 @@
 
 - name: Verificar se as imagens do Kubernetes já existem localmente no runtime
   ansible.builtin.command:
-    cmd: "/usr/local/bin/crictl images -q {{ item.value }}"
+    cmd: "{{ pasta_opt_bin }}/crictl images -q {{ item.value }}"
   register: crictl_image_check
   changed_when: false
   loop: "{{ imagens_kubernetes }}"

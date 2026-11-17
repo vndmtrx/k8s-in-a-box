@@ -94,6 +94,6 @@ spec:
       type: RuntimeDefault
   volumes:
   - hostPath:
-      path: /etc/kubernetes/conf/kube-apiserver
+      path: {{ pasta_opt_conf }}/kube-apiserver
       type: DirectoryOrCreate
     name: kube-apiserver-conf

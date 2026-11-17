@@ -12,21 +12,21 @@
 - name: Configurar parâmetros de inicialização do kubelet
   ansible.builtin.template:
     src: kubelet.env.j2
-    dest: /var/lib/kubelet/kubelet.env
+    dest: "{{ pasta_opt_kubelet }}/kubelet.env"
     mode: "0644"
   notify: Recarregar systemd e reiniciar kubelet
 
 - name: Criar arquivo de configuração principal do kubelet
   ansible.builtin.template:
     src: kubelet-config.yml.j2
-    dest: /var/lib/kubelet/kubelet-config.yml
+    dest: "{{ pasta_opt_kubelet }}/kubelet-config.yml"
     mode: "0644"
   notify: Recarregar systemd e reiniciar kubelet
 
 - name: Criar kubeconfig com configs de usuário para o kubelet
   ansible.builtin.template:
     src: kubelet.kubeconfig.j2
-    dest: /var/lib/kubelet/kubelet.kubeconfig
+    dest: "{{ pasta_opt_kubelet }}/kubelet.kubeconfig"
     mode: "0644"
   notify: Recarregar systemd e reiniciar kubelet
 

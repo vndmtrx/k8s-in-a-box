@@ -9,9 +9,9 @@ authentication:
     enabled: true
     cacheTTL: 0s
   x509:
-    clientCAFile: /var/lib/kubelet/pki/{{ pki_cas.kubernetes.path_cert | basename }}
-tlsCertFile: /var/lib/kubelet/pki/{{ pki_certs.kubelet.path_cert | format(inventory_hostname) | basename }}
-tlsPrivateKeyFile: /var/lib/kubelet/pki/{{ pki_certs.kubelet.path_chave | format(inventory_hostname) | basename }}
+    clientCAFile: {{ pasta_opt_kubelet }}/pki/{{ pki_cas.kubernetes.path_cert | basename }}
+tlsCertFile: {{ pasta_opt_kubelet }}/pki/{{ pki_certs.kubelet.path_cert | format(inventory_hostname) | basename }}
+tlsPrivateKeyFile: {{ pasta_opt_kubelet }}/pki/{{ pki_certs.kubelet.path_chave | format(inventory_hostname) | basename }}
 
 # Autorização
 authorization:
@@ -41,7 +41,7 @@ shutdownGracePeriodCriticalPods: 0s
 rotateCertificates: true
 
 # Pods estáticos
-staticPodPath: /etc/kubernetes/manifests
+staticPodPath: {{ pasta_opt_manifestos }}
 
 # Status e relatórios
 nodeStatusReportFrequency: 0s

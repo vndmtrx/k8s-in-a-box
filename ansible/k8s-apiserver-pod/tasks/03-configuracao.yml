@@ -3,7 +3,7 @@
 - name: Criar Static Pod do kube-apiserver
   ansible.builtin.template:
     src: kube-apiserver-pod.yaml.j2
-    dest: /etc/kubernetes/manifests/kube-apiserver.yaml
+    dest: "{{ pasta_opt_manifestos }}/kube-apiserver.yaml"
     owner: root
     group: root
     mode: "0644"

@@ -2,3 +2,6 @@
 ---
 - name: Instalação do Sistema Base
   ansible.builtin.import_tasks: '00-base.yml'
+
+- name: Pastas de /opt/k8s-in-a-box
+  ansible.builtin.import_tasks: '01-opt.yml'

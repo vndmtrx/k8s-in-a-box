@@ -10,7 +10,7 @@
 
 - name: Garantir diretório de configuração do Etcd
   ansible.builtin.file:
-    path: /etc/kubernetes/conf/etcd
+    path: "{{ pasta_opt_conf }}/etcd"
     state: directory
     owner: root
     group: root

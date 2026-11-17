@@ -2,7 +2,7 @@
 ---
 - name: Verificar se o executável do crictl já está instalado na VM
   ansible.builtin.stat:
-    path: "/usr/local/bin/crictl"
+    path: "{{ pasta_opt_bin }}/crictl"
   register: crictl_bin
 
 - name: Instalar o crictl se não existir
@@ -24,7 +24,7 @@
     - name: Instalar binários do crictl
       ansible.builtin.copy:
         src: "/tmp/{{ item }}"
-        dest: "/usr/local/bin/{{ item }}"
+        dest: "{{ pasta_opt_bin }}/{{ item }}"
         mode: "0755"
         remote_src: true
       loop:

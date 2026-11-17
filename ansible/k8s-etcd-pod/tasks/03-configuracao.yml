@@ -2,7 +2,7 @@
 ---
 - name: Garantir diretório de manifestos do Kubernetes
   ansible.builtin.file:
-    path: /etc/kubernetes/manifests
+    path: "{{ pasta_opt_manifestos }}"
     state: directory
     owner: root
     group: root
@@ -11,7 +11,7 @@
 - name: Criar arquivo de configuração do Etcd
   ansible.builtin.template:
     src: etcd.conf.yml.j2
-    dest: /etc/kubernetes/conf/etcd/etcd.conf.yml
+    dest: "{{ pasta_opt_conf }}/etcd/etcd.conf.yml"
     owner: root
     group: root
     mode: "0640"
@@ -19,7 +19,7 @@
 - name: Criar Static Pod do Etcd
   ansible.builtin.template:
     src: etcd-pod.yaml.j2
-    dest: /etc/kubernetes/manifests/etcd.yaml
+    dest: "{{ pasta_opt_manifestos }}/etcd.yaml"
     owner: root
     group: root
     mode: "0644"

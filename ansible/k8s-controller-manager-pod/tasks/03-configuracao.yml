@@ -3,7 +3,7 @@
 - name: Criar kubeconfig com configuração para o kube-controller-manager
   ansible.builtin.template:
     src: kube-controller-manager.kubeconfig.j2
-    dest: /etc/kubernetes/conf/kube-controller-manager/kube-controller-manager.kubeconfig
+    dest: "{{ pasta_opt_conf }}/kube-controller-manager/kube-controller-manager.kubeconfig"
     owner: root
     group: root
     mode: "0640"
@@ -11,7 +11,7 @@
 - name: Criar Static Pod do kube-controller-manager
   ansible.builtin.template:
     src: kube-controller-manager-pod.yaml.j2
-    dest: /etc/kubernetes/manifests/kube-controller-manager.yaml
+    dest: "{{ pasta_opt_manifestos }}/kube-controller-manager.yaml"
     owner: root
     group: root
     mode: "0644"

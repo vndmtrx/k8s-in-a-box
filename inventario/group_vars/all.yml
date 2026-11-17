@@ -28,6 +28,22 @@ pasta_ansible: "{{ pasta_target }}/ansible"
 pasta_logs: "{{ pasta_target }}/logs"
 
 #############################################################
+### /opt/k8s-in-a-box: arquivos do Kubernetes DENTRO das VMs ###
+#############################################################
+
+# Binários, configurações, PKI e manifestos do Kubernetes moram aqui, sem link. Os dados
+# ficam em /var (/var/lib/etcd, /var/lib/kubelet, imagens do runtime). O runtime (CRI-O,
+# containerd), o CNI (/opt/cni/bin, /etc/cni/net.d) e os daemons do SO ficam no lugar
+# padrão; os arquivos de configuração deles ganham um link em so/.
+pasta_opt: "/opt/k8s-in-a-box"
+pasta_opt_bin: "{{ pasta_opt }}/bin"                # kubelet, crictl
+pasta_opt_manifestos: "{{ pasta_opt }}/manifests"   # staticPodPath do kubelet
+pasta_opt_conf: "{{ pasta_opt }}/conf"              # um diretório por static pod (hostPath)
+pasta_opt_pki: "{{ pasta_opt }}/pki"                # CAs do cluster
+pasta_opt_kubelet: "{{ pasta_opt }}/kubelet"        # config, kubeconfig, env e pki do kubelet
+pasta_opt_so: "{{ pasta_opt }}/so"                  # links para as configs dos daemons do SO
+
+#############################################################
 ### Configurações para as role relacionadas ao kubernetes ###
 #############################################################
 

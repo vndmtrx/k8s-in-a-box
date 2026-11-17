@@ -2,7 +2,7 @@
 ---
 - name: Reiniciar Static Pod do kube-scheduler
   ansible.builtin.file:
-    path: /etc/kubernetes/manifests/kube-scheduler.yaml
+    path: "{{ pasta_opt_manifestos }}/kube-scheduler.yaml"
     state: touch
     modification_time: now
     owner: root

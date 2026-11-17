@@ -66,6 +66,6 @@ spec:
       type: RuntimeDefault
   volumes:
   - hostPath:
-      path: /etc/kubernetes/conf/kube-scheduler
+      path: {{ pasta_opt_conf }}/kube-scheduler
       type: DirectoryOrCreate
     name: kube-scheduler-conf

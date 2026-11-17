@@ -2,7 +2,7 @@
 ---
 - name: Garantir diretório de configuração isolado do kube-controller-manager
   ansible.builtin.file:
-    path: /etc/kubernetes/conf/kube-controller-manager
+    path: "{{ pasta_opt_conf }}/kube-controller-manager"
     state: directory
     owner: root
     group: root
@@ -10,7 +10,7 @@
 
 - name: Garantir diretório de manifestos do Kubernetes
   ansible.builtin.file:
-    path: /etc/kubernetes/manifests
+    path: "{{ pasta_opt_manifestos }}"
     state: directory
     owner: root
     group: root

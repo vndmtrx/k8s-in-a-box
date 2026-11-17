@@ -2,7 +2,7 @@
 ---
 - name: Reiniciar Static Pod do kube-apiserver
   ansible.builtin.file:
-    path: /etc/kubernetes/manifests/kube-apiserver.yaml
+    path: "{{ pasta_opt_manifestos }}/kube-apiserver.yaml"
     state: touch
     modification_time: now
     owner: root
