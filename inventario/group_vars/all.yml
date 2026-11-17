@@ -325,10 +325,12 @@ distro_base: "debian"
 # do conteúdo exato da base, então nunca use "latest". Para trocar de versão,
 # mude url, arquivo e checksum_url juntos e recrie as VMs (make clean-vms).
 imagens_base:
+  # Use a pasta da versão menor (10.3), não a /10/: a /10/ só guarda a imagem mais nova e
+  # perde a fixada a cada lançamento. Quando sair a 10.4, a 10.3 vai para vault.almalinux.org.
   almalinux:
-    url: "https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/AlmaLinux-10-GenericCloud-10.2-20261109.0.x86_64.qcow2"
-    arquivo: "AlmaLinux-10-GenericCloud-10.2-20261109.0.x86_64.qcow2"
-    checksum_url: "https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/CHECKSUM"
+    url: "https://repo.almalinux.org/almalinux/10.3/cloud/x86_64/images/AlmaLinux-10-GenericCloud-10.3-20261116.0.x86_64.qcow2"
+    arquivo: "AlmaLinux-10-GenericCloud-10.3-20261116.0.x86_64.qcow2"
+    checksum_url: "https://repo.almalinux.org/almalinux/10.3/cloud/x86_64/images/CHECKSUM"
     checksum_algo: "sha256"
   # Imagem `generic` (não a `genericcloud`): traz o kernel completo, com todos os módulos.
   debian:
