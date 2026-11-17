@@ -7,6 +7,13 @@ k8sServicePort: "{{ porta_kube_apiserver }}"
 # --- kube-proxy replacement via eBPF
 kubeProxyReplacement: "true"
 
+# --- Masquerade e TPROXY em eBPF, em vez de regras do iptables. Assim, apagar as regras
+# do nó (nft flush ruleset, ou o nftables.service ao parar) não derruba a saída dos pods
+# para fora do cluster nem a entrada da Gateway API pelo Envoy do nó (ver docs/addons.md).
+bpf:
+  masquerade: true
+  tproxy: true
+
 # --- IPAM em modo 'kubernetes' (Alinhado com a rede_cidr_pods do cluster)
 ipam:
   mode: "kubernetes"
