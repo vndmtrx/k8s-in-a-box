@@ -362,12 +362,13 @@ libvirt_python: "/usr/bin/python3"
 libvirt_prefixo: "k8sbox"
 
 # Tamanho máximo padrão do overlay quando o host não define disk_size. O overlay só
-# ocupa no host o que a VM grava. Os nós de suporte (loadbalancers, nfs, kubox) ficam
-# com este valor; o grupo `cluster` (managers e workers) usa 30G em configs/hosts-*.yml.
-# Não use menos que 10G: é o tamanho virtual da imagem base do AlmaLinux (a do Debian
-# tem 3G). Os 15G dão folga sobre esse piso.
+# ocupa no host o que a VM grava. Cada topologia define o do grupo `cluster` em
+# configs/hosts-*.yml (10G na mini, 15G na completo); os nós de suporte e o kubox usam
+# este valor. 10G é o piso: é o tamanho virtual da imagem base do AlmaLinux (a do Debian
+# tem 3G). Medido em 2026-11-17 (completo, sem conformidade): o maior uso dentro de uma
+# VM foi 5,5 GiB num worker; nos nós de suporte, ~1,1 GiB.
 # Coerente com o default DISK_SIZE_DEFAULT do Makefile.
-disk_size_default: "15G"
+disk_size_default: "10G"
 
 # Habilita a virtualização aninhada (nested) no XML do domínio.
 cpu_nested: true

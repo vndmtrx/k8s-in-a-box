@@ -7,7 +7,7 @@ linha separada por espaços:
     <ram_total_mib> <disco_total_gib> <numero_de_hosts>
 
 RAM vem de `memory` (MiB) de cada host. O disco vem de `disk_size` por host,
-caindo no default global (variável de ambiente DISK_SIZE_DEFAULT, padrão 15G)
+caindo no default global (variável de ambiente DISK_SIZE_DEFAULT, padrão 10G)
 quando o host não define o seu. Usado pelo alvo `make bootstrap`.
 
 A variável de ambiente HOSTS_EXISTENTES (nomes separados por espaço) lista hosts
@@ -48,7 +48,7 @@ def main():
     if not hostvars:
         sys.exit("inventário efetivo sem hosts")
 
-    disco_default = os.environ.get("DISK_SIZE_DEFAULT", "15G")
+    disco_default = os.environ.get("DISK_SIZE_DEFAULT", "10G")
     existentes = set(os.environ.get("HOSTS_EXISTENTES", "").split())
     ram_mib = 0
     disco_gib = 0.0

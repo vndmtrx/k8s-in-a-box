@@ -4,8 +4,8 @@
 # libvirt). Todos têm default global em inventario/group_vars/all.yml e só
 # precisam aparecer aqui quando o host foge do padrão:
 #
-#   disk_size              tamanho máximo do overlay qcow2 do host. Padrão: 15G
-#                          (disk_size_default); o grupo `cluster` usa 30G, abaixo.
+#   disk_size              tamanho máximo do overlay qcow2 do host. Padrão: 10G
+#                          (disk_size_default); o grupo `cluster` usa 15G, abaixo.
 #                          O overlay só ocupa no host o que a VM grava.
 #
 #   sobe_com_cluster       false tira o host do `make up` (só `make ops-up` o cria).
@@ -103,9 +103,10 @@ all:
           cpus: 4
 
     cluster:
-      # Managers e workers guardam as imagens dos pods e os dados do etcd.
+      # Managers e workers guardam as imagens dos pods e os dados do etcd. Na completo,
+      # 15G dão folga às imagens que a conformidade completa baixa nos workers.
       vars:
-        disk_size: "30G"
+        disk_size: "15G"
       children:
         managers: {}
         workers: {}

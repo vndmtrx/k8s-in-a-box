@@ -25,7 +25,7 @@ LIBVIRT_URI ?= qemu:///system
 # Prefixo dos domínios no libvirt (igual a libvirt_prefixo em inventario/group_vars/all.yml)
 VM_PREFIXO ?= k8sbox
 # Tamanho de disco padrão por VM quando o host não define disk_size no inventário
-DISK_SIZE_DEFAULT ?= 15G
+DISK_SIZE_DEFAULT ?= 10G
 
 # Variável para controlar verbosidade (VERBOSE=v, VERBOSE=vv, VERBOSE=vvv)
 VERBOSE ?=
